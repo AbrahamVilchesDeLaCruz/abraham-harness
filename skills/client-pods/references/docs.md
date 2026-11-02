@@ -2,28 +2,22 @@
 
 ## Related Skills
 
-| Skill | Por qué leerla |
+| Skill | Why read it |
 |---|---|
-| `client-container-presentational` | Contrato Container/Component — responsabilidades y prohibiciones |
-| `client-api` | Capa api/: api-model, api.ts, mapper |
-| `client-query` | TanStack Query hooks dentro de api.ts |
-| `client-hooks` | Cuándo y cómo extraer hooks del Container |
-| `client-testing` | Cómo testear el Component y el Container |
+| `client-container-presentational` | Container/Component contract — responsibilities and prohibitions |
+| `client-api` | api/ layer: api-model, api.ts, mapper |
+| `client-query` | Server-state hooks inside api.ts |
+| `client-hooks` | When and how to extract hooks from the Container |
+| `client-testing` | How to test the Component and the Container |
 
-## External Documentation
+## Decision: Why pods instead of feature folders
 
-- [React — File Structure](https://react.dev/learn/thinking-in-react) — React oficial sobre cómo organizar componentes
-- [TanStack Query — Overview](https://tanstack.com/query/latest/docs/framework/react/overview) — conceptos base de fetching
-- [Vite — Path Aliases](https://vitejs.dev/config/resolve-resolve-alias) — configuración de `@/` alias
+Pods place everything related to a feature in a single directory, including the data layer (api/). This reduces the number of files to search when working on a feature and makes it more obvious what can be deleted when a feature disappears.
 
-## Decision: Por qué pods en lugar de feature folders
-
-Los pods colocan todo lo relacionado a una feature en un único directorio, incluyendo la capa de datos (api/). Esto reduce el número de archivos a buscar cuando se trabaja en una feature y hace más obvio qué puede eliminarse cuando una feature desaparece.
-
-La alternativa (separar por tipo: `components/`, `hooks/`, `services/`) dispersa el código relacionado y dificulta el razonamiento sobre qué pertenece a qué feature.
+The alternative (separating by type: `components/`, `hooks/`, `services/`) scatters related code and makes it harder to reason about what belongs to which feature.
 
 ## Internal Docs
 
-| Doc | Contenido relevante |
+| Doc | Relevant content |
 |---|---|
-| `docs/engineering/frontend-architecture.md` | Arquitectura de pods completa: estructura, naming, reglas — **lectura obligatoria antes de crear un pod** |
+| `docs/engineering/frontend-architecture.md` | Full pod architecture: structure, naming, rules — **mandatory reading before creating a pod** |

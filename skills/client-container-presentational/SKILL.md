@@ -1,6 +1,6 @@
 ---
 name: client-container-presentational
-description: "Trigger: Al crear o modificar Containers y Components en pods, definir el contrato de props, o separar lógica de UI. Contrato Container/Component, responsabilidades, prohibiciones en apps/client/."
+description: "Trigger: When creating or changing Containers and Components in pods, defining the props contract, or separating logic from UI. Container/Component contract, responsibilities, prohibitions in apps/client/."
 license: Apache-2.0
 metadata:
   author: AbrahamVilchesDeLaCruz
@@ -9,75 +9,78 @@ metadata:
 
 ## Activation Contract
 
-Usa esta skill al crear o modificar Containers y Components en pods, definir el contrato de props, o separar lógica de UI en `apps/client/`.
+Use this skill when creating or changing Containers and Components in pods, defining the props contract, or separating logic from UI in `apps/client/`.
 
-El patrón central del cliente. Cada pod tiene dos piezas obligatorias: **Container** y **Component**.
+The central pattern of the client. Each pod has two mandatory pieces: **Container** and **Component**.
 
 ## Hard Rules
 
-### Container (`*Container.tsx`)
+### Container (`*Container.{view}`)
 
-La **puerta de entrada al mundo exterior** del pod.
+The pod's **gateway to the outside world**.
 
-Responsabilidades exclusivas:
+Exclusive responsibilities:
 
-- Data binding: `useQuery` / `useMutation` de TanStack Query
-- Routing: `useParams`, `useLocation`, `useNavigate`, `useSearchParams`
-- Contexto global: Zustand store, `useContext`
-- Callbacks que disparan mutations o navegación
-- `useMemo` para derivar parámetros de query (nunca `useState` para valores derivados)
+- Data binding: server-state queries and mutations
+- Routing: route params, location, navigation, search params
+- Global context: client state store, global context
+- Callbacks that trigger mutations or navigation
+- Memoization to derive query params (never local state for derived values)
 
-Prohibiciones:
+Prohibitions:
 
-- ❌ `useState` de UI (modals, tooltips, filtros visuales)
-- ❌ JSX complejo — solo renderiza `<{Feature}Component />` con props
-- ❌ `useEffect` salvo sync trivial hacia afuera
-- ❌ Transformaciones de datos (eso es el mapper)
+- ❌ UI local state (modals, tooltips, visual filters)
+- ❌ Complex markup — renders only `<{Feature}Component />` with props
+- ❌ Effects, except a trivial sync outward
+- ❌ Data transformations (that is the mapper's job)
 
-### Component (`*Component.tsx`)
+### Component (`*Component.{view}`)
 
-El **dueño de la UI**: estado visual, ciclo de vida, composición.
+The **owner of the UI**: visual state, lifecycle, composition.
 
-Responsabilidades:
+Responsibilities:
 
-- Estado de UI: `useState` para modals, tooltips, filtros, toggles
-- `useEffect` para sincronizar estado de UI local
-- `useRef` para componentes de terceros, scroll, focus
-- Composición: renderiza sub-componentes de `components/`
-- Consume hooks del pod (`hooks/`) para encapsular lógica de UI compleja
+- UI state: local state for modals, tooltips, filters, toggles
+- Effects to sync local UI state
+- Refs for third-party components, scroll, focus
+- Composition: renders sub-components from `components/`
+- Consumes the pod's hooks (`hooks/`) to encapsulate complex UI logic
 
-Prohibiciones:
+Prohibitions:
 
-- ❌ `useQuery` / `useMutation` — no hace fetch de datos
-- ❌ `useParams`, `useNavigate`, `useLocation` — no accede a routing
-- ❌ Zustand store ni `useContext` global
-- ❌ Lógica de negocio — solo presentación y estado de UI
+- ❌ Server-state queries and mutations — it does not fetch data
+- ❌ Route params, navigation, location — it does not access routing
+- ❌ Client state store or global context
+- ❌ Business logic — only presentation and UI state
 
-### Contrato de props
+### Props contract
 
-- Siempre declarar una interface explícita para las props del Component.
-- El Component nunca sabe cómo se ejecuta una acción — solo recibe callbacks.
+- Always declare an explicit interface for the Component's props.
+- The Component never knows how an action runs — it only receives callbacks.
 
 ## Decision Gates
 
-| Archivo | Líneas aprox. | Si lo supera |
+| File | Approx. lines | If it exceeds them |
 |---|---|---|
-| Container | ~40–80 líneas | Si el Container supera 80 líneas, probablemente tiene lógica de UI que no le corresponde. |
-| Component | ~80–150 líneas | Si el Component supera 150 líneas, probablemente hay hooks del pod por extraer. |
+| Container | ~40–80 lines | If the Container exceeds 80 lines, it probably has UI logic that does not belong to it. |
+| Component | ~80–150 lines | If the Component exceeds 150 lines, there are probably pod hooks to extract. |
 
 ## Execution Steps
 
-1. Usa el template de `assets/container.template.md` al crear un Container + Component nuevo.
-2. Reparte cada pieza según las Hard Rules; la forma de cada archivo, el contrato visual y el flujo de callbacks están en `references/patterns.md`.
-3. Comprueba el tamaño de cada archivo con la tabla de Decision Gates.
+1. Use the template in `assets/container.template.md` when creating a new Container + Component.
+2. Distribute each piece according to the Hard Rules; the shape of each file, the visual contract and the callback flow are in `references/patterns.md`.
+3. Check the size of each file with the Decision Gates table.
 
 ## Output Contract
 
-Un `*Container.tsx` que solo renderiza `<{Feature}Component />` con props y un `*Component.tsx` con su interface de props explícita, ambos dentro de los límites de las Hard Rules.
+A `*Container.{view}` that renders only `<{Feature}Component />` with props and a `*Component.{view}` with its explicit props interface, both within the limits of the Hard Rules.
 
 ## References
 
-- [`references/patterns.md`](references/patterns.md) — ejemplos de Container y Component, Props interface, contrato visual y flujo de callbacks.
-- [`assets/container.template.md`](assets/container.template.md) — template al crear un Container + Component nuevo.
-- [`references/docs.md`](references/docs.md) — Lee `references/docs.md` para el rationale del patrón y docs externos.
-- Referencia completa: `docs/engineering/frontend-architecture.md`
+- [`references/patterns.md`](references/patterns.md) — examples of Container and Component, Props interface, visual contract and callback flow.
+- [`assets/container.template.md`](assets/container.template.md) — template for creating a new Container + Component.
+- [`references/docs.md`](references/docs.md) — Read `references/docs.md` for the pattern rationale and external docs.
+- Full reference: `docs/engineering/frontend-architecture.md`
+- Load the project's stack skill for views (`stack-react`) and read its `references/client-container-presentational.md`.
+- Load the project's stack skill for server state (`stack-tanstack-query`) and read its `references/client-container-presentational.md`.
+- Load the project's stack skill for tests (`stack-vitest`) and read its `references/client-container-presentational.md`.

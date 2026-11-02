@@ -1,20 +1,21 @@
 # client-container-presentational — Patterns
 
-## Container (`*Container.tsx`)
+## Container (`*Container.{view}`)
 
-### Ejemplo
+### Example
+
+Framework-free shape; the stack reference for views shows the original.
 
 ```tsx
-// ProductsContainer.tsx
+// ProductsContainer.{view}
 export const ProductsContainer = () => {
-  const { deckId } = useParams<{ deckId: string }>();
-  const [page, setPage] = useState(1);
+  // categoryId comes from the stack's routing primitive; page and setPage from its local state primitive.
 
-  // TanStack Query — data binding
-  const { data: products, isLoading } = useProducts({ deckId, page });
-  const { mutate: deleteProduct } = useDeleteProduct();
+  // Server state — data binding
+  const { data: products, isLoading } = useProducts({ categoryId, page });
+  const { execute: deleteProduct } = useDeleteProduct();
 
-  // Callback que dispara mutation
+  // Callback that triggers a mutation
   const handleDelete = (id: string) => deleteProduct({ id });
 
   return (
@@ -28,11 +29,11 @@ export const ProductsContainer = () => {
 };
 ```
 
-## Component (`*Component.tsx`)
+## Component (`*Component.{view}`)
 
 ### Props interface
 
-Siempre declarar una interface explícita para las props del Component:
+Always declare an explicit interface for the Component's props:
 
 ```tsx
 interface ProductsComponentProps {
@@ -43,22 +44,24 @@ interface ProductsComponentProps {
 }
 ```
 
-### Ejemplo
+### Example
+
+Framework-free shape; the stack reference for views shows the original.
 
 ```tsx
-// ProductsComponent.tsx
+// ProductsComponent.{view}
 export const ProductsComponent = ({
   products,
   isLoading,
   onDelete,
   onPageChange,
 }: ProductsComponentProps) => {
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  // selectedId and setSelectedId come from the stack's local state primitive.
   const [filters, filterHandlers] = useProductFilters();
 
   return (
     <div>
-      <ProductToolbar filters={filters} onFilter={filterHandlers.setDifficulty} />
+      <ProductToolbar filters={filters} onFilter={filterHandlers.setSize} />
       <ProductGrid
         products={products}
         isLoading={isLoading}
@@ -76,18 +79,18 @@ export const ProductsComponent = ({
 };
 ```
 
-## Contrato visual
+## Visual contract
 
 ```
 ┌─────────────────────────────────────────────┐
 │               Container                      │
-│  (useQuery, useMutation, useParams,         │
-│   Zustand, callbacks)                       │
+│  (queries, mutations, route params,         │
+│   store, callbacks)                         │
 │                                              │
 │   ┌─────────────────────────────────────┐   │
 │   │           Component                  │   │
-│   │  (useState UI, useEffect, useRef,   │   │
-│   │   hooks del pod)                    │   │
+│   │  (UI state, effects, refs,          │   │
+│   │   pod hooks)                        │   │
 │   │                                      │   │
 │   │  ┌──────────┐  ┌──────────────────┐ │   │
 │   │  │ Toolbar  │  │  FilterChips     │ │   │
@@ -102,15 +105,15 @@ export const ProductsComponent = ({
 └─────────────────────────────────────────────┘
 ```
 
-## Flujo de callbacks
+## Callback flow
 
-El Component nunca sabe cómo se ejecuta una acción — solo recibe callbacks:
+The Component never knows how an action runs — it only receives callbacks:
 
 ```
 Container                          Component
 ─────────                          ─────────
 handleDelete = (id) =>             onDelete(id)  ← prop
   deleteProduct({ id })          ↑
-                                   llama al callback
-                            mutation ejecutada en Container
+                                   calls the callback
+                            mutation executed in Container
 ```

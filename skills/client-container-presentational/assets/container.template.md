@@ -1,6 +1,6 @@
 # Container / Component Template
 
-## Container — `{PodName}Container.tsx`
+## Container — `{PodName}Container.{view}`
 
 ```tsx
 import { use{PodName}s } from './api/{pod-name}.api';
@@ -15,14 +15,14 @@ export function {PodName}Container() {
 
   // 2. All event handlers here
   const handleCreate = async (input: Create{PodName}Input) => {
-    await create{PodName}Mutation.mutateAsync(input);
+    await create{PodName}Mutation.execute(input);
   };
 
   const handleDelete = async (id: string) => {
-    // await delete{PodName}Mutation.mutateAsync(id);
+    // await delete{PodName}Mutation.execute(id);
   };
 
-  // 3. Minimal JSX — just delegates to Component
+  // 3. Minimal view markup — just delegates to Component
   return (
     <{PodName}Component
       {podName}s={{podName}s ?? []}
@@ -35,7 +35,7 @@ export function {PodName}Container() {
 }
 ```
 
-## Component — `{PodName}Component.tsx`
+## Component — `{PodName}Component.{view}`
 
 ```tsx
 import type { {PodName}VM, Create{PodName}Input } from './{pod-name}.types';
@@ -77,18 +77,18 @@ export function {PodName}Component({
 
 | Rule | Container | Component |
 |---|---|---|
-| TanStack Query hooks | ✅ Yes | ❌ Never |
-| `useState` for UI state | ❌ Avoid | ✅ Yes |
+| Server-state hooks | ✅ Yes | ❌ Never |
+| Local state for UI state | ❌ Avoid | ✅ Yes |
 | Event handlers (data ops) | ✅ Yes | ❌ Never |
-| JSX complexity | ❌ Minimal | ✅ Full UI |
+| Markup complexity | ❌ Minimal | ✅ Full UI |
 | Props | Receives none | Receives all data + callbacks |
-| Test approach | RTL + MSW | RTL with mocked props |
+| Test approach | View renderer + HTTP interception | View renderer with mocked props |
 
 ## Checklist
 
-- [ ] Container has zero styling / JSX beyond the Component call
-- [ ] Component has zero `useQuery`, `useMutation`, `fetch` calls
+- [ ] Container has zero styling / markup beyond the Component call
+- [ ] Component has zero server-state queries, mutations or `fetch` calls
 - [ ] Every user interaction in Component calls a prop callback
 - [ ] Component props are fully typed with explicit `type Props = {...}`
 - [ ] Loading and error states handled in Component (not Container)
-- [ ] Container handles async errors (try/catch or mutation `onError`)
+- [ ] Container handles async errors (try/catch or the mutation's error callback)

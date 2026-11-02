@@ -1,0 +1,136 @@
+# client-container-presentational with React
+
+The concept skill `client-container-presentational` defines the rules. This file maps them to React.
+
+## Container (`*Container.tsx`)
+
+Exclusive responsibilities:
+
+- Routing: `useParams`, `useLocation`, `useNavigate`, `useSearchParams`
+- Global context: Zustand store, `useContext`
+- `useMemo` to derive query params (never `useState` for derived values)
+
+Prohibitions:
+
+- ❌ `useState` for UI (modals, tooltips, visual filters)
+- ❌ Complex JSX — renders only `<{Feature}Component />` with props
+- ❌ `useEffect`, except a trivial sync outward
+
+### Example
+
+```tsx
+// ProductsContainer.tsx
+export const ProductsContainer = () => {
+  const { categoryId } = useParams<{ categoryId: string }>();
+  const [page, setPage] = useState(1);
+
+  // TanStack Query — data binding
+  const { data: products, isLoading } = useProducts({ categoryId, page });
+  const { mutate: deleteProduct } = useDeleteProduct();
+
+  // Callback that triggers a mutation
+  const handleDelete = (id: string) => deleteProduct({ id });
+
+  return (
+    <ProductsComponent
+      products={products ?? []}
+      isLoading={isLoading}
+      onDelete={handleDelete}
+      onPageChange={setPage}
+    />
+  );
+};
+```
+
+## Component (`*Component.tsx`)
+
+Responsibilities:
+
+- UI state: `useState` for modals, tooltips, filters, toggles
+- `useEffect` to sync local UI state
+- `useRef` for third-party components, scroll, focus
+
+Prohibitions:
+
+- ❌ `useParams`, `useNavigate`, `useLocation` — it does not access routing
+- ❌ Zustand store or global `useContext`
+
+### Example
+
+```tsx
+// ProductsComponent.tsx
+export const ProductsComponent = ({
+  products,
+  isLoading,
+  onDelete,
+  onPageChange,
+}: ProductsComponentProps) => {
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [filters, filterHandlers] = useProductFilters();
+
+  return (
+    <div>
+      <ProductToolbar filters={filters} onFilter={filterHandlers.setSize} />
+      <ProductGrid
+        products={products}
+        isLoading={isLoading}
+        onSelect={setSelectedId}
+        onDelete={onDelete}
+      />
+      {selectedId && (
+        <ProductDetailPopup
+          id={selectedId}
+          onClose={() => setSelectedId(null)}
+        />
+      )}
+    </div>
+  );
+};
+```
+
+## Visual contract
+
+```
+┌─────────────────────────────────────────────┐
+│               Container                      │
+│  (useQuery, useMutation, useParams,         │
+│   Zustand, callbacks)                       │
+│                                              │
+│   ┌─────────────────────────────────────┐   │
+│   │           Component                  │   │
+│   │  (useState UI, useEffect, useRef,   │   │
+│   │   pod hooks)                        │   │
+│   │                                      │   │
+│   │  ┌──────────┐  ┌──────────────────┐ │   │
+│   │  │ Toolbar  │  │  FilterChips     │ │   │
+│   │  └──────────┘  └──────────────────┘ │   │
+│   │  ┌──────────────────────────────────┐│   │
+│   │  │           Grid                   ││   │
+│   │  └──────────────────────────────────┘│   │
+│   │  ┌──────────┐  ┌──────────────────┐ │   │
+│   │  │  Popup   │  │    Tooltip       │ │   │
+│   │  └──────────┘  └──────────────────┘ │   │
+│   └─────────────────────────────────────┘   │
+└─────────────────────────────────────────────┘
+```
+
+## Contract rules (summary)
+
+| Rule | Container | Component |
+|---|---|---|
+| TanStack Query hooks | ✅ Yes | ❌ Never |
+| `useState` for UI state | ❌ Avoid | ✅ Yes |
+| JSX complexity | ❌ Minimal | ✅ Full UI |
+| Test approach | RTL + MSW | RTL with mocked props |
+
+## Checklist
+
+- [ ] Container has zero styling / JSX beyond the Component call
+- [ ] Component has zero `useQuery`, `useMutation`, `fetch` calls
+- [ ] Container handles async errors (try/catch or mutation `onError`)
+
+## External Documentation
+
+- [React — Thinking in React](https://react.dev/learn/thinking-in-react) — philosophy of UI/data separation
+
+In the concept skill, `.{view}` means `.tsx` in this stack.

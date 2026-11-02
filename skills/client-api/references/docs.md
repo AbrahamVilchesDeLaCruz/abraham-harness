@@ -2,32 +2,30 @@
 
 ## Related Skills
 
-| Skill | Por qué leerla |
+| Skill | Why read it |
 |---|---|
-| `client-pods` | Estructura del pod — dónde vive la capa api/ |
-| `client-query` | Hooks TanStack Query que consumen las funciones de api.ts |
-| `client-container-presentational` | Container que usa las queries y pasa ViewModels al Component |
-| `client-testing` | Cómo testear mappers (unit) y Containers con MSW (integration) |
+| `client-pods` | Pod structure — where the api/ layer lives |
+| `client-query` | Server-state hooks that consume the functions in api.ts |
+| `client-container-presentational` | Container that uses the queries and passes ViewModels to the Component |
+| `client-testing` | How to test mappers (unit) and Containers with HTTP interception (integration) |
 
 ## External Documentation
 
-- [TanStack Query — Queries](https://tanstack.com/query/v5/docs/framework/react/guides/queries) — `useQuery` básico
-- [Axios — Docs](https://axios-http.com/docs/intro) — si el proyecto usa Axios como cliente HTTP
-- [Fetch API — MDN](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) — alternativa nativa
+- [Fetch API — MDN](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) — native alternative
 
-## Pattern: Por qué separar ApiModel y ViewModel
+## Pattern: Why separate ApiModel and ViewModel
 
-**ApiModel** captura exactamente lo que devuelve el backend (snake_case, strings para fechas). Cuando el backend cambia, solo se actualiza el mapper.
+**ApiModel** captures exactly what the backend returns (snake_case, strings for dates). When the backend changes, only the mapper is updated.
 
-**ViewModel** es lo que los componentes consumen. Es estable aunque el backend cambie su naming o estructura. Los tests de componente usan ViewModels directamente (via Object Mothers), no datos crudos de la API.
+**ViewModel** is what the components consume. It stays stable even if the backend changes its naming or structure. Component tests use ViewModels directly (via Object Mothers), not raw API data.
 
-Este patrón permite:
-1. Cambiar el backend sin tocar los tests de componente
-2. Testear el mapper en aislamiento (función pura)
-3. Razonar sobre el estado de la UI sin conocer los detalles de la API
+This pattern allows:
+1. Changing the backend without touching the component tests
+2. Testing the mapper in isolation (pure function)
+3. Reasoning about UI state without knowing the API details
 
 ## Internal Docs
 
-| Doc | Contenido relevante |
+| Doc | Relevant content |
 |---|---|
-| `docs/engineering/frontend-architecture.md` | Cómo la capa api/ encaja en la arquitectura de pods |
+| `docs/engineering/frontend-architecture.md` | How the api/ layer fits into the pod architecture |

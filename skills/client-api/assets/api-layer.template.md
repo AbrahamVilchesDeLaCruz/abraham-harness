@@ -76,9 +76,9 @@ export type Create{PodName}Input = {
 
 ## Checklist
 
-- [ ] `api-model` usa `snake_case` — espeja el JSON que llega de la API
-- [ ] ViewModel usa `camelCase` — convención TypeScript/JavaScript
-- [ ] Fechas: `string` en ApiModel → `Date` en ViewModel (el mapper hace la conversión)
-- [ ] El mapper es una función pura — fácil de testear con Vitest
-- [ ] Nullables: `null` en ApiModel → `null` en ViewModel (no `undefined`)
-- [ ] Los tipos del ViewModel **no importan** nada de `api-model` ni de la API
+- [ ] `api-model` uses `snake_case` — mirrors the JSON that arrives from the API
+- [ ] ViewModel uses `camelCase` — TypeScript/JavaScript convention
+- [ ] Dates: `string` in ApiModel → `Date` in ViewModel (the mapper does the conversion)
+- [ ] The mapper is a pure function — easy to unit test
+- [ ] Nullables: `null` in ApiModel → `null` in ViewModel (not `undefined`)
+- [ ] ViewModel types **do not import** anything from `api-model` or the API

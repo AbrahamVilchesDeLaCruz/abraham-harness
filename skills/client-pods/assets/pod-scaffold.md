@@ -2,17 +2,17 @@
 
 Use this as the directory structure reference when creating a new pod.
 
-## Minimal Pod (feature simple)
+## Minimal Pod (simple feature)
 
 ```
 pods/{pod-name}/
 ├── index.ts                          ← public API: re-exports only
-├── {PodName}Container.tsx            ← fetching, state, handlers
-├── {PodName}Component.tsx            ← pure presentational, no queries
+├── {PodName}Container.{view}            ← fetching, state, handlers
+├── {PodName}Component.{view}            ← pure presentational, no queries
 ├── {pod-name}.types.ts               ← ViewModel types (ViewModels only)
 └── api/
     ├── {pod-name}.api-model.ts       ← raw API response types (snake_case)
-    ├── {pod-name}.api.ts             ← fetch functions + TanStack Query hooks
+    ├── {pod-name}.api.ts             ← fetch functions + server-state hooks
     └── {pod-name}.mapper.ts          ← ApiModel → ViewModel
 ```
 
@@ -21,22 +21,22 @@ pods/{pod-name}/
 ```
 pods/{pod-name}/
 ├── index.ts
-├── {PodName}Container.tsx
-├── {PodName}Component.tsx
+├── {PodName}Container.{view}
+├── {PodName}Component.{view}
 ├── {pod-name}.types.ts
 ├── api/
 │   ├── {pod-name}.api-model.ts
 │   ├── {pod-name}.api.ts
 │   └── {pod-name}.mapper.ts
 ├── components/                        ← sub-components (only for this pod)
-│   ├── {PodName}Card.tsx
-│   └── {PodName}Form.tsx
+│   ├── {PodName}Card.{view}
+│   └── {PodName}Form.{view}
 ├── hooks/                             ← extracted hooks when > 80 lines
 │   ├── use{PodName}State.ts
 │   └── use{PodName}Handlers.ts
 └── __tests__/
-    ├── {PodName}Component.test.tsx
-    ├── {PodName}Container.test.tsx
+    ├── {PodName}Component.test.{view}
+    ├── {PodName}Container.test.{view}
     ├── {pod-name}.mapper.test.ts
     └── {PodName}Mother.ts
 ```
@@ -64,8 +64,8 @@ export type {PodName}VM = {
 
 | File | Convention | Example |
 |---|---|---|
-| Container | `{PodName}Container.tsx` | `ProductsContainer.tsx` |
-| Component | `{PodName}Component.tsx` | `ProductsComponent.tsx` |
+| Container | `{PodName}Container.{view}` | `ProductsContainer.{view}` |
+| Component | `{PodName}Component.{view}` | `ProductsComponent.{view}` |
 | Types | `{pod-name}.types.ts` | `products.types.ts` |
 | API model | `{pod-name}.api-model.ts` | `products.api-model.ts` |
 | API hooks | `{pod-name}.api.ts` | `products.api.ts` |
@@ -74,8 +74,8 @@ export type {PodName}VM = {
 
 ## Checklist
 
-- [ ] `index.ts` solo exporta lo necesario — no el Container y el Component internos a la vez si solo se usa el Container
-- [ ] `{pod-name}.types.ts` contiene **solo ViewModels** — no tipos de API crudos
-- [ ] `api/` tiene los 3 archivos: api-model, api.ts, mapper
-- [ ] Sub-componentes en `components/` solo si este pod los necesita — si se comparten, van a `components/shared/`
-- [ ] Hooks extraídos en `hooks/` cuando el Container supera ~80 líneas de lógica
+- [ ] `index.ts` exports only what is needed — not the internal Container and Component at once if only the Container is used
+- [ ] `{pod-name}.types.ts` contains **only ViewModels** — no raw API types
+- [ ] `api/` has the 3 files: api-model, api.ts, mapper
+- [ ] Sub-components in `components/` only if this pod needs them — if shared, they go to `components/shared/`
+- [ ] Hooks extracted to `hooks/` when the Container exceeds ~80 lines of logic

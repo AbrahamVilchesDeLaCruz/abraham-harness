@@ -1,12 +1,10 @@
 # State & Handlers Hook Template
 
-Extract this pattern from the Container when it grows beyond ~80 lines of logic.
+Extract this pattern from the Container when it grows beyond ~80 lines of logic. Framework-free shape; the stack reference for views shows the original.
 
 ## `use{PodName}State.ts` — UI state only
 
 ```typescript
-import { useState } from 'react';
-
 export type {PodName}State = {
   selectedId: string | null;
   isModalOpen: boolean;
@@ -24,9 +22,7 @@ const DEFAULT_FILTERS: {PodName}Filters = {
 };
 
 export function use{PodName}State(): [{PodName}State, {PodName}StateHandlers] {
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [filters, setFilters] = useState<{PodName}Filters>(DEFAULT_FILTERS);
+  // Hold selectedId (null), isModalOpen (false) and filters (DEFAULT_FILTERS) in the stack's local state primitive.
 
   const handlers: {PodName}StateHandlers = {
     selectItem: (id: string) => setSelectedId(id),
@@ -55,7 +51,6 @@ export type {PodName}StateHandlers = {
 ## `use{PodName}Handlers.ts` — async handlers with side effects
 
 ```typescript
-import { useCallback } from 'react';
 import { useCreate{PodName}, useDelete{PodName} } from '../api/{pod-name}.api';
 import type { Create{PodName}Input } from '../{pod-name}.types';
 
@@ -63,27 +58,27 @@ export function use{PodName}Handlers() {
   const create{PodName}Mutation = useCreate{PodName}();
   const delete{PodName}Mutation = useDelete{PodName}();
 
-  const handleCreate = useCallback(async (input: Create{PodName}Input) => {
+  const handleCreate = async (input: Create{PodName}Input) => {
     try {
-      await create{PodName}Mutation.mutateAsync(input);
+      await create{PodName}Mutation.execute(input);
     } catch (error) {
       // Handle error — show toast, etc.
     }
-  }, [create{PodName}Mutation]);
+  };
 
-  const handleDelete = useCallback(async (id: string) => {
+  const handleDelete = async (id: string) => {
     try {
-      await delete{PodName}Mutation.mutateAsync(id);
+      await delete{PodName}Mutation.execute(id);
     } catch (error) {
       // Handle error
     }
-  }, [delete{PodName}Mutation]);
+  };
 
   return {
     handleCreate,
     handleDelete,
-    isCreating: create{PodName}Mutation.isPending,
-    isDeleting: delete{PodName}Mutation.isPending,
+    isCreating: create{PodName}Mutation.isSubmitting,
+    isDeleting: delete{PodName}Mutation.isSubmitting,
   };
 }
 ```
@@ -114,18 +109,18 @@ export function {PodName}Container() {
 ## When to extract
 
 Extract to `use{PodName}State` when:
-- Container has > 3 `useState` calls
+- Container has > 3 local state values
 - Multiple state variables are updated together
 
 Extract to `use{PodName}Handlers` when:
 - Container has > 3 async handlers
-- Handlers share mutation state (isPending, errors)
-- Handler logic needs `useCallback` for performance
+- Handlers share mutation state (isSubmitting, errors)
+- Handler logic needs memoization for performance
 
 ## Checklist
 
 - [ ] State hook returns `[state, handlers]` tuple — not an object
 - [ ] Handlers hook returns named functions (not a tuple)
-- [ ] No `useQuery` or `useMutation` in state hook — only `useState`
+- [ ] No server-state queries or mutations in state hook — only local state
 - [ ] Async handlers in `use{PodName}Handlers` — state handlers in `use{PodName}State`
 - [ ] Default values for all state fields defined as constants outside the hook

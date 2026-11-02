@@ -1,6 +1,6 @@
 ---
 name: client-api
-description: "Trigger: Al crear la capa api/ de un pod, definir tipos crudos, hooks TanStack Query, o mappers de datos. Capa api/: api-model, api.ts, mapper, ViewModel types en apps/client/."
+description: "Trigger: When creating a pod's api/ layer, defining raw types, server-state hooks, or data mappers. api/ layer: api-model, api.ts, mapper, ViewModel types in apps/client/."
 license: Apache-2.0
 metadata:
   author: AbrahamVilchesDeLaCruz
@@ -9,57 +9,60 @@ metadata:
 
 ## Activation Contract
 
-Usa esta skill al crear la capa api/ de un pod, definir tipos crudos, hooks TanStack Query, o mappers de datos en `apps/client/`.
+Use this skill when creating a pod's api/ layer, defining raw types, server-state hooks, or data mappers in `apps/client/`.
 
-Capa de acceso a datos de cada pod. Vive en `api/` dentro del pod y tiene tres responsabilidades: tipos crudos, hooks TanStack Query, y transformación de datos.
+The data access layer of each pod. It lives in `api/` inside the pod and has three responsibilities: raw types, server-state hooks, and data transformation.
 
 ## Hard Rules
 
-- `api-model.ts` refleja el servidor tal cual — sin transformar
-- `types.ts` refleja la UI tal cual — sin residuos del servidor
-- El mapper es la única capa que conoce ambos mundos
-- Los payloads de mutations van en `api-model.ts` (son contratos con el servidor)
-- Nunca usar `any` en tipos de API — si no se sabe el tipo, usar `unknown` y validar con Zod
+- `api-model.ts` reflects the server as is — untransformed
+- `types.ts` reflects the UI as is — no server residue
+- The mapper is the only layer that knows both worlds
+- Mutation payloads go in `api-model.ts` (they are contracts with the server)
+- Never use `any` in API types — if the type is not known, use `unknown` and validate it with a schema validator
 
 ## Decision Gates
 
-| Qué defines | Dónde | Regla |
+| What you define | Where | Rule |
 |---|---|---|
-| Tipos crudos de la respuesta del servidor | `{feature}.api-model.ts` | Representa **exactamente** lo que devuelve el servidor. Snake_case si el servidor usa snake_case. |
-| Tipos del ViewModel | `{feature}.types.ts` | Tipos **adaptados a la UI**. camelCase siempre. Fechas como `Date`, no strings. |
-| Transformación | `{feature}.mapper.ts` | Convierte el modelo crudo de la API al ViewModel que usa la UI. |
-| Hooks TanStack Query | `{feature}.api.ts` | Ver skill `client-query` para el patrón completo de queries y mutations. |
-| Barrel de la capa | `api/index.ts` | Re-exporta todo lo público de la capa API |
-| Barrel raíz | `index.ts` del pod | Solo exporta el Container (punto de entrada del pod) |
-| Cliente HTTP | `core/api/apiClient.ts` | El cliente HTTP vive en `core/` y se importa desde cualquier pod |
+| Raw types of the server response | `{feature}.api-model.ts` | Represents **exactly** what the server returns. Snake_case if the server uses snake_case. |
+| ViewModel types | `{feature}.types.ts` | Types **adapted to the UI**. camelCase always. Dates as `Date`, not strings. |
+| Transformation | `{feature}.mapper.ts` | Converts the raw API model to the ViewModel the UI uses. |
+| Server-state hooks | `{feature}.api.ts` | See skill `client-query` for the full query and mutation pattern. |
+| Layer barrel | `api/index.ts` | Re-exports everything public from the API layer |
+| Root barrel | The pod's `index.ts` | Exports only the Container (the pod's entry point) |
+| HTTP client | `core/api/apiClient.ts` | The HTTP client lives in `core/` and is imported from any pod |
 
 ## Execution Steps
 
-1. Usa el template de `assets/api-layer.template.md` al crear la capa api/ de un nuevo pod (api-model, mapper, types).
-2. Elige el archivo de cada pieza con la tabla de Decision Gates y copia su forma de `references/patterns.md`.
-3. Comprueba las Hard Rules antes de terminar.
+1. Use the template in `assets/api-layer.template.md` when creating the api/ layer of a new pod (api-model, mapper, types).
+2. Choose the file for each piece with the Decision Gates table and copy its shape from `references/patterns.md`.
+3. Check the Hard Rules before finishing.
 
 ## Output Contract
 
-Deja esta estructura:
+Leave this structure:
 
 ```
 containers/{feature}/
 └── api/
-    ├── index.ts                    ← Barrel: re-exporta hooks y types
-    ├── {feature}.api-model.ts     ← Tipos crudos de la respuesta del servidor
-    └── {feature}.api.ts           ← Hooks TanStack Query (useQuery / useMutation)
+    ├── index.ts                    ← Barrel: re-exports hooks and types
+    ├── {feature}.api-model.ts     ← Raw types of the server response
+    └── {feature}.api.ts           ← Server-state hooks (queries / mutations)
 ```
 
-Junto a `api/`, en la raíz del pod:
+Next to `api/`, at the pod root:
 
 ```
 ├── {feature}.mapper.ts            ← API response → ViewModel
-└── {feature}.types.ts             ← Tipos del ViewModel (adaptados a la UI)
+└── {feature}.types.ts             ← ViewModel types (adapted to the UI)
 ```
 
 ## References
 
-- [`references/patterns.md`](references/patterns.md) — ejemplos de api-model, types, mapper, api.ts, barrels y API client global.
-- [`assets/api-layer.template.md`](assets/api-layer.template.md) — template al crear la capa api/ de un nuevo pod.
-- [`references/docs.md`](references/docs.md) — Lee `references/docs.md` para el rationale ApiModel/ViewModel y docs externos.
+- [`references/patterns.md`](references/patterns.md) — examples of api-model, types, mapper, api.ts, barrels and the global API client.
+- [`assets/api-layer.template.md`](assets/api-layer.template.md) — template for creating the api/ layer of a new pod.
+- [`references/docs.md`](references/docs.md) — Read `references/docs.md` for the ApiModel/ViewModel rationale and external docs.
+- Load the project's stack skill for server state (`stack-tanstack-query`) and read its `references/client-api.md`.
+- Load the project's stack skill for views (`stack-react`) and read its `references/client-api.md` for the HTTP client and the schema validator.
+- Load the project's stack skill for tests (`stack-vitest`) and read its `references/client-api.md`.

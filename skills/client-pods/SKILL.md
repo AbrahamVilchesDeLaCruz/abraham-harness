@@ -1,6 +1,6 @@
 ---
 name: client-pods
-description: "Trigger: Al crear un nuevo pod, definir la estructura de directorios de una feature, o decidir qué va dentro de un pod. Estructura de pods, naming, cuándo crear qué en apps/client/."
+description: "Trigger: When creating a new pod, defining the directory structure of a feature, or deciding what goes inside a pod. Pod structure, naming, when to create what in apps/client/."
 license: Apache-2.0
 metadata:
   author: AbrahamVilchesDeLaCruz
@@ -9,79 +9,79 @@ metadata:
 
 ## Activation Contract
 
-Usa esta skill al crear un nuevo pod, definir la estructura de directorios de una feature, o decidir qué va dentro de un pod.
+Use this skill when creating a new pod, defining the directory structure of a feature, or deciding what goes inside a pod.
 
-Estructura de pods para `apps/client/`. Un pod es una unidad funcional autocontenida que encapsula toda la lógica, UI y acceso a datos de una feature de dominio.
+Pod structure for `apps/client/`. A pod is a self-contained functional unit that encapsulates all the logic, UI and data access of a domain feature.
 
 ## Hard Rules
 
-- Un pod **NO importa de otro pod** directamente
-- Comunicación entre pods solo a través de `core/`, `common/`, o `common-app/`
-- El punto de entrada de un pod es siempre su `index.ts` (que exporta el Container)
+- A pod **does NOT import from another pod** directly
+- Communication between pods only through `core/`, `common/`, or `common-app/`
+- A pod's entry point is always its `index.ts` (which exports the Container)
 
 ## Decision Gates
 
-Si un pod es simple, no hace falta crear todas las carpetas. La estructura crece con la complejidad:
+If a pod is simple, there is no need to create every folder. The structure grows with complexity:
 
-| Complejidad | Qué crear |
+| Complexity | What to create |
 |---|---|
-| Pod mínimo | `Container.tsx`, `Component.tsx`, `index.ts` |
-| Con data fetching | + `api/` |
-| Con estado de UI complejo | + `hooks/` |
-| Con sub-componentes | + `components/` |
-| Con transformación de datos | + `mapper.ts`, `types.ts` |
+| Minimal pod | `Container.{view}`, `Component.{view}`, `index.ts` |
+| With data fetching | + `api/` |
+| With complex UI state | + `hooks/` |
+| With sub-components | + `components/` |
+| With data transformation | + `mapper.ts`, `types.ts` |
 
 ## Execution Steps
 
-1. Usa el scaffold de `assets/pod-scaffold.md` al crear un nuevo pod (estructura de directorios + naming).
-2. Crea solo lo que pida la tabla de Decision Gates.
-3. Nombra cada archivo con la tabla de Naming conventions.
+1. Use the scaffold in `assets/pod-scaffold.md` when creating a new pod (directory structure + naming).
+2. Create only what the Decision Gates table asks for.
+3. Name each file with the Naming conventions table.
 
 ## Output Contract
 
-Estructura global:
+Global structure:
 
 ```
 apps/client/src/
-├── common/        ← Componentes reutilizables sin dominio (Button, Input, Modal)
-├── common-app/    ← Reutilizables pero ligados al dominio (CreateProductPopup)
-├── core/          ← Router, auth, API client, interceptores, providers globales
-├── layout/        ← Plantillas visuales (Sidebar, Topbar, AppShell)
-├── containers/    ← Pods organizados por dominio
-└── views/         ← Páginas que seleccionan layout + renderizan pods
+├── common/        ← Reusable components with no domain (Button, Input, Modal)
+├── common-app/    ← Reusable but tied to the domain (CreateProductPopup)
+├── core/          ← Router, auth, API client, interceptors, global providers
+├── layout/        ← Visual templates (Sidebar, Topbar, AppShell)
+├── containers/    ← Pods organized by domain
+└── views/         ← Pages that select a layout + render pods
 ```
 
-Estructura interna de un Pod:
+Internal structure of a Pod:
 
 ```
 containers/
 └── {feature}/
-    ├── api/                          ← Capa de acceso a datos
+    ├── api/                          ← Data access layer
     │   ├── index.ts                  ← Barrel
-    │   ├── {feature}.api-model.ts   ← Tipos crudos de la API
-    │   └── {feature}.api.ts         ← Hooks TanStack Query
-    ├── hooks/                        ← Hooks de UI del pod
+    │   ├── {feature}.api-model.ts   ← Raw API types
+    │   └── {feature}.api.ts         ← Server-state hooks
+    ├── hooks/                        ← Pod UI hooks
     │   ├── use{Feature}{Concern}.ts
     │   └── index.ts                  ← Barrel
-    ├── components/                   ← Sub-componentes de presentación
-    │   └── {Feature}{Part}.tsx
-    ├── {Feature}Container.tsx        ← Data binding + routing + contexto
-    ├── {Feature}Component.tsx        ← Estado de UI + composición
+    ├── components/                   ← Presentational sub-components
+    │   └── {Feature}{Part}.{view}
+    ├── {Feature}Container.{view}        ← Data binding + routing + context
+    ├── {Feature}Component.{view}        ← UI state + composition
     ├── {feature}.mapper.ts           ← API response → ViewModel
-    ├── {feature}.types.ts            ← Tipos del ViewModel
-    ├── {feature}.styles.ts           ← Estilos del pod (si aplica)
-    └── index.ts                      ← Barrel: exporta el Container
+    ├── {feature}.types.ts            ← ViewModel types
+    ├── {feature}.styles.ts           ← Pod styles (if applicable)
+    └── index.ts                      ← Barrel: exports the Container
 ```
 
 Naming conventions:
 
-| Elemento | Convención | Ejemplo |
+| Element | Convention | Example |
 |---|---|---|
-| Container | `PascalCase + Container.tsx` | `ProductsContainer.tsx` |
-| Component | `PascalCase + Component.tsx` | `ProductsComponent.tsx` |
-| Sub-componentes | `PascalCase.tsx` | `ProductGrid.tsx` |
-| Hooks del pod | `camelCase.ts` | `useProductFilters.ts` |
-| Hooks globales | `camelCase.ts` | `useClickOutside.ts` |
+| Container | `PascalCase + Container.{view}` | `ProductsContainer.{view}` |
+| Component | `PascalCase + Component.{view}` | `ProductsComponent.{view}` |
+| Sub-components | `PascalCase.{view}` | `ProductGrid.{view}` |
+| Pod hooks | `camelCase.ts` | `useProductFilters.ts` |
+| Global hooks | `camelCase.ts` | `useClickOutside.ts` |
 | API model | `camelCase.api-model.ts` | `products.api-model.ts` |
 | API hooks | `camelCase.api.ts` | `products.api.ts` |
 | Mapper | `camelCase.mapper.ts` | `products.mapper.ts` |
@@ -91,7 +91,9 @@ Naming conventions:
 
 ## References
 
-- [`references/patterns.md`](references/patterns.md) — ejemplo de pod mínimo.
-- [`assets/pod-scaffold.md`](assets/pod-scaffold.md) — scaffold al crear un nuevo pod.
-- [`references/docs.md`](references/docs.md) — Lee `references/docs.md` para skills relacionadas y decisión arquitectónica.
-- Referencia completa: `docs/engineering/frontend-architecture.md`
+- [`references/patterns.md`](references/patterns.md) — example of a minimal pod.
+- [`assets/pod-scaffold.md`](assets/pod-scaffold.md) — scaffold for creating a new pod.
+- [`references/docs.md`](references/docs.md) — Read `references/docs.md` for related skills and the architectural decision.
+- Full reference: `docs/engineering/frontend-architecture.md`
+- Load the project's stack skill for views (`stack-react`) and read its `references/client-pods.md`.
+- Load the project's stack skill for server state (`stack-tanstack-query`) and read its `references/client-pods.md`.

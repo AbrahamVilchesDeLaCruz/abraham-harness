@@ -1,45 +1,44 @@
 # client-hooks — Patterns
 
-## Hooks del pod
+## Pod hooks
 
-### Patrón de retorno — tupla `[State, Handlers]`
+### Return pattern — `[State, Handlers]` tuple
 
-Los hooks del pod retornan siempre una tupla para desestructurar limpiamente en el Component:
+Pod hooks always return a tuple, to destructure cleanly in the Component. Framework-free shape; the stack reference for views shows the original.
 
 ```ts
 // hooks/useProductFilters.ts
 
 interface ProductFiltersState {
-  difficulty: 'easy' | 'medium' | 'hard' | null;
-  showReviewOnly: boolean;
+  size: 'small' | 'medium' | 'large' | null;
+  showFeaturedOnly: boolean;
 }
 
 interface ProductFiltersHandlers {
-  setDifficulty: (d: ProductFiltersState['difficulty']) => void;
-  toggleReviewOnly: () => void;
+  setSize: (d: ProductFiltersState['size']) => void;
+  toggleFeaturedOnly: () => void;
   resetFilters: () => void;
 }
 
 export const useProductFilters = (): [ProductFiltersState, ProductFiltersHandlers] => {
-  const [difficulty, setDifficulty] = useState<ProductFiltersState['difficulty']>(null);
-  const [showReviewOnly, setShowReviewOnly] = useState(false);
+  // size starts at null and showFeaturedOnly at false, held in the stack's local state primitive.
 
   const resetFilters = () => {
-    setDifficulty(null);
+    setSize(null);
     setShowReviewOnly(false);
   };
 
   return [
-    { difficulty, showReviewOnly },
-    { setDifficulty, toggleReviewOnly: () => setShowReviewOnly(v => !v), resetFilters },
+    { size, showFeaturedOnly },
+    { setSize, toggleFeaturedOnly: () => setShowReviewOnly(v => !v), resetFilters },
   ];
 };
 ```
 
-### Uso en el Component
+### Usage in the Component
 
 ```tsx
-// ProductsComponent.tsx
+// ProductsComponent.{view}
 export const ProductsComponent = ({ products, ... }: ProductsComponentProps) => {
   const [filters, filterHandlers] = useProductFilters();
   const [tooltip, tooltipHandlers] = useProductTooltip();
@@ -48,7 +47,7 @@ export const ProductsComponent = ({ products, ... }: ProductsComponentProps) => 
     <div>
       <ProductToolbar
         filters={filters}
-        onFilter={filterHandlers.setDifficulty}
+        onFilter={filterHandlers.setSize}
         onReset={filterHandlers.resetFilters}
       />
       {products.map(product => (
@@ -64,7 +63,7 @@ export const ProductsComponent = ({ products, ... }: ProductsComponentProps) => 
 };
 ```
 
-### Barrel del pod
+### Pod barrel
 
 ```ts
 // hooks/index.ts
@@ -73,11 +72,11 @@ export { useProductTooltip } from './useProductTooltip';
 export { useProductPagination } from './useProductPagination';
 ```
 
-## Hooks globales
+## Global hooks
 
-Hooks reutilizables entre pods — sin lógica de dominio.
+Hooks reusable across pods — with no domain logic.
 
-### Ubicación
+### Location
 
 ```
 core/hooks/
@@ -87,51 +86,10 @@ core/hooks/
 └── index.ts
 ```
 
-### Ejemplos
+### Examples
 
-```ts
-// useClickOutside.ts
-export const useClickOutside = (
-  ref: RefObject<HTMLElement>,
-  handler: () => void,
-) => {
-  useEffect(() => {
-    const listener = (e: MouseEvent) => {
-      if (!ref.current?.contains(e.target as Node)) handler();
-    };
-    document.addEventListener('mousedown', listener);
-    return () => document.removeEventListener('mousedown', listener);
-  }, [ref, handler]);
-};
-```
+The stack reference for views holds the original code of each example.
 
-```ts
-// useDebounce.ts
-export const useDebounce = <T>(value: T, delay: number): T => {
-  const [debounced, setDebounced] = useState(value);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setDebounced(value), delay);
-    return () => clearTimeout(timer);
-  }, [value, delay]);
-
-  return debounced;
-};
-```
-
-```ts
-// useLocalStorage.ts
-export const useLocalStorage = <T>(key: string, initialValue: T) => {
-  const [value, setValue] = useState<T>(() => {
-    const stored = localStorage.getItem(key);
-    return stored ? JSON.parse(stored) : initialValue;
-  });
-
-  const set = (newValue: T) => {
-    setValue(newValue);
-    localStorage.setItem(key, JSON.stringify(newValue));
-  };
-
-  return [value, set] as const;
-};
-```
+- `useClickOutside` takes a ref to an element and a handler. It listens for `mousedown` on `document`, calls the handler when the event target is outside the element, and removes the listener on cleanup.
+- `useDebounce` takes a value and a delay and returns the debounced value. A timer updates it after the delay, and cleanup clears the timer.
+- `useLocalStorage` takes a key and an initial value. It starts from the stored JSON if it exists, otherwise from the initial value, and returns `[value, set]`. `set` updates the value and writes it to `localStorage`.

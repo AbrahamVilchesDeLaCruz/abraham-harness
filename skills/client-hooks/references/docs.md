@@ -2,30 +2,23 @@
 
 ## Related Skills
 
-| Skill | Por qué leerla |
+| Skill | Why read it |
 |---|---|
-| `client-container-presentational` | El Container es donde vive la lógica antes de extraerla |
-| `client-query` | Hooks de TanStack Query que se usan en handlers |
-| `client-pods` | Estructura del pod — dónde vive la carpeta `hooks/` |
-| `client-testing` | Cómo testear hooks con `renderHook` y `act` |
-
-## External Documentation
-
-- [React — Custom Hooks](https://react.dev/learn/reusing-logic-with-custom-hooks) — cuándo y cómo extraer
-- [React — Rules of Hooks](https://react.dev/reference/rules/rules-of-hooks) — reglas que aplican en hooks personalizados
-- [React — `useCallback`](https://react.dev/reference/react/useCallback) — cuándo memoizar handlers
-- [React Testing Library — `renderHook`](https://testing-library.com/docs/react-testing-library/api/#renderhook) — cómo testear hooks
+| `client-container-presentational` | The Container is where the logic lives before it is extracted |
+| `client-query` | Server-state hooks used in handlers |
+| `client-pods` | Pod structure — where the `hooks/` folder lives |
+| `client-testing` | How to test hooks |
 
 ## State tuple vs. object return
 
-Este proyecto usa el patrón tupla `[state, handlers]` (inspirado en `useState`) en lugar de un objeto plano `{ state, handlers }`. Las ventajas:
+This project uses the `[state, handlers]` tuple pattern (inspired by the local state primitive of the view library) instead of a plain `{ state, handlers }` object. The advantages:
 
-1. **Destructuring con rename**: `const [productState, productHandlers] = useProductState()` — sin conflictos de nombres cuando el Container usa varios state hooks
-2. **Convención clara**: `state` = solo lectura, `handlers` = solo escritura — la tupla enforce el contrato visualmente
+1. **Destructuring with rename**: `const [productState, productHandlers] = useProductState()` — no name conflicts when the Container uses several state hooks
+2. **Clear convention**: `state` = read-only, `handlers` = write-only — the tuple enforces the contract visually
 
 ## Internal Docs
 
-| Doc | Contenido relevante |
+| Doc | Relevant content |
 |---|---|
-| `docs/engineering/frontend-architecture.md` | Cuándo extraer hooks en el contexto de la arquitectura del proyecto |
-| `docs/engineering/engineering-principles.md` | SRP en el frontend — un hook = una responsabilidad |
+| `docs/engineering/frontend-architecture.md` | When to extract hooks in the context of the project architecture |
+| `docs/engineering/engineering-principles.md` | SRP in the frontend — one hook = one responsibility |

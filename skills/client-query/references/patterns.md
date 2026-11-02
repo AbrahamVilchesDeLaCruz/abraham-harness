@@ -1,17 +1,19 @@
 # client-query — Patterns
 
+The hooks below are framework-free shapes. The stack reference for server state shows the original code.
+
 ## Query Keys
 
-Las query keys son arrays. Deben ser **consistentes** dentro del pod:
+Query keys are arrays. They must be **consistent** within the pod:
 
 ```ts
-// Patrón: [dominio, recurso, params]
-['products', 'list', { deckId, page }]
+// Pattern: [domain, resource, params]
+['products', 'list', { categoryId, page }]
 ['products', 'detail', productId]
 ['reviews', 'payments', { userId }]
 ```
 
-Exportar las keys como constantes para reutilizarlas en invalidaciones:
+Export the keys as constants to reuse them in invalidations:
 
 ```ts
 // products.api.ts
@@ -23,83 +25,78 @@ export const productKeys = {
 };
 ```
 
-## useQuery — data fetching
+## Queries — data fetching
 
 ```ts
 // products.api.ts
 export const useProducts = (params: ProductListParams) => {
-  return useQuery({
+  // Pass this configuration to the stack's server-state query primitive.
+  return {
     queryKey: productKeys.list(params),
-    queryFn: () => apiClient.get<ProductApiModel[]>('/products', { params }),
-    select: (data) => data.map(mapProduct),  // mapper aquí si es simple
-    staleTime: 1000 * 60 * 5,                  // 5 min — ajustar según necesidad
-  });
+    fetch: () => apiClient.get<ProductApiModel[]>('/products', { params }),
+    transform: (data) => data.map(mapProduct),  // mapper here if simple
+    freshnessMs: 1000 * 60 * 5,                  // 5 min — adjust as needed
+  };
 };
 
 export const useProduct = (id: string) => {
-  return useQuery({
+  // Pass this configuration to the stack's server-state query primitive.
+  return {
     queryKey: productKeys.detail(id),
-    queryFn: () => apiClient.get<ProductApiModel>(`/products/${id}`),
-    select: mapProduct,
-    enabled: !!id,  // no ejecutar si no hay id
-  });
+    fetch: () => apiClient.get<ProductApiModel>(`/products/${id}`),
+    transform: mapProduct,
+    enabled: !!id,  // do not run without an id
+  };
 };
 ```
 
-## useMutation — side effects
+## Mutations — side effects
 
 ```ts
 // products.api.ts
 export const useCreateProduct = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (data: CreateProductPayload) =>
+  // Pass this configuration to the stack's server-state mutation primitive.
+  return {
+    execute: (data: CreateProductPayload) =>
       apiClient.post<ProductApiModel>('/products', data),
     onSuccess: () => {
-      // Invalida todas las listas — el Container no necesita saber cómo
-      queryClient.invalidateQueries({ queryKey: productKeys.lists() });
+      // Invalidates every list (productKeys.lists()) — the Container does not need to know how
     },
-  });
+  };
 };
 
 export const useDeleteProduct = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (id: string) => apiClient.delete(`/products/${id}`),
+  // Pass this configuration to the stack's server-state mutation primitive.
+  return {
+    execute: (id: string) => apiClient.delete(`/products/${id}`),
     onSuccess: (_, id) => {
-      queryClient.invalidateQueries({ queryKey: productKeys.lists() });
-      queryClient.removeQueries({ queryKey: productKeys.detail(id) });
+      // Invalidates productKeys.lists() and removes the cache entry at productKeys.detail(id)
     },
-  });
+  };
 };
 
 export const useUpdateProduct = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateProductPayload }) =>
+  // Pass this configuration to the stack's server-state mutation primitive.
+  return {
+    execute: ({ id, data }: { id: string; data: UpdateProductPayload }) =>
       apiClient.patch<ProductApiModel>(`/products/${id}`, data),
     onSuccess: (updated) => {
-      // Actualiza el cache directamente — evita refetch innecesario
-      queryClient.setQueryData(productKeys.detail(updated.id), updated);
-      queryClient.invalidateQueries({ queryKey: productKeys.lists() });
+      // Updates the cache directly at productKeys.detail(updated.id) — avoids an unnecessary refetch
+      // Invalidates productKeys.lists()
     },
-  });
+  };
 };
 ```
 
-## Uso en el Container
+## Usage in the Container
 
 ```tsx
-// ProductsContainer.tsx
+// ProductsContainer.{view}
 export const ProductsContainer = () => {
-  const { deckId } = useParams<{ deckId: string }>();
-  const [page, setPage] = useState(1);
+  // categoryId comes from the stack's routing primitive; page and setPage from its local state primitive.
 
-  const { data: products = [], isLoading, isError } = useProducts({ deckId, page });
-  const { mutate: deleteProduct, isPending: isDeleting } = useDeleteProduct();
+  const { data: products = [], isLoading, isError } = useProducts({ categoryId, page });
+  const { execute: deleteProduct, isSubmitting: isDeleting } = useDeleteProduct();
 
   return (
     <ProductsComponent
@@ -114,32 +111,19 @@ export const ProductsContainer = () => {
 };
 ```
 
-## Estados de UI de la query
+## UI states of the query
 
-Usar los estados de TanStack Query directamente — no duplicar en `useState`:
+Use the server-state library's own states directly — do not duplicate them in local state:
 
 ```tsx
-// ✅ correcto
+// ✅ correct
 const { data, isLoading, isError, isFetching } = useProducts(params);
 
-// ❌ incorrecto — duplicar estado
-const [loading, setLoading] = useState(false);
+// ❌ incorrect — duplicating state: a separate loading value held in local state
 ```
 
-## staleTime por defecto
+## Default freshness window
 
-Configurar en el `QueryClient` global (`core/`):
+Configure it in the global server-state client (`core/`): queries are fresh for 2 minutes by default, and failed queries retry once.
 
-```ts
-// core/queryClient.ts
-export const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60 * 2,  // 2 min por defecto
-      retry: 1,
-    },
-  },
-});
-```
-
-Sobreescribir por query solo cuando sea necesario (datos muy dinámicos → `staleTime: 0`, datos estáticos → `staleTime: Infinity`).
+Override per query only when necessary (very dynamic data → `0`, static data → `Infinity`).

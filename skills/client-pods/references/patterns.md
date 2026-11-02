@@ -1,6 +1,6 @@
 # client-pods — Patterns
 
-## Ejemplo — pod mínimo
+## Example — minimal pod
 
 ```
 containers/
@@ -9,8 +9,8 @@ containers/
     │   ├── index.ts
     │   ├── profile.api-model.ts
     │   └── profile.api.ts
-    ├── ProfileContainer.tsx
-    ├── ProfileComponent.tsx
+    ├── ProfileContainer.{view}
+    ├── ProfileComponent.{view}
     ├── profile.types.ts
     └── index.ts
 ```

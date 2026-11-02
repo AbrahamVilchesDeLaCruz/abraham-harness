@@ -1,6 +1,6 @@
 ---
 name: client-hooks
-description: "Trigger: Al crear hooks de estado o handlers en un pod, extraer lógica a hooks globales, o decidir cuándo crear un hook. Hooks del pod [State, Handlers], hooks globales, cuándo extraer en apps/client/."
+description: "Trigger: When creating state or handler hooks in a pod, extracting logic to global hooks, or deciding when to create a hook. Pod hooks [State, Handlers], global hooks, when to extract in apps/client/."
 license: Apache-2.0
 metadata:
   author: AbrahamVilchesDeLaCruz
@@ -9,46 +9,49 @@ metadata:
 
 ## Activation Contract
 
-Usa esta skill al crear hooks de estado o handlers en un pod, extraer lógica a hooks globales, o decidir cuándo crear un hook.
+Use this skill when creating state or handler hooks in a pod, extracting logic to global hooks, or deciding when to create a hook.
 
-Hooks del pod y hooks globales en `apps/client/`.
+Pod hooks and global hooks in `apps/client/`. A hook here is a named unit of reusable view logic.
 
 ## Hard Rules
 
-- Un hook del pod **no se importa desde otro pod** — si se necesita en dos pods, muévelo a `core/hooks/`
-- Los hooks del pod pueden usar hooks globales
-- Los hooks del pod **no hacen fetch** — eso es responsabilidad de `api.ts`
-- Un hook global **no tiene lógica de dominio** — si la tiene, es un hook del pod
-- Los hooks del pod retornan siempre una tupla para desestructurar limpiamente en el Component: `[State, Handlers]`
-- Naming: archivo `camelCase.ts` → `useProductFilters.ts`; export `camelCase` → `useProductFilters`
-- Barrel obligatorio: `hooks/index.ts` re-exporta todo
+- A pod hook **is not imported from another pod** — if two pods need it, move it to `core/hooks/`
+- Pod hooks may use global hooks
+- Pod hooks **do not fetch** — that is the responsibility of `api.ts`
+- A global hook **has no domain logic** — if it has any, it is a pod hook
+- Pod hooks always return a tuple, to destructure cleanly in the Component: `[State, Handlers]`
+- Naming: file `camelCase.ts` → `useProductFilters.ts`; export `camelCase` → `useProductFilters`
+- Mandatory barrel: `hooks/index.ts` re-exports everything
 
 ## Decision Gates
 
-| Tipo | Ubicación | Alcance |
+| Type | Location | Scope |
 |---|---|---|
-| Hooks del pod | `containers/{feature}/hooks/` | Solo dentro del pod |
-| Hooks globales | `core/hooks/` o `common/hooks/` | Reutilizables entre pods |
+| Pod hooks | `containers/{feature}/hooks/` | Only inside the pod |
+| Global hooks | `core/hooks/` or `common/hooks/` | Reusable across pods |
 
-Crea un hook del pod:
+Create a pod hook:
 
-- Cuando hay un grupo de `useState` + handlers cohesionados (filtros, tooltips, paginación, selección)
-- Cuando el Component tiene más de ~5 `useState` → señal de que hay hooks por extraer
-- Cuando la lógica se puede nombrar con un sustantivo claro: `filters`, `tooltip`, `pagination`
+- When there is a cohesive group of local state + handlers (filters, tooltips, pagination, selection)
+- When the Component has more than ~5 local state values → a sign that there are hooks to extract
+- When the logic can be named with a clear noun: `filters`, `tooltip`, `pagination`
 
 ## Execution Steps
 
-1. Decide tipo y ubicación con la tabla de Decision Gates.
-2. Usa el template de `assets/use-state-handlers.template.md` al extraer `use{Pod}State` y `use{Pod}Handlers`.
-3. Sigue la forma de `references/patterns.md`: tupla, uso en el Component, barrel y hooks globales de ejemplo.
-4. Añade el hook del pod al barrel `hooks/index.ts`.
+1. Decide type and location with the Decision Gates table.
+2. Use the template in `assets/use-state-handlers.template.md` when extracting `use{Pod}State` and `use{Pod}Handlers`.
+3. Follow the shape in `references/patterns.md`: tuple, usage in the Component, barrel and example global hooks.
+4. Add the pod hook to the `hooks/index.ts` barrel.
 
 ## Output Contract
 
-Un hook del pod que retorna la tupla `[State, Handlers]` y está re-exportado en `hooks/index.ts`, o un hook global sin lógica de dominio en su ubicación global.
+A pod hook that returns the `[State, Handlers]` tuple and is re-exported in `hooks/index.ts`, or a global hook with no domain logic in its global location.
 
 ## References
 
-- [`references/patterns.md`](references/patterns.md) — patrón de retorno, uso en el Component, barrel del pod y hooks globales.
-- [`assets/use-state-handlers.template.md`](assets/use-state-handlers.template.md) — template al extraer `use{Pod}State` y `use{Pod}Handlers`.
-- [`references/docs.md`](references/docs.md) — Lee `references/docs.md` para el rationale del patrón tupla y docs externos.
+- [`references/patterns.md`](references/patterns.md) — return pattern, usage in the Component, pod barrel and global hooks.
+- [`assets/use-state-handlers.template.md`](assets/use-state-handlers.template.md) — template for extracting `use{Pod}State` and `use{Pod}Handlers`.
+- [`references/docs.md`](references/docs.md) — Read `references/docs.md` for the tuple pattern rationale and external docs.
+- Load the project's stack skill for views (`stack-react`) and read its `references/client-hooks.md`.
+- Load the project's stack skill for server state (`stack-tanstack-query`) and read its `references/client-hooks.md`.
+- Load the project's stack skill for tests (`stack-vitest`) and read its `references/client-hooks.md`.

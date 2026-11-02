@@ -2,39 +2,32 @@
 
 ## Related Skills
 
-| Skill | Por qué leerla |
+| Skill | Why read it |
 |---|---|
-| `client-api` | Capa api/: api-model, mapper — lo que los hooks consumen |
-| `client-container-presentational` | Cómo el Container usa los hooks |
-| `client-hooks` | Cuándo extraer lógica de los hooks del Container |
-| `client-testing` | Cómo testear Containers con queries usando MSW |
-
-## External Documentation
-
-- [TanStack Query v5 — Docs](https://tanstack.com/query/v5/docs/framework/react/overview) — guía completa
-- [TanStack Query — Query Keys](https://tanstack.com/query/v5/docs/framework/react/guides/query-keys) — estrategia de keys
-- [TanStack Query — Mutations](https://tanstack.com/query/v5/docs/framework/react/guides/mutations) — `useMutation`, `onSuccess`, `onError`
-- [TanStack Query — Invalidation](https://tanstack.com/query/v5/docs/framework/react/guides/query-invalidation) — cuándo y cómo invalidar
+| `client-api` | api/ layer: api-model, mapper — what the hooks consume |
+| `client-container-presentational` | How the Container uses the hooks |
+| `client-hooks` | When to extract logic from the Container's hooks |
+| `client-testing` | How to test Containers with queries using HTTP interception |
 
 ## Query Key Strategy
 
-La estrategia de query keys de este proyecto usa arrays jerárquicos:
+The query key strategy of this project uses hierarchical arrays:
 
 ```
-['{resource}']                    ← todos los recursos
-['{resource}', 'list']            ← todas las listas
-['{resource}', 'list', filters]   ← lista con filtros específicos
-['{resource}', 'detail']          ← todos los detalles
-['{resource}', 'detail', id]      ← detalle específico
+['{resource}']                    ← all resources
+['{resource}', 'list']            ← all lists
+['{resource}', 'list', filters]   ← list with specific filters
+['{resource}', 'detail']          ← all details
+['{resource}', 'detail', id]      ← specific detail
 ```
 
-Esto permite invalidar con distintos niveles de granularidad:
-- `invalidateQueries({ queryKey: productKeys.all })` → invalida todo
-- `invalidateQueries({ queryKey: productKeys.lists() })` → solo listas
-- `invalidateQueries({ queryKey: productKeys.detail(id) })` → solo ese id
+This allows invalidating at different levels of granularity:
+- Invalidating `productKeys.all` → invalidates everything
+- Invalidating `productKeys.lists()` → lists only
+- Invalidating `productKeys.detail(id)` → that id only
 
 ## Internal Docs
 
-| Doc | Contenido relevante |
+| Doc | Relevant content |
 |---|---|
-| `docs/engineering/frontend-architecture.md` | Cómo TanStack Query encaja en la arquitectura de pods del proyecto |
+| `docs/engineering/frontend-architecture.md` | How server state fits into the project's pod architecture |

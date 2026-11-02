@@ -2,29 +2,27 @@
 
 ## Related Skills
 
-| Skill | Por qué leerla |
+| Skill | Why read it |
 |---|---|
-| `client-pods` | Dónde vive el Container y el Component dentro del pod |
-| `client-query` | Hooks de TanStack Query que el Container usa |
-| `client-hooks` | Cuándo extraer lógica del Container a hooks |
-| `client-testing` | Component se testea con RTL + props; Container con RTL + MSW |
+| `client-pods` | Where the Container and the Component live inside the pod |
+| `client-query` | Server-state hooks the Container uses |
+| `client-hooks` | When to extract logic from the Container to hooks |
+| `client-testing` | Component is tested with a view renderer + props; Container with a view renderer + HTTP interception |
 
 ## External Documentation
 
-- [React — Thinking in React](https://react.dev/learn/thinking-in-react) — filosofía de separación UI/datos
-- [Dan Abramov — Presentational and Container Components](https://medium.com/@dan_abramov/smart-and-dumb-components-7ca2f9a7c7d0) — el artículo original (2015)
-- [TanStack Query — Dependent Queries](https://tanstack.com/query/v5/docs/framework/react/guides/dependent-queries) — cuando una query depende del resultado de otra
+- [Dan Abramov — Presentational and Container Components](https://medium.com/@dan_abramov/smart-and-dumb-components-7ca2f9a7c7d0) — the original article (2015)
 
 ## Decision: Container/Component vs. hooks everywhere
 
-Con TanStack Query es tentador poner `useQuery` directamente en cualquier componente. El patrón Container/Component añade una separación explícita que:
-1. Hace el Component testeale con props mockeadas (sin necesidad de MSW)
-2. Aísla la responsabilidad de fetching — más fácil de razonar
-3. Permite cambiar la estrategia de fetching sin tocar la UI
+With a server-state library it is tempting to run queries directly in any component. The Container/Component pattern adds an explicit separation that:
+1. Makes the Component testable with mocked props (no HTTP interception needed)
+2. Isolates the fetching responsibility — easier to reason about
+3. Allows changing the fetching strategy without touching the UI
 
 ## Internal Docs
 
-| Doc | Contenido relevante |
+| Doc | Relevant content |
 |---|---|
-| `docs/engineering/frontend-architecture.md` | Container-Presentational pattern: contratos, ejemplos, estructura — fuente de verdad |
-| `docs/engineering/engineering-principles.md` | SRP en el frontend — un Container = una fuente de datos, un Component = UI |
+| `docs/engineering/frontend-architecture.md` | Container-Presentational pattern: contracts, examples, structure — source of truth |
+| `docs/engineering/engineering-principles.md` | SRP in the frontend — one Container = one data source, one Component = UI |

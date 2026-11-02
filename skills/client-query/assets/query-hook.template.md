@@ -2,57 +2,57 @@
 
 File: `pods/{pod-name}/api/{pod-name}.api.ts`
 
-## useQuery hook
+Framework-free shapes. The stack reference for server state shows the original hooks.
+
+## Query hook
 
 ```typescript
-import { useQuery } from '@tanstack/react-query';
 import { {podName}Keys } from './{pod-name}.query-keys';
 import { get{PodName}s } from './{pod-name}.api-client';
 import { map{PodName} } from './{pod-name}.mapper';
 
 export function use{PodName}s(filters?: {PodName}Filters) {
-  return useQuery({
+  // Pass this configuration to the stack's server-state query primitive.
+  return {
     queryKey: {podName}Keys.list(filters),
-    queryFn: async () => {
+    fetch: async () => {
       const raw = await get{PodName}s(filters);
       return raw.map(map{PodName});
     },
-  });
+  };
 }
 
 export function use{PodName}(id: string) {
-  return useQuery({
+  // Pass this configuration to the stack's server-state query primitive.
+  return {
     queryKey: {podName}Keys.detail(id),
-    queryFn: async () => {
+    fetch: async () => {
       const raw = await get{PodName}(id);
       return map{PodName}(raw);
     },
     enabled: !!id,
-  });
+  };
 }
 ```
 
-## useMutation hook (POST / PATCH / DELETE)
+## Mutation hook (POST / PATCH / DELETE)
 
 ```typescript
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { {podName}Keys } from './{pod-name}.query-keys';
 import { create{PodName} } from './{pod-name}.api-client';
 
 export function useCreate{PodName}() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (data: Create{PodName}Input) => create{PodName}(data),
+  // Pass this configuration to the stack's server-state mutation primitive.
+  return {
+    execute: (data: Create{PodName}Input) => create{PodName}(data),
     onSuccess: () => {
-      // Invalidate to trigger refetch of affected queries
-      queryClient.invalidateQueries({ queryKey: {podName}Keys.lists() });
+      // Invalidate {podName}Keys.lists() to trigger refetch of affected queries
     },
     onError: (error) => {
       // Handle error (show toast, etc.)
       console.error('{PodName} creation failed', error);
     },
-  });
+  };
 }
 ```
 
@@ -103,7 +103,7 @@ export function {PodName}Container() {
   const create{PodName}Mutation = useCreate{PodName}();
 
   const handle{Action} = async (input: Create{PodName}Input) => {
-    await create{PodName}Mutation.mutateAsync(input);
+    await create{PodName}Mutation.execute(input);
   };
 
   return (

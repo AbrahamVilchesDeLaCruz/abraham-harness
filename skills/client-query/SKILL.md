@@ -1,6 +1,6 @@
 ---
 name: client-query
-description: "Trigger: Al usar useQuery, useMutation, definir query keys, o invalidar queries tras una mutation. TanStack Query: queries, mutations, query keys, invalidación en apps/client/."
+description: "Trigger: When running server-state queries or mutations, defining query keys, or invalidating queries after a mutation. Server state: queries, mutations, query keys, invalidation in apps/client/."
 license: Apache-2.0
 metadata:
   author: AbrahamVilchesDeLaCruz
@@ -9,51 +9,52 @@ metadata:
 
 ## Activation Contract
 
-Usa esta skill al usar useQuery, useMutation, definir query keys, o invalidar queries tras una mutation.
+Use this skill when running server-state queries or mutations, defining query keys, or invalidating queries after a mutation.
 
-Cómo usar TanStack Query en `apps/client/`. Las queries y mutations viven en `api/{feature}.api.ts` dentro de cada pod.
+How to handle server state in `apps/client/`. Queries and mutations live in `api/{feature}.api.ts` inside each pod.
 
 ## Hard Rules
 
-- **`useQuery`** → en el Container (data fetching)
-- **`useMutation`** → en el Container (side effects)
-- El Component **nunca** llama a queries ni mutations directamente
-- Las query keys son arrays. Deben ser **consistentes** dentro del pod. Patrón: `[dominio, recurso, params]`
-- Exportar las keys como constantes para reutilizarlas en invalidaciones
-- Usar los estados de TanStack Query directamente — no duplicar en `useState`
-- Configurar el staleTime por defecto en el `QueryClient` global (`core/`)
+- **Queries** → in the Container (data fetching)
+- **Mutations** → in the Container (side effects)
+- The Component **never** calls queries or mutations directly
+- Query keys are arrays. They must be **consistent** within the pod. Pattern: `[domain, resource, params]`
+- Export the keys as constants to reuse them in invalidations
+- Use the server-state library's own states directly — do not duplicate them in local state
+- Configure the default freshness window in the global server-state client (`core/`)
 
 ## Decision Gates
 
-Invalidación:
+Invalidation:
 
-| Cuándo | Qué invalidar |
+| When | What to invalidate |
 |---|---|
-| Crear un item | `invalidateQueries(keys.lists())` |
-| Eliminar un item | `invalidateQueries(keys.lists())` + `removeQueries(keys.detail(id))` |
-| Actualizar un item | `setQueryData(keys.detail(id), updated)` + `invalidateQueries(keys.lists())` |
-| Acción que afecta múltiples recursos | `invalidateQueries({ queryKey: ['products'] })` — invalida todo el dominio |
+| Creating an item | Invalidate `keys.lists()` |
+| Deleting an item | Invalidate `keys.lists()` + remove the cache entry at `keys.detail(id)` |
+| Updating an item | Write `updated` to the cache at `keys.detail(id)` + invalidate `keys.lists()` |
+| Action that affects several resources | Invalidate the key `['products']` — invalidates the whole domain |
 
-staleTime: sobreescribir por query solo cuando sea necesario:
+Freshness window: override per query only when necessary:
 
-| Datos | Valor |
+| Data | Value |
 |---|---|
-| Datos muy dinámicos | `staleTime: 0` |
-| Datos estáticos | `staleTime: Infinity` |
+| Very dynamic data | `0` |
+| Static data | `Infinity` |
 
 ## Execution Steps
 
-1. Usa el template de `assets/query-hook.template.md` al crear queries, mutations y query keys para un nuevo pod.
-2. Define keys, queries y mutations en `api/{feature}.api.ts` siguiendo `references/patterns.md`.
-3. Consúmelas desde el Container y pasa datos y callbacks al Component.
-4. Elige la invalidación de cada mutation con la tabla de Decision Gates.
+1. Use the template in `assets/query-hook.template.md` when creating queries, mutations and query keys for a new pod.
+2. Define keys, queries and mutations in `api/{feature}.api.ts` following `references/patterns.md`.
+3. Consume them from the Container and pass data and callbacks to the Component.
+4. Choose the invalidation of each mutation with the Decision Gates table.
 
 ## Output Contract
 
-Hooks de query y mutation en `api/{feature}.api.ts`, con keys exportadas e invalidación según la tabla, consumidos solo desde el Container.
+Query and mutation hooks in `api/{feature}.api.ts`, with exported keys and invalidation according to the table, consumed only from the Container.
 
 ## References
 
-- [`references/patterns.md`](references/patterns.md) — query keys, useQuery, useMutation, uso en el Container, estados de UI y staleTime por defecto.
-- [`assets/query-hook.template.md`](assets/query-hook.template.md) — template al crear queries, mutations y query keys para un nuevo pod.
-- [`references/docs.md`](references/docs.md) — Lee `references/docs.md` para TanStack Query docs y la estrategia de query keys del proyecto.
+- [`references/patterns.md`](references/patterns.md) — query keys, queries, mutations, usage in the Container, UI states and the default freshness window.
+- [`assets/query-hook.template.md`](assets/query-hook.template.md) — template for creating queries, mutations and query keys for a new pod.
+- [`references/docs.md`](references/docs.md) — Read `references/docs.md` for the project's query key strategy.
+- Load the project's stack skill for server state (`stack-tanstack-query`) and read its `references/client-query.md`.

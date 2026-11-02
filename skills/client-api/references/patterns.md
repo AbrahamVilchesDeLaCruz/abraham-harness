@@ -1,8 +1,8 @@
 # client-api — Patterns
 
-## `{feature}.api-model.ts` — tipos crudos
+## `{feature}.api-model.ts` — raw types
 
-Representa **exactamente** lo que devuelve el servidor. Snake_case si el servidor usa snake_case.
+Represents **exactly** what the server returns. Snake_case if the server uses snake_case.
 
 ```ts
 // products.api-model.ts
@@ -10,27 +10,27 @@ export interface ProductApiModel {
   id: string;
   name: string;
   description: string;
-  difficulty: 'easy' | 'medium' | 'hard';
-  next_review_at: string;   // ISO string
+  size: 'small' | 'medium' | 'large';
+  restocked_at: string;   // ISO string
   created_at: string;
 }
 
 export interface CreateProductPayload {
   name: string;
   description: string;
-  deck_id: string;
+  category_id: string;
 }
 
 export interface UpdateProductPayload {
   name?: string;
   description?: string;
-  difficulty?: 'easy' | 'medium' | 'hard';
+  size?: 'small' | 'medium' | 'large';
 }
 ```
 
 ## `{feature}.types.ts` — ViewModel
 
-Tipos **adaptados a la UI**. camelCase siempre. Fechas como `Date`, no strings.
+Types **adapted to the UI**. camelCase always. Dates as `Date`, not strings.
 
 ```ts
 // products.types.ts
@@ -38,14 +38,14 @@ export interface ProductVM {
   id: string;
   name: string;
   description: string;
-  difficulty: 'easy' | 'medium' | 'hard';
+  size: 'small' | 'medium' | 'large';
   nextReviewAt: Date;
 }
 ```
 
-## `{feature}.mapper.ts` — transformación
+## `{feature}.mapper.ts` — transformation
 
-Convierte el modelo crudo de la API al ViewModel que usa la UI.
+Converts the raw API model to the ViewModel the UI uses.
 
 ```ts
 // products.mapper.ts
@@ -56,14 +56,14 @@ export const mapProduct = (raw: ProductApiModel): ProductVM => ({
   id: raw.id,
   name: raw.name,
   description: raw.description,
-  difficulty: raw.difficulty,
-  nextReviewAt: new Date(raw.next_review_at),
+  size: raw.size,
+  nextReviewAt: new Date(raw.restocked_at),
 });
 ```
 
-## `{feature}.api.ts` — hooks TanStack Query
+## `{feature}.api.ts` — server-state hooks
 
-Ver skill `client-query` para el patrón completo de queries y mutations.
+See skill `client-query` for the full query and mutation pattern. Framework-free shape; the stack reference shows the real hook.
 
 ```ts
 // products.api.ts
@@ -75,17 +75,18 @@ export const productKeys = {
 };
 
 export const useProducts = (params: ProductListParams) => {
-  return useQuery({
+  // Pass this configuration to the stack's server-state query primitive.
+  return {
     queryKey: productKeys.list(params),
-    queryFn: () => apiClient.get<ProductApiModel[]>('/products', { params }),
-    select: (data) => data.map(mapProduct),
-  });
+    fetch: () => apiClient.get<ProductApiModel[]>('/products', { params }),
+    transform: (data) => data.map(mapProduct),
+  };
 };
 ```
 
 ## `api/index.ts` — barrel
 
-Re-exporta todo lo público de la capa API:
+Re-exports everything public from the API layer:
 
 ```ts
 // api/index.ts
@@ -93,32 +94,21 @@ export * from './products.api';
 export * from './products.api-model';
 ```
 
-## `index.ts` del pod — barrel raíz
+## The pod's `index.ts` — root barrel
 
-Solo exporta el Container (punto de entrada del pod):
+Exports only the Container (the pod's entry point):
 
 ```ts
 // containers/products/index.ts
 export { ProductsContainer } from './ProductsContainer';
 ```
 
-## API client global
+## Global API client
 
-El cliente HTTP vive en `core/` y se importa desde cualquier pod:
+The HTTP client lives in `core/` and is imported from any pod. It sets:
 
-```ts
-// core/api/apiClient.ts
-import axios from 'axios';
+- The base URL from the environment.
+- Credentials on every request, for httpOnly cookies (refresh token).
+- An auth interceptor that adds the access token as `Authorization: Bearer <token>` when a token exists. It reads the token from the auth store.
 
-export const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
-  withCredentials: true,  // para cookies httpOnly (refresh token)
-});
-
-// Interceptor de auth — añade access token
-apiClient.interceptors.request.use((config) => {
-  const token = useAuthStore.getState().accessToken;
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
-```
+The stack reference for views holds the original example.

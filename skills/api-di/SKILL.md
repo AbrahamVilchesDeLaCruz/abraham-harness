@@ -1,177 +1,40 @@
 ---
 name: api-di
-description: "Tokens Symbol, registro de providers, inyección sin acoplamiento en apps/api/. Trigger: Al definir tokens de inyección, registrar providers en módulos, o inyectar dependencias en use cases o controllers."
+description: "Trigger: Al definir tokens de inyección, registrar providers en módulos, o inyectar dependencias en use cases o controllers. Tokens Symbol, registro de providers, inyección sin acoplamiento en apps/api/."
 license: Apache-2.0
 metadata:
   author: AbrahamVilchesDeLaCruz
   version: "1.0"
 ---
 
-## When to Use
+## Activation Contract
 
 - Al definir el token de inyección para un repositorio, servicio o cualquier abstracción
 - Al registrar providers en un módulo
 - Al inyectar dependencias en use cases o controllers
 
-> Usa el template de `assets/di-tokens.template.md` al añadir tokens y módulos a un nuevo BC.
-> Lee `references/docs.md` para el rationale de Symbol vs string y docs externos.
+## Hard Rules
 
----
+- El dominio y la aplicación **no deben saber que NestJS existe**. Para lograrlo, cada interfaz tiene un token de inyección propio que no importa nada de `@nestjs/common`.
+- Los tokens son `Symbol` — **siempre** — no strings (colisiones), no clases de NestJS (acoplamiento).
+- El token se define en el mismo archivo que la interface — en la capa de domain o shared/domain
+- Los use cases inyectan por **interface** — nunca por clase concreta
+- El tipo del parámetro es la **interface** — nunca la implementación concreta. `@Inject(TOKEN)` es el único rastro de NestJS en application/domain.
+- Los módulos son los únicos que conocen las implementaciones concretas (TypeORM, RabbitMQ, etc.)
+- Un módulo exporta el **token** — nunca la clase de implementación
+- Formato siempre `SCREAMING_SNAKE_CASE`.
 
-## Concept
+## Decision Gates
 
-El dominio y la aplicación **no deben saber que NestJS existe**. Para lograrlo, cada interfaz tiene un token de inyección propio que no importa nada de `@nestjs/common`.
+### Registro en el módulo
 
-```
-Interface (domain)       → define el contrato
-Token (domain/shared)    → Symbol — el identificador de DI
-Implementation (infra)   → clase concreta que implementa la interface
-Registration (module)    → NestJS conecta token → implementación
-Injection (use case)     → @Inject(TOKEN) — único punto de contacto con NestJS
-```
+| Situación | Provider |
+| --- | --- |
+| Caso más común (repositorios, servicios) | `useClass` |
+| Singleton compartido bajo múltiples tokens | `useExisting` |
+| Providers que dependen de múltiples instancias | `useFactory` |
 
----
-
-## Token Definition
-
-Los tokens son `Symbol` — no strings (colisiones), no clases de NestJS (acoplamiento).
-
-```typescript
-// src/sales/domain/order.repository.ts
-import { type Criteria } from '@/shared/domain/criteria';
-import { type Order } from './order';
-import { type OrderId } from './order-id';
-
-export interface OrderRepository {
-  save(order: Order): Promise<void>;
-  search(id: OrderId): Promise<Order | null>;
-  match(criteria: Criteria): Promise<Order[]>;
-}
-
-// El token vive junto a la interface — en domain
-export const ORDER_REPOSITORY = Symbol('OrderRepository');
-```
-
-El patrón se replica para cualquier abstracción:
-
-```typescript
-// src/shared/domain/domain-event-publisher.ts
-export interface DomainEventPublisher {
-  publish(events: DomainEvent[]): Promise<void>;
-}
-export const DOMAIN_EVENT_PUBLISHER = Symbol('DomainEventPublisher');
-
-// src/shared/application/domain-event-consumer.ts
-export interface DomainEventConsumer { ... }
-export const DOMAIN_EVENT_CONSUMER = Symbol('DomainEventConsumer');
-
-// src/shared/domain/logger.ts
-export interface Logger { ... }
-export const LOGGER_SERVICE = Symbol('Logger');
-
-// src/shared/domain/app-metrics.ts
-export interface AppMetrics { ... }
-export const APP_METRICS = Symbol('AppMetrics');
-```
-
----
-
-## Registration in Module
-
-### `useClass` — caso más común (repositorios, servicios)
-
-```typescript
-// src/sales/infrastructure/framework/sales.module.ts
-import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { ORDER_REPOSITORY } from '@/sales/domain/order.repository';
-import { TypeOrmOrderRepository } from '@/sales/infrastructure/persistence/typeorm-order.repository';
-import { OrderEntity } from '@/sales/infrastructure/persistence/order.entity';
-import { OrderStarter } from '@/sales/application/start/order-starter';
-import { StartOrderPostController } from '@/sales/infrastructure/controllers/start-order-post.controller';
-import { SharedModule } from '@/shared/infrastructure/framework/shared.module';
-
-@Module({
-  imports: [SharedModule, TypeOrmModule.forFeature([OrderEntity])],
-  controllers: [StartOrderPostController],
-  providers: [
-    // Ports
-    { provide: ORDER_REPOSITORY, useClass: TypeOrmOrderRepository },
-    // Use cases
-    OrderStarter,
-  ],
-  // Solo exportar tokens que otros módulos necesitan
-  exports: [],
-})
-export class SalesModule {}
-```
-
-### `useExisting` — singleton compartido bajo múltiples tokens
-
-```typescript
-// src/shared/infrastructure/framework/shared.module.ts
-@Global()
-@Module({
-  providers: [
-    AmqpMessageBus,
-    // Un singleton, dos contratos distintos
-    { provide: DOMAIN_EVENT_PUBLISHER, useExisting: AmqpMessageBus },
-    { provide: DOMAIN_EVENT_CONSUMER, useExisting: AmqpMessageBus },
-    { provide: LOGGER_SERVICE, useClass: PinoLogger },
-  ],
-  exports: [LOGGER_SERVICE, DOMAIN_EVENT_PUBLISHER, DOMAIN_EVENT_CONSUMER],
-})
-export class SharedModule {}
-```
-
-### `useFactory` — providers que dependen de múltiples instancias
-
-```typescript
-// Registrar una lista de subscribers tipados
-{
-  provide: SUBSCRIBERS,
-  useFactory: (
-    onOrderCompleted: StreakUpdaterOnOrderCompleted,
-  ): Subscriber[] => [onOrderCompleted],
-  inject: [StreakUpdaterOnOrderCompleted],
-},
-SubscribersBootstrapper,
-```
-
----
-
-## Injection in Use Case
-
-```typescript
-// src/sales/application/complete/order-completer.ts
-import { Inject, Injectable } from '@nestjs/common';
-import {
-  type OrderRepository,
-  ORDER_REPOSITORY,
-} from '@/sales/domain/order.repository';
-import {
-  type DomainEventPublisher,
-  DOMAIN_EVENT_PUBLISHER,
-} from '@/shared/domain/domain-event-publisher';
-import { type Logger, LOGGER_SERVICE } from '@/shared/domain/logger';
-import { type AppMetrics, APP_METRICS } from '@/shared/domain/app-metrics';
-
-@Injectable()
-export class OrderCompleter {
-  constructor(
-    @Inject(ORDER_REPOSITORY) private readonly repository: OrderRepository,
-    @Inject(DOMAIN_EVENT_PUBLISHER) private readonly publisher: DomainEventPublisher,
-    @Inject(LOGGER_SERVICE) private readonly logger: Logger,
-    @Inject(APP_METRICS) private readonly metrics: AppMetrics,
-  ) {}
-}
-```
-
-**Regla:** El tipo del parámetro es la **interface** — nunca la implementación concreta. `@Inject(TOKEN)` es el único rastro de NestJS en application/domain.
-
----
-
-## Naming Conventions
+### Naming Conventions
 
 | Abstracción | Token | Ejemplo |
 |---|---|---|
@@ -185,14 +48,18 @@ export class OrderCompleter {
 | Logger | `LOGGER_SERVICE` | shared — interface Logger |
 | Métricas | `APP_METRICS` | shared — interface AppMetrics |
 
-Formato siempre `SCREAMING_SNAKE_CASE`.
+## Execution Steps
 
----
+1. Define la interface y su token en el mismo archivo, con el nombre de la tabla.
+2. Registra token → implementación en el módulo con el provider que corresponda.
+3. Inyecta con `@Inject(TOKEN)` tipando el parámetro con la interface.
 
-## Rules
+## Output Contract
 
-- Los tokens son `Symbol` — **siempre**
-- El token se define en el mismo archivo que la interface — en la capa de domain o shared/domain
-- Los use cases inyectan por **interface** — nunca por clase concreta
-- Los módulos son los únicos que conocen las implementaciones concretas (TypeORM, RabbitMQ, etc.)
-- Un módulo exporta el **token** — nunca la clase de implementación
+Entrega la interface con su token `Symbol`, el registro en el módulo y la inyección en el use case o controller.
+
+## References
+
+- [`references/patterns.md`](references/patterns.md): flujo interface → token → implementación → registro → inyección, y código de cada paso.
+- Usa el template de [`assets/di-tokens.template.md`](assets/di-tokens.template.md) al añadir tokens y módulos a un nuevo BC.
+- Lee [`references/docs.md`](references/docs.md) para el rationale de Symbol vs string y docs externos.

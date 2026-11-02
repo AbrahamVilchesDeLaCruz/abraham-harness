@@ -120,3 +120,48 @@ test('rejects an agent role with an unknown access level', () => {
   assert.equal(r.status, 1);
   assert.match(r.stderr, /agents\/demo\.md: unknown access "readonly"/);
 });
+
+const concept = (body) => ({
+  'api-demo/SKILL.md': GOOD.replace('name: demo', 'name: api-demo'),
+  'api-demo/references/guide.md': body,
+});
+
+test('rejects a framework name in a concept skill', () => {
+  const r = run(concept('Register the use case in a NestJS module.\n'));
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /api-demo\/references\/guide\.md:1: concept skill names framework "NestJS"/);
+});
+
+test('rejects a framework name in the code of a concept skill', () => {
+  const r = run(concept('```typescript\nimport { Injectable } from "@nestjs/common";\n```\n'));
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /concept skill names framework "@nestjs"/);
+});
+
+test('allows a framework name in a stack skill', () => {
+  const r = run({
+    'stack-demo/SKILL.md': GOOD.replace('name: demo', 'name: stack-demo'),
+    'stack-demo/references/guide.md': 'Register the use case in a NestJS module.\n',
+  });
+  assert.equal(r.status, 0, r.stderr);
+});
+
+test('rejects text that is not in English', () => {
+  const r = run(concept('Siempre usa una clase para los casos de uso cuando el dominio lo necesita y nunca desde la capa de infraestructura con los modelos.\n'));
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /api-demo\/references\/guide\.md: text is not in English/);
+});
+
+test('does not read Spanish strings in code as text', () => {
+  const r = run(concept('```typescript\nconst a = "que para los las una del con cuando debe nunca siempre desde como";\n```\n'));
+  assert.equal(r.status, 0, r.stderr);
+});
+
+test('rejects a pinned library version', () => {
+  const r = run({
+    'stack-demo/SKILL.md': GOOD.replace('name: demo', 'name: stack-demo'),
+    'stack-demo/references/guide.md': 'See Faker.js v9 for details.\n',
+  });
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /stack-demo\/references\/guide\.md:1: pinned version "Faker\.js v9"/);
+});

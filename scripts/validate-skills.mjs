@@ -7,6 +7,14 @@ import { ACCESS_LEVELS, loadRoles } from '../lib/agents.mjs';
 const FORBIDDEN_TERMS = ['flashcard', 'ididntcatchthat', 'tfm', 'big-school', 'elevenlabs', 'deepseek', 'doppler'];
 const FORBIDDEN = new RegExp(`\\b(${FORBIDDEN_TERMS.join('|')})\\b`, 'i');
 const REQUIRED_FIELDS = ['name', 'description', 'license'];
+// Concept skills describe patterns. Framework details belong in stack-* skills.
+const FRAMEWORK = /(@nestjs|NestJS|TypeORM|typeorm|class-validator|class-transformer|Passport|@Injectable|@Controller|@Module|useState|useEffect|useQuery|useMutation|TanStack|React|Zustand|\bJest\b|jest\.|jest-mock|Vitest|Playwright|\bMSW\b|RabbitMQ|amqplib|\bpino\b|Prometheus|OpenTelemetry|Swagger|\bJoi\b|Faker)/;
+const CONCEPT_SKILL = /^(api|client)-/;
+const PINNED_VERSION = /\b([A-Z][\w.]+ v\d+)\b/;
+const SPANISH_WORDS = /\b(que|para|los|las|una|del|con|cuando|debe|nunca|siempre|desde|como|tambi\u00e9n)\b/gi;
+const MAX_SPANISH_RATIO = 0.03;
+const MIN_SPANISH_WORDS = 5;
+const FENCE = /^[ \t]*```[\s\S]*?^[ \t]*```[ \t]*$/gm;
 const MOJIBAKE = /[\u00c3\u00c2][\u0080-\u00bf]|\u00e2\u20ac/;
 const LINK = /\]\(([^)\s]+)\)/g;
 const MAX_DESCRIPTION = 250;
@@ -72,13 +80,27 @@ function checkFrontmatter(skillDir, path) {
   }
 }
 
+function checkLanguage(path, content) {
+  const prose = content.replace(FENCE, '').replace(/`[^`\n]*`/g, '');
+  const words = prose.split(/\s+/).length;
+  const spanish = (prose.match(SPANISH_WORDS) ?? []).length;
+  if (spanish >= MIN_SPANISH_WORDS && spanish / words > MAX_SPANISH_RATIO) errors.push(`${label(path)}: text is not in English`);
+}
+
 // Installers copy one skill directory, so any link leaving it would break after install.
 function checkMarkdown(skillDir, path) {
   const inTemplates = label(path).includes('/assets/');
-  const lines = readFileSync(path, 'utf8').split('\n');
+  const isConcept = CONCEPT_SKILL.test(label(skillDir));
+  const content = readFileSync(path, 'utf8');
+  checkLanguage(path, content);
+  const lines = content.split('\n');
   lines.forEach((line, index) => {
     const term = line.match(FORBIDDEN);
     if (term) errors.push(`${label(path)}:${index + 1}: project-specific term "${term[1].toLowerCase()}"`);
+    const framework = isConcept && line.match(FRAMEWORK);
+    if (framework && !/^https?:/.test(framework[0])) errors.push(`${label(path)}:${index + 1}: concept skill names framework "${framework[1]}"`);
+    const pinned = line.match(PINNED_VERSION);
+    if (pinned) errors.push(`${label(path)}:${index + 1}: pinned version "${pinned[1]}"`);
     if (MOJIBAKE.test(line)) errors.push(`${label(path)}:${index + 1}: corrupted encoding`);
     if (inTemplates) return;
     for (const [, raw] of line.matchAll(LINK)) {

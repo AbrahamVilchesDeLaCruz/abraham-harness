@@ -10,8 +10,8 @@ describe('mapProduct', () => {
   it('transforma snake_case a camelCase', () => {
     const raw = {
       id: 'abc',
-      front_text: 'Hello',
-      back_text: 'Hola',
+      name: 'Desk lamp',
+      description: 'Adjustable LED lamp',
       difficulty: 'easy' as const,
       next_review_at: '2026-05-21T10:00:00.000Z',
       created_at: '2026-01-01T00:00:00.000Z',
@@ -19,8 +19,8 @@ describe('mapProduct', () => {
 
     const result = mapProduct(raw);
 
-    expect(result.frontText).toBe('Hello');
-    expect(result.backText).toBe('Hola');
+    expect(result.name).toBe('Desk lamp');
+    expect(result.description).toBe('Adjustable LED lamp');
     expect(result.nextReviewAt).toBeInstanceOf(Date);
   });
 });
@@ -118,8 +118,8 @@ export class ProductMother {
   static one(overrides?: Partial<ProductVM>): ProductVM {
     return {
       id: 'test-id-1',
-      frontText: 'What is your return policy?',
-      backText: 'When words blend together in natural speech',
+      name: 'What is your return policy?',
+      description: 'Returns are accepted within 30 days.',
       difficulty: 'medium',
       nextReviewAt: new Date('2026-06-01'),
       ...overrides,

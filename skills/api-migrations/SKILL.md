@@ -124,7 +124,7 @@ export async function seedLocalDemo(dataSource: DataSource): Promise<void> {
   }
 
   await dataSource.query(
-    `INSERT INTO users (id, email, nickname, role, show_in_ranking, current_streak, longest_streak, created_at, updated_at)
+    `INSERT INTO users (id, email, nickname, role, longest_streak, created_at, updated_at)
      VALUES ($1, $2, 'demo', 'admin', true, 0, 0, NOW(), NOW())`,
     [DEMO_USER_ID, DEMO_EMAIL],
   );

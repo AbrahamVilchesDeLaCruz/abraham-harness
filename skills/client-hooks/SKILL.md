@@ -86,10 +86,10 @@ export const ProductsComponent = ({ products, ... }: ProductsComponentProps) => 
         onFilter={filterHandlers.setDifficulty}
         onReset={filterHandlers.resetFilters}
       />
-      {products.map(card => (
+      {products.map(product => (
         <ProductItem
-          key={card.id}
-          card={card}
+          key={product.id}
+          product={product}
           onHover={tooltipHandlers.show}
         />
       ))}

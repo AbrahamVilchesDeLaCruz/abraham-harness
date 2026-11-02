@@ -129,7 +129,7 @@ export class CompleteOrderPostController { ... }
 @Post(':id/complete')
 @HttpCode(HttpStatus.OK)
 @ApiOperation({
-  summary: 'Complete a order session',
+  summary: 'Complete an order session',
   description: 'Marks the order as completed and returns summary stats.',
 })
 @ApiOkResponse({ description: 'Order completed with summary stats' })

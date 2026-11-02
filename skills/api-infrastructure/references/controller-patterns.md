@@ -33,7 +33,7 @@ export class StartOrderPostController {
       mode: body.mode,
       module: body.module ?? null,
       subcategory: body.subcategory ?? null,
-      cardCount: body.cardCount,
+      itemCount: body.itemCount,
       source: body.source,
     });
     return ApiResponse.of(data, resolveRequestId(req));
@@ -65,7 +65,7 @@ export class StartOrderPostPayload {
   @IsInt()
   @Min(1)
   @Max(50)
-  cardCount: number;
+  itemCount: number;
 
   @ApiPropertyOptional({ description: 'Selection source', enum: ['catalog', 'weakest'] })
   @IsOptional()

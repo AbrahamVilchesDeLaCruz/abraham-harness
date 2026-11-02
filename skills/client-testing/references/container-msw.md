@@ -23,8 +23,8 @@ describe('ProductsContainer', () => {
         HttpResponse.json([
           {
             id: '1',
-            front_text: 'Hello',
-            back_text: 'Hola',
+            name: 'Desk lamp',
+            description: 'Adjustable LED lamp',
             difficulty: 'easy',
             next_review_at: '2026-06-01T00:00:00Z',
             created_at: '2026-01-01T00:00:00Z',
@@ -36,7 +36,7 @@ describe('ProductsContainer', () => {
     render(<ProductsContainer />, { wrapper });
 
     await waitFor(() => {
-      expect(screen.getByText('Hello')).toBeInTheDocument();
+      expect(screen.getByText('Desk lamp')).toBeInTheDocument();
     });
   });
 

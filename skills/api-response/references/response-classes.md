@@ -142,7 +142,7 @@ async handler(
   const data = await this.starter.execute({
     userId: user.userId ?? null,
     mode: body.mode,
-    cardCount: body.cardCount,
+    itemCount: body.itemCount,
   });
   return ApiResponse.of(data, resolveRequestId(req));
 }

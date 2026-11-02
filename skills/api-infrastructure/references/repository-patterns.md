@@ -61,7 +61,7 @@ export class TypeOrmOrderRepository implements OrderRepository {
       module: entity.module,
       subcategory: entity.subcategory,
       source: entity.source ?? 'catalog',
-      cardCount: entity.cardCount,
+      itemCount: entity.itemCount,
       status: entity.status,
       lastProductId: entity.lastProductId,
       startedAt: entity.startedAt,
@@ -78,7 +78,7 @@ export class TypeOrmOrderRepository implements OrderRepository {
     e.module = p.module;
     e.subcategory = p.subcategory;
     e.source = p.source;
-    e.cardCount = p.cardCount;
+    e.itemCount = p.itemCount;
     e.status = p.status;
     e.lastProductId = p.lastProductId;
     e.startedAt = p.startedAt;
@@ -112,8 +112,8 @@ export class OrderEntity {
   @Column({ default: 'catalog' })
   source: string;
 
-  @Column({ name: 'card_count' })
-  cardCount: string;
+  @Column({ name: 'item_count' })
+  itemCount: string;
 
   @Column({ default: 'in_progress' })
   status: string;

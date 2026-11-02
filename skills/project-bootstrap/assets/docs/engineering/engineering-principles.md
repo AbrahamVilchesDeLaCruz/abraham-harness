@@ -254,7 +254,7 @@ UuidMother
 NumberMother
       ↓
 ProductIdMother      ← Mother del VO, llama a UuidMother
-ProductFrontMother   ← Mother del VO, llama a StringMother
+ProductNameMother   ← Mother del VO, llama a StringMother
       ↓
 ProductMother        ← compone los Mothers de los VOs
 ```
@@ -319,15 +319,15 @@ export class ProductIdMother {
 ```ts
 // product/domain/__mothers__/ProductMother.ts
 import { ProductIdMother } from './ProductIdMother';
-import { ProductFrontMother } from './ProductFrontMother';
+import { ProductNameMother } from './ProductNameMother';
 import { Product } from '../product';
 
 export class ProductMother {
   static random(overrides?: Partial<ProductPrimitives>): Product {
     return Product.fromPrimitives({
       id: ProductIdMother.random().value,
-      frontText: ProductFrontMother.random().value,
-      backText: ProductFrontMother.random().value,
+      name: ProductNameMother.random().value,
+      description: ProductNameMother.random().value,
       difficulty: 'medium',
       ...overrides,
     });

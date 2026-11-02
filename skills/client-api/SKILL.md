@@ -41,22 +41,22 @@ Representa **exactamente** lo que devuelve el servidor. Snake_case si el servido
 // products.api-model.ts
 export interface ProductApiModel {
   id: string;
-  front_text: string;
-  back_text: string;
+  name: string;
+  description: string;
   difficulty: 'easy' | 'medium' | 'hard';
   next_review_at: string;   // ISO string
   created_at: string;
 }
 
 export interface CreateProductPayload {
-  front_text: string;
-  back_text: string;
+  name: string;
+  description: string;
   deck_id: string;
 }
 
 export interface UpdateProductPayload {
-  front_text?: string;
-  back_text?: string;
+  name?: string;
+  description?: string;
   difficulty?: 'easy' | 'medium' | 'hard';
 }
 ```
@@ -71,8 +71,8 @@ Tipos **adaptados a la UI**. camelCase siempre. Fechas como `Date`, no strings.
 // products.types.ts
 export interface ProductVM {
   id: string;
-  frontText: string;
-  backText: string;
+  name: string;
+  description: string;
   difficulty: 'easy' | 'medium' | 'hard';
   nextReviewAt: Date;
 }
@@ -91,8 +91,8 @@ import { ProductVM } from './products.types';
 
 export const mapProduct = (raw: ProductApiModel): ProductVM => ({
   id: raw.id,
-  frontText: raw.front_text,
-  backText: raw.back_text,
+  name: raw.name,
+  description: raw.description,
   difficulty: raw.difficulty,
   nextReviewAt: new Date(raw.next_review_at),
 });

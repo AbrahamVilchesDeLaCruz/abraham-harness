@@ -211,7 +211,7 @@ describe('{bc}/application/{verb} {ClassName}', () => {
 
 // Ejemplo real
 describe('sales/application/complete OrderCompleter', () => {
-  it('should complete a order and return summary', async () => { ... });
+  it('should complete an order and return summary', async () => { ... });
   it('should throw OrderNotFound when order does not exist', async () => { ... });
 });
 ```
@@ -242,7 +242,7 @@ describe('sales/order StartOrderPostController (e2e)', () => {
     const res = await request(app.getHttpServer())
       .post('/v1/orders')
       .set('Authorization', `Bearer ${token}`)
-      .send({ mode: 'order', cardCount: 10 })
+      .send({ mode: 'standard', itemCount: 10 })
       .expect(201);
 
     expect(res.body.data.orderId).toBeDefined();

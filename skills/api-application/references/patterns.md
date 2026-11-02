@@ -141,7 +141,7 @@ export class CreateProductDto { name: string; meaning: string; }
 
 // ❌ Lógica de negocio en use case
 async execute(request): Promise<void> {
-  if (request.expression.length > 500) throw new Error('too long'); // va en VO o entidad
+  if (request.name.length > 500) throw new Error('too long'); // va en VO o entidad
 }
 
 // ❌ Retornar entidad de dominio

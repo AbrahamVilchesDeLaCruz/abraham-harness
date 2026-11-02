@@ -35,7 +35,7 @@ export type ProductPrimitives = {
 export class Product extends AggregateRoot<ProductPrimitives> {
   public constructor(
     public readonly id: ProductId,
-    private _expression: Expression,
+    private _name: ProductName,
     private _meaning: Meaning,
     private _category: Category,
     private _audioStatus: AudioStatus,
@@ -44,7 +44,7 @@ export class Product extends AggregateRoot<ProductPrimitives> {
     super();
   }
 
-  get expression(): Expression { return this._expression; }
+  get name(): ProductName { return this._name; }
   get meaning(): Meaning { return this._meaning; }
   get category(): Category { return this._category; }
   get audioStatus(): AudioStatus { return this._audioStatus; }
@@ -53,7 +53,7 @@ export class Product extends AggregateRoot<ProductPrimitives> {
   static create(id: string, name: string, meaning: string, category: string, createdBy: string): Product {
     const product = new Product(
       new ProductId(id),
-      new Expression(expression),
+      new ProductName(name),
       new Meaning(meaning),
       new Category(category),
       new AudioStatus(AudioStatusValue.Pending),
@@ -67,7 +67,7 @@ export class Product extends AggregateRoot<ProductPrimitives> {
   static fromPrimitives(p: ProductPrimitives): Product {
     return new Product(
       new ProductId(p.id),
-      new Expression(p.expression),
+      new ProductName(p.name),
       new Meaning(p.meaning),
       new Category(p.category),
       new AudioStatus(p.audioStatus),
@@ -78,7 +78,7 @@ export class Product extends AggregateRoot<ProductPrimitives> {
   toPrimitives(): ProductPrimitives {
     return {
       id: this.id.value,
-      name: this.expression.value,
+      name: this.name.value,
       meaning: this.meaning.value,
       category: this.category.value,
       audioStatus: this.audioStatus.value,
@@ -130,16 +130,16 @@ export class ProductId extends UuidValueObject {
 ```
 
 ```typescript
-// catalog/product/domain/expression.ts  ← VOs propios del BC en su domain/
+// catalog/product/domain/product-name.ts  ← VOs propios del BC en su domain/
 import { StringValueObject } from '@/shared/domain/string-value-object';
 
-export class Expression extends StringValueObject {
+export class ProductName extends StringValueObject {
   private static readonly MAX_LENGTH = 200;
 
   constructor(value: string) {
     super(value);
-    if (!value?.trim()) throw new ExpressionEmpty();
-    if (value.length > Expression.MAX_LENGTH) throw new ExpressionTooLong();
+    if (!value?.trim()) throw new ProductNameEmpty();
+    if (value.length > ProductName.MAX_LENGTH) throw new ProductNameTooLong();
   }
 }
 ```
@@ -215,7 +215,7 @@ interface ProductRepository {
 
 // ❌ Lógica de negocio fuera del aggregate
 async execute(name: string): Promise<void> {
-  if (expression.length > 200) throw new Error('too long'); // esto va en el VO
+  if (name.length > 200) throw new Error('too long'); // esto va en el VO
 }
 
 // ❌ fromPrimitives para crear entidades nuevas (sin eventos)

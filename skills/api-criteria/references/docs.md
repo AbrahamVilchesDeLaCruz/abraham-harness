@@ -12,7 +12,7 @@
 ## External Documentation
 
 - [TypeORM — SelectQueryBuilder](https://typeorm.io/select-query-builder) — `andWhere`, `orderBy`, `take`, `skip`
-- [TypeORM — Parameter binding](https://typeorm.io/select-query-builder#adding-where-expression) — `:param` syntax para prevenir SQL injection
+- [TypeORM — Parameter binding](https://typeorm.io/select-query-builder#adding-where-name) — `:param` syntax para prevenir SQL injection
 
 ## Pattern Origin
 

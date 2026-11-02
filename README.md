@@ -3,15 +3,15 @@
 My meta-harness: one versioned set of agent skills and architecture conventions, shared by all my projects.
 
 - **Architecture:** NestJS with DDD and hexagonal architecture for APIs, and React with pods and Container-Presentational for clients.
-- **Agents:** Any agent supported by the [`skills` CLI](https://github.com/vercel-labs/skills), such as Claude Code, Codex and OpenCode.
+- **Agents:** Claude Code, Codex and OpenCode. The installer wraps the [`skills` CLI](https://github.com/vercel-labs/skills), which you can also call directly to target other agents.
 - **Distribution:** This GitHub repository. There is no npm package to publish.
 
 ## Start a project
 
-1. Install the skills in the project:
+1. Install the skills in the project for Claude Code, Codex and OpenCode:
 
    ```bash
-   npx skills@latest add AbrahamVilchesDeLaCruz/abraham-harness
+   npx github:AbrahamVilchesDeLaCruz/abraham-harness
    ```
 
 2. Ask your agent to set up the project:
@@ -29,9 +29,19 @@ My meta-harness: one versioned set of agent skills and architecture conventions,
 Run these commands in each project:
 
 ```bash
-npx skills check    # exits with code 1 when an update is available
-npx skills update   # installs the latest version of the skills
+npx github:AbrahamVilchesDeLaCruz/abraham-harness check    # exits with code 1 when an update is available
+npx github:AbrahamVilchesDeLaCruz/abraham-harness update   # installs the latest version of the skills
 ```
+
+## Where the skills go
+
+| Agent | Project directory |
+| --- | --- |
+| Claude Code | `.claude/skills/` |
+| Codex | `.agents/skills/` |
+| OpenCode | `.agents/skills/` |
+
+Install per project, which is the default. The `--global` option replaces any skill with the same name in `~/.claude/skills/` and `~/.config/opencode/skills/`.
 
 ## Change a convention
 

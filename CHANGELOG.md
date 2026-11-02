@@ -2,6 +2,10 @@
 
 This project follows [Semantic Versioning](https://semver.org/): a major version changes a convention that existing projects must adapt to, a minor version adds skills or guidance, and a patch version fixes them.
 
+## 0.2.0
+
+- Add an installer that targets Claude Code, Codex and OpenCode: `npx github:AbrahamVilchesDeLaCruz/abraham-harness`.
+
 ## 0.1.0
 
 - Add API skills for NestJS with DDD and hexagonal architecture.

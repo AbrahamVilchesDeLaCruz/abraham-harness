@@ -2,6 +2,7 @@
 // Validates every skill so a release can never ship a broken or project-specific skill.
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { dirname, join, relative, resolve, sep } from 'node:path';
+import { ACCESS_LEVELS, loadRoles } from '../lib/agents.mjs';
 
 const FORBIDDEN_TERMS = ['flashcard', 'ididntcatchthat', 'tfm', 'big-school', 'elevenlabs', 'deepseek', 'doppler'];
 const FORBIDDEN = new RegExp(`\\b(${FORBIDDEN_TERMS.join('|')})\\b`, 'i');
@@ -13,6 +14,7 @@ const MAX_BODY = 4000; // Roughly the style guide's hard maximum of 1000 tokens.
 const REQUIRED_SECTIONS = ['## Activation Contract', '## Hard Rules'];
 
 const root = resolve(process.argv[2] ?? 'skills');
+const agentsRoot = process.argv[3] ? resolve(process.argv[3]) : null;
 const errors = [];
 const label = (path) => relative(root, path).split(sep).join('/');
 
@@ -100,6 +102,15 @@ for (const skillDir of skillDirs) {
   }
   checkFrontmatter(skillDir, skillFile);
   for (const path of walk(skillDir).filter((file) => file.endsWith('.md'))) checkMarkdown(skillDir, path);
+}
+
+if (agentsRoot) {
+  for (const role of loadRoles(agentsRoot)) {
+    if (!ACCESS_LEVELS.includes(role.access)) errors.push(`agents/${role.name}.md: unknown access "${role.access}"`);
+    for (const skill of role.skills) {
+      if (!existsSync(join(root, skill, 'SKILL.md'))) errors.push(`agents/${role.name}.md: unknown skill "${skill}"`);
+    }
+  }
 }
 
 if (errors.length > 0) {

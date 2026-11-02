@@ -24,17 +24,24 @@ Use this skill when testing.
 - Read [the guide](references/guide.md).
 `;
 
-function run(files) {
+function run(files, agents = null) {
   const root = mkdtempSync(join(tmpdir(), 'harness-validate-'));
+  const agentsRoot = mkdtempSync(join(tmpdir(), 'harness-validate-agents-'));
   try {
+    for (const [name, content] of Object.entries(agents ?? {})) {
+      mkdirSync(join(agentsRoot, name, '..'), { recursive: true });
+      writeFileSync(join(agentsRoot, name), content);
+    }
     for (const [path, content] of Object.entries(files)) {
       const full = join(root, path);
       mkdirSync(join(full, '..'), { recursive: true });
       writeFileSync(full, content);
     }
-    return spawnSync(process.execPath, [SCRIPT, root], { encoding: 'utf8' });
+    const args = agents ? [SCRIPT, root, agentsRoot] : [SCRIPT, root];
+    return spawnSync(process.execPath, args, { encoding: 'utf8' });
   } finally {
     rmSync(root, { recursive: true, force: true });
+    rmSync(agentsRoot, { recursive: true, force: true });
   }
 }
 
@@ -98,4 +105,18 @@ test('rejects corrupted encoding', () => {
   const r = run({ 'demo/SKILL.md': GOOD, 'demo/references/guide.md': 'Las 3 seÃ±ales\n' });
   assert.equal(r.status, 1);
   assert.match(r.stderr, /demo\/references\/guide\.md:1: corrupted encoding/);
+});
+
+test('rejects an agent role that names a skill that does not exist', () => {
+  const role = '---\nname: demo\ndescription: "Demo."\naccess: read-only\nskills: missing-skill\n---\n\nBody.\n';
+  const r = run({ 'demo/SKILL.md': GOOD, 'demo/references/guide.md': '' }, { 'demo.md': role, 'shared/review-contract.md': 'Contract\n' });
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /agents\/demo\.md: unknown skill "missing-skill"/);
+});
+
+test('rejects an agent role with an unknown access level', () => {
+  const role = '---\nname: demo\ndescription: "Demo."\naccess: readonly\n---\n\nBody.\n';
+  const r = run({ 'demo/SKILL.md': GOOD, 'demo/references/guide.md': '' }, { 'demo.md': role, 'shared/review-contract.md': 'Contract\n' });
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /agents\/demo\.md: unknown access "readonly"/);
 });

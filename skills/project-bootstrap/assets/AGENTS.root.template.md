@@ -32,7 +32,7 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 | Creating a branch, opening a PR, or merging code      | `git-workflow`  |
 | Before implementing any new feature, use case, hook or component | `tdd-workflow` |
 | Starting a new project or aligning an existing one   | `project-bootstrap` |
-| Starting a new project or aligning an existing one   | `project-bootstrap` |
+| Building a feature or behavior change                | `factory-workflow` |
 
 ---
 
@@ -42,6 +42,7 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 | -------------------- | ------ | ---------------------------------------------------------------- |
 | `tdd-workflow`       | global | Workflow TDD obligatorio: Red→Green→Refactor antes de cualquier código nuevo |
 | `project-bootstrap`  | global | Instala AGENTS.md, docs de arquitectura y guías de scaffold       |
+| `factory-workflow`   | global | Coordina los agentes por rol hasta la aprobación final            |
 | `skill-creator`      | global | Crea nuevas skills siguiendo el spec del repo                    |
 | `skill-sync`         | global | Sincroniza skills a las tablas de AGENTS.md                      |
 | `git-workflow`       | global | Branching, naming, merge strategy y PRs para este repo           |

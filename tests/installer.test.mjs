@@ -17,8 +17,8 @@ function run(args, exitCode = 0) {
     const fake = join(dir, 'npx');
     writeFileSync(fake, `#!/bin/sh\nset -f\necho "$*" > "${log}"\nexit ${exitCode}\n`);
     chmodSync(fake, 0o755);
-    const env = { ...process.env, PATH: `${dir}${delimiter}${process.env.PATH}` };
-    const result = spawnSync(process.execPath, [BIN, ...args], { encoding: 'utf8', env });
+    const env = { ...process.env, HOME: dir, PATH: `${dir}${delimiter}${process.env.PATH}` };
+    const result = spawnSync(process.execPath, [BIN, ...args], { cwd: dir, encoding: 'utf8', env });
     let called = null;
     try {
       called = readFileSync(log, 'utf8').trim();

@@ -1,6 +1,6 @@
 {
   "name": "abraham-harness",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "description": "Shared agent skills and architecture conventions for all my projects.",
   "license": "Apache-2.0",
@@ -9,7 +9,7 @@
     "abraham-harness": "bin/abraham-harness.mjs"
   },
   "scripts": {
-    "test": "node --test \"tests/*.test.mjs\" && node scripts/validate-skills.mjs skills"
+    "test": "node --test \"tests/*.test.mjs\" && node scripts/validate-skills.mjs skills agents"
   },
   "engines": {
     "node": ">=20"

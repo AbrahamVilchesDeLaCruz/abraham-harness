@@ -6,6 +6,9 @@ This project follows [Semantic Versioning](https://semver.org/): a major version
 
 - Add role agents for Claude Code, Codex and OpenCode: `spec-planner`, `builder`, `security`, `ux`, `ui`, `code-reviewer` and `approver`.
 - Add `factory-workflow`, which coordinates the agents. The approver needs four positive reviews on the same commit.
+- Restructure every skill for lower context cost: `SKILL.md` bodies are about 38% smaller, and long examples moved verbatim to `references/`.
+- Validate skill structure, size budget and encoding.
+- Replace source-project terms in skill examples with the neutral domain.
 
 ## 0.2.0
 

@@ -190,3 +190,89 @@ identity/                         ← BC de identidad (submódulos)
     └── infrastructure/
         └── framework/identity.module.ts
 ```
+
+## UserContext — tipo compartido
+
+```typescript
+// shared/domain/user-context.ts
+export type UserType = 'guest' | 'user' | 'teacher' | 'admin';
+
+export type UserContext = {
+  type: UserType;
+  deviceId: string;    // UUID generado por el backend — no falsificable
+  fingerprint?: string; // hash(userAgent + acceptLanguage + ip) — opcional
+  ip: string;
+  userId?: string;     // solo user / teacher / admin
+  email?: string;      // solo user / teacher / admin
+  roles?: string[];    // solo user / teacher / admin
+};
+```
+
+
+## Uso de guards en controllers
+
+```typescript
+@UseGuards(JwtAuthGuard)                          // solo usuarios registrados (type: user/teacher/admin)
+@UseGuards(GuestAuthGuard)                        // solo guests
+@UseGuards(AnyAuthGuard)                          // registrado o guest (acepta ambos tokens)
+@UseGuards(JwtAuthGuard, RolesGuard) @Roles('admin')  // admin
+// Sin guard → endpoint público. Usa @Public() para dejar constancia explícita
+@Public()
+```
+
+```typescript
+async handler(
+  @CurrentUser() user: UserContext,
+): Promise<void> {
+  await this.useCase.execute({ userId: user.userId });
+}
+```
+
+
+## Permisos — ejemplos
+
+**Ownership en controller:**
+
+```typescript
+@Get()
+@UseGuards(JwtAuthGuard)
+async handler(@Query() query: SearchProductsGetQuery, @CurrentUser() user: UserContext) {
+  const filters = [
+    ...query.filters ?? [],
+    { field: 'userId', operator: '=', value: user.userId },
+  ];
+  return this.searcher.execute(filters);
+}
+```
+
+**Permiso de negocio en use case:**
+
+```typescript
+// El use case recibe userId del Request* (construido por el controller con user.userId)
+async execute(request: RequestProductPublisher): Promise<void> {
+  const product = await this.finder.findOrFail(new ProductId(request.id));
+  if (product.ownerId.value !== request.userId) {
+    throw new ProductPublishNotAllowed(request.id);
+  }
+  product.publish();
+  await this.repository.save(product);
+}
+```
+
+
+## Anti-patterns
+
+```typescript
+// ❌ Access token en localStorage
+localStorage.setItem('token', accessToken);
+
+// ❌ deviceId del cliente sin verificar
+const deviceId = req.headers['x-device-id'];
+
+// ❌ Ownership check en use case cuando es solo un filtro
+const all = await this.repository.match(...);
+return all.filter(f => f.userId === userId); // va en controller con criteria
+
+// ❌ Lógica de permisos de negocio en controller
+if (user.roles.includes('admin') && product.status === 'draft') { ... }
+```

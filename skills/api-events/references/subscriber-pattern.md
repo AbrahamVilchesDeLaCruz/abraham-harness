@@ -145,3 +145,32 @@ export class ProgressModule {}
 ```
 
 > `DOMAIN_EVENT_CONSUMER` y `DOMAIN_EVENT_PUBLISHER` se proveen en `SharedModule` — no es necesario redeclararlos en cada módulo de BC.
+
+## Domain — `DomainEventPublisher` interface
+
+```typescript
+// src/shared/domain/domain-event-publisher.ts
+export interface DomainEventPublisher {
+  publish(events: DomainEvent[]): Promise<void>;
+}
+
+export const DOMAIN_EVENT_PUBLISHER = Symbol('DomainEventPublisher');
+```
+
+## Application — `DomainEventConsumer` interface
+
+```typescript
+// src/shared/application/domain-event-consumer.ts
+export interface DomainEventConsumer {
+  consume(
+    queueName: string,
+    eventName: string,
+    exchangeName: string,
+    domainEvent: new (...args: unknown[]) => DomainEvent,
+    handler: (event: DomainEvent) => Promise<void>,
+  ): Promise<void>;
+}
+
+export const DOMAIN_EVENT_CONSUMER = Symbol('DomainEventConsumer');
+```
+

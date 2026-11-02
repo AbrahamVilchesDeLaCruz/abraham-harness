@@ -1,25 +1,31 @@
 ---
 name: api-events
-description: "DomainEventPublisher interface, DomainEventConsumer, Subscriber abstract en apps/api/. Trigger: Al definir el DomainEventPublisher, crear un Subscriber concreto en application, o entender el flujo de domain events."
+description: "Trigger: Al definir el DomainEventPublisher, crear un Subscriber concreto en application, o entender el flujo de domain events. DomainEventPublisher interface, DomainEventConsumer, Subscriber abstract en apps/api/."
 license: Apache-2.0
 metadata:
   author: AbrahamVilchesDeLaCruz
   version: "2.0"
 ---
 
-## When to Use
+## Activation Contract
 
 - Al definir el `DomainEventPublisher` interface o `DomainEventConsumer` interface
 - Al crear un `Subscriber` concreto en application
 - Al entender el flujo de eventos y la regla de dependencia
 
-> Lee `references/docs.md` para skills relacionadas, ADRs y documentación externa.
+## Hard Rules
 
-> Lee `references/subscriber-pattern.md` para la clase `Subscriber` abstract completa, un ejemplo de subscriber concreto, `SubscribersBootstrapper` y el registro en módulos NestJS.
+- `Subscriber` abstract — **cero imports de `@nestjs/common`**
+- `@Inject` + `@Injectable` en el subscriber concreto son la única excepción permitida
+- `OnModuleInit` vive en infrastructure (`SubscribersBootstrapper`) — nunca en application
+- `on()` **siempre delega a un UseCase** — sin lógica de negocio propia
+- El subscriber vive **junto al use case que dispara** — nunca en carpeta `subscribers/` independiente
+- `domainEventPublisher.publish()` se llama **después** de `repository.save()` — nunca antes
+- Ver implementación de infrastructure: skill `api-events-infra`
 
----
+## Decision Gates
 
-## Capas y responsabilidades
+### Capas y responsabilidades
 
 ```
 Domain         → DomainEvent, DomainEventPublisher interface
@@ -27,53 +33,7 @@ Application    → Subscriber (abstract), DomainEventConsumer interface
 Infrastructure → AmqpMessageBus, SubscribersBootstrapper, módulos NestJS
 ```
 
----
-
-## Flujo completo
-
-```
-UseCase
-  → domainEventPublisher.publish(aggregate.pullDomainEvents())
-    → AmqpMessageBus.publish() → RabbitMQ exchange
-      → cola del subscriber
-        → SubscribersBootstrapper.onModuleInit() → subscriber.init()
-          → AmqpMessageBus.consume() → setupQueues() automático
-            → subscriber.on(event) → UseCase correspondiente
-```
-
----
-
-## Domain — `DomainEventPublisher` interface
-
-```typescript
-// src/shared/domain/domain-event-publisher.ts
-export interface DomainEventPublisher {
-  publish(events: DomainEvent[]): Promise<void>;
-}
-
-export const DOMAIN_EVENT_PUBLISHER = Symbol('DomainEventPublisher');
-```
-
-## Application — `DomainEventConsumer` interface
-
-```typescript
-// src/shared/application/domain-event-consumer.ts
-export interface DomainEventConsumer {
-  consume(
-    queueName: string,
-    eventName: string,
-    exchangeName: string,
-    domainEvent: new (...args: unknown[]) => DomainEvent,
-    handler: (event: DomainEvent) => Promise<void>,
-  ): Promise<void>;
-}
-
-export const DOMAIN_EVENT_CONSUMER = Symbol('DomainEventConsumer');
-```
-
----
-
-## Queue Naming
+### Queue Naming
 
 ```
 <bounded-context>.<acción>_on_<evento_pasado>
@@ -85,14 +45,21 @@ identity.send_welcome_email_on_user_registered
 
 Las colas `.retry` y `.dead_letter` se crean automáticamente — ver `api-events-infra`.
 
----
+## Execution Steps
 
-## Reglas
+Flujo completo:
 
-- `Subscriber` abstract — **cero imports de `@nestjs/common`**
-- `@Inject` + `@Injectable` en el subscriber concreto son la única excepción permitida
-- `OnModuleInit` vive en infrastructure (`SubscribersBootstrapper`) — nunca en application
-- `on()` **siempre delega a un UseCase** — sin lógica de negocio propia
-- El subscriber vive **junto al use case que dispara** — nunca en carpeta `subscribers/` independiente
-- `domainEventPublisher.publish()` se llama **después** de `repository.save()` — nunca antes
-- Ver implementación de infrastructure: skill `api-events-infra`
+```
+UseCase
+  → domainEventPublisher.publish(aggregate.pullDomainEvents())
+    → AmqpMessageBus.publish() → RabbitMQ exchange
+      → cola del subscriber
+        → SubscribersBootstrapper.onModuleInit() → subscriber.init()
+          → AmqpMessageBus.consume() → setupQueues() automático
+            → subscriber.on(event) → UseCase correspondiente
+```
+
+## References
+
+- [`references/subscriber-pattern.md`](references/subscriber-pattern.md) — clase `Subscriber` abstract completa, un ejemplo de subscriber concreto, `SubscribersBootstrapper`, registro en módulos NestJS e interfaces `DomainEventPublisher` y `DomainEventConsumer`.
+- [`references/docs.md`](references/docs.md) — skills relacionadas, ADRs y documentación externa.

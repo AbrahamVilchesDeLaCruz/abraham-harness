@@ -1,25 +1,19 @@
 ---
 name: api-events-infra
-description: "AmqpMessageBus, SubscribersBootstrapper, retry, DLQ, idempotencia en apps/api/. Trigger: Al implementar AmqpMessageBus, configurar SubscribersBootstrapper, o entender retry y DLQ."
+description: "Trigger: Al implementar AmqpMessageBus, configurar SubscribersBootstrapper, o entender retry y DLQ. AmqpMessageBus, SubscribersBootstrapper, retry, DLQ, idempotencia en apps/api/."
 license: Apache-2.0
 metadata:
   author: AbrahamVilchesDeLaCruz
   version: "2.0"
 ---
 
-## When to Use
+## Activation Contract
 
 - Al implementar o modificar `AmqpMessageBus`
 - Al registrar subscribers en módulos NestJS
 - Al diseñar la política de retry o idempotencia
 
-> Lee `references/docs.md` para skills relacionadas, ADRs y documentación externa.
-
-> Lee `references/amqp-message-bus.md` para la implementación completa de `AmqpMessageBus`, `SubscribersBootstrapper` y el registro en módulos.
-
----
-
-## Concepto
+## Hard Rules
 
 `AmqpMessageBus` implementa **tres interfaces** a la vez:
 
@@ -29,11 +23,21 @@ DomainEventConsumer (app)      → consume(queue, eventName, exchange, DomainEve
 OnModuleDestroy (NestJS)       → onModuleDestroy() — cierra channel + connection al apagar
 ```
 
-`SubscribersBootstrapper` llama a `subscriber.init()` en `onModuleInit()` — registra todos los consumers al arrancar.
+- `SubscribersBootstrapper` llama a `subscriber.init()` en `onModuleInit()` — registra todos los consumers al arrancar.
+- `AmqpMessageBus` vive en `shared/infrastructure/` — es transversal a todos los BC
+- `AmqpMessageBus` se registra **una sola vez** en `SharedModule` como singleton vía `useExisting`; los módulos BC no lo re-registran
+- `SubscribersBootstrapper` y el token `SUBSCRIBERS` se importan desde shared
+- `OnModuleInit` solo en `SubscribersBootstrapper` — nunca en subscribers ni use cases
+- `SUBSCRIBERS` se registra con `useFactory` que devuelve un array de subscribers — nunca `useExisting + multi: true`
+- El DLQ no se re-encola automáticamente — requiere fix manual + re-encolado explícito
+- `prefetch(1)` siempre — procesamiento secuencial por consumer
+- `DomainEventClass` es `new (...args: unknown[]) => DomainEvent` — no `never`, no `any`
+- El payload publicado usa el campo `data` para los atributos del evento, no `attributes` ni `toPrimitives()`
+- `AmqpMessageBus` tiene reconexión automática: al cerrar la conexión, espera `RECONNECT_DELAY_MS` y re-registra todos los consumers
 
----
+## Decision Gates
 
-## Retry Policy
+### Retry Policy
 
 | Intento | Delay | Mecanismo |
 |---|---|---|
@@ -49,43 +53,16 @@ Colas creadas automáticamente en `setupQueues()`:
 - `{queueName}.retry` — mensajes esperando reintento
 - `{queueName}.dead_letter` — mensajes agotados
 
----
+### Idempotencia
 
-## Idempotencia
-
-### Opción A — Natural (por defecto)
-
-```typescript
-async handle(event: DomainEvent): Promise<void> {
-  const existing = await this.repo.search(id);
-  if (existing) return; // ya procesado
-  await this.useCase.execute({ ... });
-}
-```
-
-### Opción B — Inbox table (operaciones irreversibles críticas)
-
-```typescript
-async handle(event: DomainEvent): Promise<void> {
-  if (await this.inboxRepo.exists(event.eventId)) return;
-  await this.useCase.execute({ ... });
-  await this.inboxRepo.save(event.eventId, event.eventName());
-}
-```
+| Caso | Opción |
+|---|---|
+| Por defecto | Opción A — Natural |
+| Operaciones irreversibles críticas | Opción B — Inbox table |
 
 Tabla: `processed_events(event_id UUID PK, event_name, processed_at)` — purgar > 30 días.
 
----
+## References
 
-## Reglas
-
-- `AmqpMessageBus` vive en `shared/infrastructure/` — es transversal a todos los BC
-- `AmqpMessageBus` se registra **una sola vez** en `SharedModule` como singleton vía `useExisting`; los módulos BC no lo re-registran
-- `SubscribersBootstrapper` y el token `SUBSCRIBERS` se importan desde shared
-- `OnModuleInit` solo en `SubscribersBootstrapper` — nunca en subscribers ni use cases
-- `SUBSCRIBERS` se registra con `useFactory` que devuelve un array de subscribers — nunca `useExisting + multi: true`
-- El DLQ no se re-encola automáticamente — requiere fix manual + re-encolado explícito
-- `prefetch(1)` siempre — procesamiento secuencial por consumer
-- `DomainEventClass` es `new (...args: unknown[]) => DomainEvent` — no `never`, no `any`
-- El payload publicado usa el campo `data` para los atributos del evento, no `attributes` ni `toPrimitives()`
-- `AmqpMessageBus` tiene reconexión automática: al cerrar la conexión, espera `RECONNECT_DELAY_MS` y re-registra todos los consumers
+- [`references/amqp-message-bus.md`](references/amqp-message-bus.md) — implementación completa de `AmqpMessageBus`, `SubscribersBootstrapper`, registro en módulos, recuperación de DLQ y ejemplos de las opciones de idempotencia.
+- [`references/docs.md`](references/docs.md) — skills relacionadas, ADRs y documentación externa.

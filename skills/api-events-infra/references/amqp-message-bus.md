@@ -346,3 +346,27 @@ rabbitmqadmin move messages \
   --source-queue=enrich_product_on_product_created.dead_letter \
   --destination-queue=enrich_product_on_product_created
 ```
+
+## Idempotencia
+
+### Opción A — Natural (por defecto)
+
+```typescript
+async handle(event: DomainEvent): Promise<void> {
+  const existing = await this.repo.search(id);
+  if (existing) return; // ya procesado
+  await this.useCase.execute({ ... });
+}
+```
+
+### Opción B — Inbox table (operaciones irreversibles críticas)
+
+```typescript
+async handle(event: DomainEvent): Promise<void> {
+  if (await this.inboxRepo.exists(event.eventId)) return;
+  await this.useCase.execute({ ... });
+  await this.inboxRepo.save(event.eventId, event.eventName());
+}
+```
+
+Tabla: `processed_events(event_id UUID PK, event_name, processed_at)` — purgar > 30 días.

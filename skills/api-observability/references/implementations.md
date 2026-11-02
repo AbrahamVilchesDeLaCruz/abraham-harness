@@ -206,3 +206,81 @@ El `MetricsInterceptor` registra en cada request:
 - `http_request_duration_seconds{method, route, status_code}` — histograma de latencia
 
 > El label es `status_code` (no `status`). No añadir métricas HTTP manualmente en controllers.
+
+## `Logger` Interface (domain)
+
+```typescript
+// src/shared/domain/logger.ts
+export type LogContext = Record<string, unknown>;
+
+export interface Logger {
+  info(message: string, context?: LogContext): void;
+  warn(message: string, context?: LogContext): void;
+  error(message: string, error?: Error, context?: LogContext): void;
+  debug(message: string, context?: LogContext): void;
+}
+
+export const LOGGER_SERVICE = Symbol('Logger');
+```
+
+## `AppMetrics` Interface (domain)
+
+```typescript
+// src/shared/domain/app-metrics.ts
+export interface AppMetrics {
+  increment(metric: string, labels?: Record<string, string>): void;
+}
+
+export const APP_METRICS = Symbol('AppMetrics');
+```
+
+### Inyección en use case
+
+```typescript
+constructor(
+  @Inject(LOGGER_SERVICE)
+  private readonly logger: Logger,
+  @Inject(APP_METRICS)
+  private readonly metrics: AppMetrics,
+) {}
+
+async execute(request: ...): Promise<...> {
+  // ... lógica ...
+  this.logger.info('Product created', { productId: id, expression, createdBy });
+  this.metrics.increment('app_products_created_total');
+}
+
+// Con labels:
+this.metrics.increment('app_audio_generated_total', { provider: 'external-provider' });
+```
+
+> `APP_METRICS` se inyecta igual que `LOGGER_SERVICE` — el módulo `ObservabilityModule` lo exporta como global.
+
+## Dónde loguear
+
+### Use Case — eventos de negocio
+
+```typescript
+async execute(params: { id: string; phrase: string }): Promise<void> {
+  const product = Product.create(params);
+  await this.repository.save(product);
+  await this.eventBus.publish(product.pullDomainEvents());
+
+  this.logger.info('Product created', {
+    productId: params.id,
+    phrase: params.phrase,
+  });
+}
+```
+
+### Contexto siempre útil
+
+```typescript
+// ✅ Con identificador del aggregate
+this.logger.info('Product updated', { productId, userId, field: 'phrase' });
+this.logger.error('Image generation failed', error, { productId, provider: 'external-provider' });
+
+// ❌ Sin contexto
+this.logger.info('Updated');
+this.logger.error(error.message);
+```

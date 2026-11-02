@@ -1,66 +1,38 @@
 ---
 name: api-auth
-description: "Convenciones de autenticación en la API: JWT (access + refresh), OAuth Google, token guest, guards, strategies y CurrentUser. Trigger: Al implementar auth, guards, strategies de Passport, decorator @CurrentUser, o voters en apps/api/."
+description: "Trigger: Al implementar auth, guards, strategies de Passport, decorator @CurrentUser, o voters en apps/api/. Convenciones de autenticación en la API: JWT (access + refresh), OAuth Google, token guest, guards, strategies y CurrentUser."
 license: Apache-2.0
 metadata:
   author: AbrahamVilchesDeLaCruz
   version: "2.0"
 ---
 
-## When to Use
+## Activation Contract
 
 - Al proteger un endpoint con guard
 - Al implementar una strategy de Passport (JWT, Google, Guest)
 - Al acceder al usuario actual en un controller (`@CurrentUser`)
 - Al aplicar permisos de ownership o role
 
-> Lee `references/docs.md` para skills relacionadas, ADRs y documentación externa.
+## Hard Rules
 
-> Lee `references/strategies.md` para las implementaciones completas de strategies, guards, `@CurrentUser`, flujo guest→registered y estructura de archivos.
+- **Access token**: 15min — `Authorization: Bearer` — en memoria del cliente (no `localStorage`)
+- **Refresh token**: 30 días — cookie `httpOnly`, `Secure`, `SameSite=Strict`
+- **`deviceId`**: generado por el backend — nunca confiado del cliente
+- **Guest→registered**: mismo `deviceId` — trazabilidad continua
+- Sin guard → endpoint público. Usa `@Public()` para dejar constancia explícita
+- Un ownership check que es solo un filtro va en controller con criteria, no en el use case
+- La lógica de permisos de negocio no va en el controller
 
----
+## Decision Gates
 
-## UserContext — tipo compartido
-
-```typescript
-// shared/domain/user-context.ts
-export type UserType = 'guest' | 'user' | 'teacher' | 'admin';
-
-export type UserContext = {
-  type: UserType;
-  deviceId: string;    // UUID generado por el backend — no falsificable
-  fingerprint?: string; // hash(userAgent + acceptLanguage + ip) — opcional
-  ip: string;
-  userId?: string;     // solo user / teacher / admin
-  email?: string;      // solo user / teacher / admin
-  roles?: string[];    // solo user / teacher / admin
-};
-```
-
----
-
-## Uso de guards en controllers
-
-```typescript
-@UseGuards(JwtAuthGuard)                          // solo usuarios registrados (type: user/teacher/admin)
-@UseGuards(GuestAuthGuard)                        // solo guests
-@UseGuards(AnyAuthGuard)                          // registrado o guest (acepta ambos tokens)
-@UseGuards(JwtAuthGuard, RolesGuard) @Roles('admin')  // admin
-// Sin guard → endpoint público. Usa @Public() para dejar constancia explícita
-@Public()
-```
-
-```typescript
-async handler(
-  @CurrentUser() user: UserContext,
-): Promise<void> {
-  await this.useCase.execute({ userId: user.userId });
-}
-```
-
----
-
-## Permisos — dónde va cada tipo
+| Acceso | Guard |
+|---|---|
+| Solo usuarios registrados (type: user/teacher/admin) | `@UseGuards(JwtAuthGuard)` |
+| Solo guests | `@UseGuards(GuestAuthGuard)` |
+| Registrado o guest (acepta ambos tokens) | `@UseGuards(AnyAuthGuard)` |
+| Admin | `@UseGuards(JwtAuthGuard, RolesGuard) @Roles('admin')` |
+| Endpoint público | `@Public()` |
 
 | Tipo de permiso | Dónde | Cómo |
 |---|---|---|
@@ -69,58 +41,13 @@ async handler(
 | Role check simple | Controller | `@UseGuards(RolesGuard)` + `@Roles('admin')` |
 | Lógica de negocio con permisos | Use Case | Recibe `UserContext`, decide con reglas de dominio |
 
-**Ownership en controller:**
+## Execution Steps
 
-```typescript
-@Get()
-@UseGuards(JwtAuthGuard)
-async handler(@Query() query: SearchProductsGetQuery, @CurrentUser() user: UserContext) {
-  const filters = [
-    ...query.filters ?? [],
-    { field: 'userId', operator: '=', value: user.userId },
-  ];
-  return this.searcher.execute(filters);
-}
-```
+1. Elige guard y ubicación del permiso con las tablas anteriores.
+2. Consulta en `references/strategies.md` el tipo compartido `UserContext`, el uso de `@CurrentUser() user: UserContext` y los ejemplos de ownership y permiso de negocio.
+3. Revisa los anti-patterns de `references/strategies.md` antes de terminar.
 
-**Permiso de negocio en use case:**
+## References
 
-```typescript
-// El use case recibe userId del Request* (construido por el controller con user.userId)
-async execute(request: RequestProductPublisher): Promise<void> {
-  const product = await this.finder.findOrFail(new ProductId(request.id));
-  if (product.ownerId.value !== request.userId) {
-    throw new ProductPublishNotAllowed(request.id);
-  }
-  product.publish();
-  await this.repository.save(product);
-}
-```
-
----
-
-## Token strategy
-
-- **Access token**: 15min — `Authorization: Bearer` — en memoria del cliente (no `localStorage`)
-- **Refresh token**: 30 días — cookie `httpOnly`, `Secure`, `SameSite=Strict`
-- **`deviceId`**: generado por el backend — nunca confiado del cliente
-- **Guest→registered**: mismo `deviceId` — trazabilidad continua
-
----
-
-## Anti-patterns
-
-```typescript
-// ❌ Access token en localStorage
-localStorage.setItem('token', accessToken);
-
-// ❌ deviceId del cliente sin verificar
-const deviceId = req.headers['x-device-id'];
-
-// ❌ Ownership check en use case cuando es solo un filtro
-const all = await this.repository.match(...);
-return all.filter(f => f.userId === userId); // va en controller con criteria
-
-// ❌ Lógica de permisos de negocio en controller
-if (user.roles.includes('admin') && product.status === 'draft') { ... }
-```
+- [`references/strategies.md`](references/strategies.md) — implementaciones completas de strategies, guards, `@CurrentUser`, flujo guest→registered y estructura de archivos; `UserContext`, uso de guards en controllers, ejemplos de permisos y anti-patterns.
+- [`references/docs.md`](references/docs.md) — skills relacionadas, ADRs y documentación externa.

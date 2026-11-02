@@ -17,14 +17,14 @@ metadata:
 - Never overwrite an existing file from the target layout without showing the difference and getting confirmation.
 - Product and domain examples in these assets (`product`, `order`, `payment`) illustrate the patterns. Do not create them in the project.
 - Record project-specific decisions in `docs/adr/`. Change a shared convention in the `abraham-harness` repository so that every project receives it.
-- The `Stack` tables are the defaults. Update the project's copy when a project deliberately differs.
+- The `Stack table` lists are the defaults. Update the project's copy when a project deliberately differs.
 
 ## Decision Gates
 
 | Situation | Action |
 | --- | --- |
 | The project does not have that app | Skip the `apps/api` or `apps/client` file |
-| The apps do not exist yet | Scaffold the code (step 6) |
+| The apps do not exist yet | Scaffold the code (step 7) |
 
 ## Execution Steps
 
@@ -32,9 +32,10 @@ metadata:
 2. **Inspect the target.** List the files from the target layout that already exist.
 3. **Copy the assets.** Copy them from this skill's `assets/` directory to the paths in the target layout, applying the gates above.
 4. **Fill the placeholders.** Replace `{{PROJECT_NAME}}` and `{{PROJECT_DESCRIPTION}}` in every copied `AGENTS.md`. Replace the `myapp` example namespace in the copied docs with the project name.
-5. **Create `CLAUDE.md`** with the single line `@AGENTS.md`.
-6. **Scaffold the code when the apps do not exist yet.** Follow `docs/conventions/scaffold-nestjs.md` and `docs/conventions/scaffold-vite-react.md`, then apply `eslint-prettier.md` and `jest-esm.md`.
-7. **Check the result.** Confirm that no `{{` placeholder remains and that every skill listed in `AGENTS.md` exists in the project's skills directory (`.agents/skills/` or `.claude/skills/`).
+5. **Fill the stack table.** Ask for the project's stack, offering the values in the `Stack table` lists as the default suggestion. Write the answer in the `Stack table` of every copied `AGENTS.md`.
+6. **Create `CLAUDE.md`** with the single line `@AGENTS.md`.
+7. **Scaffold the code when the apps do not exist yet.** Follow `references/scaffold.md` in the `stack-nestjs` and `stack-react` skills, then apply `docs/conventions/eslint-prettier.md` and `references/esm.md` in the `stack-jest` skill. For another stack, use the stack skill that matches the stack table. Replace the `myapp` example namespace in these guides with the project name.
+8. **Check the result.** Confirm that no `{{` placeholder remains and that every skill listed in `AGENTS.md` exists in the project's skills directory (`.agents/skills/` or `.claude/skills/`).
 
 ## Output Contract
 
@@ -57,4 +58,6 @@ The project matches this target layout:
 
 - [`assets/AGENTS.root.template.md`](assets/AGENTS.root.template.md), [`assets/AGENTS.api.template.md`](assets/AGENTS.api.template.md), [`assets/AGENTS.client.template.md`](assets/AGENTS.client.template.md): `AGENTS.md` templates.
 - [`assets/docs/engineering/`](assets/docs/engineering/): architecture docs.
-- [`assets/docs/conventions/`](assets/docs/conventions/): scaffolding guides.
+- [`assets/docs/conventions/`](assets/docs/conventions/): code conventions.
+- `references/scaffold.md` in `stack-nestjs` and `stack-react`, and `references/esm.md` in `stack-jest`: scaffolding guides.
+- `references/engineering-*.md` in the stack skills: framework details of the architecture docs.

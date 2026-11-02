@@ -1,6 +1,6 @@
 ---
 name: tdd-workflow
-description: "Trigger: Antes de implementar cualquier feature, use case, hook o componente nuevo. Workflow obligatorio de TDD antes de escribir cualquier código nuevo: Red → Green → Refactor. Aplica a api (Jest) y client (Vitest + RTL)."
+description: "Trigger: Before implementing any new feature, use case, hook or component. Mandatory TDD workflow before writing any new code: Red → Green → Refactor. Applies to api and client."
 license: Apache-2.0
 metadata:
   author: AbrahamVilchesDeLaCruz
@@ -9,69 +9,74 @@ metadata:
 
 ## Activation Contract
 
-Cargar esta skill ANTES de escribir cualquier código nuevo:
+Load this skill BEFORE writing any new code:
 
-- Nuevo use case o domain service (api)
-- Nuevo aggregate o value object (api)
-- Nuevo hook de pod (client)
-- Nuevo Container o Component (client)
-- Nuevo mapper, helper o función utilitaria (api o client)
+- New use case or domain service (api)
+- New aggregate or value object (api)
+- New pod hook (client)
+- New Container or Component (client)
+- New mapper, helper or utility function (api or client)
 
-**NO aplica a**: cambios de configuración, migraciones, refactors puros sin nuevo comportamiento.
+**Does NOT apply to**: configuration changes, migrations, pure refactors with no new behavior.
 
 ## Hard Rules
 
-- **El test se escribe antes**. Siempre. No hay excepción.
-- **Un test = un comportamiento observable**. No testear implementación interna (`calls repository.match`), sino efecto (`saves the product`).
-- **El nombre describe el comportamiento**: `it('throws ProductNotFound when product does not exist')`, no `it('calls repository.match')`.
-- **Verificar que el test falla antes de implementar** — un test que nunca falla no prueba nada.
-- **Object Mothers siempre** para construir datos de test. Nunca literales inline.
-- **No mockear lo que no controlás** — usar abstracciones propias en lugar de mockear `Date` o `Math.random` directamente.
-- Esta skill define el **CUÁNDO y EN QUÉ ORDEN** — siempre va primero.
+- **The test is written first**. Always. There is no exception.
+- **One test = one observable behavior**. Do not test internal implementation (`calls repository.match`), test the effect (`saves the product`).
+- **The name describes the behavior**: `it('throws ProductNotFound when product does not exist')`, not `it('calls repository.match')`.
+- **Verify that the test fails before implementing**: a test that never fails proves nothing.
+- **Always use Object Mothers** to build test data. Never inline literals.
+- **Do not mock what you do not control**: use your own abstractions instead of mocking `Date` or `Math.random` directly.
+- This skill defines **WHEN and IN WHAT ORDER**: it always comes first.
 
 ## Decision Gates
 
-Qué testear según la capa:
+What to test per layer:
 
-| Capa | Qué testear | Tool |
-|---|---|---|
-| Use Case (api) | Flujo completo: happy path + errores de dominio | Jest + jest-mock-extended |
-| Domain Service (api) | Comportamiento de negocio aislado | Jest |
-| Hook del pod (client) | Estado, handlers, side effects | Vitest + renderHook |
-| Mapper (api/client) | Transformación entrada → salida | Jest / Vitest (función pura) |
-| Component (client) | Renderizado, interacciones UI | Vitest + RTL |
-| Container (client) | Flujo completo con HTTP mockeado | Vitest + RTL + MSW |
-
-**El Domain (aggregates, VOs) no se testea en aislamiento** — se ejercita a través de los tests del Use Case que los invoca.
-
-Otras skills:
-
-| Necesidad | Acción |
+| Layer | What to test |
 |---|---|
-| El **CÓMO** crear Mothers, mocks y estructura de `/test` en api | Cargar `api-testing` |
-| El **CÓMO** testear hooks, RTL y MSW en client | Cargar `client-testing` |
+| Use Case (api) | Full flow: happy path + domain errors |
+| Domain Service (api) | Isolated business behavior |
+| Pod hook (client) | State, handlers, side effects |
+| Mapper (api/client) | Input → output transformation (pure function) |
+| Component (client) | Rendering, UI interactions |
+| Container (client) | Full flow with mocked HTTP |
+
+**The Domain (aggregates, VOs) is not tested in isolation**: it is exercised through the tests of the Use Case that invokes it.
+
+Other skills and tools:
+
+| Need | Action |
+|---|---|
+| **HOW** to create Mothers, mocks and the `/test` structure in api | Load `api-testing` |
+| **HOW** to test hooks, rendering and mocked HTTP in client | Load `client-testing` |
+| Which tool tests each layer, and the RED test in that tool | Load the stack skill that matches the project's stack table, and read its `references/engineering-tdd-workflow.md` |
 
 ## Execution Steps
 
-Siempre en este orden:
+Always in this order:
 
-1. **Entender qué se va a construir.** Antes de escribir ni una línea, responder:
-   1. ¿Qué comportamiento nuevo estamos añadiendo? (en lenguaje de negocio, no técnico)
-   2. ¿En qué capa vive? (domain, application, infrastructure, client-hook, client-component)
-   3. ¿Cuáles son los escenarios happy path y los casos de error?
-2. **RED: escribir el test que falla**, antes que la implementación. Ejemplos para api (Jest) y client (Vitest + RTL) en [`references/test-examples.md`](references/test-examples.md). **Verificar que el test falla**: correr el test y confirmar que el error es el esperado (not found, not implemented), no un error de sintaxis o import.
-3. **GREEN: mínimo código para pasar el test.** Escribir **solo lo necesario** para que el test pase. Sin optimizar. Sin anticipar casos futuros.
-   - Si hay que crear el archivo de implementación, crearlo ahora.
-   - Si el test pide un `ProductMother` que no existe, crearlo también.
-   - No añadir lógica que el test no exige todavía.
-4. **Refactor: limpiar manteniendo verde.** Con el test en verde:
-   - Eliminar duplicación
-   - Renombrar para claridad
-   - Extraer métodos si el método hace más de una cosa
-   - **Los tests deben seguir en verde** después de cada cambio
-5. **Repetir por cada escenario.** Volver al paso 2 para el siguiente escenario. Un ciclo Red → Green → Refactor por comportamiento.
+1. **Understand what will be built.** Before writing a single line, answer:
+   1. What new behavior are we adding? (in business language, not technical language)
+   2. In which layer does it live? (domain, application, infrastructure, client-hook, client-component)
+   3. What are the happy path scenarios and the error cases?
+2. **RED: write the failing test**, before the implementation. Shape of the test in [`references/test-examples.md`](references/test-examples.md). **Verify that the test fails**: run the test and confirm that the error is the expected one (not found, not implemented), not a syntax or import error.
+3. **GREEN: the minimum code to pass the test.** Write **only what is necessary** for the test to pass. No optimizing. No anticipating future cases.
+   - If the implementation file has to be created, create it now.
+   - If the test asks for a `ProductMother` that does not exist, create it too.
+   - Do not add logic that the test does not demand yet.
+4. **Refactor: clean up while staying green.** With the test green:
+   - Remove duplication
+   - Rename for clarity
+   - Extract methods if the method does more than one thing
+   - **The tests must stay green** after each change
+5. **Repeat for each scenario.** Go back to step 2 for the next scenario. One Red → Green → Refactor cycle per behavior.
+
+## Output Contract
+
+For each behavior: a test observed failing with the expected error, the minimum code that makes it pass, and a clean refactor with the tests still green.
 
 ## References
 
-- [`references/test-examples.md`](references/test-examples.md): ejemplos del test RED.
-- Lee [`references/docs.md`](references/docs.md) para skills relacionadas, ADRs y documentación externa.
+- [`references/test-examples.md`](references/test-examples.md): shape of the RED test.
+- Read [`references/docs.md`](references/docs.md) for related skills, ADRs and external documentation.

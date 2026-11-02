@@ -2,20 +2,20 @@
 
 ## Related Skills
 
-| Skill | Por qué leerla antes de ejecutar TDD |
+| Skill | Why read it before running TDD |
 |---|---|
-| `api-testing` | Pirámide, Object Mothers, mocks con jest-mock-extended |
-| `api-domain` | Templates de aggregate y VO — punto de partida del test rojo |
-| `api-application` | Template de use case — lo que se testea en integración |
-| `client-testing` | RTL, `renderHook`, MSW — TDD en el cliente |
+| `api-testing` | Pyramid, Object Mothers, port mocks |
+| `api-domain` | Aggregate and VO templates: the starting point of the red test |
+| `api-application` | Use case template: what gets tested in integration |
+| `client-testing` | Rendering, hook tests, mocked HTTP: TDD on the client |
 
 ## External Documentation
 
-- [Test-Driven Development by Example (Beck)](https://www.oreilly.com/library/view/test-driven-development/0321146530/) — el libro base
-- [Growing Object-Oriented Software Guided by Tests (Freeman & Pryce)](https://www.pearson.com/en-us/subject-catalog/p/growing-object-oriented-software-guided-by-tests/P200000009397) — TDD outside-in
-- [Kent Beck — TDD](https://medium.com/@kentbeck_7670/test-driven-development-by-example-a-chapter-b9e42f8bc0ba) — artículo del autor
-- [Jest — Getting Started](https://jestjs.io/docs/getting-started) — API de Jest
-- [Vitest — Getting Started](https://vitest.dev/guide/) — API de Vitest
+- [Test-Driven Development by Example (Beck)](https://www.oreilly.com/library/view/test-driven-development/0321146530/) — the foundational book
+- [Growing Object-Oriented Software Guided by Tests (Freeman & Pryce)](https://www.pearson.com/en-us/subject-catalog/p/growing-object-oriented-software-guided-by-tests/P200000009397) — outside-in TDD
+- [Kent Beck — TDD](https://medium.com/@kentbeck_7670/test-driven-development-by-example-a-chapter-b9e42f8bc0ba) — article by the author
+
+Test runner documentation lives in the stack skills: `references/engineering-tdd-workflow.md`.
 
 ## Red → Green → Refactor cycle
 
@@ -33,12 +33,12 @@ REFACTOR: Clean up without breaking tests
 
 ## TDD in this project
 
-- **api (Jest)**: `pnpm --filter @myapp/api test --watch`
-- **client (Vitest)**: `pnpm --filter @myapp/client test --watch`
+- **api**: `pnpm --filter @myapp/api test --watch`
+- **client**: `pnpm --filter @myapp/client test --watch`
 
 ## Internal Docs
 
-| Doc | Contenido relevante |
+| Doc | Relevant content |
 |---|---|
-| `docs/engineering/testing.md` | Cómo se ejecutan los tests en el monorepo — comandos reales para el ciclo Red→Green→Refactor |
-| `docs/engineering/engineering-principles.md` | Por qué TDD: feedback rápido, diseño guiado por tests, inversión de dependencias |
+| `docs/engineering/testing.md` | How tests run in the monorepo: real commands for the Red→Green→Refactor cycle |
+| `docs/engineering/engineering-principles.md` | Why TDD: fast feedback, test-guided design, dependency inversion |

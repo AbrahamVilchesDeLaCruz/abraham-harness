@@ -7,6 +7,8 @@ This repository is the source of truth for the skills and conventions that my pr
 - Every skill lives in `skills/{name}/`, and `name` in its frontmatter matches the directory.
 - A skill is self-contained: installers copy one skill directory, so links must not leave it.
 - Skills contain no details from a real project. Examples use the neutral `product`, `order` and `payment` domain and the `myapp` namespace.
+- Skills are in English.
+- Concept skills (`api-*`, `client-*`) name no framework, and framework details go to `skills/stack-*/references/{concept-skill}.md`. Stack skills pin no version.
 - Project templates and architecture docs live in `skills/project-bootstrap/assets/`.
 
 ## Change a skill

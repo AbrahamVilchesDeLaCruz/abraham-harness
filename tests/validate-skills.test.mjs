@@ -165,3 +165,16 @@ test('rejects a pinned library version', () => {
   assert.equal(r.status, 1);
   assert.match(r.stderr, /stack-demo\/references\/guide\.md:1: pinned version "Faker\.js v9"/);
 });
+
+for (const term of ['queryRunner', 'mutationFn', 'staleTime', 'Container.tsx', 'mock<Repo>']) {
+  test(`rejects the framework API name ${term} in a concept skill`, () => {
+    const r = run(concept(`Example: ${term}\n`));
+    assert.equal(r.status, 1);
+    assert.match(r.stderr, /concept skill names framework/);
+  });
+}
+
+test('allows a concept skill to name a stack skill', () => {
+  const r = run(concept('Load `stack-typeorm` and read its reference.\n'));
+  assert.equal(r.status, 0, r.stderr);
+});

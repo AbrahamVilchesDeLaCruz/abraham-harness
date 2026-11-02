@@ -11,7 +11,7 @@ Package manager: pnpm.
 Scaffold a new NestJS application using the Express adapter inside `apps/api/`.
 
 Requirements:
-- NestJS latest (v10+)
+- NestJS latest
 - Express adapter (default — do NOT use Fastify)
 - TypeScript strict mode
 - Path aliases configured (`@/` → `src/`)

@@ -1,6 +1,6 @@
 ---
 name: git-workflow
-description: "Trigger: Cuando se crea una rama, se abre un PR, o se mergea código. Guía de branching, naming y merge strategy."
+description: "Trigger: When creating a branch, opening a PR, or merging code. Guide to branching, naming and merge strategy."
 license: Apache-2.0
 metadata:
   author: AbrahamVilchesDeLaCruz
@@ -9,51 +9,51 @@ metadata:
 
 ## Activation Contract
 
-- Al crear una nueva rama de trabajo
-- Al abrir un PR (feat/* o fix/* → dev, o dev → main)
-- Al mergear un PR — elegir la estrategia correcta
-- Al nombrar una rama o escribir el título de un PR
+- When creating a new working branch
+- When opening a PR (feat/* or fix/* → dev, or dev → main)
+- When merging a PR: choose the correct strategy
+- When naming a branch or writing a PR title
 
 ## Hard Rules
 
-Ramas permanentes:
+Permanent branches:
 
 ```
-main   ← producción — NUNCA push directo, NUNCA force push
-dev    ← integración — NUNCA push directo
+main   ← production — NEVER push directly, NEVER force push
+dev    ← integration — NEVER push directly
 ```
 
-- El nombre describe QUÉ hace la rama, no cómo. Usar kebab-case, en inglés.
-- Estrategia de merge — NUNCA mezclar: usar solo el método de la tabla de Decision Gates.
-- **Rebase está deshabilitado** en el repo — no intentar usarlo.
-- OBLIGATORIO: después de mergear cualquier PR efímero (`feat/*`, `fix/*`, `ci/*`, `chore/*`, etc.), eliminar la rama remota.
-- El título del PR se convierte en el squash commit message — debe seguir conventional commits.
+- The name describes WHAT the branch does, not how. Use kebab-case, in English.
+- Merge strategy — NEVER mix: use only the method from the Decision Gates table.
+- **Rebase is disabled** in the repo: do not try to use it.
+- MANDATORY: after merging any ephemeral PR (`feat/*`, `fix/*`, `ci/*`, `chore/*`, etc.), delete the remote branch.
+- The PR title becomes the squash commit message: it must follow conventional commits.
 
 ## Decision Gates
 
-Estrategia de merge:
+Merge strategy:
 
-| PR | Método | Prohibido |
+| PR | Method | Forbidden |
 |---|---|---|
-| `feat/*` o `fix/*` → `dev` | **Squash and merge** | Merge commit, Rebase |
+| `feat/*` or `fix/*` → `dev` | **Squash and merge** | Merge commit, Rebase |
 | `dev` → `main` | **Merge commit** | Squash, Rebase |
 
-Ramas efímeras — naming:
+Ephemeral branches — naming:
 
 ```
-feat/nombre-descriptivo     ← nueva feature
-fix/nombre-descriptivo      ← bugfix
-refactor/nombre-descriptivo ← refactor sin cambio de comportamiento
-chore/nombre-descriptivo    ← mantenimiento, deps, config
+feat/descriptive-name     ← new feature
+fix/descriptive-name      ← bugfix
+refactor/descriptive-name ← refactor with no behavior change
+chore/descriptive-name    ← maintenance, deps, config
 ```
 
 ```bash
-# ✅ Correcto
+# ✅ Correct
 feat/discount-rules
 fix/payment-provider-timeout
 refactor/order-domain-model
 
-# ❌ Incorrecto
+# ❌ Incorrect
 feature-1
 my-working-branch
 fix
@@ -61,70 +61,70 @@ fix
 
 ## Execution Steps
 
-Flujo obligatorio:
+Mandatory flow:
 
 ```
 1. git checkout dev && git pull
-2. git checkout -b feat/nombre-descriptivo
-3. trabajar + commits convencionales
-4. PR: feat/* → dev        → Squash and merge + eliminar rama remota
-5. PR: dev   → main        → Merge commit  (solo cuando dev está estable)
+2. git checkout -b feat/descriptive-name
+3. work + conventional commits
+4. PR: feat/* → dev        → Squash and merge + delete remote branch
+5. PR: dev   → main        → Merge commit  (only when dev is stable)
 ```
 
-Comandos:
+Commands:
 
 ```bash
-# Crear rama desde dev actualizado
-git checkout dev && git pull && git checkout -b feat/nombre
+# Create a branch from an up-to-date dev
+git checkout dev && git pull && git checkout -b feat/name
 
-# Ver ramas locales
+# List local branches
 git branch
 
-# Subir rama y abrir PR con gh CLI
-git push -u origin feat/nombre
-gh pr create --base dev --title "feat(scope): descripción" --body ""
+# Push the branch and open a PR with the gh CLI
+git push -u origin feat/name
+gh pr create --base dev --title "feat(scope): description" --body ""
 
-# PR de dev a main
+# PR from dev to main
 gh pr create --base main --head dev --title "chore(release): vX.Y.Z"
 ```
 
-Limpieza de ramas tras merge:
+Branch cleanup after a merge:
 
 ```bash
-# gh lo hace automáticamente con --delete-branch
-gh pr merge <número> --squash --delete-branch
+# gh does it automatically with --delete-branch
+gh pr merge <number> --squash --delete-branch
 
-# Si la rama remota sobrevivió, eliminarla manualmente
-git push origin --delete nombre-rama
+# If the remote branch survived, delete it manually
+git push origin --delete branch-name
 
-# Limpiar referencias locales obsoletas
+# Clean up stale local references
 git fetch --prune
 ```
 
 ## Output Contract
 
-Commits convencionales:
+Conventional commits:
 
 ```
-feat(scope): descripción corta
-fix(scope): descripción corta
-refactor(scope): descripción corta
-test(scope): descripción corta
-chore(scope): descripción corta
-docs(scope): descripción corta
-perf(scope): descripción corta
+feat(scope): short description
+fix(scope): short description
+refactor(scope): short description
+test(scope): short description
+chore(scope): short description
+docs(scope): short description
+perf(scope): short description
 ```
 
-Scopes válidos: nombres de bounded context o de área transversal del proyecto (por ejemplo `products`, `orders`, `auth`, `users`, `observability`, `ci`). Decláralos en `commitlint.config.ts`.
+Valid scopes: names of a bounded context or of a cross-cutting area of the project (for example `products`, `orders`, `auth`, `users`, `observability`, `ci`). Declare them in `commitlint.config.ts`.
 
-Títulos de PR:
+PR titles:
 
 ```
-# ✅ Correcto
+# ✅ Correct
 feat(products): implement discount rules
 fix(payments): handle provider timeout with retry logic
 
-# ❌ Incorrecto
+# ❌ Incorrect
 My changes
 WIP
 fix stuff
@@ -132,5 +132,5 @@ fix stuff
 
 ## References
 
-- **Guía completa**: `docs/engineering/git-workflow.md`
-- Lee [`references/docs.md`](references/docs.md) para skills relacionadas, ADRs y documentación externa.
+- **Complete guide**: `docs/engineering/git-workflow.md`
+- Read [`references/docs.md`](references/docs.md) for related skills, ADRs and external documentation.

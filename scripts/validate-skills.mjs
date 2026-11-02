@@ -8,7 +8,8 @@ const FORBIDDEN_TERMS = ['flashcard', 'ididntcatchthat', 'tfm', 'big-school', 'e
 const FORBIDDEN = new RegExp(`\\b(${FORBIDDEN_TERMS.join('|')})\\b`, 'i');
 const REQUIRED_FIELDS = ['name', 'description', 'license'];
 // Concept skills describe patterns. Framework details belong in stack-* skills.
-const FRAMEWORK = /(@nestjs|NestJS|TypeORM|typeorm|class-validator|class-transformer|Passport|@Injectable|@Controller|@Module|useState|useEffect|useQuery|useMutation|TanStack|React|Zustand|\bJest\b|jest\.|jest-mock|Vitest|Playwright|\bMSW\b|RabbitMQ|amqplib|\bpino\b|Prometheus|OpenTelemetry|Swagger|\bJoi\b|Faker)/;
+const FRAMEWORK = /(@nestjs|NestJS|TypeORM|typeorm|class-validator|class-transformer|Passport|@Injectable|@Controller|@Module|useState|useEffect|useQuery|useMutation|TanStack|React|Zustand|\bJest\b|jest\.|jest-mock|Vitest|Playwright|\bMSW\b|RabbitMQ|amqplib|\bpino\b|Prometheus|OpenTelemetry|Swagger|\bJoi\b|Faker|queryRunner|AppDataSource|\bdataSource\b|queryFn|mutationFn|mutateAsync|staleTime|invalidateQueries|QueryClient|\.tsx|\.jsx|\bJSX\b|mock<)/;
+const STACK_SKILL_NAME = /stack-[a-z-]+/g;
 const CONCEPT_SKILL = /^(api|client)-/;
 const PINNED_VERSION = /\b([A-Z][\w.]+ v\d+)\b/;
 const SPANISH_WORDS = /\b(que|para|los|las|una|del|con|cuando|debe|nunca|siempre|desde|como|tambi\u00e9n)\b/gi;
@@ -97,8 +98,8 @@ function checkMarkdown(skillDir, path) {
   lines.forEach((line, index) => {
     const term = line.match(FORBIDDEN);
     if (term) errors.push(`${label(path)}:${index + 1}: project-specific term "${term[1].toLowerCase()}"`);
-    const framework = isConcept && line.match(FRAMEWORK);
-    if (framework && !/^https?:/.test(framework[0])) errors.push(`${label(path)}:${index + 1}: concept skill names framework "${framework[1]}"`);
+    const framework = isConcept && line.replace(STACK_SKILL_NAME, '').match(FRAMEWORK);
+    if (framework) errors.push(`${label(path)}:${index + 1}: concept skill names framework "${framework[1]}"`);
     const pinned = line.match(PINNED_VERSION);
     if (pinned) errors.push(`${label(path)}:${index + 1}: pinned version "${pinned[1]}"`);
     if (MOJIBAKE.test(line)) errors.push(`${label(path)}:${index + 1}: corrupted encoding`);

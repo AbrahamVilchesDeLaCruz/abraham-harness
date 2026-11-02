@@ -1,99 +1,92 @@
 # Testing
 
-> Cómo se ejecutan realmente los tests en este monorepo.
+> How tests actually run in this monorepo.
+> Runner configuration and framework details: read `references/engineering-testing.md` in the stack skills that match this project's stack table.
 
 ---
 
-## Pirámide de tests
+## Test pyramid
 
 ```
          ┌─────────────────┐
-         │      E2E        │  ← supertest contra app NestJS real + Postgres Docker
+         │      E2E        │  ← real HTTP requests against the real application + Docker Postgres
          ├─────────────────┤
-         │  Integración    │  ← (no aplica aún — los E2E cubren este nivel)
+         │  Integration    │  ← (does not apply yet — E2E covers this level)
          ├─────────────────┤
-         │    Unitarios    │  ← use cases + domain con jest-mock-extended
+         │      Unit       │  ← use cases + domain with mocked ports
          └─────────────────┘
 ```
 
 ---
 
-## Tests unitarios (`*.spec.ts`)
+## Unit tests (`*.spec.ts`)
 
-### ¿Qué cubren?
+### What do they cover?
 
-- Domain: Value Objects, Aggregates, entidades.
-- Application: Use Cases — mocks de repositorios con `jest-mock-extended`.
+- Domain: Value Objects, Aggregates, entities.
+- Application: Use Cases, with mocked repositories.
 
-### Cómo ejecutarlos
+### How to run them
 
 ```bash
-# Desde la raíz del monorepo
-pnpm test                          # todos los workspaces
+# From the monorepo root
+pnpm test                          # all workspaces
 
-# Solo la API
+# API only
 pnpm --filter @myapp/api test
 
-# Con coverage
+# With coverage
 pnpm --filter @myapp/api test:cov
 
-# En modo watch (desarrollo)
+# In watch mode (development)
 pnpm --filter @myapp/api test:watch
 ```
 
-### Runner
+### Conventions
 
-- **Jest** con `ts-jest`
-- Config: `apps/api/jest.config.ts`
-- Pattern: `test/**/*.spec.ts`
-- `NODE_OPTIONS=--experimental-vm-modules` — necesario para ESM con `jest-mock-extended`
-
-### Convenciones
-
-- Un archivo `*.spec.ts` por use case / domain object
-- Object Mother para fixtures: `*-mother.ts` junto al spec
-- Mocks via `jest-mock-extended` — no `jest.fn()` manual
-- `describe`, `it`, `expect`, `beforeEach` son **globals** — no importar desde `@jest/globals`
+- One `*.spec.ts` file per use case / domain object
+- Object Mother for fixtures: `*-mother.ts` next to the spec
+- Mocks through the project's mocking library: no manual mock functions
 
 ---
 
-## Tests E2E (`*.e2e-spec.ts`)
+## E2E tests (`*.e2e-spec.ts`)
 
-### ¿Qué cubren?
+### What do they cover?
 
-El contrato HTTP real: levanta la app NestJS completa contra una DB Postgres de test y hace requests HTTP reales via `supertest`. Validan que los controllers, guards, use cases y repositorios funcionan de punta a punta.
+The real HTTP contract: starts the complete application against a Postgres test DB and makes real HTTP requests. They validate that the controllers, guards, use cases and repositories work end to end.
 
-### Infraestructura requerida
+### Required infrastructure
 
-Los E2E necesitan Postgres corriendo **en puerto 5433** (no 5432 — no interferir con instancias locales).
+E2E tests need Postgres running **on port 5433** (not 5432 — do not interfere with local instances).
 
-#### Localmente
+#### Locally
 
 ```bash
-# 1. Levantar Postgres de test (Docker)
+# 1. Start the test Postgres (Docker)
 make test:e2e:up
 
-# 2. Correr los tests
+# 2. Run the tests
 pnpm --filter @myapp/api test:e2e
 
-# 3. Bajar infraestructura
+# 3. Stop the infrastructure
 make test:e2e:down
 ```
 
-O todo de una vez (sube, corre, baja):
+Or all at once (up, run, down):
 
 ```bash
 make test:e2e
 ```
 
-#### En CI (GitHub Actions)
+#### In CI (GitHub Actions)
 
-El workflow `.github/workflows/ci.yml` levanta el servicio Postgres directamente como `service`:
+The `.github/workflows/ci.yml` workflow starts Postgres directly as a `service`:
 
 ```yaml
 services:
   postgres:
-    image: postgres:16-alpine
+    image: postgres:<version>-alpine
     env:
       POSTGRES_USER: test
       POSTGRES_PASSWORD: test
@@ -107,14 +100,14 @@ services:
       --health-retries 5
 ```
 
-**No se usa el gestor de secretos en el step de E2E** — las vars vienen de `.env.test` commiteado (solo contiene valores de test, sin secretos reales).
+**The secrets manager is not used in the E2E step**: the vars come from the committed `.env.test` (it contains only test values, no real secrets).
 
-### Variables de entorno para tests E2E
+### Environment variables for E2E tests
 
-Las vars se cargan automáticamente desde `apps/api/.env.test` via `test/setup-env.ts` (registrado en `jest.e2e.config.ts` bajo `setupFiles`).
+The vars are loaded automatically from `apps/api/.env.test` via `test/setup-env.ts`, registered in the E2E runner config.
 
 ```bash
-# apps/api/.env.test (commiteado — sin secretos)
+# apps/api/.env.test (committed — no secrets)
 NODE_ENV=test
 DATABASE_URL=postgres://test:test@localhost:5433/myapp_test
 JWT_SECRET=test-jwt-secret-at-least-32-chars-long
@@ -124,70 +117,66 @@ JWT_REFRESH_EXPIRATION=30d
 FRONTEND_URL=http://localhost:5173
 ```
 
-### Docker Compose de test
+### Test Docker Compose
 
-`docker-compose.test.yml` en la raíz del monorepo:
+`docker-compose.test.yml` at the monorepo root:
 
-- **Imagen**: `postgres:16-alpine`
-- **Puerto**: `5433:5432` (no colisiona con instancias locales en 5432)
-- **Storage**: `tmpfs` — efímero, se destruye al parar el contenedor
-- **Healthcheck**: `pg_isready` — el `--wait` en Docker Compose espera a que esté listo antes de continuar
+- **Image**: `postgres:<version>-alpine`
+- **Port**: `5433:5432` (does not collide with local instances on 5432)
+- **Storage**: `tmpfs` — ephemeral, destroyed when the container stops
+- **Healthcheck**: `pg_isready` — the `--wait` in Docker Compose waits until it is ready before continuing
 
-### Migraciones en E2E
+### Migrations in E2E
 
-Las migraciones se corren **una sola vez** al iniciar la DB de test. La DB es ephemeral (tmpfs) — cada `make test:e2e:down` la destruye. Si cambia el schema, se aplica en el próximo `make test:e2e:up` automáticamente (TypeORM `migrationsRun: true`).
+Migrations run **only once** when the test DB starts. The DB is ephemeral (tmpfs): each `make test:e2e:down` destroys it. If the schema changes, it is applied automatically on the next `make test:e2e:up`.
 
-### Runner E2E
+### E2E execution
 
-- **Jest** con `ts-jest`
-- Config: `apps/api/jest.e2e.config.ts`
-- Pattern: `test/**/*.e2e-spec.ts`
-- Flag `--runInBand` — los tests E2E corren **en serie**, no en paralelo (comparten la misma DB)
-- `NODE_OPTIONS=--experimental-vm-modules`
+- The E2E tests run **in series**, not in parallel (they share the same DB)
 
-### Convenciones E2E
+### E2E conventions
 
-- Un archivo `*.e2e-spec.ts` por funcionalidad (ej: `register-login-auth.e2e-spec.ts`)
-- El helper `createTestApp()` en `test/shared/infrastructure/create-test-app.ts` — centraliza el bootstrap de la app de test
-- Limpieza de datos: cada suite borra sus propios registros en `afterEach` / `afterAll`
-- Emails y nicknames únicos por suite via `Date.now()` — evita colisiones entre suites paralelas (aunque corren en serie)
-- Cookie extraction: `res.headers['set-cookie'][0].split(';')[0]` — el header `Cookie` solo acepta `key=value`
+- One `*.e2e-spec.ts` file per functionality (e.g. `register-login-auth.e2e-spec.ts`)
+- The `createTestApp()` helper in `test/shared/infrastructure/create-test-app.ts` centralizes the bootstrap of the test app
+- Data cleanup: each suite deletes its own records in `afterEach` / `afterAll`
+- Unique emails and nicknames per suite via `Date.now()`: avoids collisions between parallel suites (even though they run in series)
+- Cookie extraction: `res.headers['set-cookie'][0].split(';')[0]` — the `Cookie` header only accepts `key=value`
 
 ---
 
-## Comandos de referencia rápida
+## Quick reference commands
 
-| Comando                                         | Qué hace                             |
-| ----------------------------------------------- | ------------------------------------ |
-| `pnpm test`                                     | Unit tests en todos los workspaces   |
-| `pnpm --filter @myapp/api test`       | Unit tests solo API                  |
-| `pnpm --filter @myapp/api test:cov`   | Unit tests + coverage                |
-| `pnpm --filter @myapp/api test:watch` | Unit tests en modo watch             |
-| `make test:e2e`                                 | E2E completo: up + run + down        |
-| `make test:e2e:up`                              | Solo levantar Postgres de test       |
-| `pnpm --filter @myapp/api test:e2e`   | Solo correr E2E (requiere DB activa) |
-| `make test:e2e:down`                            | Bajar y destruir Postgres de test    |
-| `pnpm test:all`                                 | Unit + E2E en todos los workspaces   |
-| `pnpm test:ci`                                  | Unit + coverage en modo CI           |
+| Command                               | What it does                          |
+| ------------------------------------- | ------------------------------------- |
+| `pnpm test`                           | Unit tests in all workspaces          |
+| `pnpm --filter @myapp/api test`       | Unit tests API only                   |
+| `pnpm --filter @myapp/api test:cov`   | Unit tests + coverage                 |
+| `pnpm --filter @myapp/api test:watch` | Unit tests in watch mode              |
+| `make test:e2e`                       | Complete E2E: up + run + down         |
+| `make test:e2e:up`                    | Only start the test Postgres          |
+| `pnpm --filter @myapp/api test:e2e`   | Only run E2E (requires an active DB)  |
+| `make test:e2e:down`                  | Stop and destroy the test Postgres    |
+| `pnpm test:all`                       | Unit + E2E in all workspaces          |
+| `pnpm test:ci`                        | Unit + coverage in CI mode            |
 
 ---
 
-## Estructura de archivos de test
+## Test file structure
 
 ```
 apps/api/
-├── jest.config.ts              ← config unit tests
-├── jest.e2e.config.ts          ← config E2E tests
-├── .env.test                   ← vars de entorno para E2E (commiteado)
+├── {unit runner config}        ← config for unit tests
+├── {E2E runner config}         ← config for E2E tests
+├── .env.test                   ← environment vars for E2E (committed)
 └── test/
-    ├── setup-env.ts            ← carga .env.test antes del bootstrap de NestJS
+    ├── setup-env.ts            ← loads .env.test before the application bootstrap
     ├── shared/
-    │   ├── domain/             ← Object Mothers base (MotherCreator, UuidMother…)
+    │   ├── domain/             ← base Object Mothers (MotherCreator, UuidMother…)
     │   └── infrastructure/
-    │       └── create-test-app.ts  ← helper: bootstrap NestJS para E2E
+    │       └── create-test-app.ts  ← helper: bootstraps the application for E2E
     └── identity/
-        ├── domain/             ← Object Mothers del BC identity
-        ├── application/        ← unit specs + mothers de use cases
+        ├── domain/             ← Object Mothers of the identity BC
+        ├── application/        ← unit specs + use case mothers
         └── infrastructure/     ← E2E specs
             ├── guest-auth-post.e2e-spec.ts
             ├── register-login-auth.e2e-spec.ts
@@ -197,23 +186,23 @@ apps/api/
 
 ---
 
-## Cobertura
+## Coverage
 
-La cobertura se genera con `--coverage` y se escribe en:
+Coverage is generated with `--coverage` and written to:
 
 - Unit: `apps/api/coverage/unit/`
 - E2E: `apps/api/coverage/e2e/`
 
-En CI, la cobertura se recoge para el reporte pero **no hay threshold mínimo** configurado — el objetivo es visibilidad, no bloqueo de merge.
+In CI, coverage is collected for the report but **there is no minimum threshold** configured: the goal is visibility, not blocking the merge.
 
 ---
 
-## Gotchas conocidos
+## Known gotchas
 
-| Problema                                | Causa                                            | Solución                                                   |
-| --------------------------------------- | ------------------------------------------------ | ---------------------------------------------------------- |
-| `connect ECONNREFUSED 127.0.0.1:5433`   | Postgres de test no está corriendo               | `make test:e2e:up`                                         |
-| `SSL required` en E2E                   | TypeORM en modo no-test usa SSL                  | `ssl: false` cuando `NODE_ENV=test` en `typeorm.config.ts` |
-| `422` en vez de `400` en validación     | `errorHttpStatusCode: 422` en `ValidationPipe`   | Esperado — usar 422 en los specs                           |
-| Tests E2E interfieren entre sí          | Datos compartidos en DB                          | Usar emails/nicknames únicos via `Date.now()`              |
-| Cookie inválida en `POST /auth/refresh` | Se pasa el valor con atributos (`; HttpOnly; …`) | `.split(';')[0]` al extraer de `set-cookie`                |
+| Problem                                 | Cause                                               | Solution                                       |
+| --------------------------------------- | --------------------------------------------------- | ---------------------------------------------- |
+| `connect ECONNREFUSED 127.0.0.1:5433`   | The test Postgres is not running                    | `make test:e2e:up`                             |
+| `SSL required` in E2E                   | The persistence layer uses SSL outside test mode    | Disable SSL when `NODE_ENV=test`               |
+| `422` instead of `400` on validation    | The validation layer is configured to answer 422    | Expected: use 422 in the specs                 |
+| E2E tests interfere with each other     | Shared data in the DB                               | Use unique emails/nicknames via `Date.now()`   |
+| Invalid cookie in `POST /auth/refresh`  | The value is passed with attributes (`; HttpOnly; …`) | `.split(';')[0]` when extracting from `set-cookie` |

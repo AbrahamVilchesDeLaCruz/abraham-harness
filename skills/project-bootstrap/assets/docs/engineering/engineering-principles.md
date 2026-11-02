@@ -1,8 +1,9 @@
 # Engineering Principles — myapp
 
-> Principios de diseño que aplican a **todo el sistema** — frontend y backend.
-> Estos no son reglas arbitrarias. Cada uno existe para resolver un problema concreto que aparece cuando un sistema crece.
-> Entender el **por qué** es tan importante como conocer el qué.
+> Design principles that apply to **the whole system**, frontend and backend.
+> These are not arbitrary rules. Each one exists to solve a concrete problem that appears when a system grows.
+> Understanding the **why** is as important as knowing the what.
+> Framework details: read `references/engineering-principles.md` in the stack skills that match this project's stack table.
 
 ---
 
@@ -10,42 +11,42 @@
 
 ### S — Single Responsibility Principle
 
-Una clase o función tiene **una sola razón para cambiar**.
+A class or function has **a single reason to change**.
 
-**Por qué importa**: cuando una unidad mezcla responsabilidades, un cambio en una afecta las demás. Los bugs se dispersan, los tests se complican, y el código se vuelve frágil.
+**Why it matters**: when a unit mixes responsibilities, a change in one affects the others. Bugs spread, tests get complicated, and the code becomes fragile.
 
-En el backend:
+In the backend:
 
-- Un Use Case = una acción del sistema. `ProductCreator` no crea y no busca.
-- Un Domain Service resuelve un problema de dominio concreto. `ProductExistVerifier` solo verifica existencia.
-- Un Controller solo orquesta: recibe la request, llama al use case, devuelve la response.
+- One Use Case = one action of the system. `ProductCreator` does not create and also search.
+- A Domain Service solves one concrete domain problem. `ProductExistVerifier` only verifies existence.
+- A Controller only orchestrates: receives the request, calls the use case, returns the response.
 
-En el frontend:
+In the frontend:
 
-- Un Container = una fuente de datos. No mezcla queries de recursos distintos.
-- Un hook del pod encapsula un grupo cohesionado de estado. `useProductFilters` no gestiona también el tooltip.
-- Un Component renderiza y gestiona estado de UI. No fetchea datos.
+- One Container = one data source. It does not mix queries of different resources.
+- A pod hook encapsulates one cohesive group of state. `useProductFilters` does not also manage the tooltip.
+- A Component renders and manages UI state. It does not fetch data.
 
 ```ts
-// ❌ Viola SRP: el use case hace demasiado
+// ❌ Violates SRP: the use case does too much
 class ProductCreator {
   async execute(command: CreateProductCommand) {
     const exists = await this.repository.searchById(command.id)
     if (exists) throw new ProductAlreadyExists()
     const product = Product.create(...)
     await this.repository.save(product)
-    await this.emailService.sendConfirmation(...)   // efecto secundario no relacionado
-    await this.cacheService.invalidate(...)         // detalle de infra
+    await this.emailService.sendConfirmation(...)   // unrelated side effect
+    await this.cacheService.invalidate(...)         // infra detail
   }
 }
 
-// ✅ Correcto: cada responsabilidad en su lugar
+// ✅ Correct: each responsibility in its place
 class ProductCreator {
   async execute(command: CreateProductCommand) {
     await this.productExistVerifier.verify(command.id)  // domain service
     const product = Product.create(...)
     await this.repository.save(product)
-    await this.eventBus.publish(product.pullDomainEvents())  // el subscriber maneja el resto
+    await this.eventBus.publish(product.pullDomainEvents())  // the subscriber handles the rest
   }
 }
 ```
@@ -54,22 +55,22 @@ class ProductCreator {
 
 ### O — Open/Closed Principle
 
-**Abierto a extensión, cerrado a modificación.**
+**Open to extension, closed to modification.**
 
-**Por qué importa**: modificar código que ya funciona introduce regresiones. Extender sin modificar mantiene lo que ya funciona intacto.
+**Why it matters**: modifying code that already works introduces regressions. Extending without modifying keeps what already works intact.
 
-En el backend:
+In the backend:
 
-- Añadir un nuevo proveedor (LLM, storage, email) = crear un nuevo adaptador que implementa el puerto. El use case no se toca.
-- Los Domain Events permiten añadir comportamiento derivado sin modificar el use case original.
+- Adding a new provider (LLM, storage, email) = creating a new adapter that implements the port. The use case is not touched.
+- Domain Events allow adding derived behavior without modifying the original use case.
 
-En el frontend:
+In the frontend:
 
-- Añadir un nuevo filtro al pod = nuevo estado en el hook de filtros. El Component no cambia su estructura.
-- Añadir una nueva acción al Container = nueva mutation. El Component recibe un nuevo callback.
+- Adding a new filter to the pod = new state in the filter hook. The Component does not change its structure.
+- Adding a new action to the Container = new mutation. The Component receives a new callback.
 
 ```ts
-// ❌ Viola OCP: hay que modificar el use case para cada nuevo canal
+// ❌ Violates OCP: the use case must be modified for each new channel
 class ProductCreator {
   async execute(command: CreateProductCommand) {
     // ...
@@ -78,8 +79,8 @@ class ProductCreator {
   }
 }
 
-// ✅ Correcto: el use case publica un evento; cada subscriber extiende el comportamiento
-// Nuevo canal = nuevo subscriber. ProductCreator no se toca nunca más.
+// ✅ Correct: the use case publishes an event; each subscriber extends the behavior
+// New channel = new subscriber. ProductCreator is never touched again.
 class OnProductCreatedSendEmail { ... }
 class OnProductCreatedSendPushNotification { ... }
 ```
@@ -88,61 +89,61 @@ class OnProductCreatedSendPushNotification { ... }
 
 ### L — Liskov Substitution Principle
 
-**Cualquier implementación de una interfaz debe ser sustituible sin alterar el comportamiento esperado.**
+**Any implementation of an interface must be substitutable without altering the expected behavior.**
 
-**Por qué importa**: si no se cumple, las abstracciones son falsas. Los tests usan mocks que no se comportan como la implementación real, y los bugs aparecen solo en producción.
+**Why it matters**: if this does not hold, the abstractions are false. Tests use mocks that do not behave like the real implementation, and bugs appear only in production.
 
-En el backend:
+In the backend:
 
-- `TypeOrmProductRepository` e `InMemoryProductRepository` son intercambiables. Los tests usan la versión en memoria; producción usa TypeORM. El use case no nota la diferencia.
-- Un adaptador no puede añadir precondiciones extra ni devolver tipos distintos a los definidos en el puerto.
+- `SqlProductRepository` and `InMemoryProductRepository` are interchangeable. Tests use the in-memory version; production uses the real persistence. The use case does not notice the difference.
+- An adapter cannot add extra preconditions or return types different from those defined in the port.
 
-En el frontend:
+In the frontend:
 
-- Un componente que acepta `onClick?: () => void` no puede requerir internamente que ese callback devuelva un valor específico. Si lo hace, rompe el contrato.
+- A component that accepts `onClick?: () => void` cannot internally require that callback to return a specific value. If it does, it breaks the contract.
 
 ---
 
 ### I — Interface Segregation Principle
 
-**Los clientes no deben depender de interfaces que no usan.**
+**Clients must not depend on interfaces they do not use.**
 
-**Por qué importa**: interfaces gordas generan acoplamiento innecesario. Un cambio en un método que no uses te fuerza a actualizar tu implementación.
+**Why it matters**: fat interfaces create unnecessary coupling. A change in a method you do not use forces you to update your implementation.
 
-En el backend:
+In the backend:
 
-- El repositorio no crece con métodos específicos de un caso de uso. Si `ProductCreator` solo necesita `save()` y `match()`, no contamines la interfaz con `findByCollectionOrderedByScore()`.
-- Si un servicio externo tiene muchas capacidades, define puertos pequeños y específicos por caso de uso.
+- The repository does not grow with methods specific to one use case. If `ProductCreator` only needs `save()` and `match()`, do not pollute the interface with `findByCollectionOrderedByScore()`.
+- If an external service has many capabilities, define small ports specific to each use case.
 
-En el frontend:
+In the frontend:
 
-- Las props de un Component no incluyen datos que el Component no usa. Si un sub-componente solo necesita `title` y `onClose`, no le pases el objeto completo.
+- The props of a Component do not include data that the Component does not use. If a sub-component only needs `title` and `onClose`, do not pass it the complete object.
 
 ---
 
 ### D — Dependency Inversion Principle
 
-**Los módulos de alto nivel no dependen de los de bajo nivel. Ambos dependen de abstracciones.**
+**High-level modules do not depend on low-level ones. Both depend on abstractions.**
 
-**Por qué importa**: el acoplamiento a implementaciones concretas hace imposible testear en aislamiento y dificulta el cambio tecnológico.
+**Why it matters**: coupling to concrete implementations makes it impossible to test in isolation and hinders technological change.
 
-En el backend:
+In the backend:
 
-- El use case depende de `ProductRepository` (abstracción), no de `TypeOrmProductRepository` (implementación).
-- La inyección ocurre en el Composition Root, nunca dentro de las clases de dominio o aplicación.
+- The use case depends on `ProductRepository` (abstraction), not on `SqlProductRepository` (implementation).
+- Injection happens in the Composition Root, never inside domain or application classes.
 
-En el frontend:
+In the frontend:
 
-- El Container depende de hooks (`useProducts`, `useCreateProduct`), no de `axios` ni de `fetch` directamente.
-- Los Components dependen de callbacks tipados, no de stores ni contextos concretos.
+- The Container depends on hooks (`useProducts`, `useCreateProduct`), not on an HTTP client or `fetch` directly.
+- Components depend on typed callbacks, not on concrete stores or contexts.
 
 ```ts
-// ❌ Viola DIP: instancia la dependencia concreta
+// ❌ Violates DIP: instantiates the concrete dependency
 class ProductCreator {
-  private repository = new TypeOrmProductRepository();
+  private repository = new SqlProductRepository();
 }
 
-// ✅ Correcto: recibe la abstracción por constructor
+// ✅ Correct: receives the abstraction through the constructor
 class ProductCreator {
   constructor(private readonly repository: ProductRepository) {}
 }
@@ -150,155 +151,116 @@ class ProductCreator {
 
 ---
 
-## 2. Ley de Demeter y Tell Don't Ask
+## 2. Law of Demeter and Tell Don't Ask
 
-### Ley de Demeter
+### Law of Demeter
 
-**Solo habla con tus amigos inmediatos.** Un objeto no debe navegar la estructura interna de otro para obtener datos.
+**Only talk to your immediate friends.** An object must not navigate the internal structure of another to obtain data.
 
 ```ts
-// ❌ Viola Demeter: navega tres niveles
+// ❌ Violates Demeter: navigates three levels
 const score = payment.getResult().getScore().getValue();
 
-// ✅ Correcto: el agregado expone lo necesario
+// ✅ Correct: the aggregate exposes what is necessary
 const score = payment.currentScore();
 ```
 
 ### Tell, Don't Ask
 
-**No preguntes el estado de un objeto para decidir qué hacer. Dile qué hacer y deja que él decida.**
+**Do not ask for an object's state to decide what to do. Tell it what to do and let it decide.**
 
 ```ts
-// ❌ Ask: sacas el estado y decides fuera
+// ❌ Ask: you take the state out and decide outside
 if (product.getStatus() === "active") {
   product.setStatus("archived");
   product.setArchivedAt(new Date());
 }
 
-// ✅ Tell: le decís qué hacer, él gestiona su invariante
+// ✅ Tell: you tell it what to do, it manages its invariant
 product.archive();
-// internamente Product.archive() verifica que está activo,
-// actualiza el estado, registra la fecha y emite ProductArchivedEvent
+// internally Product.archive() verifies that it is active,
+// updates the state, records the date and emits ProductArchivedEvent
 ```
 
-**Por qué importa en DDD**: las reglas de negocio viven en el agregado, no dispersas en use cases o servicios. Si el estado se puede leer y modificar desde fuera, las invariantes no están garantizadas.
+**Why it matters in DDD**: business rules live in the aggregate, not scattered across use cases or services. If the state can be read and modified from outside, invariants are not guaranteed.
 
-**En el frontend**: los hooks del pod aplican el mismo principio. El Component no pregunta el estado del filtro para decidir qué renderizar — el hook expone el estado ya procesado y handlers para actuar sobre él.
+**In the frontend**: pod hooks apply the same principle. The Component does not ask for the filter state to decide what to render: the hook exposes the already processed state and handlers to act on it.
 
 ---
 
 ## 3. TDD — Test-Driven Development
 
-### El ciclo
+### The cycle
 
 ```
 Red → Green → Refactor
 ```
 
-1. **Red** — escribir el test que falla. Solo el test, nada de implementación.
-2. **Green** — escribir el mínimo código para que el test pase. Sin optimizar.
-3. **Refactor** — limpiar el código manteniendo los tests en verde.
+1. **Red** — write the failing test. Only the test, no implementation at all.
+2. **Green** — write the minimum code for the test to pass. No optimizing.
+3. **Refactor** — clean up the code while keeping the tests green.
 
-**Por qué importa**: TDD no es solo una técnica de testing — es una técnica de diseño. Escribir el test primero obliga a pensar en la interfaz antes que en la implementación. El resultado es código más desacoplado, con interfaces más limpias y responsabilidades más claras.
+**Why it matters**: TDD is not only a testing technique, it is a design technique. Writing the test first forces you to think about the interface before the implementation. The result is more decoupled code, with cleaner interfaces and clearer responsibilities.
 
-### Lo que TDD revela
+### What TDD reveals
 
-- Si un test es difícil de escribir, la clase tiene demasiadas dependencias → viola SRP o DIP.
-- Si necesitás muchos mocks para testear una unidad, está acoplada a demasiadas cosas.
-- Si el test es ilegible, el diseño de la interfaz pública es confuso.
+- If a test is hard to write, the class has too many dependencies → it violates SRP or DIP.
+- If you need many mocks to test a unit, it is coupled to too many things.
+- If the test is unreadable, the design of the public interface is confusing.
 
-### Pirámide de tests
+### Test pyramid
 
 ```
          /\
-        /E2E\          ← pocos, lentos, flujos críticos completos
+        /E2E\          ← few, slow, complete critical flows
        /──────\
-      / Integr \       ← medianos, validan que las piezas encajan
+      / Integr \       ← medium, validate that the pieces fit together
      /──────────\
-    /    Unit    \     ← muchos, rápidos, una sola responsabilidad
+    /    Unit    \     ← many, fast, a single responsibility
    /______________\
 ```
 
-**Unit**: una sola clase o función en aislamiento. Dependencias mockeadas. Rápidos. Son la base.
+**Unit**: a single class or function in isolation. Mocked dependencies. Fast. They are the base.
 
-**Integration**: varias piezas juntas. En el backend: use case + repository real (in-memory o base de datos de test). En el frontend: Container + Component + MSW.
+**Integration**: several pieces together. In the backend: use case + real repository (in-memory or test database). In the frontend: Container + Component + mocked HTTP.
 
-**E2E**: el sistema completo desde la perspectiva del usuario. Solo para flujos críticos. Lentos y costosos de mantener.
+**E2E**: the complete system from the user's perspective. Only for critical flows. Slow and costly to maintain.
 
-### Qué testear en cada capa
+### What to test in each layer
 
-| Capa | Qué testear | Cómo |
+| Layer | What to test | How |
 |---|---|---|
-| Domain (backend) | **No se testea directamente** — se ejercita como efecto de los tests de Use Cases | Object Mothers con faker para construir datos de entrada |
-| Application (backend) | Use Cases | Unit — repository in-memory, dependencias mockeadas |
-| Infrastructure (backend) | Repository implementations | Integration — base de datos real o in-memory |
-| Hooks del pod (frontend) | Lógica de estado, handlers | Unit — `renderHook` |
-| Mappers (frontend/backend) | Transformación de datos | Unit — función pura |
-| Component (frontend) | Renderizado, interacciones de UI | Integration — sin queries reales |
-| Container (frontend) | Flujo completo con datos | Integration — HTTP mockeado con MSW |
-| Flujos críticos | Registro, login, acción principal | E2E |
+| Domain (backend) | **Not tested directly**: exercised as an effect of the Use Case tests | Object Mothers with fake data to build the input data |
+| Application (backend) | Use Cases | Unit: in-memory repository, mocked dependencies |
+| Infrastructure (backend) | Repository implementations | Integration: real or in-memory database |
+| Pod hooks (frontend) | State logic, handlers | Unit: render the hook in isolation |
+| Mappers (frontend/backend) | Data transformation | Unit: pure function |
+| Component (frontend) | Rendering, UI interactions | Integration: no real queries |
+| Container (frontend) | Full flow with data | Integration: mocked HTTP |
+| Critical flows | Registration, login, main action | E2E |
 
-**Por qué el Domain no se testea directamente**: los agregados, Value Objects y Domain Services no tienen sentido testeados en aislamiento — su comportamiento cobra significado en el contexto de un caso de uso. Si `Product.create()` lanza una excepción de dominio, eso se verifica en el test del Use Case que lo invoca, no en un test unitario de `Product`.
+**Why the Domain is not tested directly**: aggregates, Value Objects and Domain Services make no sense tested in isolation: their behavior gains meaning in the context of a use case. If `Product.create()` throws a domain exception, that is verified in the test of the Use Case that invokes it, not in a unit test of `Product`.
 
-### Object Mother — datos de test
+### Object Mother — test data
 
-El Object Mother es la única forma de construir entidades de dominio en los tests. Nunca construir objetos de prueba ad-hoc en cada test.
+The Object Mother is the only way to build domain entities in tests. Never build ad-hoc test objects in each test.
 
-La jerarquía tiene tres niveles. Faker solo vive en `MotherCreator` — si se cambia de librería, solo se toca en dos lugares: `MotherCreator` y los Mothers de tipo primitivo.
+The hierarchy has three levels. The fake-data library lives only in `MotherCreator`: if the library changes, only two places are touched: `MotherCreator` and the primitive-type Mothers.
 
 ```
-MotherCreator          ← faker vive aquí. Único punto de cambio de librería.
+MotherCreator          ← the fake-data library lives here. Single point of change of library.
       ↓
-StringMother           ← métodos semánticos que llaman a MotherCreator
+StringMother           ← semantic methods that call MotherCreator
 UuidMother
 NumberMother
       ↓
-ProductIdMother      ← Mother del VO, llama a UuidMother
-ProductNameMother   ← Mother del VO, llama a StringMother
+ProductIdMother      ← Mother of the VO, calls UuidMother
+ProductNameMother   ← Mother of the VO, calls StringMother
       ↓
-ProductMother        ← compone los Mothers de los VOs
+ProductMother        ← composes the Mothers of the VOs
 ```
 
-```ts
-// shared/domain/__mothers__/MotherCreator.ts
-import { faker, type Faker } from '@faker-js/faker';
-
-export class MotherCreator {
-  static random(): Faker {
-    return faker;
-  }
-}
-```
-
-```ts
-// shared/domain/__mothers__/StringMother.ts
-import { MotherCreator } from './MotherCreator';
-
-export class StringMother {
-  static random(): string {
-    return MotherCreator.random().lorem.word();
-  }
-
-  static sentence(): string {
-    return MotherCreator.random().lorem.sentence();
-  }
-
-  static ofLength(length: number): string {
-    return MotherCreator.random().string.alpha({ length });
-  }
-}
-```
-
-```ts
-// shared/domain/__mothers__/UuidMother.ts
-import { MotherCreator } from './MotherCreator';
-
-export class UuidMother {
-  static random(): string {
-    return MotherCreator.random().string.uuid();
-  }
-}
-```
+The code of `MotherCreator`, `StringMother` and `UuidMother` depends on the fake-data library: it lives in the stack reference.
 
 ```ts
 // product/domain/__mothers__/ProductIdMother.ts
@@ -328,80 +290,80 @@ export class ProductMother {
       id: ProductIdMother.random().value,
       name: ProductNameMother.random().value,
       description: ProductNameMother.random().value,
-      difficulty: 'medium',
+      size: 'medium',
       ...overrides,
     });
   }
 
-  static withDifficulty(difficulty: Difficulty): Product {
-    return ProductMother.random({ difficulty });
+  static withSize(size: Difficulty): Product {
+    return ProductMother.random({ size });
   }
 }
 ```
 
-Beneficios:
-- Faker solo aparece en `MotherCreator` — cambio de librería = un solo archivo
-- Los Mothers de tipo primitivo (`StringMother`, `UuidMother`) son el segundo punto de cambio si la API de la librería cambia
-- Los tests son legibles y los cambios en el dominio se actualizan en un solo lugar
-- Los datos aleatorios detectan edge cases que los datos fijos no detectarían
+Benefits:
+- The fake-data library appears only in `MotherCreator`: changing library = a single file
+- The primitive-type Mothers (`StringMother`, `UuidMother`) are the second point of change if the library's API changes
+- Tests are readable, and domain changes are updated in a single place
+- Random data detects edge cases that fixed data would not detect
 
-### Reglas de TDD en este proyecto
+### TDD rules in this project
 
-- Los tests se escriben **antes** de la implementación — no después.
-- Un test debe tener una sola razón para fallar.
-- El nombre del test describe el comportamiento esperado, no la implementación: `it('throws ProductNotFound when product does not exist')`, no `it('calls repository.match')`.
-- No mockear lo que no controlás (no mockear `Date`, `Math.random` directamente — usar abstracciones).
-- Un test que nunca falla no prueba nada — verificar que el test falla antes de implementar.
+- Tests are written **before** the implementation, not after.
+- A test must have a single reason to fail.
+- The test name describes the expected behavior, not the implementation: `it('throws ProductNotFound when product does not exist')`, not `it('calls repository.match')`.
+- Do not mock what you do not control (do not mock `Date`, `Math.random` directly: use abstractions).
+- A test that never fails proves nothing: verify that the test fails before implementing.
 
 ---
 
 ## 4. Separation of Concerns
 
-**Cada módulo, clase o función tiene una responsabilidad claramente delimitada. Lo que cambia junto, vive junto. Lo que cambia por razones distintas, vive separado.**
+**Each module, class or function has a clearly delimited responsibility. What changes together lives together. What changes for different reasons lives apart.**
 
-Manifestaciones concretas en el proyecto:
+Concrete manifestations in the project:
 
-| Concern                       | Dónde vive                               |
-| ----------------------------- | ---------------------------------------- |
-| Reglas de negocio             | Domain (backend)                         |
-| Orquestación de casos de uso  | Application (backend)                    |
-| Detalles de protocolo e infra | Infrastructure (backend)                 |
-| Estado del servidor y caché   | TanStack Query / hooks de api (frontend) |
-| Estado de UI                  | hooks del pod / Component (frontend)     |
-| Routing y contexto global     | Container (frontend)                     |
-| Transformación de datos       | Mappers (frontend y backend)             |
+| Concern                       | Where it lives                                 |
+| ----------------------------- | ---------------------------------------------- |
+| Business rules                | Domain (backend)                               |
+| Use case orchestration        | Application (backend)                          |
+| Protocol and infra details    | Infrastructure (backend)                       |
+| Server state and cache        | Server-state library / api hooks (frontend)    |
+| UI state                      | Pod hooks / Component (frontend)               |
+| Routing and global context    | Container (frontend)                           |
+| Data transformation           | Mappers (frontend and backend)                 |
 
 ---
 
 ## 5. Composition Root
 
-**Las dependencias se ensamblan en un único punto del sistema.** Las clases no crean sus propias dependencias — las reciben.
+**Dependencies are assembled at a single point of the system.** Classes do not create their own dependencies: they receive them.
 
-**Por qué importa**: si cada clase instancia sus dependencias, el sistema es imposible de testear y de modificar. El Composition Root es el único lugar que conoce las implementaciones concretas.
+**Why it matters**: if each class instantiates its dependencies, the system is impossible to test and to modify. The Composition Root is the only place that knows the concrete implementations.
 
-En el backend: el contenedor de DI (módulo de NestJS, `container.ts`, etc.) es el Composition Root.
+In the backend: the DI container (framework module, `container.ts`, etc.) is the Composition Root.
 
-En el frontend: el `QueryClient`, los providers de Zustand y los wrappers de contexto son el Composition Root. Los componentes nunca instancian servicios directamente.
+In the frontend: the query client, the client-store providers and the context wrappers are the Composition Root. Components never instantiate services directly.
 
 ---
 
 ## 6. Immutability by default
 
-**Preferir estructuras inmutables. Mutar el estado solo cuando sea necesario y de forma explícita.**
+**Prefer immutable structures. Mutate state only when necessary and explicitly.**
 
-- Los Value Objects son inmutables. Una operación sobre un VO devuelve uno nuevo, no modifica el existente.
-- En el frontend, el estado de los hooks se actualiza a través de los handlers — nunca mutando directamente.
-- Los DTOs y ViewModels son de solo lectura (`Readonly<T>` o `as const` donde aplica).
+- Value Objects are immutable. An operation on a VO returns a new one, it does not modify the existing one.
+- In the frontend, hook state is updated through the handlers, never by mutating it directly.
+- DTOs and ViewModels are read-only (`Readonly<T>` or `as const` where applicable).
 
-**Por qué importa**: la mutabilidad inesperada es una de las fuentes más comunes de bugs difíciles de reproducir. La inmutabilidad hace el flujo de datos predecible.
+**Why it matters**: unexpected mutability is one of the most common sources of bugs that are hard to reproduce. Immutability makes the data flow predictable.
 
 ---
 
 ## 7. Explicit over implicit
 
-**Hacer las cosas explícitas aunque sea más verboso.** Los efectos ocultos, la magia y las convenciones no documentadas son deuda técnica.
+**Make things explicit even if it is more verbose.** Hidden effects, magic and undocumented conventions are technical debt.
 
-- Los tipos son explícitos — no `any`, no inferencia cuando el tipo no es obvio.
-- Los contratos entre capas (DTOs, interfaces, props) son explícitos — no objetos genéricos.
-- Los errores se lanzan explícitamente con tipos concretos — no strings, no `console.error`.
-- En el frontend, las props del Component tienen una interface explícita — no `props: any`, no spread sin tipar.
+- Types are explicit: no `any`, no inference when the type is not obvious.
+- Contracts between layers (DTOs, interfaces, props) are explicit: no generic objects.
+- Errors are thrown explicitly with concrete types: no strings, no `console.error`.
+- In the frontend, Component props have an explicit interface: no `props: any`, no untyped spread.

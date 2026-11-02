@@ -73,4 +73,4 @@ Checklist:
 ## References
 
 - [`assets/SKILL.template.md`](assets/SKILL.template.md): the `SKILL.md` template.
-- Lee [`references/docs.md`](references/docs.md) para el spec completo de agentskills.io y la estructura de directorios esperada.
+- Read [`references/docs.md`](references/docs.md) for the complete agentskills.io spec and the expected directory structure.

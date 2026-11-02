@@ -2,9 +2,9 @@
 
 ## Related Skills
 
-| Skill | Por qué leerla |
+| Skill | Why read it |
 |---|---|
-| `skill-creator` | Cómo crear una skill nueva — después de crearla, ejecutar `skill-sync` |
+| `skill-creator` | How to create a new skill: after creating it, run `skill-sync` |
 
 ## What to sync
 
@@ -32,6 +32,6 @@ After creating or modifying any skill, update these two tables in `AGENTS.md`:
 
 ## Internal Docs
 
-| Doc | Contenido relevante |
+| Doc | Relevant content |
 |---|---|
-| `AGENTS.md` | Las tablas que hay que sincronizar: Auto-invoke Skills y Available Skills |
+| `AGENTS.md` | The tables to sync: Auto-invoke Skills and Available Skills |

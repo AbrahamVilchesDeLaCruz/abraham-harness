@@ -11,10 +11,10 @@ Package manager: pnpm.
 Scaffold a new React + TypeScript SPA using Vite inside `apps/client/`.
 
 Requirements:
-- React 19
+- React
 - TypeScript (strict mode)
 - Vite as bundler
-- TailwindCSS v4
+- TailwindCSS
 - Path aliases configured (`@/` → `src/`)
 - ESLint + Prettier configured (see `docs/conventions/eslint-prettier.md`)
 - No sample/demo content — delete everything inside `src/` except `main.tsx` and `App.tsx` (both empty shells)

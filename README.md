@@ -2,7 +2,8 @@
 
 My meta-harness: one versioned set of agent skills and architecture conventions, shared by all my projects.
 
-- **Architecture:** NestJS with DDD and hexagonal architecture for APIs, and React with pods and Container-Presentational for clients.
+- **Architecture:** DDD and hexagonal architecture for APIs, and pods with Container-Presentational for clients.
+- **Stacks:** Concept skills name no framework. Stack skills map them to NestJS, TypeORM, Jest, RabbitMQ, Pino, Prometheus, OpenTelemetry, React, TanStack Query, Vitest and Playwright, with no pinned versions.
 - **Agents:** Claude Code, Codex and OpenCode. The installer wraps the [`skills` CLI](https://github.com/vercel-labs/skills), which you can also call directly to target other agents.
 - **Distribution:** This GitHub repository. There is no npm package to publish.
 
@@ -86,6 +87,7 @@ Edit shared skills here, never in the generated skills directory of a project. S
 | Workflow | `tdd-workflow`, `git-workflow`, `skill-creator`, `skill-sync` |
 | API | `api-application`, `api-auth`, `api-bc-review`, `api-criteria`, `api-di`, `api-domain`, `api-domain-events`, `api-error-handler`, `api-events`, `api-events-infra`, `api-infrastructure`, `api-migrations`, `api-observability`, `api-response`, `api-rest`, `api-shared`, `api-testing`, `api-validation` |
 | Client | `client-api`, `client-container-presentational`, `client-hooks`, `client-pods`, `client-query`, `client-testing` |
+| Stack | `stack-nestjs`, `stack-typeorm`, `stack-jest`, `stack-rabbitmq`, `stack-observability`, `stack-react`, `stack-tanstack-query`, `stack-vitest` |
 
 ## Credits
 

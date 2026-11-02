@@ -1,36 +1,15 @@
-# tdd-workflow — Ejemplos del test RED
+# tdd-workflow — Shape of the RED test
 
-**En api (Jest):**
+The code of these examples depends on the test runner, so it lives in the stack skill that matches the project's stack table: read its `references/engineering-tdd-workflow.md`.
 
-```typescript
-// test/contexts/{context}/application/{verb}/{use-case}.spec.ts
-describe('{context}/application/{verb} {ClassName}', () => {
-  it('should {comportamiento esperado en lenguaje de negocio}', async () => {
-    // Arrange — construir datos con Object Mothers
-    const request = RequestProductCreatorMother.random();
+**In api, one test file per use case:**
 
-    // Act
-    await useCase.execute(request);
+- A test named `should {expected behavior in business language}`:
+  - Arrange: build the data with Object Mothers.
+  - Act: execute the use case with the request.
+  - Assert: verify the observable effect, not the internal implementation.
+- A test named `should throw {DomainError} when {condition}`: execute the use case with invalid input, expect that domain error, and verify that the repository saved nothing.
 
-    // Assert — verificar efecto observable, no implementación interna
-    expect(repository.save).toHaveBeenCalledWith(ProductMother.from(request));
-  });
+**In client, one test file per component:**
 
-  it('should throw {DomainError} when {condición}', async () => {
-    await expect(useCase.execute(invalidInput)).rejects.toThrow(SomeDomainError);
-    expect(repository.save).not.toHaveBeenCalled();
-  });
-});
-```
-
-**En client (Vitest + RTL):**
-
-```typescript
-// src/pods/{pod}/components/__tests__/{Component}.test.tsx
-describe('{Component}', () => {
-  it('should {comportamiento esperado}', () => {
-    render(<Component {...props} />);
-    expect(screen.getByRole('button', { name: /submit/i })).toBeInTheDocument();
-  });
-});
-```
+- A test named `should {expected behavior}`: render the component with its props, and verify what the user sees (for example, a `submit` button).

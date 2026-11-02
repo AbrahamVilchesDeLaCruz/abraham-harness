@@ -1,12 +1,12 @@
-# ESLint + Prettier — Convenciones de código
+# ESLint + Prettier — Code conventions
 
-> Aplica a `apps/api` y `apps/client`. Cualquier excepción debe justificarse con un comentario inline y una nota en el ADR correspondiente.
+> Applies to `apps/api` and `apps/client`. Any exception must be justified with an inline comment and a note in the corresponding ADR.
 
 ---
 
 ## Prettier
 
-Configuración compartida en `.prettierrc` de cada app:
+Shared configuration in the `.prettierrc` of each app:
 
 ```json
 {
@@ -17,72 +17,72 @@ Configuración compartida en `.prettierrc` de cada app:
 }
 ```
 
-| Opción | Valor | Razón |
+| Option | Value | Reason |
 |---|---|---|
-| `singleQuote` | `true` | Consistencia con el ecosistema JS/TS moderno |
-| `trailingComma` | `"all"` | Diffs más limpios al agregar elementos — solo cambia la línea nueva |
-| `printWidth` | `80` | Estándar de Prettier y de la industria — cualquier evaluador lo reconoce |
-| `endOfLine` | `"lf"` | Fuerza LF en todos los SOs — evita bugs de CRLF en git diffs en Windows |
-| `semi` | `true` (default) | Explícito > implícito — evita edge cases de ASI |
+| `singleQuote` | `true` | Consistency with the modern JS/TS ecosystem |
+| `trailingComma` | `"all"` | Cleaner diffs when adding elements: only the new line changes |
+| `printWidth` | `80` | Prettier and industry standard: any evaluator recognizes it |
+| `endOfLine` | `"lf"` | Forces LF on all OSes: avoids CRLF bugs in git diffs on Windows |
+| `semi` | `true` (default) | Explicit > implicit: avoids ASI edge cases |
 
 ---
 
 ## ESLint
 
-Ambas apps usan **ESLint Flat Config** con `typescript-eslint` en modo `recommendedTypeChecked` — esto activa las reglas type-aware que requieren el servicio de TypeScript para funcionar.
+Both apps use **ESLint Flat Config** with `typescript-eslint` in `recommendedTypeChecked` mode: this enables the type-aware rules that require the TypeScript service to work.
 
-### Reglas compartidas
+### Shared rules
 
 #### TypeScript
 
-| Regla | Nivel | Por qué |
+| Rule | Level | Why |
 |---|---|---|
-| `@typescript-eslint/no-explicit-any` | `error` | `any` anula la inferencia de TypeScript — si necesitás escapar usá `unknown` y narrowing |
-| `@typescript-eslint/no-unused-vars` | `error` | Args con prefijo `_` se ignoran (e.g. `_event`). Variables sin uso son deuda visible |
-| `@typescript-eslint/consistent-type-imports` | `error` | Fuerza `import type` para importaciones de solo tipos. Mejora tree-shaking y deja clara la intención en runtime |
-| `@typescript-eslint/prefer-nullish-coalescing` | `error` | Prefiere `??` sobre `\|\|`. `0` y `""` son valores válidos — `\|\|` los trata como falsy |
-| `@typescript-eslint/prefer-optional-chain` | `error` | Prefiere `a?.b` sobre `a && a.b` — más seguro y legible |
+| `@typescript-eslint/no-explicit-any` | `error` | `any` cancels TypeScript inference: if you need an escape, use `unknown` and narrowing |
+| `@typescript-eslint/no-unused-vars` | `error` | Args with a `_` prefix are ignored (e.g. `_event`). Unused variables are visible debt |
+| `@typescript-eslint/consistent-type-imports` | `error` | Forces `import type` for type-only imports. Improves tree-shaking and makes the runtime intent clear |
+| `@typescript-eslint/prefer-nullish-coalescing` | `error` | Prefers `??` over `\|\|`. `0` and `""` are valid values: `\|\|` treats them as falsy |
+| `@typescript-eslint/prefer-optional-chain` | `error` | Prefers `a?.b` over `a && a.b`: safer and more readable |
 
 #### ESLint base
 
-| Regla | Nivel | Por qué |
+| Rule | Level | Why |
 |---|---|---|
-| `eqeqeq` | `error` | `===` siempre. `==` tiene coerciones de tipo que producen bugs difíciles de encontrar |
-| `no-console` | `warn` | Los `console.log` de debug no deben llegar a producción. Usá un logger dedicado |
+| `eqeqeq` | `error` | `===` always. `==` has type coercions that produce hard-to-find bugs |
+| `no-console` | `warn` | Debug `console.log` must not reach production. Use a dedicated logger |
 
 ---
 
-### Reglas específicas por app
+### App-specific rules
 
 #### `apps/api`
 
-| Regla | Nivel | Por qué |
+| Rule | Level | Why |
 |---|---|---|
-| `@typescript-eslint/explicit-function-return-type` | `error` | Cada función en el backend debe tener contrato explícito — los casos de uso, repositorios y servicios son contratos, no implementaciones implícitas |
-| `@typescript-eslint/no-floating-promises` | `error` | Una promesa sin `await` o `.catch()` es un error silencioso esperando pasar a producción |
-| `@typescript-eslint/no-unsafe-argument` | `error` | Argumentos de tipo `any` pasados a funciones tipadas rompen la cadena de seguridad de tipos |
+| `@typescript-eslint/explicit-function-return-type` | `error` | Every function in the backend must have an explicit contract: use cases, repositories and services are contracts, not implicit implementations |
+| `@typescript-eslint/no-floating-promises` | `error` | A promise without `await` or `.catch()` is a silent error waiting to reach production |
+| `@typescript-eslint/no-unsafe-argument` | `error` | Arguments of type `any` passed to typed functions break the type safety chain |
 
 #### `apps/client`
 
-| Regla | Nivel | Por qué |
+| Rule | Level | Why |
 |---|---|---|
-| `@typescript-eslint/explicit-function-return-type` | `warn` (`allowExpressions: true`) | En componentes React el tipo se infiere del JSX. Se avisa pero no bloquea — se exige en hooks y funciones de utilidad |
+| `@typescript-eslint/explicit-function-return-type` | `warn` (`allowExpressions: true`) | In React components the type is inferred from the JSX. It warns but does not block: it is required in hooks and utility functions |
 
 ---
 
-## Cómo ejecutar
+## How to run
 
 ```bash
-# Desde apps/api/ o apps/client/
+# From apps/api/ or apps/client/
 pnpm exec eslint src/ --max-warnings=0   # lint
-pnpm exec prettier --check "src/**/*.ts" # verificar formato
-pnpm exec prettier --write "src/**/*.ts" # formatear
+pnpm exec prettier --check "src/**/*.ts" # check formatting
+pnpm exec prettier --write "src/**/*.ts" # format
 ```
 
 ---
 
-## Qué NO hacer
+## What NOT to do
 
-- **No deshabilitar reglas con `// eslint-disable`** sin comentario que justifique el porqué
-- **No usar `any`** — si necesitás tipar algo desconocido usá `unknown` con type guards
-- **No ignorar warnings de `no-console`** en código que va a producción — usá el logger de NestJS (`Logger`) en la api
+- **Do not disable rules with `// eslint-disable`** without a comment that justifies why
+- **Do not use `any`**: if you need to type something unknown, use `unknown` with type guards
+- **Do not ignore `no-console` warnings** in code that goes to production: use the NestJS logger (`Logger`) in the api

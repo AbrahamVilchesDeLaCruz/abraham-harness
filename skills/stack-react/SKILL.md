@@ -1,6 +1,6 @@
 ---
 name: stack-react
-description: "Trigger: When a project uses React and a concept skill applies to the code. Maps the concept skills to React for views: components, hooks, routing, client state and project scaffolding."
+description: "Trigger: When a project uses React and a concept skill applies to the code. Maps the concept skills to React for views: components, hooks, routing, client state, Axios, Zod and scaffolding."
 license: Apache-2.0
 metadata:
   author: AbrahamVilchesDeLaCruz
@@ -22,3 +22,5 @@ Use this skill together with a concept skill (`api-*`, `client-*`) when the proj
 1. Apply the concept skill.
 2. Read `references/{concept-skill}.md` in this skill, when it exists. For example, `api-infrastructure` maps to `references/api-infrastructure.md`.
 3. Follow its patterns, and verify them against the installed version.
+4. Read `references/scaffold.md` to create the app, when you need it.
+5. Read `references/engineering-*.md` for how the project-wide architecture docs apply to this stack.

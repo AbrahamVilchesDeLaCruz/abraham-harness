@@ -1,6 +1,6 @@
 # Client Agent — {{PROJECT_NAME}}
 
-> **Scope**: Todo el código en `apps/client/`. Para otros scopes, regresa al orquestador: [../../AGENTS.md](../../AGENTS.md)
+> **Scope**: All the code in `apps/client/`. For other scopes, go back to the orchestrator: [../../AGENTS.md](../../AGENTS.md)
 
 ---
 
@@ -10,12 +10,14 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 
 | Action | Skill |
 |---|---|
-| Crear un pod nuevo o agregar archivos a uno existente | `client-pods` |
-| Crear o modificar un Container o Component | `client-container-presentational` |
-| Agregar queries, mutations o query keys | `client-query` |
-| Crear o modificar `api/`, mapper, o types | `client-api` |
-| Crear o modificar hooks del pod o globales | `client-hooks` |
-| Escribir tests (unit, integration, E2E) | `client-testing` |
+| Create a new pod or add files to an existing one | `client-pods` |
+| Create or modify a Container or Component | `client-container-presentational` |
+| Add queries, mutations or query keys | `client-query` |
+| Create or modify `api/`, mapper, or types | `client-api` |
+| Create or modify pod or global hooks | `client-hooks` |
+| Write tests (unit, integration, E2E) | `client-testing` |
+
+After a concept skill, load the stack skill that matches this project's stack table, and read its `references/{concept-skill}.md`.
 
 ---
 
@@ -23,19 +25,19 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 
 Pods + Container-Presentational pattern.
 
-> Referencia completa: `docs/engineering/frontend-architecture.md`
+> Complete reference: `docs/engineering/frontend-architecture.md`
 
 ```
 apps/client/src/
-├── common/        ← Componentes reutilizables sin dominio (Button, Input, Modal)
-├── common-app/    ← Reutilizables pero ligados al dominio (CreateProductPopup)
-├── core/          ← Router, auth, API client, interceptores, providers globales
-├── layout/        ← Plantillas visuales (Sidebar, Topbar, AppShell)
-├── containers/    ← Pods organizados por dominio
-└── views/         ← Páginas que seleccionan layout + renderizan pods
+├── common/        ← Reusable components with no domain (Button, Input, Modal)
+├── common-app/    ← Reusable but tied to the domain (CreateProductPopup)
+├── core/          ← Router, auth, API client, interceptors, global providers
+├── layout/        ← Visual templates (Sidebar, Topbar, AppShell)
+├── containers/    ← Pods organized by domain
+└── views/         ← Pages that select a layout + render pods
 ```
 
-### Estructura interna de un pod
+### Internal structure of a pod
 
 ```
 containers/{feature}/
@@ -47,71 +49,71 @@ containers/{feature}/
 │   ├── use{Feature}{Concern}.ts
 │   └── index.ts
 ├── components/
-│   └── {Feature}{Part}.tsx
-├── {Feature}Container.tsx
-├── {Feature}Component.tsx
+│   └── {Feature}{Part}
+├── {Feature}Container
+├── {Feature}Component
 ├── {feature}.mapper.ts
 ├── {feature}.types.ts
 └── index.ts
 ```
 
-**Regla de oro**: Container = mundo exterior (queries, routing, Zustand). Component = mundo de la UI (useState, useEffect, sub-componentes).
+**Golden rule**: Container = outside world (queries, routing, client store). Component = UI world (UI state, lifecycle effects, sub-components).
 
 ---
 
-## Stack
+## Stack table
 
-| Tech | Rol |
-|---|---|
-| React + TypeScript | UI principal |
-| Vite | Bundler y dev server |
-| TailwindCSS | Estilos utilitarios |
-| TanStack Query | Server state y caché |
-| Zustand | Client state (UI, sesión) |
-| Vitest + RTL | Unit e integration testing |
-| Playwright | E2E testing |
-| MSW | Mock de API en tests |
+Fill in this list with this project's stack. The values shown are the default suggestion.
+
+- Main UI: React + TypeScript (`stack-react`)
+- Bundler and dev server: Vite (`stack-react`)
+- Utility styles: TailwindCSS
+- Server state and cache: TanStack Query (`stack-tanstack-query`)
+- Client state (UI, session): Zustand (`stack-react`)
+- Unit and integration testing: Vitest + RTL (`stack-vitest`)
+- E2E testing: Playwright (`stack-vitest`)
+- API mocking in tests: MSW (`stack-vitest`)
 
 ---
 
 ## Code Rules
 
-- **TypeScript** estricto — no usar `any`
-- **TanStack Query** para todo lo que venga del servidor — nunca `useState` + `useEffect` para fetching
-- **Zustand** solo para estado del cliente (no cache del servidor)
-- **Zod** para validar respuestas de API en `core/`
-- Path aliases en todos los imports
-- Un pod NO importa de otro pod
+- Strict **TypeScript**: do not use `any`
+- The **server-state library** for everything that comes from the server: never hand-written local state plus effects for fetching
+- The **client store** only for client state (not server cache)
+- A **schema validator** to validate API responses in `core/`
+- Path aliases in all imports
+- A pod does NOT import from another pod
 
 ---
 
 ## Commands
 
 ```bash
-# Desde apps/client/
-pnpm dev              # Dev server (Vite)
+# From apps/client/
+pnpm dev              # Dev server
 pnpm lint             # ESLint --fix
 
 # ─── Unit tests ───────────────────────────────────────────────────────────────
-pnpm test             # Vitest run — single pass (pass si no hay tests aún)
+pnpm test             # Test runner, single pass (passes if there are no tests yet)
 pnpm test:watch       # TDD loop — re-run on change
-pnpm test:cov         # Vitest + coverage → coverage/
-pnpm test:ui          # Vitest UI en browser (visualización interactiva)
+pnpm test:cov         # Tests + coverage → coverage/
+pnpm test:ui          # Test runner UI in the browser (interactive visualization)
 
 # ─── E2E tests ────────────────────────────────────────────────────────────────
-pnpm test:e2e         # Playwright (requiere instalación previa)
-pnpm test:e2e:ui      # Playwright con UI interactiva
+pnpm test:e2e         # E2E runner (requires prior installation)
+pnpm test:e2e:ui      # E2E runner with interactive UI
 
 # ─── All ──────────────────────────────────────────────────────────────────────
-pnpm test:all         # Unit + E2E secuencial
+pnpm test:all         # Unit + E2E sequentially
 
 # ─── CI ───────────────────────────────────────────────────────────────────────
-pnpm test:ci          # Vitest + coverage + verbose (GitHub Actions)
-pnpm test:e2e:ci      # Playwright --reporter=github (GitHub Actions)
+pnpm test:ci          # Tests + coverage + verbose (GitHub Actions)
+pnpm test:e2e:ci      # E2E with the GitHub reporter (GitHub Actions)
 ```
 
-**Config Vitest:** `vitest.config.ts` — separado de `vite.config.ts` intencionalmente.
-**Setup:** `src/test/setup.ts` — importa `@testing-library/jest-dom`.
+**Test runner config:** separate from the bundler config intentionally.
+**Setup:** `src/test/setup.ts`.
 **Coverage thresholds:** 75% branches / 78% functions / 80% lines / 80% statements
 
 ---
@@ -120,9 +122,12 @@ pnpm test:e2e:ci      # Playwright --reporter=github (GitHub Actions)
 
 | Skill | Description |
 |---|---|
-| `client-pods` | Estructura de pods, naming, cuándo crear qué |
-| `client-container-presentational` | Contrato Container/Component, responsabilidades, prohibiciones |
-| `client-query` | TanStack Query: queries, mutations, query keys, invalidación |
-| `client-api` | Capa api/: api-model, api.ts, mapper, ViewModel types |
-| `client-hooks` | Hooks del pod [State, Handlers], hooks globales, cuándo extraer |
-| `client-testing` | Vitest + RTL (unit/integration), Playwright E2E, MSW |
+| `client-pods` | Pod structure, naming, when to create what |
+| `client-container-presentational` | Container/Component contract, responsibilities, prohibitions |
+| `client-query` | Server state: queries, mutations, query keys, invalidation |
+| `client-api` | api/ layer: api-model, api.ts, mapper, ViewModel types |
+| `client-hooks` | Pod hooks [State, Handlers], global hooks, when to extract |
+| `client-testing` | Unit/integration tests, E2E, API mocks |
+| `stack-react` | Maps the concept skills to React |
+| `stack-tanstack-query` | Maps the concept skills to TanStack Query |
+| `stack-vitest` | Maps the concept skills to Vitest, Testing Library, MSW and Playwright |

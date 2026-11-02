@@ -18,8 +18,8 @@ Load the scope `AGENTS.md` as soon as you know which app you are working in. Do 
 
 | If the work is in...                              | Load this agent                                          |
 | ------------------------------------------------- | -------------------------------------------------------- |
-| `apps/api/` — NestJS, Clean Architecture, TypeOrm | [apps/api/AGENTS.md](apps/api/AGENTS.md)                 |
-| `apps/client/` — React, TanStack Query, Zustand   | [apps/client/AGENTS.md](apps/client/AGENTS.md)           |
+| `apps/api/` — Backend, Clean Architecture         | [apps/api/AGENTS.md](apps/api/AGENTS.md)                 |
+| `apps/client/` — Frontend, Pods                   | [apps/client/AGENTS.md](apps/client/AGENTS.md)           |
 
 ---
 
@@ -35,44 +35,54 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 | Every request: pick the lane and coordinate the agents | `factory-workflow` |
 | Planning a task, or implementing one plan phase      | `plan-create`, `plan-phase-implement` |
 
+After a concept skill, load the stack skill that matches this project's stack table, and read its `references/{concept-skill}.md`.
+
 ---
 
 ## Available Skills
 
 | Skill                | Scope  | Description                                                      |
 | -------------------- | ------ | ---------------------------------------------------------------- |
-| `tdd-workflow`       | global | Workflow TDD obligatorio: Red→Green→Refactor antes de cualquier código nuevo |
-| `project-bootstrap`  | global | Instala AGENTS.md, docs de arquitectura y guías de scaffold       |
-| `factory-workflow`   | global | Elige la vía (Answer, FTD o SDD) y coordina los agentes           |
-| `plan-create`        | global | Plan por fases con contratos públicos acordados                   |
-| `plan-phase-implement` | global | Implementa una sola fase y para, sin hacer commit               |
-| `skill-creator`      | global | Crea nuevas skills siguiendo el spec del repo                    |
-| `skill-sync`         | global | Sincroniza skills a las tablas de AGENTS.md                      |
-| `git-workflow`       | global | Branching, naming, merge strategy y PRs para este repo           |
+| `tdd-workflow`       | global | Mandatory TDD workflow: Red→Green→Refactor before any new code   |
+| `project-bootstrap`  | global | Installs AGENTS.md, architecture docs and scaffold guides        |
+| `factory-workflow`   | global | Picks the lane (Answer, FTD or SDD) and coordinates the agents   |
+| `plan-create`        | global | Phased plan with agreed public contracts                         |
+| `plan-phase-implement` | global | Implements one single phase and stops, without committing      |
+| `skill-creator`      | global | Creates new skills following the repo spec                       |
+| `skill-sync`         | global | Syncs skills to the AGENTS.md tables                             |
+| `git-workflow`       | global | Branching, naming, merge strategy and PRs for this repo          |
 | `api-domain`         | api    | AggregateRoot, Value Objects, Repository interface, DomainErrors |
-| `api-application`    | api    | Use Cases, Domain Services, convenciones de inyección            |
-| `api-infrastructure` | api    | Controllers, TypeORM entities, repositorios, módulos NestJS      |
-| `api-domain-events`  | api    | Domain Events — definición, naming, registro en aggregates       |
-| `api-testing`        | api    | Pirámide de tests, Object Mother, jest-mock-extended             |
-| `api-criteria`       | api    | Criteria — filtros, orden, paginación, flujo controller→uc→repo  |
-| `api-error-handler`  | api    | GlobalExceptionRegistry, filtros por módulo, HttpExceptionFilter |
-| `api-rest`           | api    | Convenciones RESTful + acciones DDD con POST                     |
-| `api-bc-review`      | api    | Auditoría DDD de bounded contexts: límites, submódulos, checklist |
+| `api-application`    | api    | Use Cases, Domain Services, injection conventions                |
+| `api-infrastructure` | api    | Controllers, persistence entities, repositories, framework modules |
+| `api-domain-events`  | api    | Domain Events: definition, naming, recording in aggregates       |
+| `api-testing`        | api    | Test pyramid, Object Mother, port mocks                          |
+| `api-criteria`       | api    | Criteria: filters, ordering, pagination, controller→uc→repo flow |
+| `api-error-handler`  | api    | GlobalExceptionRegistry, per-module filters, HttpExceptionFilter |
+| `api-rest`           | api    | RESTful conventions + DDD actions with POST                      |
+| `api-bc-review`      | api    | DDD audit of bounded contexts: boundaries, submodules, checklist |
 | `api-auth`           | api    | JWT, OAuth Google, guest token, guards, @CurrentUser, voters     |
-| `api-shared`         | api    | SharedModule global, bounded context shared, env validation Joi  |
-| `api-events`         | api    | EventBus interface, DomainEventConsumer, Handler abstract        |
-| `api-events-infra`   | api    | AmqpMessageBus, HandlersBootstrapper, retry, DLQ, idempotencia   |
-| `api-di`             | api    | Tokens Symbol, registro de providers, inyección sin acoplamiento |
-| `api-migrations`     | api    | TypeORM migrations formato, seeds idempotentes                   |
-| `api-response`       | api    | Envelope de respuesta, paginación, commands sin body             |
-| `api-validation`     | api    | ValidationPipe global, Payload/Query con class-validator         |
-| `api-observability`  | api    | Logger interface, pino, métricas Prometheus, OTel traces         |
-| `client-pods`                    | client | Estructura de pods, naming, cuándo crear qué                     |
-| `client-container-presentational`| client | Contrato Container/Component, responsabilidades, prohibiciones   |
-| `client-query`                   | client | TanStack Query: queries, mutations, query keys, invalidación     |
-| `client-api`                     | client | Capa api/: api-model, api.ts, mapper, ViewModel types            |
-| `client-hooks`                   | client | Hooks del pod [State, Handlers], hooks globales, cuándo extraer  |
-| `client-testing`                 | client | Vitest + RTL (unit/integration), Playwright E2E, MSW             |
+| `api-shared`         | api    | Global SharedModule, bounded context shared, env validation      |
+| `api-events`         | api    | EventBus interface, DomainEventConsumer, abstract Handler        |
+| `api-events-infra`   | api    | Message bus, HandlersBootstrapper, retry, DLQ, idempotency       |
+| `api-di`             | api    | Symbol tokens, provider registration, injection without coupling |
+| `api-migrations`     | api    | Migration format, idempotent seeds                               |
+| `api-response`       | api    | Response envelope, pagination, commands with no body             |
+| `api-validation`     | api    | Global request validation, Payload/Query                         |
+| `api-observability`  | api    | Logger interface, structured logs, metrics, traces               |
+| `client-pods`                    | client | Pod structure, naming, when to create what                       |
+| `client-container-presentational`| client | Container/Component contract, responsibilities, prohibitions     |
+| `client-query`                   | client | Server state: queries, mutations, query keys, invalidation       |
+| `client-api`                     | client | api/ layer: api-model, api.ts, mapper, ViewModel types           |
+| `client-hooks`                   | client | Pod hooks [State, Handlers], global hooks, when to extract       |
+| `client-testing`                 | client | Unit/integration tests, E2E, API mocks                           |
+| `stack-nestjs`        | api    | Maps the concept skills to NestJS                                |
+| `stack-typeorm`       | api    | Maps the concept skills to TypeORM                               |
+| `stack-jest`          | api    | Maps the concept skills to Jest                                  |
+| `stack-rabbitmq`      | api    | Maps the concept skills to RabbitMQ                              |
+| `stack-observability` | api    | Maps the concept skills to Pino, Prometheus and OpenTelemetry    |
+| `stack-react`         | client | Maps the concept skills to React                                 |
+| `stack-tanstack-query`| client | Maps the concept skills to TanStack Query                        |
+| `stack-vitest`        | client | Maps the concept skills to Vitest, Testing Library, MSW and Playwright |
 
 ---
 
@@ -81,71 +91,72 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 ```
 {{PROJECT_NAME}}/
 ├── apps/
-│   ├── api/          ← NestJS backend (Clean Architecture)
-│   └── client/       ← React frontend
-├── .agents/skills/   ← Skills de abraham-harness, generadas por npx skills (o .claude/skills). No editar
-├── docs/             ← Documentación del proyecto
-├── infra/            ← Docker Compose, observabilidad
-└── AGENTS.md         ← Este archivo
+│   ├── api/          ← Backend (Clean Architecture)
+│   └── client/       ← Frontend
+├── .agents/skills/   ← Skills from abraham-harness, generated by npx skills (or .claude/skills). Do not edit
+├── docs/             ← Project documentation
+├── infra/            ← Docker Compose, observability
+└── AGENTS.md         ← This file
 ```
 
 ---
 
-## Stack
+## Stack table
 
-| Layer          | Tech                                                               |
-| -------------- | ------------------------------------------------------------------ |
-| Frontend       | React, TypeScript, Vite, TailwindCSS, TanStack Query, Zustand, Zod |
-| Backend        | NestJS, TypeScript, TypeORM, Class Validator                       |
-| Database       | PostgreSQL                                                 |
-| Testing        | Vitest, Jest, Playwright                                           |
-| Observabilidad | OpenTelemetry, Prometheus, Grafana, Loki                           |
-| Infra          | Docker, GitHub Actions |
+Fill in this list with this project's stack. The values shown are the default suggestion.
+
+- Frontend: React, TypeScript, Vite, TailwindCSS, TanStack Query, Zustand, Zod (`stack-react`, `stack-tanstack-query`)
+- Backend: NestJS, TypeScript, TypeORM, Class Validator (`stack-nestjs`, `stack-typeorm`)
+- Database: PostgreSQL
+- Message bus: RabbitMQ (`stack-rabbitmq`)
+- Testing: Vitest, Jest, Playwright (`stack-vitest`, `stack-jest`)
+- Observability: OpenTelemetry, Prometheus, Grafana, Loki (`stack-observability`)
+- Infra: Docker, GitHub Actions
 
 ---
 
 ## Monorepo-wide Code Style
 
-- **TypeScript** estricto en todos los paquetes — no usar `any`
-- **Zod and Class Validator** para validación cliente-servidor`
+- Strict **TypeScript** in all packages: do not use `any`
+- **Schema validators** for client-server validation
 - **Conventional Commits**: `feat`, `fix`, `docs`, `chore`, `refactor`, `test`, `perf`, `ci`, `revert`
-- **ESLint + Prettier** — no commitear código sin pasar linting — enforced por Husky
-- **Imports**: usar path aliases, nunca rutas relativas largas
+- **ESLint + Prettier**: do not commit code without passing linting, enforced by Husky
+- **Imports**: use path aliases, never long relative paths
 
 ---
 
 ## Git Hooks (Husky)
 
-Configurados en `.husky/` a nivel raíz del monorepo.
+Configured in `.husky/` at the monorepo root.
 
-| Hook | Herramienta | Qué hace |
+| Hook | Tool | What it does |
 | ------------- | ----------- | ------------------------------------------------------------ |
-| `pre-commit`  | lint-staged | ESLint --fix + Prettier --write sobre archivos staged únicamente |
-| `commit-msg`  | commitlint  | Valida que el mensaje siga Conventional Commits              |
+| `pre-commit`  | lint-staged | ESLint --fix + Prettier --write on staged files only         |
+| `commit-msg`  | commitlint  | Validates that the message follows Conventional Commits      |
 
-**lint-staged** corre eslint y prettier **solo sobre los archivos staged** — no sobre todo el proyecto. Rápido, < 2s.
+**lint-staged** runs eslint and prettier **only on the staged files**, not on the whole project. Fast, < 2s.
 
-**tsc --noEmit** NO está en pre-commit — va en CI. El ESLint con `recommendedTypeChecked` cubre type-safety por archivo.
+**tsc --noEmit** is NOT in pre-commit: it goes in CI. ESLint with `recommendedTypeChecked` covers per-file type safety.
 
-**Tipos válidos en commit-msg:** `feat` | `fix` | `docs` | `chore` | `refactor` | `test` | `perf` | `ci` | `revert`
+**Valid types in commit-msg:** `feat` | `fix` | `docs` | `chore` | `refactor` | `test` | `perf` | `ci` | `revert`
 
-Config commitlint: `commitlint.config.ts` en la raíz.
+commitlint config: `commitlint.config.ts` at the root.
 
 ---
 
-## Scripts raíz (monorepo)
+## Root scripts (monorepo)
 
-Desde la raíz del monorepo, estos scripts propagan el comando a todos los workspaces:
+From the monorepo root, these scripts propagate the command to all workspaces:
 
 ```bash
-pnpm lint          # ESLint en api + client
-pnpm test          # Unit tests en api + client
-pnpm test:e2e      # E2E tests en api + client
-pnpm test:all      # Unit + E2E en api + client
-pnpm test:ci       # Tests + coverage en modo CI (GitHub Actions)
+pnpm lint          # ESLint in api + client
+pnpm test          # Unit tests in api + client
+pnpm test:e2e      # E2E tests in api + client
+pnpm test:all      # Unit + E2E in api + client
+pnpm test:ci       # Tests + coverage in CI mode (GitHub Actions)
 ```
 
-> Para correr solo en un workspace: `pnpm --filter @{{PROJECT_NAME}}/api test`
+> To run in only one workspace: `pnpm --filter @{{PROJECT_NAME}}/api test`
 
 ---
 
@@ -162,6 +173,6 @@ test(products): add unit tests for price calculator
 
 ## Documentation & Diagrams
 
-- Toda la documentación en Markdown dentro de `docs/`
-- Diagramas con **Mermaid** embebido en `.md` — sin imágenes externas
-- ADRs en `docs/adr/` para decisiones arquitectónicas importantes
+- All documentation in Markdown inside `docs/`
+- Diagrams with embedded **Mermaid** in `.md`, no external images
+- ADRs in `docs/adr/` for important architecture decisions

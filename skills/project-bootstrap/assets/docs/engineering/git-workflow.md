@@ -1,23 +1,23 @@
 # Git Workflow
 
-Guía completa del workflow de branching, merge y protección de ramas para `myapp`.
+Complete guide to the branching, merge and branch protection workflow for `myapp`.
 
-> **Decisión de arquitectura**: ver [ADR-013](adr/013-git-workflow.md)
+> **Architecture decision**: see [ADR-013](adr/013-git-workflow.md)
 
 ---
 
-## Estructura de ramas
+## Branch structure
 
 ```
-main          ← producción — siempre deployable, solo via PR
-dev           ← integración — base para todas las features
-feat/xxx      ← nueva feature (efímera, desde dev)
-fix/xxx       ← bugfix (efímero, desde dev)
+main          ← production — always deployable, only via PR
+dev           ← integration — base for all features
+feat/xxx      ← new feature (ephemeral, from dev)
+fix/xxx       ← bugfix (ephemeral, from dev)
 ```
 
-### Naming de ramas
+### Branch naming
 
-Seguir el mismo patrón que los conventional commits:
+Follow the same pattern as conventional commits:
 
 ```bash
 feat/product-order-flow
@@ -30,82 +30,82 @@ chore/update-dependencies
 
 ---
 
-## Flujo de trabajo diario
+## Daily workflow
 
 ```
-1. Partir siempre desde dev actualizado
+1. Always start from an up-to-date dev
    git checkout dev && git pull
 
-2. Crear rama de feature o fix
-   git checkout -b feat/nombre-descriptivo
+2. Create a feature or fix branch
+   git checkout -b feat/descriptive-name
 
-3. Trabajar con commits convencionales
+3. Work with conventional commits
    git commit -m "feat(products): add discount calculation"
 
-4. Abrir PR: feat/xxx → dev  (Squash and merge)
+4. Open PR: feat/xxx → dev  (Squash and merge)
 
-5. Cuando dev está estable → PR: dev → main  (Merge commit)
-   Esto dispara el deploy automático a producción
+5. When dev is stable → PR: dev → main  (Merge commit)
+   This triggers the automatic deploy to production
 ```
 
 ---
 
-## Estrategia de merge
+## Merge strategy
 
-| PR               | Método               | Por qué                                                            |
-| ---------------- | -------------------- | ------------------------------------------------------------------ |
-| `feat/*` → `dev` | **Squash and merge** | Un commit limpio por feature — elimina "wip", "saving", "fix typo" |
-| `fix/*` → `dev`  | **Squash and merge** | Igual — un commit por fix                                          |
-| `dev` → `main`   | **Merge commit**     | Marca explícita de cada release en el historial de producción      |
+| PR               | Method               | Why                                                                 |
+| ---------------- | -------------------- | ------------------------------------------------------------------- |
+| `feat/*` → `dev` | **Squash and merge** | One clean commit per feature: removes "wip", "saving", "fix typo"   |
+| `fix/*` → `dev`  | **Squash and merge** | Same: one commit per fix                                            |
+| `dev` → `main`   | **Merge commit**     | Explicit mark of each release in the production history             |
 
-**Rebase and merge está deshabilitado** — ver ADR-013.
+**Rebase and merge is disabled**: see ADR-013.
 
 ---
 
 ## Branch Protection Rules
 
-### `main` — Producción
+### `main` — Production
 
-| Regla                                                  | Valor                     |
+| Rule                                                   | Value                     |
 | ------------------------------------------------------ | ------------------------- |
 | Require a pull request before merging                  | ✅                        |
 | Required approvals                                     | 0 (solo dev)              |
 | Dismiss stale PR approvals when new commits are pushed | ✅                        |
 | Require status checks to pass                          | ✅                        |
-| Status checks requeridos                               | `ci / api`, `ci / client` |
+| Required status checks                                 | `ci / api`, `ci / client` |
 | Require branches to be up to date before merging       | ✅                        |
 | Do not allow bypassing the above settings              | ✅                        |
 | Allow force pushes                                     | ❌                        |
 | Allow deletions                                        | ❌                        |
 
-### `dev` — Integración
+### `dev` — Integration
 
-| Regla                                            | Valor                     |
+| Rule                                             | Value                     |
 | ------------------------------------------------ | ------------------------- |
 | Require a pull request before merging            | ✅                        |
 | Required approvals                               | 0                         |
 | Require status checks to pass                    | ✅                        |
-| Status checks requeridos                         | `ci / api`, `ci / client` |
+| Required status checks                           | `ci / api`, `ci / client` |
 | Require branches to be up to date before merging | ✅                        |
 | Allow force pushes                               | ❌                        |
 | Allow deletions                                  | ❌                        |
 
 ---
 
-## Cómo activar Branch Protection en GitHub
+## How to enable Branch Protection on GitHub
 
-### Opción A — Interfaz web (manual)
+### Option A — Web interface (manual)
 
-1. Ir a `github.com/AbrahamVilchesDeLaCruz/myapp`
+1. Go to `github.com/AbrahamVilchesDeLaCruz/myapp`
 2. **Settings** → **Branches** → **Add branch ruleset**
-3. En **Branch name pattern** escribir `main` (repetir para `dev`)
-4. Activar las reglas de la tabla de arriba
+3. In **Branch name pattern** write `main` (repeat for `dev`)
+4. Enable the rules from the table above
 5. **Save changes**
 
-### Opción B — GitHub CLI (recomendado)
+### Option B — GitHub CLI (recommended)
 
 ```bash
-# Branch protection para main
+# Branch protection for main
 gh api repos/AbrahamVilchesDeLaCruz/myapp/branches/main/protection \
   --method PUT \
   --field required_status_checks='{"strict":true,"contexts":["ci / api","ci / client"]}' \
@@ -113,7 +113,7 @@ gh api repos/AbrahamVilchesDeLaCruz/myapp/branches/main/protection \
   --field required_pull_request_reviews='{"required_approving_review_count":0,"dismiss_stale_reviews":true}' \
   --field restrictions=null
 
-# Branch protection para dev
+# Branch protection for dev
 gh api repos/AbrahamVilchesDeLaCruz/myapp/branches/dev/protection \
   --method PUT \
   --field required_status_checks='{"strict":true,"contexts":["ci / api","ci / client"]}' \
@@ -122,9 +122,9 @@ gh api repos/AbrahamVilchesDeLaCruz/myapp/branches/dev/protection \
   --field restrictions=null
 ```
 
-> ⚠️ Los status checks (`ci / api`, `ci / client`) deben existir antes de activar esta protección — correr el CI al menos una vez primero.
+> ⚠️ The status checks (`ci / api`, `ci / client`) must exist before enabling this protection: run the CI at least once first.
 
-### Opción C — GitHub CLI rulesets (nueva API, recomendada para repos nuevos)
+### Option C — GitHub CLI rulesets (new API, recommended for new repos)
 
 ```bash
 gh api repos/AbrahamVilchesDeLaCruz/myapp/rulesets \
@@ -143,28 +143,28 @@ gh api repos/AbrahamVilchesDeLaCruz/myapp/rulesets \
 
 ---
 
-## Configurar merge strategies en GitHub
+## Configure merge strategies on GitHub
 
 **Settings** → **General** → **Pull Requests**:
 
 ```
-✅ Allow merge commits        ← para dev → main
-✅ Allow squash merging       ← para feat/* → dev
-❌ Allow rebase merging       ← deshabilitado
+✅ Allow merge commits        ← for dev → main
+✅ Allow squash merging       ← for feat/* → dev
+❌ Allow rebase merging       ← disabled
 ```
 
-Default commit message para squash: **Pull request title** — usa el título del PR como mensaje del commit.
+Default commit message for squash: **Pull request title**: uses the PR title as the commit message.
 
 ---
 
-## Historial resultante
+## Resulting history
 
 ```
-# git log --oneline en main
+# git log --oneline on main
 a1b2c3d (HEAD → main) Merge pull request #12 from dev  ← release
-e4f5g6h Merge pull request #8 from dev                 ← release anterior
+e4f5g6h Merge pull request #8 from dev                 ← previous release
 
-# git log --oneline en dev
+# git log --oneline on dev
 i7j8k9l feat(reviews): add rating score
 m0n1o2p feat(products): implement discount rules
 q3r4s5t feat(auth): add JWT authentication

@@ -1,6 +1,6 @@
 # API Agent — {{PROJECT_NAME}}
 
-> **Scope**: Todo el código en `apps/api/`. Para otros scopes, regresa al orquestador: [../../AGENTS.md](../../AGENTS.md)
+> **Scope**: All the code in `apps/api/`. For other scopes, go back to the orchestrator: [../../AGENTS.md](../../AGENTS.md)
 
 ---
 
@@ -10,133 +10,137 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 
 | Action | Skill |
 |---|---|
-| Crear o modificar aggregates, value objects, repositorios, domain errors | `api-domain` |
-| Crear o modificar casos de uso o domain services | `api-application` |
-| Crear o modificar controllers, entidades TypeORM, repositorios, módulos | `api-infrastructure` |
-| Crear o modificar domain events, registrar eventos en aggregates | `api-domain-events` |
-| Crear o modificar tests, Object Mothers, mocks de puertos | `api-testing` |
-| Construir queries con filtros, orden o paginación | `api-criteria` |
-| Crear domain errors o registrar excepciones en un módulo | `api-error-handler` |
-| Diseñar o implementar endpoints REST o acciones DDD | `api-rest` |
-| Auditar o refactorizar un bounded context (límites, submódulos, deuda) | `api-bc-review` |
-| Implementar auth, guards, strategies, @CurrentUser, voters | `api-auth` |
-| Crear o modificar SharedModule, shared interno, validación de env | `api-shared` |
-| Definir o implementar EventBus, DomainEventConsumer, Handler abstract | `api-events` |
-| Implementar AmqpMessageBus, HandlersBootstrapper, retry, DLQ | `api-events-infra` |
-| Definir tokens de DI, registrar providers, inyectar interfaces | `api-di` |
-| Crear migraciones TypeORM o seeds | `api-migrations` |
-| Definir formato de respuesta HTTP, envelope, paginación | `api-response` |
-| Configurar ValidationPipe, Payload, Query con class-validator | `api-validation` |
-| Configurar logging, métricas, traces, OpenTelemetry, Grafana | `api-observability` |
+| Create or modify aggregates, value objects, repositories, domain errors | `api-domain` |
+| Create or modify use cases or domain services | `api-application` |
+| Create or modify controllers, persistence entities, repositories, modules | `api-infrastructure` |
+| Create or modify domain events, record events in aggregates | `api-domain-events` |
+| Create or modify tests, Object Mothers, port mocks | `api-testing` |
+| Build queries with filters, ordering or pagination | `api-criteria` |
+| Create domain errors or register exceptions in a module | `api-error-handler` |
+| Design or implement REST endpoints or DDD actions | `api-rest` |
+| Audit or refactor a bounded context (boundaries, submodules, debt) | `api-bc-review` |
+| Implement auth, guards, strategies, @CurrentUser, voters | `api-auth` |
+| Create or modify SharedModule, internal shared, env validation | `api-shared` |
+| Define or implement EventBus, DomainEventConsumer, abstract Handler | `api-events` |
+| Implement the message bus, HandlersBootstrapper, retry, DLQ | `api-events-infra` |
+| Define DI tokens, register providers, inject interfaces | `api-di` |
+| Create database migrations or seeds | `api-migrations` |
+| Define the HTTP response format, envelope, pagination | `api-response` |
+| Configure request validation, Payload, Query | `api-validation` |
+| Configure logging, metrics, traces and their tooling | `api-observability` |
+
+After a concept skill, load the stack skill that matches this project's stack table, and read its `references/{concept-skill}.md`.
 
 ---
 
 ## Architecture
 
-Clean Architecture con Screaming Architecture por feature:
+Clean Architecture with Screaming Architecture per feature:
 
 ```
 apps/api/src/
 ├── {feature}/
-│   ├── domain/           ← aggregates, value objects, interfaces de repositorio, domain errors
-│   ├── application/      ← casos de uso, domain services
+│   ├── domain/           ← aggregates, value objects, repository interfaces, domain errors
+│   ├── application/      ← use cases, domain services
 │   └── infrastructure/
-│       ├── controllers/  ← un controller por acción + payload/query junto a él
-│       ├── framework/    ← NestJS modules + exception registries
-│       └── persistence/  ← TypeORM entities + repositorios
+│       ├── controllers/  ← one controller per action + payload/query next to it
+│       ├── framework/    ← framework modules + exception registries
+│       └── persistence/  ← persistence entities + repositories
 ├── shared/               ← AggregateRoot, ValueObject, DomainError, Criteria base classes
 └── main.ts
 ```
 
-**Regla de oro**: dependencias apuntan hacia adentro. `infrastructure` depende de `application`, `application` depende de `domain`. Nunca al revés.
+**Golden rule**: dependencies point inward. `infrastructure` depends on `application`, `application` depends on `domain`. Never the reverse.
 
-### Módulos DDD dentro de un Bounded Context
+### DDD modules inside a Bounded Context
 
-Cuando un BC tiene **múltiples agregados**, se organiza por módulos DDD (Vaughn Vernon, IDDD):
+When a BC has **multiple aggregates**, it is organized into DDD modules (Vaughn Vernon, IDDD):
 
 ```
 apps/api/src/{bc}/
-├── {module-a}/           ← dueño del agregado A
+├── {module-a}/           ← owner of aggregate A
 │   ├── domain/
 │   ├── application/
 │   └── infrastructure/
 │       ├── controllers/
 │       └── persistence/
-├── {module-b}/           ← dueño del agregado B
+├── {module-b}/           ← owner of aggregate B
 │   ├── domain/
 │   ├── application/
 │   └── infrastructure/
 │       ├── controllers/
 │       └── persistence/
-└── shared/               ← lo que cruza módulos dentro del BC
-    ├── domain/           ← VOs o interfaces compartidas entre módulos
+└── shared/               ← what crosses modules inside the BC
+    ├── domain/           ← VOs or interfaces shared between modules
     └── infrastructure/
-        ├── framework/    ← NestJS module del BC, exception registry, wiring
-        └── persistence/  ← stubs o repos compartidos
+        ├── framework/    ← framework module of the BC, exception registry, wiring
+        └── persistence/  ← shared stubs or repos
 ```
 
-**Reglas:**
-- Si un BC tiene submódulos, **no puede haber capas sueltas (`domain/`, `application/`, `infrastructure/`) en la raíz del BC** — todo va en submódulos o en `shared/`
-- Un módulo = un agregado o concepto cohesivo (no una entidad cualquiera)
-- `shared/` dentro del BC es solo para lo que cruza módulos; el NestJS module del BC entero va en `shared/infrastructure/framework/`
-- Los tests espejean la misma estructura: `test/{bc}/{module}/`
+**Rules:**
+- If a BC has submodules, **there cannot be loose layers (`domain/`, `application/`, `infrastructure/`) at the root of the BC**: everything goes in submodules or in `shared/`
+- One module = one aggregate or cohesive concept (not just any entity)
+- `shared/` inside the BC is only for what crosses modules; the framework module of the whole BC goes in `shared/infrastructure/framework/`
+- Tests mirror the same structure: `test/{bc}/{module}/`
 
 ---
 
-## Stack
+## Stack table
 
-| Tech | Rol |
-|---|---|
-| NestJS + TypeScript | Framework principal |
-| TypeORM | ORM — solo en `infrastructure/` |
-| Class Validator | Validación de payloads HTTP en controllers |
-| PostgreSQL | Base de datos |
-| Jest + Faker.js + jest-mock-extended | Testing |
-| OpenAPI / Swagger | Contrato de API |
+Fill in this list with this project's stack. The values shown are the default suggestion.
+
+- Main framework: NestJS + TypeScript (`stack-nestjs`)
+- ORM, only in `infrastructure/`: TypeORM (`stack-typeorm`)
+- HTTP payload validation in controllers: Class Validator (`stack-nestjs`)
+- Database: PostgreSQL
+- Testing: Jest + Faker.js + jest-mock-extended (`stack-jest`)
+- API contract: OpenAPI / Swagger (`stack-nestjs`)
+- Message bus: RabbitMQ (`stack-rabbitmq`)
+- Logs, metrics, traces: Pino, Prometheus, OpenTelemetry (`stack-observability`)
 
 ---
 
 ## Code Rules
 
-- **TypeScript** estricto — no usar `any`
-- **TypeORM** solo en `infrastructure/persistence/` — nunca en domain ni application
-- Errores de dominio como clases tipadas: `throw new ProductNotFound(id)`
-- Servicios externos solo en `infrastructure/` — interfaces en `domain/`
-- Path aliases en todos los imports — nunca rutas relativas largas
+- Strict **TypeScript**: do not use `any`
+- The **ORM** only in `infrastructure/persistence/`: never in domain or application
+- Domain errors as typed classes: `throw new ProductNotFound(id)`
+- External services only in `infrastructure/`, interfaces in `domain/`
+- Path aliases in all imports: never long relative paths
 
 ---
 
 ## Commands
 
 ```bash
-# Desde apps/api/
-pnpm start:dev        # Dev server con hot-reload
-pnpm lint             # ESLint --fix sobre src/ y test/
+# From apps/api/
+pnpm start:dev        # Dev server with hot-reload
+pnpm lint             # ESLint --fix on src/ and test/
 
 # ─── Unit tests ───────────────────────────────────────────────────────────────
-pnpm test             # Unit tests (pass si no hay tests aún)
+pnpm test             # Unit tests (passes if there are no tests yet)
 pnpm test:watch       # TDD loop — re-run on change
 pnpm test:cov         # Unit tests + coverage → coverage/unit/
 
 # ─── E2E tests ────────────────────────────────────────────────────────────────
-pnpm test:e2e         # E2E tests (requiere DB corriendo: make up)
-pnpm test:e2e:watch   # E2E en watch mode
+pnpm test:e2e         # E2E tests (requires the DB running: make up)
+pnpm test:e2e:watch   # E2E in watch mode
 pnpm test:e2e:cov     # E2E + coverage → coverage/e2e/
 
 # ─── All ──────────────────────────────────────────────────────────────────────
-pnpm test:all         # Unit + E2E secuencial
+pnpm test:all         # Unit + E2E sequentially
 
 # ─── CI ───────────────────────────────────────────────────────────────────────
 pnpm test:ci          # Unit + coverage --ci --forceExit (GitHub Actions)
 pnpm test:e2e:ci      # E2E + coverage --ci --forceExit (GitHub Actions)
 
 # ─── Debug ────────────────────────────────────────────────────────────────────
-pnpm test:debug       # Jest con inspector de Node
+pnpm test:debug       # Test runner with the Node inspector
 ```
 
-**Configs Jest:**
-- `jest.config.ts` — unit tests (`src/**/*.spec.ts`)
-- `jest.e2e.config.ts` — E2E tests (`test/**/*.e2e-spec.ts`)
+**Test runner configs:**
+- Unit tests (`src/**/*.spec.ts`)
+- E2E tests (`test/**/*.e2e-spec.ts`)
 
 **Coverage thresholds (unit):** 90% branches / 100% functions / 100% lines / 100% statements
 
@@ -147,20 +151,25 @@ pnpm test:debug       # Jest con inspector de Node
 | Skill | Scope | Description |
 |---|---|---|
 | `api-domain`           | api    | AggregateRoot, Value Objects, Repository interface, DomainErrors |
-| `api-application`      | api    | Use Cases, Domain Services, convenciones de inyección            |
-| `api-infrastructure`   | api    | Controllers, TypeORM entities, repositorios, módulos NestJS      |
-| `api-domain-events`    | api    | Domain Events — definición, naming, registro en aggregates       |
-| `api-testing`          | api    | Pirámide de tests, Object Mother, jest-mock-extended             |
-| `api-criteria`         | api    | Criteria — filtros, orden, paginación, flujo controller→uc→repo  |
-| `api-error-handler`    | api    | GlobalExceptionRegistry, filtros por módulo, HttpExceptionFilter |
-| `api-rest`             | api    | Convenciones RESTful + acciones DDD con POST                     |
-| `api-bc-review`        | api    | Auditoría DDD de bounded contexts: límites, submódulos, checklist |
+| `api-application`      | api    | Use Cases, Domain Services, injection conventions                |
+| `api-infrastructure`   | api    | Controllers, persistence entities, repositories, framework modules |
+| `api-domain-events`    | api    | Domain Events: definition, naming, recording in aggregates       |
+| `api-testing`          | api    | Test pyramid, Object Mother, port mocks                          |
+| `api-criteria`         | api    | Criteria: filters, ordering, pagination, controller→uc→repo flow |
+| `api-error-handler`    | api    | GlobalExceptionRegistry, per-module filters, HttpExceptionFilter |
+| `api-rest`             | api    | RESTful conventions + DDD actions with POST                      |
+| `api-bc-review`        | api    | DDD audit of bounded contexts: boundaries, submodules, checklist |
 | `api-auth`             | api    | JWT, OAuth Google, guest token, guards, @CurrentUser, voters     |
-| `api-shared`           | api    | SharedModule global, bounded context shared, env validation Joi  |
-| `api-events`           | api    | EventBus interface, DomainEventConsumer, Handler abstract        |
-| `api-events-infra`     | api    | AmqpMessageBus, HandlersBootstrapper, retry, DLQ, idempotencia   |
-| `api-di`               | api    | Tokens Symbol, registro de providers, inyección sin acoplamiento |
-| `api-migrations`       | api    | TypeORM migrations formato, seeds idempotentes                   |
-| `api-response`         | api    | Envelope de respuesta, paginación, commands sin body             |
-| `api-validation`       | api    | ValidationPipe global, Payload/Query con class-validator         |
-| `api-observability`    | api    | Logger interface, pino, métricas Prometheus, OTel traces         |
+| `api-shared`           | api    | Global SharedModule, bounded context shared, env validation      |
+| `api-events`           | api    | EventBus interface, DomainEventConsumer, abstract Handler        |
+| `api-events-infra`     | api    | Message bus, HandlersBootstrapper, retry, DLQ, idempotency       |
+| `api-di`               | api    | Symbol tokens, provider registration, injection without coupling |
+| `api-migrations`       | api    | Migration format, idempotent seeds                               |
+| `api-response`         | api    | Response envelope, pagination, commands with no body             |
+| `api-validation`       | api    | Global request validation, Payload/Query                         |
+| `api-observability`    | api    | Logger interface, structured logs, metrics, traces               |
+| `stack-nestjs`         | api    | Maps the concept skills to NestJS                                |
+| `stack-typeorm`        | api    | Maps the concept skills to TypeORM                               |
+| `stack-jest`           | api    | Maps the concept skills to Jest                                  |
+| `stack-rabbitmq`       | api    | Maps the concept skills to RabbitMQ                              |
+| `stack-observability`  | api    | Maps the concept skills to Pino, Prometheus and OpenTelemetry    |

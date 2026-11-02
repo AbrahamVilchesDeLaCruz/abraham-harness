@@ -2,15 +2,15 @@
 
 ## Related Skills
 
-| Skill | Por qué leerla |
+| Skill | Why read it |
 |---|---|
-| `skill-sync` | Después de crear una skill, sincronizar `AGENTS.md` |
+| `skill-sync` | After creating a skill, sync `AGENTS.md` |
 
 ## External Documentation
 
-- [agentskills.io — Spec](https://agentskills.io/home) — especificación completa del formato
-- [agentskills.io — Frontmatter](https://agentskills.io/spec/frontmatter) — campos de metadata requeridos y opcionales
-- [YAML — Frontmatter](https://yaml.org/spec/1.2.2/) — sintaxis del bloque `---`
+- [agentskills.io — Spec](https://agentskills.io/home) — complete format specification
+- [agentskills.io — Frontmatter](https://agentskills.io/spec/frontmatter) — required and optional metadata fields
+- [YAML — Frontmatter](https://yaml.org/spec/1.2.2/) — syntax of the `---` block
 
 ## File structure for a complete skill
 
@@ -41,6 +41,6 @@ metadata:
 
 ## Internal Docs
 
-| Doc | Contenido relevante |
+| Doc | Relevant content |
 |---|---|
-| `docs/engineering/engineering-principles.md` | Los principios que las nuevas skills deben reflejar — SRP, consistencia, por qué importa |
+| `docs/engineering/engineering-principles.md` | The principles that new skills must reflect: SRP, consistency, why it matters |

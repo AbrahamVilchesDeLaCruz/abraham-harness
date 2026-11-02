@@ -1,4 +1,4 @@
-# Domain: patrones y ejemplos
+# Domain: patterns and examples
 
 ### Aggregate Root
 
@@ -49,7 +49,7 @@ export class Product extends AggregateRoot<ProductPrimitives> {
   get category(): Category { return this._category; }
   get audioStatus(): AudioStatus { return this._audioStatus; }
 
-  // Factory para nuevas entidades — registra el domain event de creación
+  // Factory for new entities — records the creation domain event
   static create(id: string, name: string, meaning: string, category: string, createdBy: string): Product {
     const product = new Product(
       new ProductId(id),
@@ -63,7 +63,7 @@ export class Product extends AggregateRoot<ProductPrimitives> {
     return product;
   }
 
-  // Factory para reconstitución desde persistencia — sin domain events
+  // Factory for reconstitution from persistence — no domain events
   static fromPrimitives(p: ProductPrimitives): Product {
     return new Product(
       new ProductId(p.id),
@@ -103,7 +103,7 @@ export abstract class ValueObject<T> {
 // shared/domain/string-value-object.ts
 export abstract class StringValueObject extends ValueObject<string> {}
 
-// shared/domain/uuid-value-object.ts — capa intermedia para IDs UUID
+// shared/domain/uuid-value-object.ts — intermediate layer for UUID IDs
 export abstract class UuidValueObject extends StringValueObject {
   protected static readonly UUID_REGEX = /^[0-9a-f]{8}-...-4...-[89ab]...-...$/i;
 
@@ -113,7 +113,7 @@ export abstract class UuidValueObject extends StringValueObject {
 ```
 
 ```typescript
-// shared/domain/product-id.ts  ← los IDs globales van en shared/domain/
+// shared/domain/product-id.ts  ← global IDs go in shared/domain/
 import { UuidValueObject } from '@/shared/domain/uuid-value-object';
 import { ProductIdInvalid } from '@/shared/domain/exceptions/product-id-invalid';
 
@@ -130,7 +130,7 @@ export class ProductId extends UuidValueObject {
 ```
 
 ```typescript
-// catalog/product/domain/product-name.ts  ← VOs propios del BC en su domain/
+// catalog/product/domain/product-name.ts  ← value objects owned by the BC go in its domain/
 import { StringValueObject } from '@/shared/domain/string-value-object';
 
 export class ProductName extends StringValueObject {
@@ -187,37 +187,37 @@ export class ProductNotFound extends DomainException {
 
 ## Anti-patterns
 
-```typescript
-// ❌ Decoradores de framework en domain
-@Entity() export class Product {}
+Framework decorators in domain are forbidden; the project's stack skills show the concrete case.
 
-// ❌ Sufijo en value object
+```typescript
+
+// ❌ Suffix on a value object
 export class ProductIdVO {}
 
-// ❌ ID que extiende StringValueObject en lugar de UuidValueObject
-export class ProductId extends StringValueObject { /* mal */ }
+// ❌ ID that extends StringValueObject instead of UuidValueObject
+export class ProductId extends StringValueObject { /* wrong */ }
 
-// ❌ Validación de UUID como empty-check en lugar de formato
+// ❌ UUID validation as an empty-check instead of a format check
 export class ProductId extends UuidValueObject {
   constructor(value: string) {
     super(value);
-    if (!value?.trim()) throw new ProductIdEmpty(); // mal — no valida UUID
+    if (!value?.trim()) throw new ProductIdEmpty(); // wrong — does not validate the UUID
   }
 }
 
-// ❌ DomainError en lugar de DomainException
-export class ProductNotFound extends DomainError {} // DomainError no existe
+// ❌ DomainError instead of DomainException
+export class ProductNotFound extends DomainError {} // DomainError does not exist
 
-// ❌ Métodos ad-hoc en repositorio que pueden resolverse con criteria
+// ❌ Ad-hoc repository methods that can be solved with criteria
 interface ProductRepository {
-  findByExpression(expr: string): Promise<Product[]>; // usar match(criteria)
+  findByExpression(expr: string): Promise<Product[]>; // use match(criteria)
 }
 
-// ❌ Lógica de negocio fuera del aggregate
+// ❌ Business logic outside the aggregate
 async execute(name: string): Promise<void> {
-  if (name.length > 200) throw new Error('too long'); // esto va en el VO
+  if (name.length > 200) throw new Error('too long'); // this belongs in the value object
 }
 
-// ❌ fromPrimitives para crear entidades nuevas (sin eventos)
-const product = Product.fromPrimitives({ id, name, ... }); // usar create()
+// ❌ fromPrimitives to create new entities (no events)
+const product = Product.fromPrimitives({ id, name, ... }); // use create()
 ```

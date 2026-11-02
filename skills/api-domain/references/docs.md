@@ -2,30 +2,30 @@
 
 ## Related Skills
 
-| Skill | Por qué leerla |
+| Skill | Why read it |
 |---|---|
-| `api-domain-events` | Cómo definir y registrar Domain Events en aggregates |
-| `api-application` | Use Cases — consumen aggregates y Value Objects |
-| `api-infrastructure` | TypeORM Entity vs. Aggregate — cómo separar la persistencia |
-| `api-testing` | Object Mothers para aggregates y Value Objects |
+| `api-domain-events` | How to define and record Domain Events in aggregates |
+| `api-application` | Use Cases — they consume aggregates and Value Objects |
+| `api-infrastructure` | Persistence entity vs. Aggregate — how to keep persistence separate |
+| `api-testing` | Object Mothers for aggregates and Value Objects |
 
 ## External Documentation
 
 - [Domain-Driven Design Reference (Evans)](https://www.domainlanguage.com/ddd/reference/) — Aggregate, Value Object, Entity, Domain Event
-- [Implementing DDD — Vaughn Vernon](https://vaughnvernon.com/?page_id=168) — patrones tácticos con TypeScript
-- [TypeScript — readonly](https://www.typescriptlang.org/docs/handbook/2/objects.html#readonly-properties) — inmutabilidad en Value Objects
+- [Implementing DDD — Vaughn Vernon](https://vaughnvernon.com/?page_id=168) — tactical patterns with TypeScript
+- [TypeScript — readonly](https://www.typescriptlang.org/docs/handbook/2/objects.html#readonly-properties) — immutability in Value Objects
 
-## Templates disponibles
+## Available templates
 
-- `assets/aggregate-root.template.md` — template de AggregateRoot
-- `assets/value-object.template.md` — template de Value Object
+- `assets/aggregate-root.template.md` — AggregateRoot template
+- `assets/value-object.template.md` — Value Object template
 
 ## Invariants vs. Domain Errors
 
-Las invariantes se validan en el constructor del Value Object o en el método del Aggregate que modifica estado. El Domain Error se lanza desde ahí — nunca desde el Use Case ni desde el Controller.
+Invariants are validated in the Value Object constructor or in the Aggregate method that modifies state. The Domain Error is thrown from there — never from the Use Case or the Controller.
 
 ```typescript
-// ✅ Invariante en el VO — lanza error antes de crear el objeto inválido
+// ✅ Invariant in the value object — throws before creating the invalid object
 export class ProductName extends StringValueObject {
   constructor(value: string) {
     super(value);
@@ -37,7 +37,7 @@ export class ProductName extends StringValueObject {
 
 ## Internal Docs
 
-| Doc | Contenido relevante |
+| Doc | Relevant content |
 |---|---|
-| `docs/engineering/engineering-principles.md` | SOLID, SRP, inversión de dependencias — el **por qué** de cada regla de domain |
-| `docs/engineering/backend-architecture.md` | Capas (Domain→Application→Infrastructure), regla de dependencia, qué puede importar cada capa |
+| `docs/engineering/engineering-principles.md` | SOLID, SRP, dependency inversion — the **why** of each domain rule |
+| `docs/engineering/backend-architecture.md` | Layers (Domain→Application→Infrastructure), dependency rule, what each layer can import |

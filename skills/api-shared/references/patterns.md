@@ -1,72 +1,61 @@
-# Shared: estructura y env
+# Shared: structure and env
 
 ## Structure
+
+Framework-specific folders and files (persistence, event bus, logger, env schema) are in the full tree in the project's stack skill, in `references/api-shared.md`.
 
 ```
 src/
 └── shared/
     ├── domain/
-    │   ├── criteria.ts                  ← Criteria (pure domain, un solo archivo)
+    │   ├── criteria.ts                  ← Criteria (pure domain, a single file)
     │   ├── aggregate-root.ts
     │   ├── domain-event.ts
-    │   ├── domain-event-publisher.ts    ← interface del EventBus (port)
-    │   ├── logger.ts                    ← interface del Logger (port)
+    │   ├── domain-event-publisher.ts    ← EventBus interface (port)
+    │   ├── logger.ts                    ← Logger interface (port)
     │   ├── value-object.ts
     │   ├── string-value-object.ts
     │   ├── uuid-value-object.ts
     │   ├── user-id.ts
     │   ├── product-id.ts
-    │   └── exceptions/                  ← excepciones de dominio transversales
+    │   └── exceptions/                  ← cross-cutting domain errors
     ├── application/
     │   ├── subscriber.ts                ← abstract Subscriber
-    │   └── domain-event-consumer.ts     ← interface del consumer
+    │   └── domain-event-consumer.ts     ← consumer interface
     └── infrastructure/
         ├── persistence/
-        │   ├── inbox/                   ← ProcessedEventEntity, TypeOrmProcessedEventsRepository
-        │   ├── migrations/
-        │   └── typeorm/
-        │       ├── typeorm-data-source-options.ts  ← buildTypeOrmDataSourceOptions()
-        │       └── typeorm.config.cli.ts
+        │   ├── inbox/                   ← processed events entity and repository
+        │   └── migrations/
         ├── config/
-        │   ├── env.validation.ts        ← Joi schema
+        │   ├── env.validation.ts        ← env schema
         │   └── use-stub-adapters.ts
         ├── framework/
-        │   └── shared.module.ts         ← @Global() — se importa UNA vez en AppModule
+        │   └── shared.module.ts         ← global — imported ONCE in AppModule
         ├── auth/
         │   └── auth.module.ts           ← JWT + Google + Guest strategies
         ├── event-bus/
-        │   ├── amqp-message-bus.ts      ← implements DOMAIN_EVENT_PUBLISHER + DOMAIN_EVENT_CONSUMER
         │   └── subscribers-bootstrapper.ts
-        ├── exceptions/
-        │   ├── global-exception-registry.ts
-        │   └── http-exception.filter.ts
-        └── logger/
-            └── pino-logger.ts           ← implements LOGGER_SERVICE
+        └── exceptions/
+            ├── global-exception-registry.ts
+            └── http-exception.filter.ts
 ```
 
-### Shared interno por bounded context
+### Internal shared per bounded context
 
 ```
 src/
 └── achievement/
     └── shared/
         ├── domain/
-        │   ├── achievement-key.ts          ← VO compartido entre submódulos
-        │   ├── achievement-category.ts     ← VO compartido
-        │   └── exceptions/                 ← errores de dominio del BC
+        │   ├── achievement-key.ts          ← value object shared between submodules
+        │   ├── achievement-category.ts     ← shared value object
+        │   └── exceptions/                 ← the BC's domain errors
         └── infrastructure/
             └── framework/
-                ├── achievement.module.ts           ← NestJS module del BC completo
+                ├── achievement.module.ts           ← framework module of the whole BC
                 └── achievement-exception-registry.ts
 ```
 
-## Env Validation — Joi (esencial)
+## Env Validation (essentials)
 
-```typescript
-// src/shared/infrastructure/config/env.validation.ts
-export const envValidationSchema = Joi.object({
-  NODE_ENV: Joi.string().valid('development', 'production', 'test').required(),
-  PORT: Joi.number().default(3000),
-  // ... ver references/module-patterns.md para schema completo
-});
-```
+The schema in `src/shared/infrastructure/config/env.validation.ts` requires `NODE_ENV` (`development`, `production`, `test`) and defaults `PORT` to `3000`. See `references/module-patterns.md` for all the variables.

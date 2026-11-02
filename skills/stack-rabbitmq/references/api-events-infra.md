@@ -1,6 +1,35 @@
-# AmqpMessageBus — Full Implementation
+# api-events-infra with RabbitMQ
 
-## `AmqpMessageBus` completo
+Apply the rules of `api-events-infra`. This reference shows the RabbitMQ implementation with amqplib.
+
+## Rules
+
+`AmqpMessageBus` implements **three interfaces** at once:
+
+```
+DomainEventPublisher (domain)  → publish(events)
+DomainEventConsumer (app)      → consume(queue, eventName, exchange, DomainEventClass, handler)
+OnModuleDestroy (NestJS)       → onModuleDestroy() — closes channel + connection on shutdown
+```
+
+- `AmqpMessageBus` lives in `shared/infrastructure/` — it cuts across all BCs.
+- `prefetch(1)` always — sequential processing per consumer.
+- `AmqpMessageBus` reconnects automatically: when the connection closes, it waits `RECONNECT_DELAY_MS` and re-registers all consumers.
+
+## Retry policy
+
+| Attempt | Delay | Mechanism |
+|---|---|---|
+| 1 | 1 s | `expiration: "1000"` in `.retry` → returns via DLX |
+| 2 | 5 s | `expiration: "5000"` in `.retry` → returns via DLX |
+| 3 | 10 s | `expiration: "10000"` in `.retry` → returns via DLX |
+| 4 | — | → `.dead_letter` — manual intervention |
+
+**`expiration` is per message, not per queue** — it allows exponential backoff with a single `.retry` queue.
+
+Queues created automatically in `setupQueues()`: `{queueName}`, `{queueName}.retry`, `{queueName}.dead_letter`.
+
+## Full `AmqpMessageBus`
 
 ```typescript
 // src/shared/infrastructure/event-bus/amqp-message-bus.ts
@@ -19,7 +48,7 @@ import { type Logger } from '@/shared/domain/logger';
 import { LOGGER_SERVICE } from '@/shared/domain/logger';
 import { InvalidEventPayload } from '@/shared/domain/exceptions/invalid-event-payload';
 
-const RETRY_DELAYS = [1000, 5000, 10000]; // ms — backoff exponencial
+const RETRY_DELAYS = [1000, 5000, 10000]; // ms — exponential backoff
 const RECONNECT_DELAY_MS = 5000;
 
 type ConsumerRegistration = {
@@ -73,7 +102,7 @@ export class AmqpMessageBus
       },
     });
 
-    // .retry sin TTL fijo — el TTL lo pone cada mensaje (expiration)
+    // .retry has no fixed TTL — each message sets the TTL (expiration)
     await ch.assertQueue(`${queueName}.retry`, { durable: true });
     await ch.assertQueue(`${queueName}.dead_letter`, { durable: true });
 
@@ -149,7 +178,7 @@ export class AmqpMessageBus
     const ch = await this.getChannel();
 
     for (const event of events) {
-      // Cada evento tiene su propio exchange nombrado con el eventName
+      // Each event has its own exchange named after the eventName
       const exchangeName = event.eventName();
       await ch.assertExchange(exchangeName, 'direct', { durable: true });
       ch.publish(
@@ -160,7 +189,7 @@ export class AmqpMessageBus
             aggregateId: event.aggregateId,
             eventId: event.eventId,
             occurredOn: event.occurredOn,
-            data: event.attributes, // ← campo "data", no "attributes" ni toPrimitives()
+            data: event.attributes, // ← "data" field, not "attributes" nor toPrimitives()
           }),
         ),
         {
@@ -178,12 +207,12 @@ export class AmqpMessageBus
 
   private async handleRetry(
     msg: ConsumeMessage,
-    queueName: string, // pasado como parámetro — NO se lee de msg.fields.routingKey
+    queueName: string, // passed as a parameter — NOT read from msg.fields.routingKey
     error: Error,
   ): Promise<void> {
     const retryCount =
       (msg.properties.headers?.retries as number | undefined) ?? 0;
-    const content = msg.content; // bytes originales — sin re-serializar
+    const content = msg.content; // original bytes — no re-serialization
 
     if (retryCount < RETRY_DELAYS.length) {
       const delay = RETRY_DELAYS[retryCount];
@@ -206,7 +235,7 @@ export class AmqpMessageBus
 
   private async getModel(): Promise<ChannelModel> {
     if (!this.modelPromise) {
-      const uri = this.config.getOrThrow<string>('AMQP_URI'); // env var directa
+      const uri = this.config.getOrThrow<string>('AMQP_URI'); // direct env var
       this.modelPromise = connect(uri)
         .then((model) => {
           this.model = model;
@@ -257,7 +286,7 @@ export class AmqpMessageBus
     DomainEventClass: new (...args: unknown[]) => DomainEvent,
     message: Record<string, unknown>,
   ): DomainEvent {
-    // Payload usa campo "data" para atributos — validar su presencia
+    // The payload uses the "data" field for attributes — validate its presence
     if (!message.data) {
       throw new InvalidEventPayload(JSON.stringify(message));
     }
@@ -271,102 +300,40 @@ export class AmqpMessageBus
 }
 ```
 
-## `SubscribersBootstrapper`
-
-```typescript
-// src/shared/infrastructure/event-bus/subscribers-bootstrapper.ts
-export const SUBSCRIBERS = Symbol('Subscribers');
-
-@Injectable()
-export class SubscribersBootstrapper implements OnModuleInit {
-  constructor(@Inject(SUBSCRIBERS) private readonly subscribers: Subscriber[]) {}
-
-  async onModuleInit(): Promise<void> {
-    await Promise.all(this.subscribers.map((s) => s.init()));
-  }
-}
-```
-
-## Registration en módulos NestJS
-
-`AmqpMessageBus` se registra **una sola vez** en `SharedModule` como singleton:
-
-```typescript
-// shared/infrastructure/framework/shared.module.ts
-@Global()
-@Module({
-  providers: [
-    AmqpMessageBus,
-    { provide: DOMAIN_EVENT_PUBLISHER, useExisting: AmqpMessageBus },
-    { provide: DOMAIN_EVENT_CONSUMER, useExisting: AmqpMessageBus },
-    // ...
-  ],
-  exports: [DOMAIN_EVENT_PUBLISHER, DOMAIN_EVENT_CONSUMER, /* ... */],
-})
-export class SharedModule {}
-```
-
-Los módulos BC NO re-registran `AmqpMessageBus`. Solo registran sus subscribers via `useFactory` que devuelve un array:
-
-```typescript
-// sales/infrastructure/framework/sales.module.ts
-import { SUBSCRIBERS, SubscribersBootstrapper } from '@/shared/infrastructure/event-bus/subscribers-bootstrapper';
-import { type Subscriber } from '@/shared/application/subscriber';
-
-@Module({
-  imports: [SharedModule, /* ... */],
-  providers: [
-    MigrateGuestOrdersOnGuestProgressMigrated,
-    {
-      provide: SUBSCRIBERS,
-      useFactory: (
-        onGuestMigrated: MigrateGuestOrdersOnGuestProgressMigrated,
-      ): Subscriber[] => [onGuestMigrated],
-      inject: [MigrateGuestOrdersOnGuestProgressMigrated],
-    },
-    SubscribersBootstrapper,
-    // ...
-  ],
-})
-export class SalesModule {}
-```
-
-> **Importante:** SUBSCRIBERS usa `useFactory` que retorna un array, **nunca** `useExisting + multi: true`.
-
-## Recuperación de DLQ
+## DLQ recovery
 
 ```bash
-# Patrón genérico — sustituir por la cola real
+# Generic pattern — replace with the real queue
 rabbitmqadmin move messages \
   --source-queue=<queue_name>.dead_letter \
   --destination-queue=<queue_name>
 
-# Ejemplo real:
+# Real example:
 rabbitmqadmin move messages \
   --source-queue=enrich_product_on_product_created.dead_letter \
   --destination-queue=enrich_product_on_product_created
 ```
 
-## Idempotencia
+## Retry flow diagram
 
-### Opción A — Natural (por defecto)
-
-```typescript
-async handle(event: DomainEvent): Promise<void> {
-  const existing = await this.repo.search(id);
-  if (existing) return; // ya procesado
-  await this.useCase.execute({ ... });
-}
+```
+Message fails
+     ↓
+ch.nack(msg, false, false)    ← no requeue to main queue
+     ↓
+handleError()
+     ↓
+retryCount < 3 ?
+  YES → sendToQueue(.retry, { expiration: delay })
+         ↓
+         After TTL expires → .retry DLX → main queue (retry)
+  NO  → sendToQueue(.dead_letter, { headers: { reason } })
+         ↓
+         Manual intervention required
 ```
 
-### Opción B — Inbox table (operaciones irreversibles críticas)
+## External Documentation
 
-```typescript
-async handle(event: DomainEvent): Promise<void> {
-  if (await this.inboxRepo.exists(event.eventId)) return;
-  await this.useCase.execute({ ... });
-  await this.inboxRepo.save(event.eventId, event.eventName());
-}
-```
-
-Tabla: `processed_events(event_id UUID PK, event_name, processed_at)` — purgar > 30 días.
+- [RabbitMQ — Dead Letter Exchanges](https://www.rabbitmq.com/docs/dlx) — how the DLQ works
+- [RabbitMQ — TTL (per-message)](https://www.rabbitmq.com/docs/ttl#per-message-ttl-in-publishers) — per-message `expiration` for exponential backoff
+- [amqplib — Channel API](https://amqp-node.github.io/amqplib/channel_api.html) — `assertQueue`, `consume`, `ack`, `nack`, `publish`

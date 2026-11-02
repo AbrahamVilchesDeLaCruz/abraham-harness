@@ -2,31 +2,23 @@
 
 ## Related Skills
 
-| Skill | Por qué leerla |
+| Skill | Why read it |
 |---|---|
-| `api-shared` | `SharedModule` — donde se registra `PinoLogger` con `LOGGER_SERVICE` |
-| `api-application` | Use cases — donde se inyecta y usa el `Logger` |
-| `api-events` | Subscribers — donde se loguea `info` al procesar y `error` al fallar |
-| `api-error-handler` | `HttpExceptionFilter` — donde se loguea automáticamente |
+| `api-shared` | The shared module — where the logger adapter is registered with `LOGGER_SERVICE` |
+| `api-application` | Use cases — where the `Logger` is injected and used |
+| `api-events` | Subscribers — where `info` is logged when processing and `error` when failing |
+| `api-error-handler` | `HttpExceptionFilter` — where logging happens automatically |
 
-## Architectural Decision
+## Rollout phases
 
-## External Documentation
-
-- [Pino — Docs](https://getpino.io/#/) — logger JSON de alto rendimiento
-- [NestJS-Pino](https://github.com/iamolegga/nestjs-pino) — integración NestJS alternativa
-- [OpenTelemetry — Node.js](https://opentelemetry.io/docs/languages/js/getting-started/nodejs/) — SDK de instrumentación
-- [Prometheus — Data Model](https://prometheus.io/docs/concepts/data_model/) — métricas, labels, tipos (Counter, Histogram)
-- [Grafana — Loki](https://grafana.com/docs/loki/latest/) — agregación de logs
-- [willsoto/nestjs-prometheus](https://github.com/willsoto/nestjs-prometheus) — integración Prometheus + NestJS
-
-## Setup
-
-Ver `resources/setup.md` para la configuración completa de Loki, Prometheus, Grafana y OpenTelemetry.
+| Phase | What | When |
+|---|---|---|
+| 1 | Structured JSON logs on stdout + metrics endpoint `/metrics` | Now — development |
+| 2 | Log, metric and trace storage with dashboards | Before the production deploy |
 
 ## Structured logging format
 
-Pino emite JSON en una línea por log. Ejemplo:
+The logger emits one line of JSON per log. Example:
 
 ```json
 {"level":"info","time":"2026-05-21T12:00:00.000Z","productId":"abc123","name":"what is liaison","msg":"Product created"}

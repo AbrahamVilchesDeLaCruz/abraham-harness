@@ -2,21 +2,15 @@
 
 ## Related Skills
 
-| Skill | Por qué leerla |
+| Skill | Why read it |
 |---|---|
-| `api-infrastructure` | Controllers que usan `@UseGuards` y `@CurrentUser` |
-| `api-shared` | `SharedModule` donde se registra `AuthModule` |
-| `api-di` | Cómo registrar strategies y guards en el módulo |
-| `api-application` | Use cases que reciben `UserContext` como parámetro |
-
-## Architectural Decision
+| `api-infrastructure` | Controllers that use guards and `CurrentUser` |
+| `api-shared` | The shared module where the auth module is registered |
+| `api-di` | How to register strategies and guards in the module |
+| `api-application` | Use cases that receive `UserContext` as a parameter |
 
 ## External Documentation
 
-- [NestJS — Authentication](https://docs.nestjs.com/security/authentication) — Passport integration, JWT, Guards
-- [NestJS — Authorization](https://docs.nestjs.com/security/authorization) — RBAC, Claims-based
-- [Passport.js — Strategies](https://www.passportjs.org/packages/) — jwt, google, local
-- [jsonwebtoken — npm](https://www.npmjs.com/package/jsonwebtoken) — JWT sign/verify
 - [Google OAuth2 — Developers](https://developers.google.com/identity/protocols/oauth2) — scopes, flows
 
 ## Token Security Notes
@@ -31,6 +25,6 @@ Never store access tokens in `localStorage` — XSS vectors can read them.
 
 ## Internal Docs
 
-| Doc | Contenido relevante |
+| Doc | Relevant content |
 |---|---|
-| `docs/engineering/engineering-principles.md` | Por qué el `deviceId` lo genera el backend (SRP, seguridad) |
+| `docs/engineering/engineering-principles.md` | Why the backend generates the `deviceId` (SRP, security) |

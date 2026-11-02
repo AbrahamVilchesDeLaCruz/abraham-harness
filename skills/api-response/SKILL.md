@@ -1,77 +1,76 @@
 ---
 name: api-response
-description: "Trigger: Al definir el formato de respuesta de un endpoint, implementar paginación, o respuestas de commands. Envelope de respuesta, paginación, commands sin body en apps/api/."
+description: "Trigger: When defining an endpoint's response format, implementing pagination, or command responses. Response envelope, pagination, commands without a body in apps/api/."
 license: Apache-2.0
 metadata:
   author: AbrahamVilchesDeLaCruz
   version: "2.0"
 ---
 
+
 ## Activation Contract
 
-- Al definir el formato de respuesta de un endpoint de lectura (queries)
-- Al definir la respuesta de endpoints que modifican estado (commands)
-- Al implementar el response envelope en controllers
+- When defining the response format of a read endpoint (queries)
+- When defining the response of endpoints that modify state (commands)
+- When implementing the response envelope in controllers
 
 ## Hard Rules
 
-- Sin campo `success` — el status HTTP lo expresa
-- Sin campo `message` — los errores tienen su propio formato (ver `api-error-handler`)
-- `pagination` solo si el endpoint acepta `page` y `limit`
-- `meta.request_id` siempre vía `resolveRequestId(req)` — nunca inline
-- Auth endpoints usan `@Res({ passthrough: true })` para manejar cookies y devuelven el token directamente sin envelope. Es la única excepción al patrón `ApiResponse<T>`.
+- No `success` field — the HTTP status expresses it
+- No `message` field — errors have their own format (see `api-error-handler`)
+- `pagination` only if the endpoint accepts `page` and `limit`
+- `meta.request_id` always via `resolveRequestId(req)` — never inline
+- Auth endpoints use a passthrough response object to manage cookies and return the token directly without an envelope. This is the only exception to the `ApiResponse<T>` pattern.
 
 ### Anti-patterns
 
 ```typescript
-// ❌ Archivos .response.ts por controller — PROHIBIDO
+// ❌ .response.ts files per controller — FORBIDDEN
 // search-orders-get.response.ts
 
-// ❌ resolveRequestId inline en el controller (unsafe: no valida array ni empty string)
+// ❌ resolveRequestId inline in the controller (unsafe: does not validate array or empty string)
 return ApiResponse.of(data, req.headers['x-request-id'] as string ?? crypto.randomUUID());
 
-// ❌ Envelope en commands puros
-@Patch(':id')
+// ❌ Envelope on pure commands
 async handler(): Promise<{ success: true }> { ... }
 
-// ❌ Sin resolveRequestId
+// ❌ Without resolveRequestId
 return ApiResponse.of(data, 'hardcoded-id');
 
-// ❌ Omitir ApiResponse en endpoints que no son auth
-@Get('products')
-async handler(): Promise<ProductPrimitives[]> { ... } // debe ser ApiResponse<ProductPrimitives[]>
+// ❌ Omitting ApiResponse on non-auth endpoints
+async handler(): Promise<ProductPrimitives[]> { ... } // must be ApiResponse<ProductPrimitives[]>
 ```
 
 ## Decision Gates
 
-### Principios CQRS
+### CQRS principles
 
-| Tipo | Respuesta | Status |
+| Type | Response | Status |
 |---|---|---|
-| **Query** (GET) | `ApiResponse<T>` o `PaginatedApiResponse<T>` | `200` |
-| **Command con datos** (POST que devuelve ID/datos) | `ApiResponse<T>` | `201` |
-| **Command puro** (PATCH/DELETE/acciones) | `void` — solo status code | `204` |
-| **Auth** (login/register/guest/refresh) | Raw `{ accessToken: string }` — excepción válida | `200` / `201` |
+| **Query** (GET) | `ApiResponse<T>` or `PaginatedApiResponse<T>` | `200` |
+| **Command with data** (POST that returns ID/data) | `ApiResponse<T>` | `201` |
+| **Pure command** (PATCH/DELETE/actions) | `void` — status code only | `204` |
+| **Auth** (login/register/guest/refresh) | Raw `{ accessToken: string }` — valid exception | `200` / `201` |
 
 ### Status Codes
 
-| Operación | Status |
+| Operation | Status |
 |---|---|
-| GET (único o colección) | `200 OK` |
-| POST (crear con respuesta) | `201 Created` + `ApiResponse<T>` |
-| POST (acción DDD sin respuesta) | `204 No Content` |
+| GET (single or collection) | `200 OK` |
+| POST (create with response) | `201 Created` + `ApiResponse<T>` |
+| POST (DDD action without response) | `204 No Content` |
 | PATCH / PUT | `204 No Content` |
 | DELETE | `204 No Content` |
 
 ## Execution Steps
 
-1. Clasifica el endpoint con los Decision Gates.
-2. Devuelve el envelope que corresponda, o `void` en commands puros.
-3. Usa `references/response-classes.md` para las clases y los controllers completos.
+1. Classify the endpoint with the Decision Gates.
+2. Return the matching envelope, or `void` on pure commands.
+3. Use `references/response-classes.md` for the classes and the complete controllers.
 
 ## Output Contract
 
-### Formato del envelope
+### Envelope format
 
 ```json
 {
@@ -83,7 +82,7 @@ async handler(): Promise<ProductPrimitives[]> { ... } // debe ser ApiResponse<Pr
 }
 ```
 
-Con paginación:
+With pagination:
 
 ```json
 {
@@ -99,5 +98,6 @@ Con paginación:
 
 ## References
 
-- Lee [`references/response-classes.md`](references/response-classes.md) para las implementaciones completas de `ApiResponse`, `PaginatedApiResponse`, `resolveRequestId` y ejemplos completos de controllers.
-- Lee [`references/docs.md`](references/docs.md) para skills relacionadas, ADRs y documentación externa.
+- Read [`references/response-classes.md`](references/response-classes.md) for the complete implementations of `ApiResponse`, `PaginatedApiResponse`, `resolveRequestId` and complete controller examples.
+- Read [`references/docs.md`](references/docs.md) for related skills, ADRs and external documentation.
+- Load the project's stack skill for HTTP (`stack-nestjs`) and read its `references/api-response.md`.

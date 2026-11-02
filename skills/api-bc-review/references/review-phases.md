@@ -1,105 +1,105 @@
-# Bounded Context Review — Fases detalladas
+# Bounded Context Review — Detailed Phases
 
-## Fase 2 — ¿Un BC o submódulos DDD?
+## Phase 2 — One BC or DDD submodules?
 
-Si el BC tiene **múltiples agregados cohesivos**, dividir:
+If the BC has **multiple cohesive aggregates**, split:
 
 ```
 apps/api/src/{bc}/
-├── {module-a}/     ← dueño agregado A
-├── {module-b}/     ← dueño agregado B
-└── shared/         ← VOs cross-módulo + NestJS module + exception registry
+├── {module-a}/     ← owner of aggregate A
+├── {module-b}/     ← owner of aggregate B
+└── shared/         ← cross-module VOs + framework module + exception registry
 ```
 
-Ver `apps/api/AGENTS.md` → *Módulos DDD dentro de un Bounded Context*.
+See `apps/api/AGENTS.md` → *DDD modules inside a Bounded Context*.
 
-Ejemplo `achievement`:
-- `catalog/` — definiciones de logros (catálogo, reglas de unlock)
-- `progress/` — agregado `UserAchievementProgress` (contadores, módulos tocados)
-- `user-achievement/` — desbloqueos por usuario
+`achievement` example:
+- `catalog/` — achievement definitions (catalog, unlock rules)
+- `progress/` — `UserAchievementProgress` aggregate (counters, touched modules)
+- `user-achievement/` — unlocks per user
 - `shared/` — `AchievementKey`, `AchievementCategory`, `AchievementModule`
 
-**Prohibido:** capas sueltas (`domain/`, `application/`) en la raíz del BC cuando hay submódulos.
+**Forbidden:** loose layers (`domain/`, `application/`) at the BC root when there are submodules.
 
-## Fase 3 — Checklist de alineación por capa
+## Phase 3 — Per-layer alignment checklist
 
-Usar como tabla de auditoría. Cargar la skill indicada antes de corregir cada fila.
+Use it as an audit table. Load the indicated skill before fixing each row.
 
-| Área | Skill | Qué verificar |
+| Area | Skill | What to verify |
 |------|-------|---------------|
-| Aggregate + VOs | `api-domain` | `AggregateRoot`, `fromPrimitives`/`toPrimitives`, VOs sin sufijo |
-| Domain errors | `api-domain`, `api-error-handler` | `{Entidad}{Problema}`, registry en `shared/infrastructure/framework/` |
-| Repository | `api-domain` | Contrato `match/search/save/remove`, `toDomain`/`toEntity` |
-| Use cases | `api-application` | `{Entidad}{Verbo}`, método `execute()`, primitivos in/out |
-| Domain services | `api-application`, `api-domain` | En `domain/`, **sin sufijo `Service`** en clase/archivo |
-| Subscribers | `api-events` | Junto al use case, `on()` solo delega, queue naming |
-| Eventos | `api-domain-events` | `record()` en aggregate, `pullDomainEvents()` tras `save()` |
-| Controllers query | `api-response`, `api-rest` | `ApiResponse.of()` / `PaginatedApiResponse.of()` con `meta` |
-| Controllers command | `api-response` | Solo status HTTP, sin body |
-| DI | `api-di` | Token `Symbol` junto a interface en domain |
-| Tests | `api-testing` | Espejan estructura `test/{bc}/{module}/`, Object Mothers |
+| Aggregate + VOs | `api-domain` | `AggregateRoot`, `fromPrimitives`/`toPrimitives`, VOs without suffix |
+| Domain errors | `api-domain`, `api-error-handler` | `{Entity}{Problem}`, registry in `shared/infrastructure/framework/` |
+| Repository | `api-domain` | `match/search/save/remove` contract, `toDomain`/`toEntity` |
+| Use cases | `api-application` | `{Entity}{Verb}`, `execute()` method, primitives in/out |
+| Domain services | `api-application`, `api-domain` | In `domain/`, **no `Service` suffix** in class/file |
+| Subscribers | `api-events` | Next to the use case, `on()` only delegates, queue naming |
+| Events | `api-domain-events` | `record()` in the aggregate, `pullDomainEvents()` after `save()` |
+| Query controllers | `api-response`, `api-rest` | `ApiResponse.of()` / `PaginatedApiResponse.of()` with `meta` |
+| Command controllers | `api-response` | HTTP status only, no body |
+| DI | `api-di` | `Symbol` token next to the interface in domain |
+| Tests | `api-testing` | Mirror the `test/{bc}/{module}/` structure, Object Mothers |
 
-## Fase 4 — Naming: sufijos permitidos
+## Phase 4 — Naming: allowed suffixes
 
-| Sufijo | Cuándo |
+| Suffix | When |
 |--------|--------|
-| `Repository` | Interface de persistencia en domain |
+| `Repository` | Persistence interface in domain |
 | `Event` | Domain events |
-| `Exception` / error de dominio | Errores tipados |
-| `Entity` | TypeORM en infrastructure |
-| `TypeOrm` (prefijo) | Implementación concreta de repo/query |
+| `Exception` / domain error | Typed errors |
+| `Entity` | ORM model in infrastructure |
+| ORM name (prefix) | Concrete repo/query implementation |
 
-**Prohibido** en clases/archivos de dominio y application:
-- `Service` — usar `AchievementCatalogFinder`, `ProductFinder`
-- `Dto` en application — usar `Request*` / `Response*`
-- `.response.ts` por controller
+**Forbidden** in domain and application classes/files:
+- `Service` — use `AchievementCatalogFinder`, `ProductFinder`
+- `Dto` in application — use `Request*` / `Response*`
+- `.response.ts` per controller
 
-## Fase 6 — Fuente de verdad duplicada
+## Phase 6 — Duplicated source of truth
 
-Señales de alerta (ej. `achievement` pre-refactor):
-- Catálogo en código **y** en DB sin uso
-- Reglas hardcodeadas en subscribers **y** en evaluators
-- i18n en cliente **y** title/description en API sin contrato
+Warning signs (e.g. `achievement` pre-refactor):
+- Catalog in code **and** in an unused DB
+- Rules hardcoded in subscribers **and** in evaluators
+- i18n in the client **and** title/description in the API with no contract
 
-Decidir **una** fuente y documentar en ADR si es decisión de producto.
+Decide on **one** source and record it in an ADR if it is a product decision.
 
-**Paridad código ↔ migraciones:** si el catálogo vive en dominio, añadir test de paridad (`{bc}-catalog-parity.spec.ts`) que compare keys del catálogo con seed de migraciones y `ALL_*_KEY_VALUES`.
+**Code ↔ migrations parity:** if the catalog lives in the domain, add a parity test (`{bc}-catalog-parity.spec.ts`) that compares the catalog keys with the migrations seed and `ALL_*_KEY_VALUES`.
 
-## Fase 7 — Operabilidad, contrato y documentación
+## Phase 7 — Operability, contract and documentation
 
-Auditar **después** de límites y capas DDD. Cargar la skill indicada antes de corregir cada fila.
+Audit **after** boundaries and DDD layers. Load the indicated skill before fixing each row.
 
-| Área | Skill | Qué verificar |
+| Area | Skill | What to verify |
 |------|-------|---------------|
-| **Logger** | `api-observability` | `LOGGER_SERVICE` inyectado en domain services / use cases que mutan estado relevante (`unlock`, `create`, `import`). Log `info` con contexto (`userId`, aggregate id). **No** loguear en controllers — lo hace el filter/interceptor |
-| **Swagger** | `api-rest` | Por endpoint GET: `@ApiOperation`, `@ApiBearerAuth('access-token')`, `@ApiProperty`/`@ApiPropertyOptional` en Query/Payload, `@ApiResponse` con schema del envelope `{ data, meta }`, códigos 401/422. Solo `@ApiTags` = incompleto |
-| **Docs BC** | — | `docs/apps/api/{bc}/README.md`: submódulos, endpoints, eventos consumidos/publicados, tablas, handlers **v2** (nombres reales de subscribers) |
-| **Docs transversales** | — | Sincronizar si el BC emite/consume eventos: la spec de la feature, `docs/domain/bounded-contexts.md` (diagrama + tabla), `docs/domain/rabbitmq-design.md` (exchanges, colas, handlers) |
-| **TypeORM** | `api-migrations` | Toda entidad nueva en `typeOrmEntities` **y** su migración en `typeOrmMigrations`. Omitirlo rompe E2E/CI silenciosamente vía subscribers async |
-| **E2E API** | `api-testing` | `test/{bc}/**/infrastructure/*.e2e-spec.ts`: JWT, envelope, happy path de negocio, validación 422. Reutilizar helpers de otros BCs (`registerAndLogin`, `waitUntil`) |
-| **Object Mothers** | `api-testing` | `test/{bc}/{module}/domain/*-mother.ts` para aggregates/VOs usados en ≥2 specs. Evitar `fromPrimitives` inline repetido |
-| **Tests de dominio crítico** | `api-testing` | Policies, strategies y reglas de elegibilidad con tests propios (no solo vía unlocker integration) |
-| **Cliente** | `client-api` | `ApiEnvelope<T>` en fetches, mapper + types, i18n si API devuelve solo keys estructurales |
-| **Métricas custom** | `api-observability` | Opcional — contadores Prometheus en mutaciones clave (`*_total`). Infra HTTP/AMQP ya cubierta globalmente |
+| **Logger** | `api-observability` | `LOGGER_SERVICE` injected in domain services / use cases that execute relevant state (`unlock`, `create`, `import`). `info` log with context (`userId`, aggregate id). Do **not** log in controllers — the filter/interceptor does it |
+| **API documentation** | `api-rest` | Per GET endpoint: operation, bearer auth (`access-token`), properties and optional properties on Query/Payload, response with the envelope schema `{ data, meta }`, codes 401/422. Tags alone = incomplete |
+| **BC docs** | — | `docs/apps/api/{bc}/README.md`: submodules, endpoints, consumed/published events, tables, **v2** handlers (real subscriber names) |
+| **Cross-cutting docs** | — | Sync if the BC emits/consumes events: the feature spec, `docs/domain/bounded-contexts.md` (diagram + table), the messaging design doc (exchanges, queues, handlers) |
+| **Persistence** | `api-migrations` | Every new entity in the ORM entity list **and** its migration in the ORM migration list. Omitting it silently breaks E2E/CI via async subscribers |
+| **API E2E** | `api-testing` | `test/{bc}/**/infrastructure/*.e2e-spec.ts`: JWT, envelope, business happy path, 422 validation. Reuse helpers from other BCs (`registerAndLogin`, `waitUntil`) |
+| **Object Mothers** | `api-testing` | `test/{bc}/{module}/domain/*-mother.ts` for aggregates/VOs used in ≥2 specs. Avoid repeated inline `fromPrimitives` |
+| **Critical domain tests** | `api-testing` | Policies, strategies and eligibility rules with their own tests (not only via unlocker integration) |
+| **Client** | `client-api` | `ApiEnvelope<T>` in fetches, mapper + types, i18n if the API returns only structural keys |
+| **Custom metrics** | `api-observability` | Optional — counters on key mutations (`*_total`). HTTP/messaging infrastructure is already covered globally |
 
-### Señales de lag documental (ej. `achievement` pre-fix)
+### Documentation lag signals (e.g. `achievement` pre-fix)
 
-- Handler names v1 en spec (`UnlockAchievementOnOrderCompleted` vs `UnlockUserAchievementOnOrderCompleted`)
-- Eventos consumidos incompletos (`PaymentRecorded`/`ProductViewed` faltaban en bounded-contexts)
-- Colas RabbitMQ sin documentar (`update_progress_on_payment_recorded`)
-- README sin tablas nuevas (`user_achievement_progress`)
+- v1 handler names in the spec (`UnlockAchievementOnOrderCompleted` vs `UnlockUserAchievementOnOrderCompleted`)
+- Incomplete consumed events (`PaymentRecorded`/`ProductViewed` missing from bounded-contexts)
+- Undocumented queues (`update_progress_on_payment_recorded`)
+- README without new tables (`user_achievement_progress`)
 
 ## Anti-patterns
 
 ```typescript
-// ❌ BC entero dentro de identity/user porque se muestra en /profile
-// ❌ Subscriber con reglas de negocio en on()
-// ❌ Evento publicado manualmente en use case sin aggregate.record()
-// ❌ GET devuelve { data } sin meta
-// ❌ achievement-catalog-finder.service.ts  ← sufijo Service prohibido
-// ❌ Controller solo con @ApiTags — sin @ApiOperation ni schema de respuesta
-// ❌ Unlock/mutación de negocio sin logger.info con contexto
-// ❌ Entidad TypeORM sin registrar en typeorm-data-source-options.ts
-// ❌ Nuevo subscriber sin fila en rabbitmq-design.md y bounded-contexts.md
-// ❌ E2E que solo mockea unit — ningún *.e2e-spec.ts para el endpoint HTTP
+// ❌ Whole BC inside identity/user because it is shown in /profile
+// ❌ Subscriber with business rules in on()
+// ❌ Event published manually in a use case without aggregate.record()
+// ❌ GET returns { data } without meta
+// ❌ achievement-catalog-finder.service.ts  ← forbidden Service suffix
+// ❌ Controller with tags only — no operation or response schema documented
+// ❌ Business unlock/mutation without logger.info with context
+// ❌ ORM entity not registered in the data source options
+// ❌ New subscriber without a row in the messaging design doc and bounded-contexts.md
+// ❌ E2E that only mocks unit — no *.e2e-spec.ts for the HTTP endpoint
 ```

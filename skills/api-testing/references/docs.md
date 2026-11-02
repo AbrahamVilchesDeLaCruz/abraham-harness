@@ -2,23 +2,15 @@
 
 ## Related Skills
 
-| Skill | Por qué leerla |
+| Skill | Why read it |
 |---|---|
-| `api-application` | Use cases — lo que se testea principalmente |
-| `api-domain` | Aggregates y VOs — para construir los Object Mothers |
-| `api-domain-events` | Domain Events — cómo afirmar que se publicaron |
+| `api-application` | Use cases — what is mainly tested |
+| `api-domain` | Aggregates and VOs — to build the Object Mothers |
+| `api-domain-events` | Domain Events — how to assert they were published |
 
-## External Documentation
+## Available templates
 
-- [Jest — Docs](https://jestjs.io/docs/getting-started) — test runner y assertions
-- [jest-mock-extended](https://github.com/marchaos/jest-mock-extended) — `mock<T>()` para interfaces TypeScript
-- [Faker.js v9 — Docs](https://fakerjs.dev/api/) — generación de datos de prueba (usada en `MotherCreator`)
-- [Jest — Fake Timers](https://jestjs.io/docs/timer-mocks) — `jest.useFakeTimers()` para controlar `new Date()`
-- [Jest — Mock Functions](https://jestjs.io/docs/mock-functions) — `mockResolvedValueOnce`, `mockReset`
-
-## Templates disponibles
-
-- `assets/object-mother.template.md` — template genérico de Object Mother
+- `assets/object-mother.template.md` — generic Object Mother template
 
 ## Test pyramid numbers (reference)
 
@@ -30,7 +22,7 @@
 
 ## Internal Docs
 
-| Doc | Contenido relevante |
+| Doc | Relevant content |
 |---|---|
-| `docs/engineering/testing.md` | Cómo ejecutar tests en el monorepo, pirámide real del proyecto, comandos |
-| `docs/engineering/engineering-principles.md` | Por qué testear el comportamiento, no la implementación (TDD, inversión de dependencias) |
+| `docs/engineering/testing.md` | How to run tests in the monorepo, the project's real pyramid, commands |
+| `docs/engineering/engineering-principles.md` | Why test behavior, not implementation (TDD, dependency inversion) |

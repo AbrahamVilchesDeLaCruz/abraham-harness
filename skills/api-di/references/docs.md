@@ -2,35 +2,26 @@
 
 ## Related Skills
 
-| Skill | Por qué leerla |
+| Skill | Why read it |
 |---|---|
-| `api-shared` | `SharedModule` global — cómo se registran Logger, EventBus, DB |
-| `api-infrastructure` | Estructura del módulo NestJS por bounded context |
-| `api-application` | Cómo los use cases inyectan puertos con `@Inject(TOKEN)` |
-| `api-events` | Tokens `EVENT_BUS` y `DOMAIN_EVENT_CONSUMER` |
+| `api-shared` | Global `SharedModule` — how Logger, EventBus, DB are registered |
+| `api-infrastructure` | Module structure per bounded context |
+| `api-application` | How use cases inject ports with the token |
+| `api-events` | `EVENT_BUS` and `DOMAIN_EVENT_CONSUMER` tokens |
 
-## External Documentation
+## Why Symbol and not string
 
-- [NestJS — Custom Providers](https://docs.nestjs.com/fundamentals/custom-providers) — `useClass`, `useFactory`, `useValue`, `useExisting`
-- [NestJS — Injection Scopes](https://docs.nestjs.com/fundamentals/injection-scopes) — DEFAULT (singleton), REQUEST, TRANSIENT
-- [NestJS — Circular Dependency](https://docs.nestjs.com/fundamentals/circular-dependency) — `forwardRef()` y cómo evitar necesitarlo
-
-## Por qué Symbol y no string
+- String — collisions between modules.
+- Class — couples the use case to the concrete implementation.
+- Symbol — unique, safe, no collisions:
 
 ```typescript
-// ❌ String — colisiones entre módulos
-{ provide: 'Repository', useClass: TypeOrmOrderRepository }
-// ❌ Clase — acopla el use case a la implementación concreta
-{ provide: TypeOrmOrderRepository, useClass: TypeOrmOrderRepository }
-
-// ✅ Symbol — único, seguro, sin colisiones
 export const ORDER_REPOSITORY = Symbol('OrderRepository');
-{ provide: ORDER_REPOSITORY, useClass: TypeOrmOrderRepository }
 ```
 
 ## Internal Docs
 
-| Doc | Contenido relevante |
+| Doc | Relevant content |
 |---|---|
-| `docs/engineering/backend-architecture.md` | Inversión de dependencias — por qué el use case depende de interfaces, no de clases concretas |
-| `docs/engineering/engineering-principles.md` | DIP (Dependency Inversion Principle) — el fundamento de los tokens Symbol |
+| `docs/engineering/backend-architecture.md` | Dependency inversion — why the use case depends on interfaces, not concrete classes |
+| `docs/engineering/engineering-principles.md` | DIP (Dependency Inversion Principle) — the foundation of Symbol tokens |

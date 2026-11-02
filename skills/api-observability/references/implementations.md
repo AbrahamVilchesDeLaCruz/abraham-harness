@@ -1,158 +1,8 @@
 # Observability Implementations — Reference
 
-## `PinoLogger` — implementación concreta
+The logger and metrics adapters are in the observability stack skill, in `references/api-observability.md`.
 
-```typescript
-// src/shared/infrastructure/logger/pino-logger.ts
-import { Injectable } from '@nestjs/common';
-import pino, { type Logger as PinoInstance } from 'pino';
-import { type LogContext, type Logger } from '@/shared/domain/logger';
-
-@Injectable()
-export class PinoLogger implements Logger {
-  private readonly logger: PinoInstance;
-
-  constructor() {
-    const isDev = process.env.NODE_ENV !== 'production';
-    const lokiUrl = process.env.LOKI_URL;
-    const level = process.env.LOG_LEVEL ?? 'info';
-
-    this.logger = pino(
-      {
-        level,
-        formatters: {
-          level: (label) => ({ level: label }),
-        },
-        timestamp: pino.stdTimeFunctions.isoTime,
-      },
-      pino.transport({
-        targets: [
-          // stdout — pretty en dev, JSON raw en prod
-          isDev
-            ? {
-                target: 'pino-pretty',
-                level,
-                options: { colorize: true, translateTime: 'SYS:HH:MM:ss', ignore: 'pid,hostname' },
-              }
-            : {
-                target: 'pino/file',
-                level,
-                options: { destination: 1 }, // stdout
-              },
-
-          // Loki — solo si LOKI_URL está definida (Fase 2)
-          ...(lokiUrl
-            ? [
-                {
-                  target: 'pino-loki',
-                  level,
-                  options: {
-                    host: lokiUrl,
-                    labels: { app: 'myapp-api', env: process.env.NODE_ENV ?? 'development' },
-                    replaceTimestamp: true,
-                    silenceErrors: false,
-                  },
-                },
-              ]
-            : []),
-        ],
-      }),
-    );
-  }
-
-  info(message: string, context?: LogContext): void {
-    this.logger.info(context ?? {}, message);
-  }
-
-  warn(message: string, context?: LogContext): void {
-    this.logger.warn(context ?? {}, message);
-  }
-
-  error(message: string, error?: Error, context?: LogContext): void {
-    this.logger.error({ ...context, err: error }, message);
-  }
-
-  debug(message: string, context?: LogContext): void {
-    this.logger.debug(context ?? {}, message);
-  }
-}
-```
-
-Registro en `SharedModule`:
-
-```typescript
-{ provide: LOGGER_SERVICE, useClass: PinoLogger }
-```
-
----
-
-## `PrometheusAppMetrics` — métricas de negocio custom
-
-```typescript
-// src/shared/infrastructure/metrics/prometheus-app-metrics.ts
-import { Inject, Injectable } from '@nestjs/common';
-import { Counter, Registry } from 'prom-client';
-import { type AppMetrics } from '@/shared/domain/app-metrics';
-import { METRICS_REGISTRY } from '@/shared/domain/metrics-registry';
-
-@Injectable()
-export class PrometheusAppMetrics implements AppMetrics {
-  private readonly counters = new Map<string, Counter>();
-
-  constructor(
-    @Inject(METRICS_REGISTRY)
-    private readonly registry: Registry,
-  ) {
-    // Pre-registra contadores conocidos con sus metadatos
-    this.register('app_products_created_total', 'Total products created', []);
-    this.register('app_orders_started_total', 'Total orders started', []);
-    this.register('app_orders_completed_total', 'Total orders completed', []);
-    this.register('app_audio_generated_total', 'Total image files generated', ['provider']);
-    this.register('app_audio_errors_total', 'Total image generation errors', ['provider']);
-    this.register('app_auth_logins_total', 'Total successful logins', ['provider']);
-    this.register('app_auth_registrations_total', 'Total user registrations', ['provider']);
-  }
-
-  increment(metric: string, labels: Record<string, string> = {}): void {
-    const counter = this.getOrCreate(metric, Object.keys(labels));
-    counter.inc(labels);
-  }
-
-  private register(name: string, help: string, labelNames: string[]): void { /* ... */ }
-  private getOrCreate(name: string, labelNames: string[]): Counter { /* ... */ }
-}
-```
-
-Registro en `ObservabilityModule` (no en SharedModule):
-
-```typescript
-// src/observability/infrastructure/framework/observability.module.ts
-@Global()
-@Module({
-  providers: [
-    {
-      provide: METRICS_REGISTRY,
-      useFactory: (): Registry => {
-        const registry = new Registry();
-        registry.setDefaultLabels({ app: 'myapp-api' });
-        collectDefaultMetrics({ register: registry });
-        return registry;
-      },
-    },
-    PrometheusAppMetrics,
-    { provide: APP_METRICS, useExisting: PrometheusAppMetrics },
-    // MetricsInterceptor también vive aquí (APP_INTERCEPTOR)
-  ],
-  exports: [METRICS_REGISTRY, APP_METRICS],
-})
-export class ObservabilityModule {}
-```
-
-> **No se usa `@willsoto/nestjs-prometheus`** — la implementación usa `prom-client` directamente inyectando `METRICS_REGISTRY` (un `Registry` de prom-client).
-
----
-
-## Logging en Subscriber — con retry
+## Logging in a Subscriber — with retry
 
 ```typescript
 async handle(event: DomainEvent): Promise<void> {
@@ -165,17 +15,17 @@ async handle(event: DomainEvent): Promise<void> {
       queue: this.queueName,
       eventId: event.eventId,
     });
-    throw error; // re-throw — permite retry y DLQ
+    throw error; // re-throw — enables retry and DLQ
   }
 }
 ```
 
 ---
 
-## Logging en HttpExceptionFilter
+## Logging in the exception filter
 
 ```typescript
-catch(exception: unknown, host: ArgumentsHost): void {
+catch(exception: unknown, host): void {
   const logContext = { status, path: request.url, method: request.method, errorType };
 
   if (statusCode >= 500) {
@@ -185,27 +35,27 @@ catch(exception: unknown, host: ArgumentsHost): void {
       logContext,
     );
   } else if (statusCode >= 400 && errorType !== null) {
-    // Domain exception — usa su propio mensaje
+    // Domain exception — uses its own message
     this.logger.warn(exception instanceof Error ? exception.message : 'Domain error', logContext);
   } else if (statusCode >= 400) {
-    // 4xx de NestJS (ValidationPipe, HttpException manual)
+    // framework 4xx (validation errors, manual HTTP exceptions)
     this.logger.warn(typeof message === 'string' ? message : 'HTTP client error', logContext);
   }
 }
 ```
 
-> El contexto incluye `{ status, path, method, errorType }` — **no** `requestId`.
+> The context includes `{ status, path, method, errorType }` — **not** `requestId`.
 
 ---
 
-## Métricas HTTP automáticas (`MetricsInterceptor`)
+## Automatic HTTP metrics (`MetricsInterceptor`)
 
-El `MetricsInterceptor` registra en cada request:
+`MetricsInterceptor` records on each request:
 
-- `http_requests_total{method, route, status_code}` — contador
-- `http_request_duration_seconds{method, route, status_code}` — histograma de latencia
+- `http_requests_total{method, route, status_code}` — counter
+- `http_request_duration_seconds{method, route, status_code}` — latency histogram
 
-> El label es `status_code` (no `status`). No añadir métricas HTTP manualmente en controllers.
+> The label is `status_code` (not `status`). Do not add HTTP metrics manually in controllers.
 
 ## `Logger` Interface (domain)
 
@@ -234,31 +84,29 @@ export interface AppMetrics {
 export const APP_METRICS = Symbol('AppMetrics');
 ```
 
-### Inyección en use case
+### Injection in a use case
 
 ```typescript
 constructor(
-  @Inject(LOGGER_SERVICE)
   private readonly logger: Logger,
-  @Inject(APP_METRICS)
   private readonly metrics: AppMetrics,
 ) {}
 
 async execute(request: ...): Promise<...> {
-  // ... lógica ...
+  // ... logic ...
   this.logger.info('Product created', { productId: id, name, createdBy });
   this.metrics.increment('app_products_created_total');
 }
 
-// Con labels:
-this.metrics.increment('app_audio_generated_total', { provider: 'external-provider' });
+// With labels:
+this.metrics.increment('app_image_generated_total', { provider: 'external-provider' });
 ```
 
-> `APP_METRICS` se inyecta igual que `LOGGER_SERVICE` — el módulo `ObservabilityModule` lo exporta como global.
+> `APP_METRICS` is injected the same way as `LOGGER_SERVICE` — the `ObservabilityModule` module exports it globally.
 
-## Dónde loguear
+## Where to log
 
-### Use Case — eventos de negocio
+### Use case — business events
 
 ```typescript
 async execute(params: { id: string; name: string }): Promise<void> {
@@ -273,14 +121,14 @@ async execute(params: { id: string; name: string }): Promise<void> {
 }
 ```
 
-### Contexto siempre útil
+### Context is always useful
 
 ```typescript
-// ✅ Con identificador del aggregate
+// ✅ With the aggregate identifier
 this.logger.info('Product updated', { productId, userId, field: 'name' });
 this.logger.error('Image generation failed', error, { productId, provider: 'external-provider' });
 
-// ❌ Sin contexto
+// ❌ No context
 this.logger.info('Updated');
 this.logger.error(error.message);
 ```

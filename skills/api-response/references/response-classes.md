@@ -1,6 +1,6 @@
 # Response Classes — Reference
 
-## `ApiResponse<T>` y `PaginatedApiResponse<T>`
+## `ApiResponse<T>` and `PaginatedApiResponse<T>`
 
 ```typescript
 // shared/infrastructure/http/response/api-response.ts
@@ -56,7 +56,6 @@ export interface PaginationMeta {
 
 ```typescript
 // shared/infrastructure/http/resolve-request-id.ts
-import { type Request } from 'express';
 
 export function resolveRequestId(req: Request): string {
   const header = req.headers['x-request-id'];
@@ -69,44 +68,25 @@ export function resolveRequestId(req: Request): string {
 
 > `header` can be a `string[]` when the same header is sent multiple times, so a plain `as string` cast is unsafe.  The real implementation checks `typeof === 'string'` before using the value and rejects empty strings via `.trim()`.  Never use the inline cast pattern shown in the anti-patterns section.
 
-Importar en todos los controllers que devuelvan envelope:
+Import it in all controllers that return an envelope:
 
 ```typescript
 import { resolveRequestId } from '@/shared/infrastructure/http/resolve-request-id';
 ```
 
-## `apiEnvelopeSchema` — Swagger helper
-
-Use this helper when documenting query responses with `@ApiOkResponse`:
-
-```typescript
-// shared/infrastructure/http/response/api-envelope.schema.ts
-import { apiEnvelopeSchema } from '@/shared/infrastructure/http/response/api-envelope.schema';
-
-@ApiOkResponse({
-  description: 'Ranking entries with viewer context',
-  schema: apiEnvelopeSchema({
-    entries: [{ rank: 1, userId: 'user-uuid', score: 12 }],
-    currentUser: { rank: 1, userId: 'user-uuid', score: 12 },
-  }),
-})
-```
-
-This generates an OpenAPI `{ data, meta }` schema fragment from an example value.  Only needed when the generic Swagger types are insufficient to describe the response shape.
-
 ---
 
-## Controllers — ejemplos completos
+## Controllers — complete examples
 
-### Query con paginación (GET)
+These are framework-free versions. The originals with framework markers live in the project's stack skill, in `references/api-response.md`.
+
+### Query with pagination (GET)
 
 ```typescript
-@Get()
-@ApiOperation({ summary: 'Search orders' })
 async handler(
-  @Query() query: SearchOrdersGetQuery,
-  @Req() req: Request,
-  @CurrentUser() user: UserContext,
+  query: SearchOrdersGetQuery,
+  req: Request,
+  user: UserContext,
 ): Promise<PaginatedApiResponse<OrderPrimitives>> {
   const result = await this.searcher.execute({ userId: user.userId, ...query });
 
@@ -128,16 +108,13 @@ async handler(
 }
 ```
 
-### Command con datos (POST → 201)
+### Command with data (POST → 201)
 
 ```typescript
-@Post()
-@HttpCode(HttpStatus.CREATED)
-@ApiCreatedResponse({ description: 'Order created with id and product ids' })
 async handler(
-  @Req() req: Request,
-  @Body() body: StartOrderPostPayload,
-  @CurrentUser() user: UserContext,
+  req: Request,
+  body: StartOrderPostPayload,
+  user: UserContext,
 ): Promise<ApiResponse<ResponseOrderStarter>> {
   const data = await this.starter.execute({
     userId: user.userId ?? null,
@@ -148,34 +125,28 @@ async handler(
 }
 ```
 
-### Command puro (PATCH/DELETE → 204)
+### Pure command (PATCH/DELETE → 204)
 
 ```typescript
-@Patch(':id')
-@HttpCode(HttpStatus.NO_CONTENT)
-async handler(@Param('id') id: string, @Body() payload: UpdateProductPatchPayload): Promise<void> {
+async handler(id: string, payload: UpdateProductPatchPayload): Promise<void> {
   await this.updater.execute({ id, ...payload });
 }
 
-@Delete(':id')
-@HttpCode(HttpStatus.NO_CONTENT)
-async handler(@Param('id') id: string): Promise<void> {
+async handler(id: string): Promise<void> {
   await this.deleter.execute({ id });
 }
 ```
 
-### Excepción legítima: endpoints de auth (tokens + cookies)
+### Legitimate exception: auth endpoints (tokens + cookies)
 
 Auth endpoints (`/auth/login`, `/auth/register`, `/auth/guest`, `/auth/refresh`) do **not** use `ApiResponse<T>`.  They return raw data because:
-- They manage `Set-Cookie` headers for the `refreshToken` via `@Res({ passthrough: true })`
+- They manage `Set-Cookie` headers for the `refreshToken` via a passthrough response object
 - The client only needs `{ accessToken: string }` — wrapping in an envelope adds no value
 
 ```typescript
-@Post('login')
-@HttpCode(HttpStatus.OK)
 async handler(
-  @Body() body: LoginAuthPostPayload,
-  @Res({ passthrough: true }) res: Response,
+  body: LoginAuthPostPayload,
+  res: Response,
 ): Promise<{ accessToken: string }> {
   const result = await this.authenticator.execute({ ... });
   res.cookie('refreshToken', result.refreshTokenId, { httpOnly: true, ... });

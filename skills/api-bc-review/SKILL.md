@@ -1,6 +1,6 @@
 ---
 name: api-bc-review
-description: "Trigger: Al auditar un BC existente, dividir agregados en submódulos, o evaluar si un concepto merece BC propio. Proceso de revisión y refactor de bounded contexts en apps/api/: límites DDD, submódulos, alineación con skills y checklist de deuda."
+description: "Trigger: When auditing an existing BC, splitting aggregates into submodules, or assessing whether a concept deserves its own BC. Bounded context review and refactor process in apps/api/: DDD boundaries, submodules, skill alignment and debt checklist."
 license: Apache-2.0
 metadata:
   author: AbrahamVilchesDeLaCruz
@@ -9,72 +9,73 @@ metadata:
 
 ## Activation Contract
 
-- Al auditar un bounded context existente (como hicimos con `achievement`)
-- Antes de crear un BC nuevo — decidir si es BC propio, submódulo de otro, o shared
-- Cuando un BC crece y mezcla varios agregados sin límites claros
-- Tras un rediseño de dominio (catálogo dinámico, nuevos eventos, backoffice)
+- When auditing an existing bounded context (as we did with `achievement`)
+- Before creating a new BC — deciding whether it is its own BC, a submodule of another, or shared
+- When a BC grows and mixes several aggregates without clear boundaries
+- After a domain redesign (dynamic catalog, new events, backoffice)
 
 ## Hard Rules
 
-- **No sustituye** las skills de capa (`api-domain`, `api-application`, etc.) — las **orquesta** en orden.
-- Usa el checklist de `assets/audit-checklist.md` durante la auditoría.
-- Cargar la skill indicada antes de corregir cada fila de las tablas de Fase 3 y Fase 7.
-- **Prohibido:** capas sueltas (`domain/`, `application/`) en la raíz del BC cuando hay submódulos.
-- **Prohibido** en clases/archivos de dominio y application: `Service`, `Dto` en application y `.response.ts` por controller (alternativas en Fase 4).
+- It **does not replace** the layer skills (`api-domain`, `api-application`, etc.) — it **orchestrates** them in order.
+- Use the checklist in `assets/audit-checklist.md` during the audit.
+- Load the indicated skill before fixing each row of the Phase 3 and Phase 7 tables.
+- **Forbidden:** loose layers (`domain/`, `application/`) at the BC root when there are submodules.
+- **Forbidden** in domain and application classes/files: `Service`, `Dto` in application and `.response.ts` per controller (alternatives in Phase 4).
 
 ## Decision Gates
 
-Fase 1 — ¿Merece bounded context propio? Responder en lenguaje de negocio:
+Phase 1 — Does it deserve its own bounded context? Answer in business language:
 
-| Pregunta | Si sí → |
+| Question | If yes → |
 |----------|---------|
-| ¿Tiene lenguaje ubicuo propio distinto de User/Identity? | BC separado |
-| ¿Su ciclo de vida evoluciona independiente (catálogo, reglas, desbloqueos)? | BC separado |
-| ¿Solo se muestra en perfil/UI de otro módulo? | **No** implica submódulo — es presentación |
-| ¿Es proyección de eventos de otros BCs (como Ranking)? | BC consumer/proyector válido |
-| ¿Referencia `userId` sin ser propiedad del agregado User? | Referencia por ID, no mover a Identity |
+| Does it have its own ubiquitous language, distinct from User/Identity? | Separate BC |
+| Does its lifecycle evolve independently (catalog, rules, unlocks)? | Separate BC |
+| Is it only shown in another module's profile/UI? | Does **not** imply a submodule — it is presentation |
+| Is it a projection of events from other BCs (like Ranking)? | Valid consumer/projector BC |
+| Does it reference `userId` without being a property of the User aggregate? | Reference by ID, do not move to Identity |
 
-**Regla:** si añadir una feature nueva solo toca el BC dueño (+ emisor del evento), el límite está bien.
+**Rule:** if adding a new feature only touches the owning BC (+ the event emitter), the boundary is right.
 
 ## Execution Steps
 
-Detalle de las Fases 2, 3, 4, 6 y 7 en `references/review-phases.md`.
+Details of Phases 2, 3, 4, 6 and 7 are in `references/review-phases.md`.
 
-1. Fase 1: aplica la tabla de Decision Gates.
-2. Fase 2: si el BC tiene **múltiples agregados cohesivos**, dividir en submódulos.
-3. Fase 3: audita la alineación por capa con su tabla.
-4. Fase 4: verifica los sufijos permitidos.
-5. Fase 5 — Orden de refactor recomendado:
-   1. **Límites y submódulos** — estructura de carpetas + `shared/infrastructure/framework/{bc}.module.ts`
-   2. **Dominio** — aggregates, VOs, eventos desde aggregate
-   3. **Application** — use cases, extraer lógica de subscribers
-   4. **Infrastructure** — repos, controllers con envelope, **entity + migration en `typeorm-data-source-options.ts`**
-   5. **Tests unitarios** — migrar paths, Object Mothers, policies/strategies de dominio
-   6. **Operabilidad y contrato** — logger, Swagger, docs (ver Fase 7)
-   7. **E2E API** — al menos un `*.e2e-spec.ts` por endpoint HTTP del BC
-   8. **Cliente** — `ApiEnvelope<T>` + i18n si el copy vive en frontend
-6. Fase 6: detecta fuente de verdad duplicada, decide **una** fuente y documenta en ADR si es decisión de producto.
-7. Fase 7: audita operabilidad, contrato y documentación **después** de límites y capas DDD.
+1. Phase 1: apply the Decision Gates table.
+2. Phase 2: if the BC has **multiple cohesive aggregates**, split into submodules.
+3. Phase 3: audit the per-layer alignment with its table.
+4. Phase 4: verify the allowed suffixes.
+5. Phase 5 — Recommended refactor order:
+   1. **Boundaries and submodules** — folder structure + `shared/infrastructure/framework/{bc}.module.ts`
+   2. **Domain** — aggregates, VOs, events from the aggregate
+   3. **Application** — use cases, extract logic from subscribers
+   4. **Infrastructure** — repos, controllers with envelope, **entity + migration in the ORM data source options**
+   5. **Unit tests** — migrate paths, Object Mothers, domain policies/strategies
+   6. **Operability and contract** — logger, API documentation, docs (see Phase 7)
+   7. **API E2E** — at least one `*.e2e-spec.ts` per HTTP endpoint of the BC
+   8. **Client** — `ApiEnvelope<T>` + i18n if the copy lives in the frontend
+6. Phase 6: detect duplicated source of truth, decide on **one** source and record it in an ADR if it is a product decision.
+7. Phase 7: audit operability, contract and documentation **after** boundaries and DDD layers.
 
 ## Output Contract
 
-### Commits sugeridos por responsabilidad
+### Suggested commits per responsibility
 
-Separar en work units reviewables — un commit por área:
+Separate into reviewable work units — one commit per area:
 
 ```
-feat({bc}): log {evento} in {DomainService}
-feat({bc}): document GET /{recurso} in OpenAPI
-docs({bc}): sync spec, bounded-contexts and rabbitmq design
+feat({bc}): log {event} in {DomainService}
+feat({bc}): document GET /{resource} in OpenAPI
+docs({bc}): sync spec, bounded-contexts and messaging design
 test({bc}): add catalog/domain parity tests
-test({bc}): add GET /{recurso} e2e coverage
+test({bc}): add GET /{resource} e2e coverage
 test({bc}): add domain object mothers
-feat(client): type {recurso} API response with ApiEnvelope
+feat(client): type {resource} API response with ApiEnvelope
 ```
 
 ## References
 
-- [`references/review-phases.md`](references/review-phases.md) — Fases 2, 3, 4, 6 y 7, señales de lag documental y anti-patterns.
-- [`assets/audit-checklist.md`](assets/audit-checklist.md) — checklist de auditoría.
-- [`references/docs.md`](references/docs.md) — referencias DDD y skills relacionadas.
-- `apps/api/AGENTS.md` — submódulos DDD
+- [`references/review-phases.md`](references/review-phases.md) — Phases 2, 3, 4, 6 and 7, documentation lag signals and anti-patterns.
+- [`assets/audit-checklist.md`](assets/audit-checklist.md) — audit checklist.
+- [`references/docs.md`](references/docs.md) — DDD references and related skills.
+- `apps/api/AGENTS.md` — DDD submodules
+- For framework detail, load each stack skill the project uses and read its `references/api-bc-review.md`: HTTP framework (`stack-nestjs`), persistence, testing (`stack-jest`), messaging (`stack-rabbitmq`), observability (`stack-observability`).

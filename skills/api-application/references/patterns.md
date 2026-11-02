@@ -1,19 +1,16 @@
-# Application: patrones y ejemplos
+# Application: patterns and examples
+
+The versions with framework markers live in the project's stack skill, in `references/api-application.md`.
 
 ### Use Cases
 
 ```typescript
 // catalog/product/application/create/product-creator.ts
-@Injectable()
 export class ProductCreator {
   constructor(
-    @Inject(PRODUCT_REPOSITORY)
     private readonly repository: ProductRepository,
-    @Inject(DOMAIN_EVENT_PUBLISHER)
     private readonly publisher: DomainEventPublisher,
-    @Inject(LOGGER_SERVICE)
     private readonly logger: Logger,
-    @Inject(APP_METRICS)
     private readonly metrics: AppMetrics,
   ) {}
 
@@ -45,14 +42,14 @@ export class ProductCreator {
 }
 ```
 
-Re-exportar `Request*` y `Response*` en el mismo archivo del use case:
+Re-export `Request*` and `Response*` in the same file as the use case:
 
 ```typescript
-// order-completer.ts — al inicio del archivo, tras los imports
+// order-completer.ts — at the top of the file, after the imports
 export type { RequestOrderCompleter, ResponseOrderCompleter };
 ```
 
-**Request\* — tipo del input:**
+**Request\* — input type:**
 
 ```typescript
 // catalog/product/application/create/request-product-creator.ts
@@ -64,12 +61,12 @@ export type RequestProductCreator = {
   subcategory: string;
   ipaNotation: string | null;
   nativeSpeech: string | null;
-  examples: { id: string; textEn: string; textEs: string; position: number }[];
+  examples: { id: string; textEn: string; description: string; position: number }[];
   createdBy: string;
 };
 ```
 
-**`Response*` — tipo del output cuando devuelve datos complejos:**
+**`Response*` — output type when it returns complex data:**
 
 ```typescript
 // sales/application/complete/response-order-completer.ts
@@ -84,10 +81,10 @@ export type ResponseOrderCompleter = {
 
 ### Domain Services
 
-Cuando la **misma lógica de dominio** es necesaria en varios use cases, se extrae a un Domain Service en `domain/`. El criterio no es I/O vs no-I/O — es reutilización entre use cases.
+When the **same domain logic** is needed in several use cases, extract it to a Domain Service in `domain/`. The criterion is not I/O vs no-I/O — it is reuse across use cases.
 
 ```typescript
-// sales/domain/guest-order-policy.ts  ← política pura: varios UCs la consultan
+// sales/domain/guest-order-policy.ts  ← pure policy: several use cases query it
 export class GuestOrderPolicy {
   static readonly MAX_CARD_COUNT_FOR_GUEST = 10;
 
@@ -98,12 +95,10 @@ export class GuestOrderPolicy {
 ```
 
 ```typescript
-// catalog/product/domain/product-finder.ts  ← domain service inyectable
-// UpdateProduct, DeleteProduct, etc. todos necesitan primero encontrar la entidad
-@Injectable()
+// catalog/product/domain/product-finder.ts  ← injectable domain service
+// UpdateProduct, DeleteProduct, etc. all need to find the entity first
 export class ProductFinder {
   constructor(
-    @Inject(PRODUCT_REPOSITORY)
     private readonly repository: ProductRepository,
   ) {}
 
@@ -115,7 +110,7 @@ export class ProductFinder {
 }
 ```
 
-### Inyección — nombre por ROL
+### Injection — name by ROLE
 
 ```typescript
 // ✅
@@ -124,32 +119,33 @@ constructor(private readonly finder: ProductFinder) {}
 constructor(private readonly publisher: DomainEventPublisher) {}
 
 // ❌
-constructor(private readonly productRepository: TypeOrmProductRepository) {}
 constructor(private readonly productFinderService: ProductFinderService) {}
 ```
+
+An injected variable is typed with the port, never with the concrete adapter class.
 
 ## Anti-patterns
 
 ```typescript
-// ❌ Primitivos sueltos como parámetros
+// ❌ Loose primitives as parameters
 async execute(name: string, meaning: string, category: string): Promise<void> {}
 // ✅ Request type object
 async execute(request: RequestProductCreator): Promise<void> {}
 
-// ❌ Clase DTO con decoradores en application
+// ❌ DTO class with decorators in application
 export class CreateProductDto { name: string; meaning: string; }
 
-// ❌ Lógica de negocio en use case
+// ❌ Business logic in a use case
 async execute(request): Promise<void> {
-  if (request.name.length > 500) throw new Error('too long'); // va en VO o entidad
+  if (request.name.length > 500) throw new Error('too long'); // belongs in a value object or entity
 }
 
-// ❌ Retornar entidad de dominio
-async execute(id: string): Promise<Product> { ... } // retornar primitivos
+// ❌ Returning a domain entity
+async execute(id: string): Promise<Product> { ... } // return primitives
 
-// ❌ Nombre de inyección repite la clase
+// ❌ Injection name repeats the class
 constructor(private readonly productCreator: ProductCreator) {}
 
-// ❌ Sufijo Service en domain service
+// ❌ Service suffix on a domain service
 export class ProductFinderService {} // ProductFinder
 ```

@@ -1,8 +1,8 @@
 # Subscriber Pattern — Reference
 
-## `Subscriber` abstract (application)
+## Abstract `Subscriber` (application)
 
-**Cero imports de NestJS** — clase pura:
+**Zero framework imports** — a plain class:
 
 ```typescript
 // src/shared/application/subscriber.ts
@@ -33,15 +33,15 @@ export abstract class Subscriber {
 }
 ```
 
-> **¿Por qué `never` en `DomainEventClass`?**
-> En TypeScript los parámetros de funciones/constructores son **contravariantes**.
-> `unknown[]` haría fallar a cualquier subclase con parámetros tipados.
-> `never` en posición de parámetro es el supertipo correcto — acepta cualquier
-> firma de constructor sin necesitar `any` ni `eslint-disable`.
+> **Why `never` in `DomainEventClass`?**
+> In TypeScript, function and constructor parameters are **contravariant**.
+> `unknown[]` would make any subclass with typed parameters fail.
+> `never` in parameter position is the correct supertype — it accepts any
+> constructor signature without needing `any` or `eslint-disable`.
 
-## Subscriber concreto — ejemplo completo
+## Concrete subscriber — full example
 
-El subscriber vive **junto al use case que dispara**, no en una carpeta `subscribers/` propia:
+The subscriber lives **next to the use case it triggers**, not in its own `subscribers/` folder:
 
 ```
 progress/application/
@@ -53,7 +53,6 @@ progress/application/
 
 ```typescript
 // src/progress/application/update/update-product-stats-on-payment-recorded.ts
-import { Inject, Injectable } from '@nestjs/common';
 import { Subscriber } from '@/shared/application/subscriber';
 import {
   type DomainEventConsumer,
@@ -67,7 +66,6 @@ import {
 import { ProductStatsUpdater } from './product-stats-updater';
 import { RandomModuleProgressUpdater } from './random-module-progress-updater';
 
-@Injectable()
 export class ProductStatsUpdaterOnPaymentRecorded extends Subscriber {
   readonly queueName = 'progress.update_product_stats_on_payment_recorded';
   readonly eventName = 'myapp.sales.payments.payment.recorded';
@@ -75,10 +73,8 @@ export class ProductStatsUpdaterOnPaymentRecorded extends Subscriber {
   readonly domainEvent = PaymentRecordedEvent;
 
   constructor(
-    @Inject(DOMAIN_EVENT_CONSUMER) consumer: DomainEventConsumer,
-    @Inject(ProductStatsUpdater)
+    consumer: DomainEventConsumer,
     private readonly productStatsUpdater: ProductStatsUpdater,
-    @Inject(RandomModuleProgressUpdater)
     private readonly randomModuleProgressUpdater: RandomModuleProgressUpdater,
   ) {
     super(consumer);
@@ -108,43 +104,13 @@ export class ProductStatsUpdaterOnPaymentRecorded extends Subscriber {
 
 ## `SubscribersBootstrapper` (infrastructure)
 
-```typescript
-// src/shared/infrastructure/event-bus/subscribers-bootstrapper.ts
-export const SUBSCRIBERS = Symbol('Subscribers');
-
-@Injectable()
-export class SubscribersBootstrapper implements OnModuleInit {
-  constructor(@Inject(SUBSCRIBERS) private readonly subscribers: Subscriber[]) {}
-
-  async onModuleInit(): Promise<void> {
-    await Promise.all(this.subscribers.map((s) => s.init()));
-  }
-}
-```
-
-## Registro en módulo NestJS
+At startup, it initializes every subscriber listed under the `SUBSCRIBERS` token:
 
 ```typescript
-@Module({
-  providers: [
-    // Use cases
-    ProductStatsUpdater,
-    RandomModuleProgressUpdater,
-
-    // Event subscribers
-    ProductStatsUpdaterOnPaymentRecorded,
-    {
-      provide: SUBSCRIBERS,
-      useFactory: (s1: ProductStatsUpdaterOnPaymentRecorded): Subscriber[] => [s1],
-      inject: [ProductStatsUpdaterOnPaymentRecorded],
-    },
-    SubscribersBootstrapper,
-  ],
-})
-export class ProgressModule {}
+await Promise.all(this.subscribers.map((s) => s.init()));
 ```
 
-> `DOMAIN_EVENT_CONSUMER` y `DOMAIN_EVENT_PUBLISHER` se proveen en `SharedModule` — no es necesario redeclararlos en cada módulo de BC.
+`DOMAIN_EVENT_CONSUMER` and `DOMAIN_EVENT_PUBLISHER` are provided in the shared module — they do not need to be redeclared in each BC module.
 
 ## Domain — `DomainEventPublisher` interface
 
@@ -173,4 +139,3 @@ export interface DomainEventConsumer {
 
 export const DOMAIN_EVENT_CONSUMER = Symbol('DomainEventConsumer');
 ```
-

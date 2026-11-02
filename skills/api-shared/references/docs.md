@@ -2,29 +2,18 @@
 
 ## Related Skills
 
-| Skill | Por qué leerla |
+| Skill | Why read it |
 |---|---|
-| `api-di` | Cómo usar los tokens que expone SharedModule (`LOGGER_SERVICE`, `EVENT_BUS`, etc.) |
-| `api-infrastructure` | Módulos de cada BC — se importan en `AppModule` junto con `SharedModule` |
-| `api-criteria` | `Criteria` vive en `shared/domain/` |
-| `api-observability` | `PinoLogger` se registra en `SharedModule` |
+| `api-di` | How to use the tokens SharedModule exposes (`LOGGER_SERVICE`, `EVENT_BUS`, etc.) |
+| `api-infrastructure` | Each BC's modules — imported in `AppModule` together with `SharedModule` |
+| `api-criteria` | `Criteria` lives in `shared/domain/` |
+| `api-observability` | The logger adapter is registered in `SharedModule` |
 
-## External Documentation
-
-- [NestJS — Configuration](https://docs.nestjs.com/techniques/configuration) — `ConfigModule`, `ConfigService`
-- [NestJS — Global Modules](https://docs.nestjs.com/modules#global-modules) — `@Global()` y sus implicaciones
-- [Joi — Validation](https://joi.dev/api/) — schema validation para env vars
-- [TypeORM — Data Source](https://typeorm.io/data-source) — `forRootAsync` con factory
-
-## Why Joi and not Zod for env validation
-
-`@nestjs/config` integra nativamente con Joi via `validationSchema` en `ConfigModule.forRoot()`. Usar Zod requeriría un wrapper adicional. Para este caso específico (validación en bootstrap, no en runtime), Joi es la opción con menos fricción.
-
-Para validación de DTOs en controllers, se usa `class-validator` (ver `api-validation`).
+For DTO validation in controllers, see `api-validation`.
 
 ## Internal Docs
 
-| Doc | Contenido relevante |
+| Doc | Relevant content |
 |---|---|
-| `docs/engineering/backend-architecture.md` | Qué pone en SharedModule vs. qué pone en cada BC module |
-| `docs/engineering/engineering-principles.md` | DRY vs. acoplamiento — cuándo algo merece ser shared y cuándo no |
+| `docs/engineering/backend-architecture.md` | What goes in SharedModule vs. what goes in each BC module |
+| `docs/engineering/engineering-principles.md` | DRY vs. coupling — when something deserves to be shared and when it does not |

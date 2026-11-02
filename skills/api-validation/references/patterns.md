@@ -1,205 +1,72 @@
-# Validation: patrones y ejemplos
+# Validation: patterns and examples
+
+These are framework-free versions. The code with decorators, the bootstrap and the guard live in the project's stack skill, in `references/api-validation.md`.
 
 ## Bootstrap — main.ts
 
-```typescript
-// src/main.ts
-import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
-import { AppModule } from './app.module';
+`src/main.ts` creates the app from `AppModule`, applies global input validation, sets up CORS, the cookie parser, API documentation and the global prefix, then listens on `Number(process.env.PORT ?? 3000)`.
 
-async function bootstrap(): Promise<void> {
-  const app = await NestFactory.create(AppModule);
-
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,              // strip unknown properties
-      forbidNonWhitelisted: true,   // throw on unknown properties
-      transform: true,              // coerce query params / path params to declared types (needed for @Type())
-      errorHttpStatusCode: 422,     // validation errors → 422 Unprocessable Entity
-    }),
-  );
-
-  // ... CORS, cookieParser, Swagger setup, global prefix ...
-
-  const port = Number(process.env.PORT ?? 3000);
-  await app.listen(port);
-}
-
-void bootstrap();
-```
-
-**Por qué `transform: true`:**
-Los query params de HTTP siempre llegan como strings. Con `transform: true`, `@Type(() => Number)` en los Query DTOs convierte automáticamente `"1"` → `1` para que `@IsInt()` y `@Min()` funcionen. Los body JSON ya vienen tipados desde el cliente.
+**Why transform input:**
+HTTP query params always arrive as strings. With input transformation, number coercion in Query DTOs automatically converts `"1"` → `1` so integer and minimum validations work. JSON bodies already arrive typed from the client.
 
 ## Payload — Request Body
 
 ```typescript
 // src/catalog/product/infrastructure/controllers/create-product-post.payload.ts
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import {
-  IsArray,
-  IsInt,
-  IsNotEmpty,
-  IsNumber,
-  IsOptional,
-  IsString,
-  Max,
-  Min,
-  ValidateIf,
-  ValidateNested,
-} from 'class-validator';
-import { Type } from 'class-transformer';
 
 export class ExampleItem {
-  @ApiProperty({ example: '660e8400-e29b-41d4-a716-446655440001' })
-  @IsString()
-  @IsNotEmpty()
   id: string;
 
-  @ApiProperty({ example: 'I need to catch up on my emails.' })
-  @IsString()
-  @IsNotEmpty()
   textEn: string;
 
-  @ApiProperty({ example: 'Necesito ponerme al día con mis correos.' })
-  @IsString()
-  @IsNotEmpty()
-  textEs: string;
+  description: string;
 
-  @ApiProperty({ example: 1, minimum: 1, maximum: 3 })
-  @IsNumber()
-  @IsInt()
-  @Min(1)
-  @Max(3)
   position: number;
 }
 
 export class CreateProductPostPayload {
-  @ApiProperty({ example: '550e8400-e29b-41d4-a716-446655440000' })
-  @IsString()
-  @IsNotEmpty()
   id: string;
 
-  @ApiProperty({ example: 'catch up' })
-  @IsString()
-  @IsNotEmpty()
   name: string;
 
-  @ApiProperty({ example: 'ponerse al día' })
-  @IsString()
-  @IsNotEmpty()
   meaning: string;
 
-  @ApiProperty({ example: 'phrasal_verbs' })
-  @IsString()
-  @IsNotEmpty()
   category: string;
 
-  @ApiProperty({ example: 'daily_life' })
-  @IsString()
-  @IsNotEmpty()
   subcategory: string;
 
-  @ApiPropertyOptional({ example: '/kætʃ ʌp/', nullable: true })
-  @IsOptional()
-  @ValidateIf((_, v) => v !== null)  // valida solo si el valor no es null (permite null explícito)
-  @IsString()
-  @IsNotEmpty()
+  // validates only if the value is not null (allows explicit null)
   ipaNotation: string | null = null;
 
-  @ApiProperty({ type: [ExampleItem] })
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => ExampleItem)
   examples: ExampleItem[];
 }
 ```
+
+Field rules: `ipaNotation` is validated only if the value is not `null` (it allows explicit `null`); `examples` is an array, and each item is validated as an `ExampleItem`.
 
 ## Query — Query Params
 
 ```typescript
 // src/catalog/product/infrastructure/controllers/search-products-get.query.ts
-import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsIn, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
-import { Type } from 'class-transformer';
 
 export class SearchProductsGetQuery {
-  @ApiPropertyOptional({ example: 'native_sounds' })
-  @IsOptional()
-  @IsString()
   category?: string;
 
-  @ApiPropertyOptional({ example: 'vowel_sounds' })
-  @IsOptional()
-  @IsString()
   subcategory?: string;
 
-  @ApiPropertyOptional({
-    enum: ['pending', 'generating', 'ready', 'failed'],
-    example: 'ready',
-  })
-  @IsOptional()
-  @IsIn(['pending', 'generating', 'ready', 'failed'])
   audioStatus?: string;
 
-  @ApiPropertyOptional({ example: 1, minimum: 1, default: 1 })
-  @IsOptional()
-  @Type(() => Number)   // query params siempre llegan como string — @Type() convierte antes de validar
-  @IsInt()
-  @Min(1)
+  // query params always arrive as strings — coercion converts before validating
   page?: number;
 
-  @ApiPropertyOptional({ example: 20, minimum: 1, maximum: 100, default: 20 })
-  @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
-  @Max(100)
   pageSize?: number;
 }
 ```
 
-**`@Type(() => Number)` en Query únicamente** — los query params de HTTP siempre son strings. Con `transform: true` en ValidationPipe, `@Type(() => Number)` convierte `"1"` → `1` para que `@IsInt()` y `@Min()` validen correctamente. No usar `@Type()` en Payloads: el body JSON ya viene tipado.
+**Number coercion in Query only** — HTTP query params are always strings. With input transformation on, the coercion converts `"1"` → `1` so integer and minimum validations validate correctly. Do not coerce in Payloads: the JSON body already arrives typed.
 
-## Guard Global — JwtAuthGuard
+## Global guard
 
-```typescript
-// src/shared/infrastructure/auth/public.decorator.ts
-import { SetMetadata } from '@nestjs/common';
-export const IS_PUBLIC_KEY = 'isPublic';
-export const Public = (): ReturnType<typeof SetMetadata> =>
-  SetMetadata(IS_PUBLIC_KEY, true);
-```
+`JwtAuthGuard` lives in `src/shared/infrastructure/auth/jwt.guard.ts` (not `jwt-auth.guard.ts`). It reads the public marker (`IS_PUBLIC_KEY = 'isPublic'`, from `public.decorator.ts`) on the handler and the class. If the endpoint is public it allows the request; otherwise it applies the JWT check.
 
-```typescript
-// src/shared/infrastructure/auth/jwt.guard.ts  (no jwt-auth.guard.ts)
-import { ExecutionContext, Injectable } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
-import { AuthGuard } from '@nestjs/passport';
-import { IS_PUBLIC_KEY } from './public.decorator';
-
-@Injectable()
-export class JwtAuthGuard extends AuthGuard('jwt') {
-  constructor(private reflector: Reflector) {
-    super();
-  }
-
-  canActivate(context: ExecutionContext) {
-    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
-    if (isPublic) return true;
-    return super.canActivate(context);
-  }
-}
-```
-
-Uso en controller:
-
-```typescript
-@Public()
-@Post('guest')
-async guestLogin(): Promise<void> { ... }
-```
+Mark public endpoints with the public marker, in the controller.

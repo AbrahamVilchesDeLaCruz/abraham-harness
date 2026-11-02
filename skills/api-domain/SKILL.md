@@ -1,76 +1,78 @@
 ---
 name: api-domain
-description: "Trigger: Al crear o modificar aggregates, value objects, interfaces de repositorio o errores de dominio en apps/api/. Convenciones de la capa Domain en la API: AggregateRoot, Value Objects, Repository interface y Domain Errors."
+description: "Trigger: When creating or modifying aggregates, value objects, repository interfaces or domain errors in apps/api/. Domain layer conventions in the API: AggregateRoot, Value Objects, Repository interface and Domain Errors."
 license: Apache-2.0
 metadata:
   author: AbrahamVilchesDeLaCruz
   version: "1.0"
 ---
 
+
 ## Activation Contract
 
-- Al crear un nuevo aggregate root
-- Al crear o modificar un value object
-- Al definir una interface de repositorio
-- Al crear un error de dominio
+- When creating a new aggregate root
+- When creating or modifying a value object
+- When defining a repository interface
+- When creating a domain error
 
 ## Hard Rules
 
 ### Aggregate Root
 
-- Extiende `AggregateRoot<Primitives>` — typed con sus primitivos para forzar `fromPrimitives` y `toPrimitives`.
-- Sin decoradores NestJS ni TypeORM
-- Dos factories estáticas: `create()` para entidades nuevas (registra eventos), `fromPrimitives()` para reconstitución desde persistencia (sin eventos)
-- `Primitives` contiene tipos escalares: `string`, `number`, `boolean`, `Date`, `null` — se permiten arrays y objetos primitivos anidados para entidades hijas
-- Estado mutable (campos que cambian tras la creación) → `private _campo` con getter público
-- Estado inmutable (no cambia tras la creación) → `public readonly campo` directamente en el constructor
-- Lógica de negocio aquí — nunca en los casos de uso
+- Extends `AggregateRoot<Primitives>` — typed with its primitives to force `fromPrimitives` and `toPrimitives`.
+- No framework or persistence-library decorators
+- Two static factories: `create()` for new entities (records events), `fromPrimitives()` for reconstitution from persistence (no events)
+- `Primitives` contains scalar types: `string`, `number`, `boolean`, `Date`, `null` — arrays and nested primitive objects are allowed for child entities
+- Mutable state (fields that change after creation) → `private _field` with a public getter
+- Immutable state (does not change after creation) → `public readonly field` directly in the constructor
+- Business logic goes here — never in use cases
 
 ### Value Objects
 
-- Jerarquía para IDs: `ValueObject<string>` → `StringValueObject` → `UuidValueObject` → `XxxId`.
-- Jerarquía para campos de texto: `ValueObject<string>` → `StringValueObject` → concreto.
-- Sin sufijo `VO` ni `ValueObject` en nombre de archivo ni clase
-- IDs de aggregates extienden `UuidValueObject` (no `StringValueObject` directamente) — validación UUID antes del `super()`
-- IDs compartidos entre BCs van en `shared/domain/`; VOs propios del BC van en su `domain/`
-- Validación en el constructor — lanza `DomainException` si inválido
-- `equals()` heredado — no reimplementar
+- Hierarchy for IDs: `ValueObject<string>` → `StringValueObject` → `UuidValueObject` → `XxxId`.
+- Hierarchy for text fields: `ValueObject<string>` → `StringValueObject` → concrete.
+- No `VO` or `ValueObject` suffix in the file name or class name
+- Aggregate IDs extend `UuidValueObject` (not `StringValueObject` directly) — UUID validation before `super()`
+- IDs shared between BCs go in `shared/domain/`; value objects owned by the BC go in its `domain/`
+- Validation in the constructor — throws `DomainException` if invalid
+- `equals()` is inherited — do not reimplement it
 
 ### Repository Interface
 
-- El contrato base incluye `match`, `search`, `save`, `remove`. Cada aggregate puede añadir métodos adicionales según sus necesidades (p. ej. `count`, `saveAll`). Se exporta también el Symbol de DI junto a la interface.
+- The base contract includes `match`, `search`, `save`, `remove`. Each aggregate may add further methods as needed (e.g. `count`, `saveAll`). The DI Symbol is also exported next to the interface.
 
 ### Domain Errors
 
-- La clase base es `DomainException`, ubicada en `shared/domain/exceptions/domain-exception.ts`.
-- Nombre: `{Entidad}{Problema}` — sin sufijo `Error` ni `Exception`
-- Extienden `DomainException` — nunca `Error` directamente
-- Ubicación: `{bc}/domain/exceptions/` (subfolder, no en la raíz de `domain/`)
-- Solo describen QUÉ pasó — el controller decide el HTTP status
+- The base class is `DomainException`, located in `shared/domain/exceptions/domain-exception.ts`.
+- Name: `{Entity}{Problem}` — no `Error` or `Exception` suffix
+- Extend `DomainException` — never `Error` directly
+- Location: `{bc}/domain/exceptions/` (subfolder, not in the root of `domain/`)
+- They only describe WHAT happened — the controller decides the HTTP status
 
 ## Decision Gates
 
-| Método | Semántica |
+| Method | Semantics |
 | --- | --- |
-| `match(criteria)` | Búsqueda con filtros, orden, paginación |
-| `count(criteria)` | Cuenta sin traer entidades |
-| `search(id)` | Por id — retorna `null` si no existe |
-| `save(aggregate)` | Crea o actualiza (upsert) |
-| `saveAll(list)` | Upsert en lote (cuando aplique) |
-| `remove(id)` | Elimina por id |
+| `match(criteria)` | Search with filters, order, pagination |
+| `count(criteria)` | Counts without fetching entities |
+| `search(id)` | By id — returns `null` if it does not exist |
+| `save(aggregate)` | Creates or updates (upsert) |
+| `saveAll(list)` | Batch upsert (when applicable) |
+| `remove(id)` | Deletes by id |
 
 ## Execution Steps
 
-1. Parte del template del aggregate o value object cuando corresponda.
-2. Aplica las Hard Rules de la pieza que estás creando o modificando.
-3. Contrasta con los anti-patterns de `references/patterns.md`.
+1. Start from the aggregate or value object template when applicable.
+2. Apply the Hard Rules of the piece you are creating or modifying.
+3. Check against the anti-patterns in `references/patterns.md`.
 
 ## Output Contract
 
-Entrega el aggregate, value object, interface de repositorio o error de dominio en la ubicación que indican las Hard Rules.
+Deliver the aggregate, value object, repository interface or domain error in the location the Hard Rules indicate.
 
 ## References
 
-- [`references/patterns.md`](references/patterns.md): código de aggregate root, value objects, repositorio, domain errors y anti-patterns.
-- Usa los templates de [`assets/aggregate-root.template.md`](assets/aggregate-root.template.md) y [`assets/value-object.template.md`](assets/value-object.template.md).
-- Lee [`references/docs.md`](references/docs.md) para invariants vs. domain errors y referencias DDD.
+- [`references/patterns.md`](references/patterns.md): code for aggregate root, value objects, repository, domain errors and anti-patterns.
+- Use the templates in [`assets/aggregate-root.template.md`](assets/aggregate-root.template.md) and [`assets/value-object.template.md`](assets/value-object.template.md).
+- Read [`references/docs.md`](references/docs.md) for invariants vs. domain errors and DDD references.
+- The domain carries no framework code. The project's stack skills (`stack-nestjs` and the persistence `stack-*`) repeat this boundary in `references/api-domain.md`.

@@ -1,64 +1,66 @@
 ---
 name: api-validation
-description: "Trigger: Al configurar ValidationPipe en main.ts, crear Payload o Query DTOs con class-validator, o guards globales. ValidationPipe global, Payload/Query con class-validator en apps/api/."
+description: "Trigger: When configuring global input validation at bootstrap, creating Payload or Query DTOs, or global guards. Global input validation, Payload/Query DTOs in apps/api/."
 license: Apache-2.0
 metadata:
   author: AbrahamVilchesDeLaCruz
   version: "1.0"
 ---
 
+
 ## Activation Contract
 
-- Al configurar el `ValidationPipe` global en `main.ts`
-- Al crear un `Payload` (body) o `Query` (query params) con `class-validator`
-- Al definir guards globales y filtros globales en bootstrap
+- When configuring global input validation in `main.ts`
+- When creating a `Payload` (body) or `Query` (query params) DTO
+- When defining global guards and global filters at bootstrap
 
 ## Hard Rules
 
-### ValidationPipe
+### Global input validation
 
-- `whitelist: true` + `forbidNonWhitelisted: true` — **siempre** — rechaza campos extra
-- `transform: true` + `errorHttpStatusCode: 422` — **siempre** — habilita `@Type()` en queries y mapea errores de validación a 422
+- Strip unknown properties and reject them — **always** — it rejects extra fields
+- Transform input and map validation errors to status 422 — **always** — it enables number coercion in queries and maps validation errors to 422
 
 ### Payload
 
-- Nombre: `{Action}{Entity}{Method}Payload` → `CreateProductPostPayload`
-- Todos los campos son **strings, números o arrays primitivos** — sin Value Objects
-- Nunca `@Type()` en Payloads — el body JSON ya viene tipado
-- Los `example` usan strings UUID hardcodeados — no se importan Value Objects en Payloads
+- Name: `{Action}{Entity}{Method}Payload` → `CreateProductPostPayload`
+- All fields are **strings, numbers or primitive arrays** — no Value Objects
+- Never coerce types in Payloads — the JSON body already arrives typed
+- `example` values use hardcoded UUID strings — Value Objects are not imported in Payloads
 
-### Payload y Query
+### Payload and Query
 
-- `@Type(() => Number)` **solo en Query** para `page`, `pageSize`, `limit` y similares — query params llegan como string desde HTTP
-- `@ApiProperty` / `@ApiPropertyOptional` en todos los campos de Payload y Query — Swagger es obligatorio; en Payload, con `example`
+- Number coercion **only in Query** for `page`, `pageSize`, `limit` and similar — query params arrive as strings from HTTP
+- API documentation on all Payload and Query fields — it is mandatory; in Payload, with `example`
 
-### Guards y filtros
+### Guards and filters
 
-- **Guards y filtros globales no van en `main.ts`** — se registran mediante DI en los módulos de NestJS:
-  - `HttpExceptionFilter` → registrado como `APP_FILTER` en `SharedModule`
-  - `JwtAuthGuard`, `GuestAuthGuard`, etc. → provistos y exportados desde `AuthModule`
-- Los endpoints públicos se marcan con el decorator `@Public()`. Ver skill `api-auth` para el wiring completo.
+- **Global guards and filters do not go in `main.ts`** — they are registered through DI in the modules:
+  - `HttpExceptionFilter` → registered as the global filter in `SharedModule`
+  - `JwtAuthGuard`, `GuestAuthGuard`, etc. → provided and exported from `AuthModule`
+- Public endpoints are marked with the public marker. See skill `api-auth` for the complete wiring.
 
 ## Decision Gates
 
-| Campo | Decoradores |
+| Field | Markers |
 | --- | --- |
-| Para campos opcionales simples | `@IsOptional()` + `@ApiPropertyOptional` |
-| Para campos que aceptan `null` explícito | `@IsOptional()` + `@ValidateIf((_, v) => v !== null)` para saltar validaciones cuando el valor es `null` |
-| Para objetos anidados (arrays de objetos anidados) | `@ValidateNested({ each: true })` + `@Type(() => NestedClass)` + `@IsArray()` |
+| For simple optional fields | Optional validation + optional documentation |
+| For fields that accept explicit `null` | Optional validation + a conditional validation that skips validations when the value is `null` |
+| For nested objects (arrays of nested objects) | Nested validation for each item + type conversion to the nested class + array validation |
 
 ## Execution Steps
 
-1. Configura `ValidationPipe` en `main.ts` con las opciones de las Hard Rules.
-2. Crea el Payload o Query partiendo del template y aplica los Decision Gates.
-3. Registra guards y filtros globales por DI, nunca en `main.ts`.
+1. Configure global input validation in `main.ts` with the options from the Hard Rules.
+2. Create the Payload or Query from the template and apply the Decision Gates.
+3. Register global guards and filters through DI, never in `main.ts`.
 
 ## Output Contract
 
-Entrega la configuración de `main.ts`, el Payload o Query en `infrastructure/controllers/`, o el guard con su decorator `@Public()`.
+Deliver the `main.ts` configuration, the Payload or Query in `infrastructure/controllers/`, or the guard with its public marker.
 
 ## References
 
-- [`references/patterns.md`](references/patterns.md): código de bootstrap, Payload, Query, `JwtAuthGuard` y `@Public()`.
-- Usa el template de [`assets/payload.template.md`](assets/payload.template.md) al crear Payloads y Queries.
-- Lee [`references/docs.md`](references/docs.md) para docs externos de class-validator y ValidationPipe config.
+- [`references/patterns.md`](references/patterns.md): bootstrap, Payload, Query, guard and public marker.
+- Use the template in [`assets/payload.template.md`](assets/payload.template.md) when creating Payloads and Queries.
+- Read [`references/docs.md`](references/docs.md) for related skills and internal docs.
+- Load the project's stack skill for HTTP and validation (`stack-nestjs`) and read its `references/api-validation.md`.

@@ -2,18 +2,16 @@
 
 ## Related Skills
 
-| Skill | Por qué leerla |
+| Skill | Why read it |
 |---|---|
-| `api-domain` | Domain Errors — cómo se definen con `DomainError` base class |
-| `api-infrastructure` | Dónde registrar el `ExceptionRegistry` en el módulo NestJS |
-| `api-response` | Formato de respuesta de error vs respuesta exitosa |
-| `api-shared` | `GlobalExceptionRegistry` vive en SharedModule |
+| `api-domain` | Domain Errors — how they are defined with the `DomainError` base class |
+| `api-infrastructure` | Where to register the `ExceptionRegistry` in the module |
+| `api-response` | Error response format vs successful response |
+| `api-shared` | `GlobalExceptionRegistry` lives in SharedModule |
 
 ## External Documentation
 
-- [NestJS — Exception Filters](https://docs.nestjs.com/exception-filters) — `@Catch()`, `ArgumentsHost`, `HttpException`
-- [NestJS — Built-in Exceptions](https://docs.nestjs.com/exception-filters#built-in-http-exceptions) — `NotFoundException`, `ConflictException`, etc.
-- [HTTP Status Codes — MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status) — referencia completa de status codes
+- [HTTP Status Codes — MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status) — complete reference of status codes
 
 ## Error Response Envelope
 
@@ -27,17 +25,17 @@
 }
 ```
 
-Este formato lo genera `HttpExceptionFilter` automáticamente — no construirlo manualmente en controllers.
+`HttpExceptionFilter` generates this format automatically — do not build it manually in controllers.
 
-- `statusCode`: HTTP status code numérico
-- `message`: mensaje del error (string del domain error, o response body si es `HttpException`)
-- `errorType`: nombre de la clase de la excepción (solo para errores de dominio; `null` para `HttpException`)
-- `path`: URL de la request
+- `statusCode`: numeric HTTP status code
+- `message`: error message (domain error string, or response body if it is a framework HTTP exception)
+- `errorType`: exception class name (only for domain errors; `null` for framework HTTP exceptions)
+- `path`: request URL
 - `timestamp`: ISO 8601
 
 ## Internal Docs
 
-| Doc | Contenido relevante |
+| Doc | Relevant content |
 |---|---|
-| `docs/engineering/backend-architecture.md` | Los errores de dominio se lanzan en Domain, se mapean a HTTP en Infrastructure |
-| `docs/engineering/engineering-principles.md` | SRP — el mapping DomainError→HTTP es una responsabilidad exclusiva del filter |
+| `docs/engineering/backend-architecture.md` | Domain errors are thrown in Domain, mapped to HTTP in Infrastructure |
+| `docs/engineering/engineering-principles.md` | SRP — the DomainError→HTTP mapping is an exclusive responsibility of the filter |

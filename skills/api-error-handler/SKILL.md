@@ -1,53 +1,55 @@
 ---
 name: api-error-handler
-description: "Trigger: Al crear domain errors, al registrar excepciones en un módulo, o al configurar el filtro HTTP en apps/api/. Convenciones de manejo de errores HTTP en la API: GlobalExceptionRegistry, filtros por módulo y HttpExceptionFilter."
+description: "Trigger: When creating domain errors, registering exceptions in a module, or configuring the HTTP filter in apps/api/. HTTP error handling conventions in the API: GlobalExceptionRegistry, per-module registries and HttpExceptionFilter."
 license: Apache-2.0
 metadata:
   author: AbrahamVilchesDeLaCruz
   version: "1.0"
 ---
 
+
 ## Activation Contract
 
-- Al crear un nuevo domain error que debe mapearse a un HTTP status
-- Al añadir un nuevo módulo con sus propias excepciones
-- Al configurar el filtro global de excepciones
+- When creating a new domain error that must map to an HTTP status
+- When adding a new module with its own exceptions
+- When configuring the global exception filter
 
 ## Hard Rules
 
-- **Principio**: cada módulo es responsable de registrar sus propios errores. El mantenimiento va donde vive el código.
-- El domain error **nunca** conoce el HTTP status — eso es responsabilidad de infrastructure
-- Un `ExceptionRegistry` por módulo, uno por feature, en `infrastructure/framework/` — nunca un registry global con todos los errores
-- El registry se inicializa en `onModuleInit()` — garantiza que está listo antes de que lleguen requests
-- Usar `exception.constructor.name` como key — funciona aunque el bundle minifique, porque los nombres de clase son explícitos
+- **Principle**: each module is responsible for registering its own errors. Maintenance goes where the code lives.
+- The domain error **never** knows the HTTP status — that is the responsibility of infrastructure
+- One `ExceptionRegistry` per module, one per feature, in `infrastructure/framework/` — never a global registry with all the errors
+- The registry is initialized in the module-initialization hook — this guarantees it is ready before requests arrive
+- Use `exception.constructor.name` as the key — it works even if the bundle minifies, because class names are explicit
 
 ## Decision Gates
 
-### HTTP status por tipo de error de dominio
+### HTTP status by domain error type
 
-| Tipo de error | HTTP Status |
+| Error type | HTTP Status |
 | --- | --- |
-| Entidad no encontrada (`NotFound`) | `404 NOT_FOUND` |
-| Campo inválido / vacío (`Empty`, `Invalid`) | `422 UNPROCESSABLE_ENTITY` |
-| Conflicto de estado (`AlreadyExists`, `InvalidStatus`) | `409 CONFLICT` |
-| Acción no permitida (`CannotX`) | `400 BAD_REQUEST` |
-| Sin permisos | `403 FORBIDDEN` |
-| Credenciales inválidas / token expirado | `401 UNAUTHORIZED` |
-| Límite de uso superado (`LimitExceeded`) | `429 TOO_MANY_REQUESTS` |
+| Entity not found (`NotFound`) | `404 NOT_FOUND` |
+| Invalid / empty field (`Empty`, `Invalid`) | `422 UNPROCESSABLE_ENTITY` |
+| State conflict (`AlreadyExists`, `InvalidStatus`) | `409 CONFLICT` |
+| Action not allowed (`CannotX`) | `400 BAD_REQUEST` |
+| No permissions | `403 FORBIDDEN` |
+| Invalid credentials / expired token | `401 UNAUTHORIZED` |
+| Usage limit exceeded (`LimitExceeded`) | `429 TOO_MANY_REQUESTS` |
 
 ## Execution Steps
 
-1. Crea el domain error sin HTTP status.
-2. Asigna su status con la tabla en el `{feature}-exception-registry.ts` del módulo.
-3. Registra el registry como provider en el módulo.
-4. Contrasta con los anti-patterns de `references/patterns.md`.
+1. Create the domain error without an HTTP status.
+2. Assign its status with the table in the module's `{feature}-exception-registry.ts`.
+3. Register the registry as a provider in the module.
+4. Check against the anti-patterns in `references/patterns.md`.
 
 ## Output Contract
 
-Entrega el domain error, su entrada en el registry del módulo y el registry como provider del módulo.
+Deliver the domain error, its entry in the module's registry and the registry as a provider of the module.
 
 ## References
 
-- [`references/patterns.md`](references/patterns.md): arquitectura, `GlobalExceptionRegistry`, `HttpExceptionFilter`, registry por módulo y anti-patterns.
-- Usa el template de [`assets/exception-registry.template.md`](assets/exception-registry.template.md) al crear el registry de un nuevo BC.
-- Lee [`references/docs.md`](references/docs.md) para el formato del error envelope y docs externos.
+- [`references/patterns.md`](references/patterns.md): architecture, `GlobalExceptionRegistry`, `HttpExceptionFilter`, per-module registry and anti-patterns.
+- Use the template in [`assets/exception-registry.template.md`](assets/exception-registry.template.md) when creating the registry of a new BC.
+- Read [`references/docs.md`](references/docs.md) for the error envelope format and external docs.
+- Load the project's stack skill for HTTP (`stack-nestjs`) and read its `references/api-error-handler.md`.

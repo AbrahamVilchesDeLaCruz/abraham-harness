@@ -1,6 +1,6 @@
 ---
 name: api-testing
-description: "Trigger: Al crear o modificar tests en apps/api/, al crear Object Mothers, o al mockear puertos. Convenciones de testing en la API: pirámide de tests, Object Mother, estructura de /test, mocks con jest-mock-extended."
+description: "Trigger: When creating or modifying tests in apps/api/, creating Object Mothers, or mocking ports. API testing conventions: test pyramid, Object Mother, /test structure, typed port mocks."
 license: Apache-2.0
 metadata:
   author: AbrahamVilchesDeLaCruz
@@ -9,50 +9,52 @@ metadata:
 
 ## Activation Contract
 
-- Al crear un test de use case o domain service
-- Al crear un Object Mother para aggregate, value object o request
-- Al mockear un repositorio, publisher u otro puerto
-- Al estructurar la carpeta `/test`
+- When creating a use case or domain service test
+- When creating an Object Mother for an aggregate, value object or request
+- When mocking a repository, publisher or other port
+- When structuring the `/test` folder
 
 ## Hard Rules
 
-- La estructura de `/test` replica exactamente la estructura de `/src`
-- **Regla**: faker solo vive en `MotherCreator`. Nunca importar faker directamente en un Mother de dominio.
-- Los use cases se instancian directamente con `new UseCase(dep1, dep2, ...)` en `beforeEach` — no se usa DI container
-- Resetear solo los métodos que el test usa (`.mockReset()`)
-- Usar `JestTimers.setup()` / `JestTimers.teardown()` (de `@test/shared/jest-timers`) cuando el aggregate o evento dependen de `new Date()`
-- Cada Mother en su propio archivo — nunca inline en el spec
-- `random(overrides?)` siempre acepta overrides parciales
-- `from(request)` cuando el use case recibe un objeto de request
-- Value Object Mothers exponen `invalid()` cuando el test lo necesita
-- Un comportamiento por test
-- Imports de src usan el alias `@/`; imports de test usan `@test/`
-- Sin adaptador concreto en test de aplicación, sin estado compartido entre tests, sin string mágico cuando existe un Mother, sin `jest.fn()` para puertos tipados
+- The `/test` structure mirrors the `/src` structure exactly
+- **Rule**: the test-data library lives only in `MotherCreator`. Never import it directly in a domain Mother.
+- Use cases are instantiated directly with `new UseCase(dep1, dep2, ...)` in `beforeEach` — no DI container is used
+- Reset only the mock methods the test uses
+- Freeze the clock with the fake-timers helper, and restore it after the test, when the aggregate or event depends on `new Date()`
+- Each Mother in its own file — never inline in the spec
+- `random(overrides?)` always accepts partial overrides
+- `from(request)` when the use case receives a request object
+- Value Object Mothers expose `invalid()` when the test needs it
+- One behavior per test
+- Imports from src use the `@/` alias; imports from test use `@test/`
+- No concrete adapter in an application test, no state shared between tests, no magic string when a Mother exists, no untyped mock functions for typed ports
 
 ## Decision Gates
 
-| Nivel | Qué testea |
+| Level | What it tests |
 |---|---|
-| **Unit** | aggregates, value objects, domain services — rápidos, sin I/O |
-| **Integration** | use cases con puertos mockeados — nunca adaptadores concretos |
-| **E2E** | flujos HTTP completos — solo los caminos críticos |
+| **Unit** | aggregates, value objects, domain services — fast, no I/O |
+| **Integration** | use cases with mocked ports — never concrete adapters |
+| **E2E** | full HTTP flows — only the critical paths |
 
-| Puerto | Estrategia |
+| Port | Strategy |
 |---|---|
-| Repository | `mock<ProductRepository>()` |
-| DomainEventPublisher | `mock<DomainEventPublisher>()` |
-| Domain services / ports | `mock<PortOrService>()` |
+| Repository | `createMock<ProductRepository>()` |
+| DomainEventPublisher | `createMock<DomainEventPublisher>()` |
+| Domain services / ports | `createMock<PortOrService>()` |
 
 ## Execution Steps
 
-1. Ubica el test y sus Mothers con `references/test-structure.md`.
-2. Compón los Mothers con la jerarquía de `references/test-structure.md`; parte de la plantilla `assets/object-mother.template.md`.
-3. Escribe el spec con el patrón canónico de `references/use-case-spec.md`.
-4. Revisa los anti-patterns de `references/test-structure.md`.
+1. Place the test and its Mothers with `references/test-structure.md`.
+2. Compose the Mothers with the hierarchy in `references/test-structure.md`; start from the template `assets/object-mother.template.md`.
+3. Write the spec with the canonical pattern in `references/use-case-spec.md`.
+4. Review the anti-patterns in `references/test-structure.md`.
 
 ## References
 
-- [`references/use-case-spec.md`](references/use-case-spec.md) — patrón canónico completo del test de use case, implementaciones completas de Mothers, mocks y nomenclatura de describe.
-- [`references/test-structure.md`](references/test-structure.md) — pirámide, estructura de `/test`, jerarquía de Mothers y anti-patterns.
-- [`assets/object-mother.template.md`](assets/object-mother.template.md) — plantilla genérica de Object Mother.
-- [`references/docs.md`](references/docs.md) — skills relacionadas, ADRs y documentación externa.
+- [`references/use-case-spec.md`](references/use-case-spec.md) — full canonical use case test pattern, Object Mother examples, mocks and describe naming.
+- [`references/test-structure.md`](references/test-structure.md) — pyramid, `/test` structure, Mother hierarchy and anti-patterns.
+- [`assets/object-mother.template.md`](assets/object-mother.template.md) — generic Object Mother template.
+- [`references/docs.md`](references/docs.md) — related skills, ADRs and documentation.
+- Load the project's stack skill for testing (`stack-jest`) and read its `references/api-testing.md` for the mock library, fake timers, `MotherCreator` and primitive Mothers.
+- Load the project's stack skill for the HTTP framework (`stack-nestjs`) and read its `references/api-testing.md` for E2E tests.

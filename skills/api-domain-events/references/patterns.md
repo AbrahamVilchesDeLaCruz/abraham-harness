@@ -1,4 +1,4 @@
-# Domain Events — Patrones
+# Domain Events — Patterns
 
 ### DomainEvent base class
 
@@ -22,9 +22,9 @@ export abstract class DomainEvent {
 }
 ```
 
-### Definición de un evento — patrón canónico
+### Defining an event — canonical pattern
 
-Nombre: `{Aggregate}{ActionPast}Event` — PascalCase, sufijo `Event`.
+Name: `{Aggregate}{ActionPast}Event` — PascalCase, `Event` suffix.
 
 ```typescript
 // catalog/product/domain/events/product-created.event.ts
@@ -63,7 +63,7 @@ export class ProductCreatedEvent extends DomainEvent {
 }
 ```
 
-### Registro en el aggregate
+### Recording in the aggregate
 
 ```typescript
 // sales/domain/order.ts
@@ -97,11 +97,11 @@ recordPayment(productId: string, correct: boolean, productModule: string | null)
 }
 ```
 
-Los `attributes` contienen los campos relevantes del aggregate para el evento — habitualmente un subconjunto de `toPrimitives()` o los valores necesarios para los subscribers.
+The `attributes` contain the aggregate's fields relevant to the event — usually a subset of `toPrimitives()` or the values subscribers need.
 
-### Attributes tipado explícito
+### Explicitly typed attributes
 
-Cuando el evento tiene atributos específicos, extender `DomainEventAttributes`:
+When the event has specific attributes, extend `DomainEventAttributes`:
 
 ```typescript
 // sales/domain/events/payment-recorded.event.ts
@@ -133,7 +133,7 @@ export class PaymentRecordedEvent extends DomainEvent {
 }
 ```
 
-### Ubicación de archivos
+### File location
 
 ```
 {bc}/{module}/domain/
@@ -148,28 +148,28 @@ export class PaymentRecordedEvent extends DomainEvent {
 ## Anti-patterns
 
 ```typescript
-// ❌ eventName como propiedad de instancia — colisiona con el método abstracto
+// ❌ eventName as an instance property — collides with the abstract method
 export class ProductCreatedEvent extends DomainEvent {
   readonly eventName = 'myapp.catalog.product.created'; // COMPILE ERROR
   eventName(): string { ... }                                        // DUPLICATE IDENTIFIER
 }
 
-// ✅ Correcto — static + método de instancia
+// ✅ Correct — static + instance method
 export class ProductCreatedEvent extends DomainEvent {
   static readonly EVENT_NAME = 'myapp.catalog.product.created';
   eventName(): string { return ProductCreatedEvent.EVENT_NAME; }
 }
 
-// ❌ Sin sufijo Event
+// ❌ No Event suffix
 export class ProductCreated extends DomainEvent {}
 
-// ❌ eventName con camelCase o guiones
+// ❌ eventName with camelCase or hyphens
 static readonly EVENT_NAME = 'myapp.catalogProduct.created';
 
-// ❌ Disparar eventos fuera del aggregate
-// en use case:
-this.record(new ProductCreatedEvent(...)); // va dentro del aggregate method
+// ❌ Raising events outside the aggregate
+// in a use case:
+this.record(new ProductCreatedEvent(...)); // belongs inside the aggregate method
 
-// ❌ fromPrimitives con parámetros en orden distinto
-static fromPrimitives(attributes, aggregateId, ...): XxxEvent {} // orden fijo: aggregateId, eventId, occurredOn, attributes
+// ❌ fromPrimitives with parameters in a different order
+static fromPrimitives(attributes, aggregateId, ...): XxxEvent {} // fixed order: aggregateId, eventId, occurredOn, attributes
 ```

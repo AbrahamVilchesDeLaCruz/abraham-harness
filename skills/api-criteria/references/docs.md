@@ -2,38 +2,33 @@
 
 ## Related Skills
 
-| Skill | Por qué leerla |
+| Skill | Why read it |
 |---|---|
-| `api-infrastructure` | `match()` en repositorios TypeORM — implementación con QueryBuilder |
-| `api-application` | Use cases — dónde se construye el `Criteria` |
-| `api-shared` | `Criteria` vive en `shared/domain/` |
-| `api-validation` | Query DTOs — de donde vienen los filtros y paginación |
-
-## External Documentation
-
-- [TypeORM — SelectQueryBuilder](https://typeorm.io/select-query-builder) — `andWhere`, `orderBy`, `take`, `skip`
-- [TypeORM — Parameter binding](https://typeorm.io/select-query-builder#adding-where-name) — `:param` syntax para prevenir SQL injection
+| `api-infrastructure` | `match()` in persistence repositories — implementation with a query builder |
+| `api-application` | Use cases — where `Criteria` is built |
+| `api-shared` | `Criteria` lives in `shared/domain/` |
+| `api-validation` | Query DTOs — where filters and pagination come from |
 
 ## Pattern Origin
 
-El patrón Criteria es una forma de encapsular los parámetros de una query en un objeto de dominio. Permite que el use case exprese *qué* quiere buscar sin depender de los detalles de la infraestructura de persistencia.
+The Criteria pattern is a way to encapsulate the parameters of a query in a domain object. It lets the use case express *what* it wants to search for without depending on the details of the persistence infrastructure.
 
-Referencia: [Specification Pattern — Martin Fowler](https://martinfowler.com/apsupp/spec.pdf) (versión simplificada sin composición booleana)
+Reference: [Specification Pattern — Martin Fowler](https://martinfowler.com/apsupp/spec.pdf) (simplified version without boolean composition)
 
 ## SQL Injection Safety
 
-El QueryBuilder usa parámetros nombrados (`:param`) — nunca interpolación de strings. Esto previene SQL injection:
+The query builder uses named parameters (`:param`) — never string interpolation. This prevents SQL injection:
 
 ```typescript
-// ✅ Seguro — parametrizado
+// ✅ Safe — parameterized
 qb.andWhere(`g.${filter.field} = :p_status`, { p_status: filter.value });
 
-// ❌ Vulnerable — interpolación directa
+// ❌ Vulnerable — direct interpolation
 qb.andWhere(`g.status = '${filter.value}'`);
 ```
 
 ## Internal Docs
 
-| Doc | Contenido relevante |
+| Doc | Relevant content |
 |---|---|
-| `docs/engineering/backend-architecture.md` | Por qué `Criteria` vive en Domain (transversal, sin dependencias de infrastructure) |
+| `docs/engineering/backend-architecture.md` | Why `Criteria` lives in Domain (cross-cutting, no infrastructure dependencies) |

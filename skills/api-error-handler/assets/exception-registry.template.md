@@ -1,46 +1,18 @@
 # Exception Registry Template
 
-Copy this template when adding error handling to a new module.
+Use this when adding error handling to a new module. The registry code lives in the project's stack skill, in `references/api-error-handler.md`.
 
 ## File: `{context}/infrastructure/framework/{context}-exception-registry.ts`
 
-```typescript
-import { HttpStatus, Injectable, OnModuleInit } from '@nestjs/common';
-import { GlobalExceptionRegistry } from '@/shared/infrastructure/exceptions/global-exception-registry';
-import { {Entity}NotFound } from '../../domain/exceptions/{entity}-not-found';
-import { {Entity}AlreadyExists } from '../../domain/exceptions/{entity}-already-exists';
-// Import all domain errors of this BC
+The registry `{Context}ExceptionRegistry`:
 
-@Injectable()
-export class {Context}ExceptionRegistry implements OnModuleInit {
-  constructor(private readonly globalRegistry: GlobalExceptionRegistry) {}
-
-  onModuleInit(): void {
-    this.globalRegistry.register(
-      new Map<string, number>([
-        [{Entity}NotFound.name, HttpStatus.NOT_FOUND],
-        [{Entity}AlreadyExists.name, HttpStatus.CONFLICT],
-        // Add more domain errors here
-      ]),
-    );
-  }
-}
-```
+- Receives `GlobalExceptionRegistry` in its constructor.
+- In the module-initialization hook, calls `globalRegistry.register()` with a `Map<string, number>` that maps each domain error's `.name` to its HTTP status, for example `{Entity}NotFound` to not found and `{Entity}AlreadyExists` to conflict.
+- Imports all the domain errors of this BC.
 
 ## Register in the module
 
-```typescript
-// {context}/infrastructure/framework/{context}.module.ts
-@Module({
-  providers: [
-    {Context}ExceptionRegistry, // ← just add as provider; onModuleInit runs automatically
-    // ... other providers
-  ],
-})
-export class {Context}Module {}
-```
-
-> The registry itself implements `OnModuleInit` — NestJS calls `onModuleInit()` automatically after the module is initialized, before the first request arrives. The module class does **not** need to implement `OnModuleInit`.
+Just add `{Context}ExceptionRegistry` as a provider of `{Context}Module`; its initialization hook runs automatically after the module is initialized, before the first request arrives. The registry itself implements the hook. The module class does **not** need to implement it.
 
 ## HTTP Status mapping reference
 
@@ -56,8 +28,8 @@ export class {Context}Module {}
 
 ## Checklist
 
-- [ ] Un registry por bounded context — no mezclar errores de distintos BCs
-- [ ] Todos los domain errors del BC están registrados antes del primer request
-- [ ] `GlobalExceptionRegistry` es el único punto donde se mapea DomainError → HTTP
-- [ ] El registry implementa `OnModuleInit` — no el módulo
-- [ ] El registry está declarado como provider en el módulo NestJS del BC
+- [ ] One registry per bounded context — do not mix errors from different BCs
+- [ ] All the BC's domain errors are registered before the first request
+- [ ] `GlobalExceptionRegistry` is the only place where DomainError → HTTP is mapped
+- [ ] The registry implements the initialization hook — not the module
+- [ ] The registry is declared as a provider in the BC's module

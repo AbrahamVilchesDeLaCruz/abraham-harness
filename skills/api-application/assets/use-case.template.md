@@ -1,11 +1,10 @@
 # Use Case Template
 
-Copy this template when creating a new use case. Replace all `{Placeholders}`.
+Copy this template when creating a new use case. Replace all `{Placeholders}`. Add the injection markers and framework imports from the project's stack skill.
 
 ## File: `{context}/application/{verb}/{entity}-{verb}er.ts`
 
 ```typescript
-import { Injectable, Inject } from '@nestjs/common';
 import {
   type {Entity}Repository,
   {ENTITY}_REPOSITORY,
@@ -23,13 +22,12 @@ import { type Response{Entity}{Verb}er } from './response-{entity}-{verb}er';
 
 export type { Request{Entity}{Verb}er, Response{Entity}{Verb}er };
 
-@Injectable()
 export class {Entity}{Verb}er {
   constructor(
-    @Inject({ENTITY}_REPOSITORY) private readonly repository: {Entity}Repository,
-    @Inject(DOMAIN_EVENT_PUBLISHER) private readonly publisher: DomainEventPublisher,
-    @Inject(LOGGER_SERVICE) private readonly logger: Logger,
-    @Inject(APP_METRICS) private readonly metrics: AppMetrics,
+    private readonly repository: {Entity}Repository,
+    private readonly publisher: DomainEventPublisher,
+    private readonly logger: Logger,
+    private readonly metrics: AppMetrics,
   ) {}
 
   async execute(request: Request{Entity}{Verb}er): Promise<Response{Entity}{Verb}er> {
@@ -70,12 +68,12 @@ export type Response{Entity}{Verb}er = {
 
 ## Checklist
 
-- [ ] Un use case = una responsabilidad — si hace más de una cosa, separar
-- [ ] Recibe `Request*` type — nunca payload HTTP ni Criteria directamente
-- [ ] `repository.save()` **antes** de `publisher.publish()`
-- [ ] `publisher.publish()` presente — los use cases de write siempre publican eventos
-- [ ] `logger.info()` al final del flujo feliz
-- [ ] `metrics.increment()` con nombre `app_{entities}_{verb}ed_total`
-- [ ] Domain errors lanzados desde el aggregate/VO, no desde el use case
-- [ ] `@Inject(TOKEN)` para todos los puertos — nunca inyección por tipo concreto
-- [ ] Re-export de `Request*` y `Response*` en el mismo archivo del use case
+- [ ] One use case = one responsibility — if it does more than one thing, split it
+- [ ] Receives a `Request*` type — never an HTTP payload or Criteria directly
+- [ ] `repository.save()` **before** `publisher.publish()`
+- [ ] `publisher.publish()` present — write use cases always publish events
+- [ ] `logger.info()` at the end of the happy path
+- [ ] `metrics.increment()` with the name `app_{entities}_{verb}ed_total`
+- [ ] Domain errors thrown from the aggregate/value object, not from the use case
+- [ ] All ports injected by token — never injection by concrete type
+- [ ] Re-export of `Request*` and `Response*` in the same file as the use case

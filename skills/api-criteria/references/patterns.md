@@ -1,6 +1,6 @@
-# Criteria: patrones y ejemplos
+# Criteria: patterns and examples
 
-## Estructura de `Criteria`
+## `Criteria` structure
 
 ```typescript
 // shared/domain/criteria.ts
@@ -25,10 +25,10 @@ export type Filter = { field: string; operator: FilterOperator; value: unknown; 
 export type Order  = { field: string; direction: OrderDirection; };
 ```
 
-## Construcción — siempre `new Criteria([...])`
+## Construction — always `new Criteria([...])`
 
 ```typescript
-// Criteria con filtros, orden y paginación
+// Criteria with filters, order and pagination
 const criteria = new Criteria(
   [
     { field: 'userId', operator: FilterOperator.EQ, value: userId },
@@ -40,15 +40,15 @@ const criteria = new Criteria(
   0,   // offset
 );
 
-// value: null → IS NULL / IS NOT NULL (el repositorio lo traduce)
+// value: null → IS NULL / IS NOT NULL (the repository translates it)
 const criteria = new Criteria([
   { field: 'finishedAt', operator: FilterOperator.EQ, value: null },  // IS NULL
 ]);
 ```
 
-## Filtros opcionales — construcción condicional
+## Optional filters — conditional construction
 
-Cuando no todos los filtros son obligatorios, construir el array dinámicamente:
+When not all filters are required, build the array dynamically:
 
 ```typescript
 const filters: Filter[] = [];
@@ -61,9 +61,9 @@ if (request.subcategory)
 const criteria = new Criteria(filters, null, pageSize, (page - 1) * pageSize);
 ```
 
-## Paginación con `page`/`pageSize` y `count()`
+## Pagination with `page`/`pageSize` and `count()`
 
-El cliente envía `page` + `pageSize` (más natural que `offset`). El use case convierte y ejecuta `match` y `count` en paralelo:
+The client sends `page` + `pageSize` (more natural than `offset`). The use case converts them and runs `match` and `count` in parallel:
 
 ```typescript
 // request: { page?: number; pageSize?: number }
@@ -74,7 +74,7 @@ const criteria = new Criteria(filters, null, pageSize, (page - 1) * pageSize);
 
 const [items, total] = await Promise.all([
   this.repository.match(criteria),
-  this.repository.count(criteria),  // mismo Criteria — sin duplicar filtros
+  this.repository.count(criteria),  // same Criteria — no duplicated filters
 ]);
 
 return { data: items.map(i => i.toPrimitives()), total, page, pageSize };
@@ -83,18 +83,18 @@ return { data: items.map(i => i.toPrimitives()), total, page, pageSize };
 ## Anti-patterns
 
 ```typescript
-// ❌ Criteria construido en el controller
+// ❌ Criteria built in the controller
 const criteria = new Criteria([...]);
-await this.searcher.execute(criteria); // el use case recibe Request*, no Criteria
+await this.searcher.execute(criteria); // the use case receives Request*, not Criteria
 
-// ❌ Repositorio recibe filtros sueltos
+// ❌ Repository receives loose filters
 async findByUserId(userId: string): Promise<Order[]> {}
 
-// ❌ QueryBuilder directo sin Criteria
+// ❌ Direct query without Criteria
 this.repo.find({ where: { userId } });
 
-// ❌ match() que ignora criteria
+// ❌ match() that ignores criteria
 async match(criteria: Criteria): Promise<Order[]> {
-  return this.repo.find(); // criteria ignorado
+  return this.repo.find(); // criteria ignored
 }
 ```

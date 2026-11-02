@@ -2,18 +2,16 @@
 
 ## Related Skills
 
-| Skill | Por qué leerla |
+| Skill | Why read it |
 |---|---|
-| `api-domain` | `DomainEvent` base class, `AggregateRoot.record()` y `pullDomainEvents()` |
-| `api-events` | `EventBus` interface, `Subscriber` abstract — cómo se consumen los eventos |
-| `api-events-infra` | `AmqpMessageBus` — cómo se publican y consumen en RabbitMQ |
-| `api-application` | Cuándo llamar a `eventBus.publish()` en el use case |
+| `api-domain` | `DomainEvent` base class, `AggregateRoot.record()` and `pullDomainEvents()` |
+| `api-events` | `EventBus` interface, `Subscriber` abstract — how events are consumed |
+| `api-events-infra` | The message bus adapter — how events are published and consumed on the broker |
+| `api-application` | When to call `eventBus.publish()` in the use case |
 
 ## External Documentation
 
-- [Domain Events — Domain-Driven Design Reference (Evans)](https://www.domainlanguage.com/ddd/reference/) — definición canónica
-- [NestJS — Event Emitter](https://docs.nestjs.com/techniques/events) — alternativa in-process (no usamos esta, usamos AMQP)
-- [RabbitMQ — Topic Exchange](https://www.rabbitmq.com/tutorials/tutorial-five-javascript) — cómo funciona el exchange con `eventName` como routing key
+- [Domain Events — Domain-Driven Design Reference (Evans)](https://www.domainlanguage.com/ddd/reference/) — canonical definition
 
 ## Event Naming Reference
 
@@ -24,7 +22,7 @@ Entity:     product | order | user | payment | stat
 Verb:       created | updated | deleted | completed | recorded | migrated
 ```
 
-Ejemplos canónicos del proyecto:
+Canonical project examples:
 - `myapp.catalog.product.created`
 - `myapp.sales.orders.order.completed`
 - `myapp.sales.payments.payment.recorded`
@@ -32,6 +30,6 @@ Ejemplos canónicos del proyecto:
 
 ## Internal Docs
 
-| Doc | Contenido relevante |
+| Doc | Relevant content |
 |---|---|
-| `docs/engineering/engineering-principles.md` | Por qué los eventos tienen atributos primitivos (inmutabilidad, serialización) |
+| `docs/engineering/engineering-principles.md` | Why events have primitive attributes (immutability, serialization) |

@@ -2,37 +2,35 @@
 
 ## Related Skills
 
-| Skill | Por qué leerla |
+| Skill | Why read it |
 |---|---|
-| `api-infrastructure` | Controllers — dónde se usa `ApiResponse.of()` |
-| `api-validation` | Query DTOs — de donde vienen `page` y `limit` para `PaginationMeta` |
-| `api-error-handler` | Formato de respuesta de error — distinto al envelope exitoso |
-| `api-criteria` | Paginación construida en el use case, totals devueltos al controller |
+| `api-infrastructure` | Controllers — where `ApiResponse.of()` is used |
+| `api-validation` | Query DTOs — where `page` and `limit` for `PaginationMeta` come from |
+| `api-error-handler` | Error response format — different from the success envelope |
+| `api-criteria` | Pagination built in the use case, totals returned to the controller |
 
 ## External Documentation
 
-- [HTTP Status Codes — MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status) — referencia completa
-- [REST API Design — Pagination](https://www.moesif.com/blog/technical/api-design/REST-API-Design-Filtering-Sorting-and-Pagination/) — convenciones de paginación
-- [NestJS — Response](https://docs.nestjs.com/controllers#response) — `@HttpCode`, `@Header`, `Res`
+- [HTTP Status Codes — MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status) — complete reference
+- [REST API Design — Pagination](https://www.moesif.com/blog/technical/api-design/REST-API-Design-Filtering-Sorting-and-Pagination/) — pagination conventions
 
 ## CQRS Inspiration
 
-El patrón de respuesta sigue el principio CQRS (Command Query Responsibility Segregation):
-- **Queries** (GET) → siempre retornan datos — usan el envelope `ApiResponse<T>`
-- **Commands** (PATCH, DELETE, acciones POST) → retornan solo el resultado de la operación — `void` + status code
+The response pattern follows the CQRS (Command Query Responsibility Segregation) principle:
+- **Queries** (GET) → always return data — they use the `ApiResponse<T>` envelope
+- **Commands** (PATCH, DELETE, POST actions) → return only the operation result — `void` + status code
 
-Esto hace que el API sea predecible: si el endpoint es GET, siempre hay un `data` field.
+This makes the API predictable: if the endpoint is GET, there is always a `data` field.
 
 ## Internal Docs
 
-| Doc | Contenido relevante |
+| Doc | Relevant content |
 |---|---|
-| `docs/engineering/backend-architecture.md` | Envelopes en Infrastructure — los use cases devuelven primitivos, los controllers envuelven |
+| `docs/engineering/backend-architecture.md` | Envelopes in Infrastructure — use cases return primitives, controllers wrap them |
 
-## Archivos de infraestructura relevantes
+## Relevant infrastructure files
 
-| Archivo | Propósito |
+| File | Purpose |
 |---|---|
 | `shared/infrastructure/http/response/api-response.ts` | `ApiResponse<T>`, `PaginatedApiResponse<T>`, `ResponseMeta`, `PaginationMeta` |
-| `shared/infrastructure/http/resolve-request-id.ts` | `resolveRequestId(req)` — obtiene o genera el request ID |
-| `shared/infrastructure/http/response/api-envelope.schema.ts` | `apiEnvelopeSchema(example)` — helper para Swagger `@ApiOkResponse({ schema: ... })` |
+| `shared/infrastructure/http/resolve-request-id.ts` | `resolveRequestId(req)` — gets or generates the request ID |

@@ -1,20 +1,20 @@
-# DI: patrones y ejemplos
+# DI: patterns and examples
 
 ## Concept
 
-El dominio y la aplicación **no deben saber que NestJS existe**. Para lograrlo, cada interfaz tiene un token de inyección propio que no importa nada de `@nestjs/common`.
+The domain and the application **must not know the framework exists**. To achieve this, each interface has its own injection token that imports nothing from the framework.
 
 ```
-Interface (domain)       → define el contrato
-Token (domain/shared)    → Symbol — el identificador de DI
-Implementation (infra)   → clase concreta que implementa la interface
-Registration (module)    → NestJS conecta token → implementación
-Injection (use case)     → @Inject(TOKEN) — único punto de contacto con NestJS
+Interface (domain)       → defines the contract
+Token (domain/shared)    → Symbol — the DI identifier
+Implementation (infra)   → concrete class that implements the interface
+Registration (module)    → the framework connects token → implementation
+Injection (use case)     → injection marker with the token — the only point of contact with the framework
 ```
 
 ## Token Definition
 
-Los tokens son `Symbol` — no strings (colisiones), no clases de NestJS (acoplamiento).
+Tokens are `Symbol` — not strings (collisions), not framework classes (coupling).
 
 ```typescript
 // src/sales/domain/order.repository.ts
@@ -28,11 +28,11 @@ export interface OrderRepository {
   match(criteria: Criteria): Promise<Order[]>;
 }
 
-// El token vive junto a la interface — en domain
+// The token lives next to the interface — in domain
 export const ORDER_REPOSITORY = Symbol('OrderRepository');
 ```
 
-El patrón se replica para cualquier abstracción:
+The pattern repeats for any abstraction:
 
 ```typescript
 // src/shared/domain/domain-event-publisher.ts
@@ -56,71 +56,17 @@ export const APP_METRICS = Symbol('AppMetrics');
 
 ## Registration in Module
 
-### `useClass` — caso más común (repositorios, servicios)
+The infrastructure module connects each token to its implementation. Registration code lives in the project's stack skill.
 
-```typescript
-// src/sales/infrastructure/framework/sales.module.ts
-import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { ORDER_REPOSITORY } from '@/sales/domain/order.repository';
-import { TypeOrmOrderRepository } from '@/sales/infrastructure/persistence/typeorm-order.repository';
-import { OrderEntity } from '@/sales/infrastructure/persistence/order.entity';
-import { OrderStarter } from '@/sales/application/start/order-starter';
-import { StartOrderPostController } from '@/sales/infrastructure/controllers/start-order-post.controller';
-import { SharedModule } from '@/shared/infrastructure/framework/shared.module';
-
-@Module({
-  imports: [SharedModule, TypeOrmModule.forFeature([OrderEntity])],
-  controllers: [StartOrderPostController],
-  providers: [
-    // Ports
-    { provide: ORDER_REPOSITORY, useClass: TypeOrmOrderRepository },
-    // Use cases
-    OrderStarter,
-  ],
-  // Solo exportar tokens que otros módulos necesitan
-  exports: [],
-})
-export class SalesModule {}
-```
-
-### `useExisting` — singleton compartido bajo múltiples tokens
-
-```typescript
-// src/shared/infrastructure/framework/shared.module.ts
-@Global()
-@Module({
-  providers: [
-    AmqpMessageBus,
-    // Un singleton, dos contratos distintos
-    { provide: DOMAIN_EVENT_PUBLISHER, useExisting: AmqpMessageBus },
-    { provide: DOMAIN_EVENT_CONSUMER, useExisting: AmqpMessageBus },
-    { provide: LOGGER_SERVICE, useClass: PinoLogger },
-  ],
-  exports: [LOGGER_SERVICE, DOMAIN_EVENT_PUBLISHER, DOMAIN_EVENT_CONSUMER],
-})
-export class SharedModule {}
-```
-
-### `useFactory` — providers que dependen de múltiples instancias
-
-```typescript
-// Registrar una lista de subscribers tipados
-{
-  provide: SUBSCRIBERS,
-  useFactory: (
-    onOrderCompleted: StreakUpdaterOnOrderCompleted,
-  ): Subscriber[] => [onOrderCompleted],
-  inject: [StreakUpdaterOnOrderCompleted],
-},
-SubscribersBootstrapper,
-```
+- Bind to a class — most common case (repositories, services).
+- Alias to an existing singleton — singleton shared under multiple tokens: one singleton, two distinct contracts.
+- Bind to a factory — providers that depend on multiple instances, such as a list of typed subscribers.
+- Export only the tokens that other modules need.
 
 ## Injection in Use Case
 
 ```typescript
 // src/sales/application/complete/order-completer.ts
-import { Inject, Injectable } from '@nestjs/common';
 import {
   type OrderRepository,
   ORDER_REPOSITORY,
@@ -132,13 +78,12 @@ import {
 import { type Logger, LOGGER_SERVICE } from '@/shared/domain/logger';
 import { type AppMetrics, APP_METRICS } from '@/shared/domain/app-metrics';
 
-@Injectable()
 export class OrderCompleter {
   constructor(
-    @Inject(ORDER_REPOSITORY) private readonly repository: OrderRepository,
-    @Inject(DOMAIN_EVENT_PUBLISHER) private readonly publisher: DomainEventPublisher,
-    @Inject(LOGGER_SERVICE) private readonly logger: Logger,
-    @Inject(APP_METRICS) private readonly metrics: AppMetrics,
+    private readonly repository: OrderRepository,
+    private readonly publisher: DomainEventPublisher,
+    private readonly logger: Logger,
+    private readonly metrics: AppMetrics,
   ) {}
 }
 ```

@@ -1,21 +1,22 @@
-# Error handling: patrones y ejemplos
+# Error handling: patterns and examples
 
-### Arquitectura del sistema de errores
+Framework code for the filter and the registries lives in the project's stack skill, in `references/api-error-handler.md`.
+
+### Error system architecture
 
 ```
 shared/infrastructure/exceptions/
-├── global-exception-registry.ts   ← registro global (Map<exceptionName, HttpStatus>)
-└── http-exception.filter.ts       ← @Catch() — aplica el registry
+├── global-exception-registry.ts   ← global registry (Map<exceptionName, status>)
+└── http-exception.filter.ts       ← catches everything — applies the registry
 
 {feature}/infrastructure/framework/
-└── {feature}-exception-registry.ts  ← registra los errores del módulo en onModuleInit()
+└── {feature}-exception-registry.ts  ← registers the module's errors in the module-initialization hook
 ```
 
 ### GlobalExceptionRegistry — shared
 
 ```typescript
 // shared/infrastructure/exceptions/global-exception-registry.ts
-@Injectable()
 export class GlobalExceptionRegistry {
   private readonly statusCodes = new Map<string, number>();
 
@@ -33,110 +34,33 @@ export class GlobalExceptionRegistry {
 
 ### HttpExceptionFilter — shared
 
-```typescript
-// shared/infrastructure/exceptions/http-exception.filter.ts
-@Catch()
-@Injectable()
-export class HttpExceptionFilter implements ExceptionFilter {
-  constructor(
-    private readonly registry: GlobalExceptionRegistry,
-    @Inject(LOGGER_SERVICE) private readonly logger: Logger,
-  ) {}
+`HttpExceptionFilter` catches every exception. It receives `GlobalExceptionRegistry` and the `LOGGER_SERVICE` port:
 
-  catch(exception: unknown, host: ArgumentsHost): void {
-    const ctx = host.switchToHttp();
-    const response = ctx.getResponse<Response>();
-    const request = ctx.getRequest<Request>();
+- Defaults: status `500`, message `'Internal server error'`, `errorType` `null`.
+- A framework HTTP exception keeps its own status and response as the message.
+- Any other `Error`: use the status registered for `exception.constructor.name` when there is one; the message is `exception.message` and `errorType` is `exception.constructor.name`.
+- Logs with the context `{ status, path, method, errorType }`: `status >= 500` logs an error `'Unhandled exception'`; `status >= 400` with an `errorType` logs a warning with the error message; any other `status >= 400` logs a warning with the message, or `'HTTP client error'` when the message is not a string.
+- Responds with `status` and the JSON body `{ statusCode, message, errorType, path, timestamp }`, where `timestamp` is `new Date().toISOString()`.
 
-    let status: number = HttpStatus.INTERNAL_SERVER_ERROR;
-    let message: string | object = 'Internal server error';
-    let errorType: string | null = null;
+### Exception Registry per module
 
-    if (exception instanceof HttpException) {
-      status = exception.getStatus();
-      message = exception.getResponse();
-    } else if (exception instanceof Error) {
-      const registered = this.registry.getStatusCode(exception.constructor.name);
-      if (registered !== undefined) status = registered;
-      message = exception.message;
-      errorType = exception.constructor.name;
-    }
+`ProductExceptionRegistry` lives in `products/infrastructure/framework/product-exception-registry.ts`. It receives `GlobalExceptionRegistry` and, in the module-initialization hook, registers a `Map<string, number>` with `ProductNotFound.name` → not found, `ProductNameEmpty.name` → unprocessable entity and `ProductAlreadyExists.name` → conflict.
 
-    const logContext = { status, path: request.url, method: request.method, errorType };
-
-    if (status >= 500) {
-      this.logger.error('Unhandled exception', exception instanceof Error ? exception : undefined, logContext);
-    } else if (status >= 400 && errorType !== null) {
-      this.logger.warn(exception instanceof Error ? exception.message : 'Domain error', logContext);
-    } else if (status >= 400) {
-      const msg = typeof message === 'string' ? message : 'HTTP client error';
-      this.logger.warn(msg, logContext);
-    }
-
-    response.status(status).json({
-      statusCode: status,
-      message,
-      errorType,
-      path: request.url,
-      timestamp: new Date().toISOString(),
-    });
-  }
-}
-```
-
-### Exception Registry por módulo
-
-```typescript
-// products/infrastructure/framework/product-exception-registry.ts
-@Injectable()
-export class ProductExceptionRegistry implements OnModuleInit {
-  constructor(private readonly globalRegistry: GlobalExceptionRegistry) {}
-
-  onModuleInit() {
-    this.globalRegistry.register(
-      new Map<string, number>([
-        [ProductNotFound.name, HttpStatus.NOT_FOUND],
-        [ProductNameEmpty.name, HttpStatus.UNPROCESSABLE_ENTITY],
-        [ProductAlreadyExists.name, HttpStatus.CONFLICT],
-      ]),
-    );
-  }
-}
-```
-
-Registrarlo como provider en el módulo:
-
-```typescript
-// products/infrastructure/framework/product.module.ts
-@Module({
-  providers: [
-    ProductCreator,
-    ProductFinder,
-    ProductExceptionRegistry, // ← aquí
-    { provide: PRODUCT_REPOSITORY, useClass: TypeOrmProductRepository },
-  ],
-})
-export class ProductModule {}
-```
+Register it as a provider in the module.
 
 ## Anti-patterns
 
 ```typescript
-// ❌ Domain error con HTTP status
+// ❌ Domain error with an HTTP status
 export class ProductNotFound extends DomainException {
-  readonly statusCode = 404; // el dominio no sabe de HTTP
+  readonly statusCode = 404; // the domain knows nothing about HTTP
 }
 
-// ❌ Registry global con todos los errores de todos los módulos
+// ❌ Global registry with all the errors of all modules
 globalRegistry.register(new Map([
   [ProductNotFound.name, 404],
-  [OrderNotFound.name, 404],   // esto va en order-exception-registry.ts
+  [OrderNotFound.name, 404],   // this belongs in order-exception-registry.ts
 ]));
-
-// ❌ Try/catch en controller para mapear errores
-try {
-  await this.creator.execute(...);
-} catch (e) {
-  if (e instanceof ProductNotFound) throw new NotFoundException();
-}
 ```
+
+A try/catch in a controller to map errors to HTTP exceptions is also forbidden.

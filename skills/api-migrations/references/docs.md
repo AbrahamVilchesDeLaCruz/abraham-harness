@@ -2,16 +2,14 @@
 
 ## Related Skills
 
-| Skill | Por qué leerla |
+| Skill | Why read it |
 |---|---|
-| `api-infrastructure` | TypeORM entities — reflejan la estructura que las migrations crean |
-| `api-shared` | `TypeOrmModule` — `synchronize: false`, `migrationsRun: false` |
+| `api-infrastructure` | ORM entities — they reflect the structure that migrations create |
+| `api-shared` | The ORM module — automatic schema synchronization and running migrations at startup are both off |
 
 ## External Documentation
 
-- [TypeORM — Migrations](https://typeorm.io/migrations) — `generate`, `run`, `revert`, `show`
-- [TypeORM — Migration API](https://typeorm.io/migrations#using-migration-api-to-write-migrations) — `QueryRunner` methods
-- [PostgreSQL — ALTER TABLE](https://www.postgresql.org/docs/current/sql-altertable.html) — referencia SQL para columnas y constraints
+- [PostgreSQL — ALTER TABLE](https://www.postgresql.org/docs/current/sql-altertable.html) — SQL reference for columns and constraints
 
 ## Migration commands
 
@@ -32,12 +30,12 @@ pnpm migration:run:local
 pnpm seed:local
 ```
 
-> Las migraciones se crean a mano — no hay script `migration:generate`. Ver `assets/migration.template.md` para el template.
+> Migrations are created by hand — there is no `migration:generate` script. See `assets/migration.template.md` for the template.
 
-## Template disponible
+## Available template
 
-- `assets/migration.template.md` — template para migrations TypeORM
+- `assets/migration.template.md` — template for migrations
 
-## Never use `synchronize: true` in production
+## Never enable automatic schema synchronization in production
 
-`synchronize: true` aplica cambios de schema automáticamente al arrancar — puede borrar columnas o datos en producción. Siempre usar migrations explícitas.
+Automatic schema synchronization applies schema changes at startup — it can drop columns or data in production. Always use explicit migrations.

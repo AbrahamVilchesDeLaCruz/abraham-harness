@@ -1,158 +1,66 @@
 # Auth Strategies & Guards — Reference
 
-## JWT Strategy
+Strategies and guards are adapters in `shared/infrastructure/auth/`. The framework implementation of each one is in the HTTP framework stack skill, in `references/api-auth.md`.
 
-Valida el access token Bearer. Lee el secret via `ConfigService` (nunca `process.env` directo).
+## JWT strategy
 
-```typescript
-// shared/infrastructure/auth/jwt.strategy.ts
-@Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
-  constructor(config: ConfigService) {
-    super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      ignoreExpiration: false,
-      secretOrKey: config.get<string>('JWT_SECRET')!,
-    });
-  }
+Validates the Bearer access token, and rejects expired tokens. Reads the secret through the configuration adapter (never `process.env` directly). It returns the token payload as a `UserContext`, which is attached to the request's user.
 
-  validate(payload: UserContext): UserContext {
-    return payload; // se adjunta a request.user
-  }
-}
-```
+## Guest strategy
 
-## Guest Strategy
+Same structure as the JWT strategy — it also validates a Bearer JWT, but it is registered under the name `'guest'`. Guest and user tokens share the same secret; the payload's `type` field tells them apart. A guest context has `type: 'guest'` and no `userId`.
 
-Misma estructura que `JwtStrategy` — también valida un JWT Bearer, pero registrada con el
-nombre `'guest'`. Los tokens guest y user comparten el mismo secret; el campo `type` del
-payload los distingue.
+## Google strategy
+
+The callback URL comes from env, it is not hardcoded. The scopes are `email` and `profile`.
 
 ```typescript
-// shared/infrastructure/auth/guest.strategy.ts
-@Injectable()
-export class GuestStrategy extends PassportStrategy(Strategy, 'guest') {
-  constructor(config: ConfigService) {
-    super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      ignoreExpiration: false,
-      secretOrKey: config.get<string>('JWT_SECRET')!,
-    });
-  }
-
-  validate(payload: UserContext): UserContext {
-    return payload; // type: 'guest' — sin userId
-  }
-}
-```
-
-## Google Strategy
-
-```typescript
-// shared/infrastructure/auth/google.strategy.ts
-@Injectable()
-export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
-  constructor(config: ConfigService) {
-    super({
-      clientID: config.get<string>('GOOGLE_CLIENT_ID')!,
-      clientSecret: config.get<string>('GOOGLE_CLIENT_SECRET')!,
-      callbackURL: config.get<string>('GOOGLE_CALLBACK_URL')!, // desde env, no hardcoded
-      scope: ['email', 'profile'],
-    });
-  }
-
-  validate(
-    _accessToken: string,
-    _refreshToken: string,
-    profile: Profile,
-  ): UserContext {
-    return {
-      type: 'user',           // ← 'user', no 'registered'
-      deviceId: crypto.randomUUID(),
-      fingerprint: '',        // fingerprint no disponible en OAuth callback
-      ip: '',
-      userId: profile.id,
-      email: profile.emails?.[0]?.value,
-      roles: ['user'],
-    };
-  }
+validate(
+  _accessToken: string,
+  _refreshToken: string,
+  profile,
+): UserContext {
+  return {
+    type: 'user',           // ← 'user', not 'registered'
+    deviceId: crypto.randomUUID(),
+    fingerprint: '',        // fingerprint not available in the OAuth callback
+    ip: '',
+    userId: profile.id,
+    email: profile.emails?.[0]?.value,
+    roles: ['user'],
+  };
 }
 ```
 
 ## Guards
 
-```typescript
-// shared/infrastructure/auth/jwt.guard.ts
-@Injectable()
-export class JwtAuthGuard extends AuthGuard('jwt') {}
+- `JwtAuthGuard` uses the JWT strategy, and `GuestAuthGuard` uses the guest strategy.
+- `AnyAuthGuard` accepts a registered JWT OR a guest token, and tries both strategies in order.
+- `RolesGuard` is used only with `JwtAuthGuard`. With no required roles, it allows the request. Otherwise the user must have one of the required roles.
 
-// shared/infrastructure/auth/guest.guard.ts
-@Injectable()
-export class GuestAuthGuard extends AuthGuard('guest') {}
+## `Public` — marker for endpoints with no authentication
 
-// shared/infrastructure/auth/any-auth.guard.ts
-// Acepta JWT registrado O guest — NestJS intenta ambas strategies en orden
-@Injectable()
-export class AnyAuthGuard extends AuthGuard(['jwt', 'guest']) {}
+Use it on endpoints that require no token. It records explicitly that the endpoint is public, instead of simply not adding a guard.
 
-// shared/infrastructure/auth/roles.guard.ts — solo con JwtAuthGuard
-@Injectable()
-export class RolesGuard implements CanActivate {
-  constructor(private reflector: Reflector) {}
-  canActivate(ctx: ExecutionContext): boolean {
-    const roles = this.reflector.getAllAndOverride<string[]>('roles', [
-      ctx.getHandler(),
-      ctx.getClass(),
-    ]);
-    if (!roles) return true;
-    const { user } = ctx.switchToHttp().getRequest<{ user: UserContext }>();
-    return roles.some(r => user.roles?.includes(r));
-  }
-}
-```
+## `CurrentUser` — parameter accessor
 
-## @Public — decorator para endpoints sin autenticación
+Returns the request's user as a `UserContext`.
 
-```typescript
-// shared/infrastructure/auth/public.decorator.ts
-export const IS_PUBLIC_KEY = 'isPublic';
-export const Public = (): ReturnType<typeof SetMetadata> =>
-  SetMetadata(IS_PUBLIC_KEY, true);
-```
+## `Roles` — metadata marker
 
-Úsalo en endpoints que no requieren ningún token. Deja constancia explícita de que el endpoint
-es público en lugar de simplemente no poner guard.
+Declares the roles that `RolesGuard` requires.
 
-## @CurrentUser — decorator de parámetro
+## Guest → registered flow (token swap)
 
-```typescript
-// shared/infrastructure/auth/current-user.decorator.ts
-export const CurrentUser = createParamDecorator(
-  (_data: unknown, ctx: ExecutionContext): UserContext => {
-    const request = ctx.switchToHttp().getRequest<{ user: UserContext }>();
-    return request.user;
-  },
-);
-```
+The `deviceId` is kept between guest and registered — it is the traceability key.
 
-## @Roles — decorator de metadatos
+1. The guest calls `POST /auth/guest` → the backend generates the `deviceId` with `crypto.randomUUID()` and includes it in the token
+2. The guest registers or logs in → the use case receives `guestContext.deviceId` and propagates it to the new token
+3. The client discards the guest token and uses the new access token
 
-```typescript
-// shared/infrastructure/auth/roles.decorator.ts
-export const Roles = (...roles: string[]) => SetMetadata('roles', roles);
-```
+The backend **always** generates the `deviceId`. It is never accepted from the client.
 
-## Flujo guest → registered (token swap)
-
-El `deviceId` se mantiene entre guest y registered — es la clave de trazabilidad.
-
-1. Guest llama a `POST /auth/guest` → backend genera `deviceId` con `crypto.randomUUID()` y lo incluye en el token
-2. Guest se registra/hace login → el use case recibe el `guestContext.deviceId` y lo propaga al nuevo token
-3. El cliente descarta el guest token y usa el nuevo access token
-
-El `deviceId` **siempre lo genera el backend**. Nunca se acepta del cliente.
-
-## Estructura de archivos del BC identity
+## File structure of the identity BC
 
 ```
 shared/infrastructure/auth/
@@ -169,8 +77,8 @@ shared/infrastructure/auth/
 ├── current-user.decorator.ts
 └── auth.module.ts
 
-identity/                         ← BC de identidad (submódulos)
-├── session/                      ← agregado Session (refresh tokens)
+identity/                         ← identity BC (submodules)
+├── session/                      ← Session aggregate (refresh tokens)
 │   ├── domain/
 │   ├── application/
 │   │   ├── authenticate/guest-authenticator.ts
@@ -179,19 +87,19 @@ identity/                         ← BC de identidad (submódulos)
 │   └── infrastructure/
 │       ├── controllers/
 │       └── persistence/
-├── user/                         ← agregado User
+├── user/                         ← User aggregate
 │   ├── application/
 │   │   ├── authenticate/oauth-authenticator.ts
 │   │   ├── login/user-authenticator.ts
 │   │   ├── register/user-registrar.ts
 │   │   └── migrate-guest/guest-progress-migrator.ts
 │   └── infrastructure/
-└── shared/                       ← wiring NestJS del BC identity
+└── shared/                       ← framework wiring of the identity BC
     └── infrastructure/
         └── framework/identity.module.ts
 ```
 
-## UserContext — tipo compartido
+## UserContext — shared type
 
 ```typescript
 // shared/domain/user-context.ts
@@ -199,44 +107,31 @@ export type UserType = 'guest' | 'user' | 'staff' | 'admin';
 
 export type UserContext = {
   type: UserType;
-  deviceId: string;    // UUID generado por el backend — no falsificable
-  fingerprint?: string; // hash(userAgent + acceptLanguage + ip) — opcional
+  deviceId: string;    // UUID generated by the backend — cannot be forged
+  fingerprint?: string; // hash(userAgent + acceptLanguage + ip) — optional
   ip: string;
-  userId?: string;     // solo user / staff / admin
-  email?: string;      // solo user / staff / admin
-  roles?: string[];    // solo user / staff / admin
+  userId?: string;     // only user / staff / admin
+  email?: string;      // only user / staff / admin
+  roles?: string[];    // only user / staff / admin
 };
 ```
 
-
-## Uso de guards en controllers
-
-```typescript
-@UseGuards(JwtAuthGuard)                          // solo usuarios registrados (type: user/staff/admin)
-@UseGuards(GuestAuthGuard)                        // solo guests
-@UseGuards(AnyAuthGuard)                          // registrado o guest (acepta ambos tokens)
-@UseGuards(JwtAuthGuard, RolesGuard) @Roles('admin')  // admin
-// Sin guard → endpoint público. Usa @Public() para dejar constancia explícita
-@Public()
-```
+## Receiving the user in a controller
 
 ```typescript
 async handler(
-  @CurrentUser() user: UserContext,
+  user: UserContext,
 ): Promise<void> {
   await this.useCase.execute({ userId: user.userId });
 }
 ```
 
+## Permissions — examples
 
-## Permisos — ejemplos
-
-**Ownership en controller:**
+**Ownership in the controller:**
 
 ```typescript
-@Get()
-@UseGuards(JwtAuthGuard)
-async handler(@Query() query: SearchProductsGetQuery, @CurrentUser() user: UserContext) {
+async handler(query: SearchProductsGetQuery, user: UserContext) {
   const filters = [
     ...query.filters ?? [],
     { field: 'userId', operator: '=', value: user.userId },
@@ -245,10 +140,10 @@ async handler(@Query() query: SearchProductsGetQuery, @CurrentUser() user: UserC
 }
 ```
 
-**Permiso de negocio en use case:**
+**Business permission in the use case:**
 
 ```typescript
-// El use case recibe userId del Request* (construido por el controller con user.userId)
+// The use case receives userId from Request* (built by the controller with user.userId)
 async execute(request: RequestProductPublisher): Promise<void> {
   const product = await this.finder.findOrFail(new ProductId(request.id));
   if (product.ownerId.value !== request.userId) {
@@ -259,20 +154,19 @@ async execute(request: RequestProductPublisher): Promise<void> {
 }
 ```
 
-
 ## Anti-patterns
 
 ```typescript
-// ❌ Access token en localStorage
+// ❌ Access token in localStorage
 localStorage.setItem('token', accessToken);
 
-// ❌ deviceId del cliente sin verificar
+// ❌ deviceId from the client without verification
 const deviceId = req.headers['x-device-id'];
 
-// ❌ Ownership check en use case cuando es solo un filtro
+// ❌ Ownership check in the use case when it is only a filter
 const all = await this.repository.match(...);
-return all.filter(f => f.userId === userId); // va en controller con criteria
+return all.filter(f => f.userId === userId); // belongs in the controller with criteria
 
-// ❌ Lógica de permisos de negocio en controller
+// ❌ Business permission logic in the controller
 if (user.roles.includes('admin') && product.status === 'draft') { ... }
 ```

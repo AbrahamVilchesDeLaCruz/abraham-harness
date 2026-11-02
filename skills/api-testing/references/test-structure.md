@@ -1,19 +1,20 @@
-# Testing — Estructura y Anti-patterns
+# Testing — Structure and Anti-patterns
 
-## Pirámide de tests
+## Test pyramid
 
 ```
          /\
-        /  \   E2E (pocos, lentos)
+        /  \   E2E (few, slow)
        /────\
-      /      \  Integration — Application con mocks de puerto
+      /      \  Integration — Application with port mocks
      /────────\
-    /          \  Unit — Domain (muchos, rápidos)
+    /          \  Unit — Domain (many, fast)
    /────────────\
+```
 
-## Estructura de `/test`
+## `/test` structure
 
-Replica exactamente la estructura de `/src`:
+Mirrors the `/src` structure exactly:
 
 ```
 apps/api/src/products/
@@ -30,52 +31,43 @@ apps/api/test/products/
     └── image-url-mother.ts
 ```
 
-Mothers de primitivos compartidos:
+Shared primitive Mothers:
 
 ```
 apps/api/test/shared/domain/
-├── mother-creator.ts    ← faker vive aquí — único punto de cambio
+├── mother-creator.ts    ← the test-data library lives here — single point of change
 ├── string-mother.ts
 ├── uuid-mother.ts
 ├── date-mother.ts
 └── boolean-mother.ts
 ```
 
-Helper de timers compartido:
+The shared fake-timers helper lives in `apps/api/test/shared/`.
+
+## Mother hierarchy
 
 ```
-apps/api/test/shared/jest-timers.ts   ← JestTimers.setup() / teardown()
-```
-
-## Jerarquía de Mothers
-
-```
-MotherCreator          ← faker — único punto de cambio de librería
+MotherCreator          ← test-data library — single point of library change
       ↓
 StringMother / UuidMother / NumberMother
       ↓
-ProductIdMother      ← Mother del VO, usa UuidMother
+ProductIdMother      ← VO Mother, uses UuidMother
       ↓
-ProductMother        ← compone los Mothers de sus VOs
+ProductMother        ← composes its VOs' Mothers
       ↓
-RequestProductCreatorMother  ← Mother del Request* del use case
+RequestProductCreatorMother  ← Mother of the use case's Request*
 ```
 
 ## Anti-patterns
 
 ```typescript
-// ❌ Adaptador concreto en test de aplicación
-const repository = new TypeOrmProductRepository(dataSource);
+// ❌ State shared between tests
+let sharedProduct: Product; // outside beforeEach
 
-// ❌ Estado compartido entre tests
-let sharedProduct: Product; // fuera de beforeEach
-
-// ❌ String mágico cuando existe un Mother
+// ❌ Magic string when a Mother exists
 const product = Product.fromPrimitives({ id: "123", name: "test", description: "test" });
-
-// ❌ Mother inline en el spec
-const mother = { id: uuid(), name: faker.lorem.word() };
-
-// ❌ jest.fn() para puertos tipados
-const repository = { save: jest.fn(), search: jest.fn() };
 ```
+
+- ❌ Concrete adapter in an application test
+- ❌ Inline Mother in the spec
+- ❌ Untyped mock functions for typed ports

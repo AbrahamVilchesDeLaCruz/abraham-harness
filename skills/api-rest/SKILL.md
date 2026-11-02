@@ -1,79 +1,81 @@
 ---
 name: api-rest
-description: "Trigger: Al diseñar o implementar endpoints en apps/api/. Convenciones RESTful de la API: rutas, métodos HTTP, status codes y acciones DDD con POST."
+description: "Trigger: When designing or implementing endpoints in apps/api/. RESTful API conventions: routes, HTTP methods, status codes and DDD actions with POST."
 license: Apache-2.0
 metadata:
   author: AbrahamVilchesDeLaCruz
   version: "1.0"
 ---
 
+
 ## Activation Contract
 
-- Al diseñar rutas de un nuevo recurso
-- Al elegir el método HTTP correcto para una acción
-- Al decidir el status code de una respuesta
-- Al modelar acciones de dominio que no encajan en CRUD puro
+- When designing the routes of a new resource
+- When choosing the correct HTTP method for an action
+- When deciding the status code of a response
+- When modeling domain actions that do not fit pure CRUD
 
 ## Hard Rules
 
-- Recursos en `kebab-case` plural: `/products`, `/reviews-sessions`
-- Sin verbos en la ruta: nunca `/products/create` ni `/getProduct`
-- Anidamiento máximo de 2 niveles: `/collections/:id/products` — si necesitás más, replantear
-- IDs siempre en el path, nunca en el body para GET/DELETE
-- Las acciones DDD van siempre sobre un recurso existente: `/orders/:id/{acción}`.
-- Todo endpoint debe estar documentado con Swagger. Los decoradores se aplican en dos niveles: clase y método.
-- Incluir solo los status codes que el endpoint puede devolver realmente — no añadir decoradores genéricos que no apliquen.
-- El método de acción siempre se llama `handler`.
-- Cada acción HTTP es un controller independiente. Ver skill `api-infrastructure` para naming y payloads.
-- Todos los controllers del recurso se registran en el módulo.
-- **Request**: validado con `class-validator` + DTO solo en el controller (no pasa a application)
-- **Response**: primitivos planos — nunca entidades de dominio
-- **snake_case** en JSON de respuesta cuando es convención del equipo — decidir y ser consistente
-- Query params de listados: el controller los extrae y pasa a use case como primitivos — ver skill `api-criteria`.
+- Resources in plural `kebab-case`: `/products`, `/reviews-sessions`
+- No verbs in the route: never `/products/create` or `/getProduct`
+- Maximum nesting of 2 levels: `/collections/:id/products` — if you need more, rethink it
+- IDs always in the path, never in the body for GET/DELETE
+- DDD actions always act on an existing resource: `/orders/:id/{action}`.
+- Every endpoint must be documented in the API documentation (OpenAPI). The documentation markers apply at two levels: class and method.
+- Include only the status codes the endpoint can really return — do not add generic markers that do not apply.
+- The action method is always called `handler`.
+- Each HTTP action is an independent controller. See skill `api-infrastructure` for naming and payloads.
+- All the resource's controllers are registered in the module.
+- **Request**: validated with a validation DTO only in the controller (it does not pass into application)
+- **Response**: flat primitives — never domain entities
+- **snake_case** in the response JSON when it is the team's convention — decide and be consistent
+- List query params: the controller extracts them and passes them to the use case as primitives — see skill `api-criteria`.
 
 ## Decision Gates
 
 ### Status codes
 
-| Situación | Status |
+| Situation | Status |
 | --- | --- |
-| GET exitoso con resultado | `200 OK` |
-| GET exitoso sin resultado (lista vacía) | `200 OK` con `[]` |
-| POST creación de recurso exitosa | `201 CREATED` |
-| PATCH / POST acción DDD exitosa sin body | `204 NO CONTENT` |
-| PATCH / POST acción DDD exitosa con body | `200 OK` |
-| Recurso no encontrado | `404 NOT FOUND` |
-| Validación fallida (campo inválido) | `422 UNPROCESSABLE ENTITY` |
-| Conflicto de estado | `409 CONFLICT` |
-| No autorizado (sin token) | `401 UNAUTHORIZED` |
-| Sin permisos (token válido, acción prohibida) | `403 FORBIDDEN` |
+| Successful GET with a result | `200 OK` |
+| Successful GET without a result (empty list) | `200 OK` with `[]` |
+| Successful resource creation POST | `201 CREATED` |
+| Successful PATCH / POST DDD action without a body | `204 NO CONTENT` |
+| Successful PATCH / POST DDD action with a body | `200 OK` |
+| Resource not found | `404 NOT FOUND` |
+| Failed validation (invalid field) | `422 UNPROCESSABLE ENTITY` |
+| State conflict | `409 CONFLICT` |
+| Unauthorized (no token) | `401 UNAUTHORIZED` |
+| No permissions (valid token, forbidden action) | `403 FORBIDDEN` |
 
-- Las acciones DDD con POST (`/orders/:id/complete`, `/orders/:id/resume`) usan `200 OK` si devuelven body o `204 NO CONTENT` si no. Nunca `201` — ese código es exclusivo de creaciones de recurso.
-- `POST /orders` (sin `:id`) es creación de recurso → devuelve `201 CREATED`.
+- DDD actions with POST (`/orders/:id/complete`, `/orders/:id/resume`) use `200 OK` if they return a body or `204 NO CONTENT` if not. Never `201` — that code is exclusive to resource creation.
+- `POST /orders` (without `:id`) is resource creation → returns `201 CREATED`.
 
-### Cuándo usar acción DDD vs PATCH
+### When to use a DDD action vs PATCH
 
-Cuando una acción de dominio no es CRUD puro — tiene semántica propia — se modela como sub-recurso con POST.
+When a domain action is not pure CRUD — it has its own semantics — model it as a sub-resource with POST.
 
-| Criterio | Usar PATCH | Usar POST /{acción} |
+| Criterion | Use PATCH | Use POST /{action} |
 | --- | --- | --- |
-| Cambio de datos simples | ✅ | |
-| Transición de estado con reglas de negocio | | ✅ |
-| La acción tiene nombre en el dominio (`review`, `archive`, `start`) | | ✅ |
-| Idempotente | ✅ | depende |
+| Simple data change | ✅ | |
+| State transition with business rules | | ✅ |
+| The action has a name in the domain (`review`, `archive`, `start`) | | ✅ |
+| Idempotent | ✅ | depends |
 
 ## Execution Steps
 
-1. Define la ruta con las Hard Rules y elige método con los Decision Gates.
-2. Asigna status code y decoradores Swagger (ver `references/patterns.md`).
-3. Crea un controller por acción y regístralo en el módulo.
-4. Contrasta con los anti-patterns de `references/patterns.md`.
+1. Define the route with the Hard Rules and choose the method with the Decision Gates.
+2. Assign the status code and the documentation markers (see `references/patterns.md`).
+3. Create one controller per action and register it in the module.
+4. Check against the anti-patterns in `references/patterns.md`.
 
 ## Output Contract
 
-Entrega la ruta, el método, el status code y el controller documentado con Swagger de cada acción.
+Deliver the route, the method, the status code and the documented controller of each action.
 
 ## References
 
-- [`references/patterns.md`](references/patterns.md): rutas base, acciones DDD, decoradores Swagger por nivel y status, `handler`, controllers, query params y anti-patterns.
-- Lee [`references/docs.md`](references/docs.md) para skills relacionadas, ADRs y documentación externa.
+- [`references/patterns.md`](references/patterns.md): base routes, DDD actions, documentation by level and status, `handler`, controllers, query params and anti-patterns.
+- Read [`references/docs.md`](references/docs.md) for related skills, ADRs and external documentation.
+- Load the project's stack skill for HTTP (`stack-nestjs`) and read its `references/api-rest.md`.

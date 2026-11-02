@@ -2,28 +2,19 @@
 
 ## Related Skills
 
-| Skill | Por qué leerla |
+| Skill | Why read it |
 |---|---|
-| `api-domain-events` | Cómo se definen los `DomainEvent` que los subscribers consumen |
-| `api-events-infra` | `AmqpMessageBus` — implementación de `DomainEventPublisher` y `DomainEventConsumer` |
-| `api-application` | Use cases — dónde se llama a `domainEventPublisher.publish()` |
-| `api-di` | Cómo registrar `DOMAIN_EVENT_PUBLISHER` y `DOMAIN_EVENT_CONSUMER` en módulos |
+| `api-domain-events` | How the `DomainEvent`s that subscribers consume are defined |
+| `api-events-infra` | The message bus adapter — implementation of `DomainEventPublisher` and `DomainEventConsumer` |
+| `api-application` | Use cases — where `domainEventPublisher.publish()` is called |
+| `api-di` | How to register `DOMAIN_EVENT_PUBLISHER` and `DOMAIN_EVENT_CONSUMER` in modules |
 
-## Architectural Decision
+## Why not an in-process event emitter?
 
-## External Documentation
-
-- [RabbitMQ — Concepts](https://www.rabbitmq.com/tutorials/amqp-concepts) — exchanges, queues, bindings, routing keys
-- [RabbitMQ — Topic Exchange](https://www.rabbitmq.com/tutorials/tutorial-five-javascript) — routing por topic (nuestro patrón)
-- [amqplib — npm](https://www.npmjs.com/package/amqplib) — librería Node.js usada en `AmqpMessageBus`
-
-## Why not NestJS EventEmitter?
-
-NestJS EventEmitter es in-process — si el proceso muere, los eventos se pierden. RabbitMQ es durable y permite retry, DLQ y distribución entre múltiples instancias. Para un sistema de producción, el bus async es la elección correcta.
-
+An in-process emitter loses events if the process dies. A durable broker allows retry, DLQ and distribution across multiple instances. For a production system, the async bus is the right choice.
 
 ## Internal Docs
 
-| Doc | Contenido relevante |
+| Doc | Relevant content |
 |---|---|
-| `docs/engineering/backend-architecture.md` | Por qué `Subscriber` no importa NestJS (regla de dependencia) |
+| `docs/engineering/backend-architecture.md` | Why `Subscriber` does not import the framework (dependency rule) |

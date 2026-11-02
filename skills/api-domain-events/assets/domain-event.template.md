@@ -31,7 +31,7 @@ export class {Entity}{PastVerb}Event extends DomainEvent {
     return {Entity}{PastVerb}Event.EVENT_NAME;
   }
 
-  // 4. fromPrimitives — required for deserialization (AMQP consumer)
+  // 4. fromPrimitives — required for deserialization (message bus consumer)
   static fromPrimitives(
     aggregateId: string,
     eventId: string,
@@ -83,10 +83,10 @@ File:         {entity}-{past-verb}.event.ts
 
 ## Checklist
 
-- [ ] `static readonly EVENT_NAME` — mayúsculas, en la clase
-- [ ] `eventName()` — método de instancia que retorna `EVENT_NAME`
-- [ ] Constructor acepta `eventId?` y `occurredOn?` opcionales (para replay)
-- [ ] `fromPrimitives()` estático — necesario para el consumer AMQP
-- [ ] Atributos son **solo primitivos** — sin Value Objects ni clases de dominio
-- [ ] Namespace correcto: `myapp.{context}.{module?}.{entity}.{past-verb}`
-- [ ] El evento se registra en el aggregate con `this.record()` — nunca fuera
+- [ ] `static readonly EVENT_NAME` — uppercase, on the class
+- [ ] `eventName()` — instance method that returns `EVENT_NAME`
+- [ ] Constructor accepts optional `eventId?` and `occurredOn?` (for replay)
+- [ ] `fromPrimitives()` static — required by the message bus consumer
+- [ ] Attributes are **primitives only** — no Value Objects or domain classes
+- [ ] Correct namespace: `myapp.{context}.{module?}.{entity}.{past-verb}`
+- [ ] The event is recorded in the aggregate with `this.record()` — never outside

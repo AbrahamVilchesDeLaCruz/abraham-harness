@@ -1,6 +1,6 @@
 ---
 name: api-events-infra
-description: "Trigger: Al implementar AmqpMessageBus, configurar SubscribersBootstrapper, o entender retry y DLQ. AmqpMessageBus, SubscribersBootstrapper, retry, DLQ, idempotencia en apps/api/."
+description: "Trigger: When implementing the message bus adapter, configuring SubscribersBootstrapper, or understanding retry and dead letters. Message bus adapter, SubscribersBootstrapper, retry, dead letters, idempotency in apps/api/."
 license: Apache-2.0
 metadata:
   author: AbrahamVilchesDeLaCruz
@@ -9,60 +9,62 @@ metadata:
 
 ## Activation Contract
 
-- Al implementar o modificar `AmqpMessageBus`
-- Al registrar subscribers en módulos NestJS
-- Al diseñar la política de retry o idempotencia
+- When implementing or modifying the message bus adapter
+- When registering subscribers in modules
+- When designing the retry or idempotency policy
 
 ## Hard Rules
 
-`AmqpMessageBus` implementa **tres interfaces** a la vez:
+The message bus adapter implements **three contracts** at once:
 
 ```
 DomainEventPublisher (domain)  → publish(events)
 DomainEventConsumer (app)      → consume(queue, eventName, exchange, DomainEventClass, handler)
-OnModuleDestroy (NestJS)       → onModuleDestroy() — cierra channel + connection al apagar
+Framework shutdown hook        → closes channel + connection on shutdown
 ```
 
-- `SubscribersBootstrapper` llama a `subscriber.init()` en `onModuleInit()` — registra todos los consumers al arrancar.
-- `AmqpMessageBus` vive en `shared/infrastructure/` — es transversal a todos los BC
-- `AmqpMessageBus` se registra **una sola vez** en `SharedModule` como singleton vía `useExisting`; los módulos BC no lo re-registran
-- `SubscribersBootstrapper` y el token `SUBSCRIBERS` se importan desde shared
-- `OnModuleInit` solo en `SubscribersBootstrapper` — nunca en subscribers ni use cases
-- `SUBSCRIBERS` se registra con `useFactory` que devuelve un array de subscribers — nunca `useExisting + multi: true`
-- El DLQ no se re-encola automáticamente — requiere fix manual + re-encolado explícito
-- `prefetch(1)` siempre — procesamiento secuencial por consumer
-- `DomainEventClass` es `new (...args: unknown[]) => DomainEvent` — no `never`, no `any`
-- El payload publicado usa el campo `data` para los atributos del evento, no `attributes` ni `toPrimitives()`
-- `AmqpMessageBus` tiene reconexión automática: al cerrar la conexión, espera `RECONNECT_DELAY_MS` y re-registra todos los consumers
+- `SubscribersBootstrapper` calls `subscriber.init()` from the framework's startup hook — it registers all consumers at startup.
+- The message bus adapter lives in `shared/infrastructure/` — it cuts across all BCs
+- The message bus adapter is registered **only once** in the shared module as a singleton; BC modules do not re-register it
+- `SubscribersBootstrapper` and the `SUBSCRIBERS` token are imported from shared
+- The startup hook goes only in `SubscribersBootstrapper` — never in subscribers or use cases
+- `SUBSCRIBERS` is registered with a factory that returns an array of subscribers — never with an alias multi-provider
+- The dead-letter queue is not re-enqueued automatically — it requires a manual fix + explicit re-enqueue
+- Fetch one message at a time, always — sequential processing per consumer
+- `DomainEventClass` is `new (...args: unknown[]) => DomainEvent` — not `never`, not `any`
+- The published payload uses the `data` field for the event attributes, not `attributes` or `toPrimitives()`
+- The message bus adapter reconnects automatically: when the connection closes, it waits `RECONNECT_DELAY_MS` and re-registers all consumers
 
 ## Decision Gates
 
 ### Retry Policy
 
-| Intento | Delay | Mecanismo |
+| Attempt | Delay | Mechanism |
 |---|---|---|
-| 1 | 1 s | `expiration: "1000"` en `.retry` → vuelve vía DLX |
-| 2 | 5 s | `expiration: "5000"` en `.retry` → vuelve vía DLX |
-| 3 | 10 s | `expiration: "10000"` en `.retry` → vuelve vía DLX |
-| 4 | — | → `.dead_letter` — intervención manual |
+| 1 | 1 s | Message expires after 1000 ms in `.retry` → returns via dead-lettering |
+| 2 | 5 s | Message expires after 5000 ms in `.retry` → returns via dead-lettering |
+| 3 | 10 s | Message expires after 10000 ms in `.retry` → returns via dead-lettering |
+| 4 | — | → `.dead_letter` — manual intervention |
 
-**El `expiration` es por mensaje, no por cola** — permite backoff exponencial con una sola `.retry` queue.
+**The expiration is per message, not per queue** — it allows exponential backoff with a single `.retry` queue.
 
-Colas creadas automáticamente en `setupQueues()`:
-- `{queueName}` — cola principal
-- `{queueName}.retry` — mensajes esperando reintento
-- `{queueName}.dead_letter` — mensajes agotados
+Queues created automatically during queue setup:
+- `{queueName}` — main queue
+- `{queueName}.retry` — messages waiting for a retry
+- `{queueName}.dead_letter` — exhausted messages
 
-### Idempotencia
+### Idempotency
 
-| Caso | Opción |
+| Case | Option |
 |---|---|
-| Por defecto | Opción A — Natural |
-| Operaciones irreversibles críticas | Opción B — Inbox table |
+| Default | Option A — Natural |
+| Critical irreversible operations | Option B — Inbox table |
 
-Tabla: `processed_events(event_id UUID PK, event_name, processed_at)` — purgar > 30 días.
+Table: `processed_events(event_id UUID PK, event_name, processed_at)` — purge > 30 days.
 
 ## References
 
-- [`references/amqp-message-bus.md`](references/amqp-message-bus.md) — implementación completa de `AmqpMessageBus`, `SubscribersBootstrapper`, registro en módulos, recuperación de DLQ y ejemplos de las opciones de idempotencia.
-- [`references/docs.md`](references/docs.md) — skills relacionadas, ADRs y documentación externa.
+- [`references/message-bus.md`](references/message-bus.md) — what the adapter must do, retry flow, dead-letter recovery and idempotency option examples.
+- [`references/docs.md`](references/docs.md) — related skills, ADRs and documentation.
+- Load the project's stack skill for messaging (`stack-rabbitmq`) and read its `references/api-events-infra.md` for the full adapter.
+- Load the project's stack skill for the HTTP framework (`stack-nestjs`) and read its `references/api-events-infra.md` for the bootstrapper and module registration.

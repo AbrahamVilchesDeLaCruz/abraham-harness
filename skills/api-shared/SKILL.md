@@ -1,80 +1,82 @@
 ---
 name: api-shared
-description: "Trigger: Al crear o modificar SharedModule, añadir validación de variables de entorno con Joi, o infraestructura transversal. SharedModule global, bounded context shared, env validation Joi en apps/api/."
+description: "Trigger: When creating or modifying SharedModule, adding environment variable validation, or cross-cutting infrastructure. Global SharedModule, shared bounded context, env validation in apps/api/."
 license: Apache-2.0
 metadata:
   author: AbrahamVilchesDeLaCruz
   version: "2.1"
 ---
 
+
 ## Activation Contract
 
-- Al crear o modificar el módulo `SharedModule` global
-- Al crear un shared interno de un bounded context
-- Al añadir validación de variables de entorno
-- Al registrar infraestructura transversal (logger, event bus, filtros globales)
+- When creating or modifying the global `SharedModule` module
+- When creating an internal shared of a bounded context
+- When adding environment variable validation
+- When registering cross-cutting infrastructure (logger, event bus, global filters)
 
 ## Hard Rules
 
-### Módulos
+### Modules
 
-- `SharedModule` se importa **una sola vez** en `AppModule` — es `@Global()`
-- `ConfigModule.forRoot()` y `TypeOrmModule.forRootAsync()` se configuran en **`AppModule`**, no en `SharedModule`.
-- `ConfigModule` se declara `isGlobal: true` para que `ConfigService` esté disponible en todos los módulos
-- TypeORM se configura mediante `buildTypeOrmDataSourceOptions()` que parsea `DATABASE_URL`
-- `SharedModule` no importa ni re-exporta `ConfigModule` ni `TypeOrmModule`
-- Los bounded context modules **no son globales** — se importan explícitamente en `AppModule`
-- BC modules exportan solo lo que otros BCs necesitan (tokens de repositorio o domain services)
-- `synchronize: false` **siempre** — las migraciones son la fuente de verdad del schema
+- `SharedModule` is imported **only once** in `AppModule` — it is global
+- The config module and the persistence root connection are configured in **`AppModule`**, not in `SharedModule`.
+- The config module is declared global so the config service is available in all modules
+- Persistence is configured through a builder function that parses `DATABASE_URL`
+- `SharedModule` does not import or re-export the config module or the persistence module
+- Bounded context modules **are not global** — they are imported explicitly in `AppModule`
+- BC modules export only what other BCs need (repository tokens or domain services)
+- Automatic schema synchronization is off **always** — migrations are the source of truth of the schema
 
 ### Env
 
-- `abortEarly: false` siempre — ver todos los errores de una
-- `.required()` en todo lo que no tiene default — falla en bootstrap, no en runtime
-- **Joi para env** — no Zod. Es la integración nativa de `@nestjs/config`
-- La configuración vive en `ConfigModule.forRoot()` **en `AppModule`**, no en `SharedModule`
-- La validación de env falla en bootstrap — si falta una variable, la app no arranca
+- Abort-early off always — see all errors at once
+- Required in everything that has no default — fails at bootstrap, not at runtime
+- Env validation uses the schema library the stack skill names — do not pick another one
+- Configuration lives in the config module **in `AppModule`**, not in `SharedModule`
+- Env validation fails at bootstrap — if a variable is missing, the app does not start
 
-### Criteria + TypeORM
+### Criteria + persistence
 
-- El patrón Criteria se aplica **directamente en cada repositorio** con QueryBuilder — no hay un converter compartido. Cada repositorio aplica sus propios filtros porque puede tener relaciones y aliases distintos.
-- Ver implementación canónica en skill `api-criteria`.
+- The Criteria pattern is applied **directly in each repository** with a query builder — there is no shared converter. Each repository applies its own filters because it can have different relations and aliases.
+- See the canonical implementation in skill `api-criteria`.
 
 ## Decision Gates
 
-### SharedModule — lo que exporta
+### SharedModule — what it exports
 
-`SharedModule` provee infraestructura transversal que todos los módulos necesitan sin importarla explícitamente:
+`SharedModule` provides cross-cutting infrastructure that all modules need without importing it explicitly:
 
-| Token / clase | Implementación | Descripción |
-|---|---|---|
-| `LOGGER_SERVICE` | `PinoLogger` | Logger estructurado |
-| `DOMAIN_EVENT_PUBLISHER` | `AmqpMessageBus` | Publica eventos al bus |
-| `DOMAIN_EVENT_CONSUMER` | `AmqpMessageBus` | Consume eventos del bus |
-| `GlobalExceptionRegistry` | — | Registry central de excepciones |
-| `HttpExceptionFilter` | — | Filtro HTTP global (vía `APP_FILTER`) |
+| Token / class | Description |
+|---|---|
+| `LOGGER_SERVICE` | Structured logger |
+| `DOMAIN_EVENT_PUBLISHER` | Publishes events to the bus |
+| `DOMAIN_EVENT_CONSUMER` | Consumes events from the bus |
+| `GlobalExceptionRegistry` | Central exception registry |
+| `HttpExceptionFilter` | Global HTTP filter |
 
-### Shared interno por bounded context
+### Internal shared per bounded context
 
-Los bounded contexts con múltiples submódulos tienen un `shared/` propio que contiene:
+Bounded contexts with multiple submodules have their own `shared/` that contains:
 
-| Carpeta | Contenido |
+| Folder | Content |
 | --- | --- |
-| **`domain/`** | value objects, interfaces o constantes que cruzan submódulos dentro del BC |
-| **`infrastructure/framework/`** | el módulo NestJS del BC completo (wiring), exception registry del BC |
+| **`domain/`** | value objects, interfaces or constants that cross submodules within the BC |
+| **`infrastructure/framework/`** | the framework module of the whole BC (wiring), the BC's exception registry |
 
 ## Execution Steps
 
-1. Ubica la pieza en la estructura de `references/patterns.md`.
-2. Aplica las Hard Rules de módulos y env.
-3. Usa `references/module-patterns.md` para los módulos completos y el schema Joi.
+1. Place the piece in the structure from `references/patterns.md`.
+2. Apply the module and env Hard Rules.
+3. Use `references/module-patterns.md` for the complete modules and the env schema.
 
 ## Output Contract
 
-Entrega la pieza en su carpeta de `shared/` y los cambios de wiring en `SharedModule`, `AppModule` o el módulo del BC.
+Deliver the piece in its `shared/` folder and the wiring changes in `SharedModule`, `AppModule` or the BC's module.
 
 ## References
 
-- [`references/patterns.md`](references/patterns.md): estructura de `shared/`, shared interno por BC y validación de env.
-- Lee [`references/module-patterns.md`](references/module-patterns.md) para los módulos completos (`SharedModule`, `AppModule`, `AchievementModule`) y el schema Joi de variables de entorno.
-- Lee [`references/docs.md`](references/docs.md) para skills relacionadas, ADRs y documentación externa.
+- [`references/patterns.md`](references/patterns.md): `shared/` structure, internal shared per BC and env validation.
+- Read [`references/module-patterns.md`](references/module-patterns.md) for what the modules (`SharedModule`, `AppModule`, `AchievementModule`) wire and the environment variables.
+- Read [`references/docs.md`](references/docs.md) for related skills, ADRs and external documentation.
+- Load the project's stack skills for HTTP (`stack-nestjs`), persistence, messaging and observability (the matching `stack-*`), and read `references/api-shared.md` in each.

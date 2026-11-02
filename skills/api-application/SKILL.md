@@ -1,86 +1,88 @@
 ---
 name: api-application
-description: "Trigger: Al crear o modificar casos de uso o domain services en apps/api/. Convenciones de la capa Application en la API: Use Cases y Domain Services."
+description: "Trigger: When creating or modifying use cases or domain services in apps/api/. Application layer conventions in the API: Use Cases and Domain Services."
 license: Apache-2.0
 metadata:
   author: AbrahamVilchesDeLaCruz
   version: "2.0"
 ---
 
+
 ## Activation Contract
 
-- Al crear un nuevo caso de uso
-- Al crear o modificar un domain service
-- Al decidir si lógica va en un use case o en un domain service
+- When creating a new use case
+- When creating or modifying a domain service
+- When deciding whether logic belongs in a use case or in a domain service
 
 ## Hard Rules
 
 ### Use Cases
 
-- Nombre: `{Entidad}{Verbo}` — forma de agente.
-- Un caso de uso = una responsabilidad = un método público: `execute()`
-- Recibe un `Request*` type — nunca primitivos sueltos, nunca clases DTO
-- `Request*` y `Response*` son `type` alias — nunca clases con decoradores
-- Retorna primitivos, `Response*`, o `void` — nunca entidades de dominio
-- Re-exportar `Request*` y `Response*` en el mismo archivo del use case.
-- Crear `response-{entity}-{verb}er.ts` siempre que el use case devuelva más de un campo o el tipo no sea un primitivo simple.
-- Los use cases de **write siempre inyectan `DOMAIN_EVENT_PUBLISHER`** — si el aggregate no emite eventos, es un bug en el aggregate, no una razón para omitirlo
-- Inyectar `LOGGER_SERVICE` y `APP_METRICS` en todos los use cases que mutan estado
-- Usar `toPrimitives()` para serializar la respuesta
-- El nombre de la variable inyectada refleja el ROL, no la clase concreta.
+- Name: `{Entity}{Verb}` — agent form.
+- One use case = one responsibility = one public method: `execute()`
+- Receives a `Request*` type — never loose primitives, never DTO classes
+- `Request*` and `Response*` are `type` aliases — never classes with decorators
+- Returns primitives, `Response*`, or `void` — never domain entities
+- Re-export `Request*` and `Response*` in the same file as the use case.
+- Create `response-{entity}-{verb}er.ts` whenever the use case returns more than one field or the type is not a simple primitive.
+- **Write use cases always inject `DOMAIN_EVENT_PUBLISHER`** — if the aggregate emits no events, that is a bug in the aggregate, not a reason to omit it
+- Inject `LOGGER_SERVICE` and `APP_METRICS` in all use cases that execute state
+- Use `toPrimitives()` to serialize the response
+- The name of the injected variable reflects the ROLE, not the concrete class.
 
 ### Domain Services
 
-- Nombre: `{Feature}{Action}` — **sin sufijo `Service`**
-- Archivo: `{feature}-{action}.ts` — ej: `product-finder.ts`, `guest-order-policy.ts`
-- Método con verbo descriptivo: `findOrFail()`, `validate()`, `assertCanX()`
-- Puede tener `@Injectable()` cuando necesita repositorios u otros puertos
-- Clases estáticas para políticas puras (sin I/O): `GuestOrderPolicy`, `PausedOrderPolicy`
+- Name: `{Feature}{Action}` — **no `Service` suffix**
+- File: `{feature}-{action}.ts` — e.g.: `product-finder.ts`, `guest-order-policy.ts`
+- Method with a descriptive verb: `findOrFail()`, `validate()`, `assertCanX()`
+- May be marked as injectable when it needs repositories or other ports
+- Static classes for pure policies (no I/O): `GuestOrderPolicy`, `PausedOrderPolicy`
 
 ## Decision Gates
 
-Reutilización entre use cases, no I/O vs no-I/O, decide dónde va la lógica:
+Reuse across use cases, not I/O vs no-I/O, decides where the logic goes:
 
-| Situación | Acción |
+| Situation | Action |
 | --- | --- |
-| **Si la lógica solo la usa un use case** | **→ va en el use case, no se extrae** |
-| **Si varios use cases comparten la lógica** | **→ Domain Service en `domain/`** |
+| **If only one use case uses the logic** | **→ it stays in the use case, do not extract it** |
+| **If several use cases share the logic** | **→ Domain Service in `domain/`** |
 
 ### UseCase vs Domain Service
 
 | | Use Case | Domain Service |
 | --- | --- | --- |
-| **Qué es** | Una transacción de aplicación | Lógica de dominio reutilizada por varios use cases |
-| **Método** | `execute()` | verbo descriptivo: `findOrFail()`, `assertCanX()` |
-| **Reutilizable** | No — un flujo concreto | Sí — varios UCs lo llaman |
-| **Dónde** | `application/{verb}/` | `domain/` |
-| **Ejemplo** | `ProductCreator.execute()` | `ProductFinder` (usado por updater, deleter…) |
-| **Criterio** | Una sola acción de negocio | Si extraes lógica de 2+ UCs, va aquí |
+| **What it is** | One application transaction | Domain logic reused by several use cases |
+| **Method** | `execute()` | descriptive verb: `findOrFail()`, `assertCanX()` |
+| **Reusable** | No — one concrete flow | Yes — several use cases call it |
+| **Where** | `application/{verb}/` | `domain/` |
+| **Example** | `ProductCreator.execute()` | `ProductFinder` (used by updater, deleter…) |
+| **Criterion** | One single business action | If you extract logic from 2+ use cases, it goes here |
 
-### Verbos de casos de uso
+### Use case verbs
 
-| Acción | Nombre |
+| Action | Name |
 | --- | --- |
-| Crear | `ProductCreator` |
-| Buscar uno | `ProductFinder` |
-| Buscar varios | `ProductSearcher` |
-| Actualizar | `ProductUpdater` |
-| Eliminar | `ProductDeleter` |
-| Iniciar | `OrderStarter` |
-| Completar | `OrderCompleter` |
+| Create | `ProductCreator` |
+| Find one | `ProductFinder` |
+| Search several | `ProductSearcher` |
+| Update | `ProductUpdater` |
+| Delete | `ProductDeleter` |
+| Start | `OrderStarter` |
+| Complete | `OrderCompleter` |
 
 ## Execution Steps
 
-1. Decide con los Decision Gates si la lógica va en un use case o en un Domain Service.
-2. Al crear un use case, parte del template y nómbralo con la tabla de verbos.
-3. Aplica las Hard Rules y contrasta con los anti-patterns de `references/patterns.md`.
+1. Use the Decision Gates to decide whether the logic goes in a use case or in a Domain Service.
+2. When creating a use case, start from the template and name it with the verb table.
+3. Apply the Hard Rules and check against the anti-patterns in `references/patterns.md`.
 
 ## Output Contract
 
-Entrega el use case en `application/{verb}/` con su `Request*` y, si aplica, `Response*` re-exportados en el mismo archivo; o el Domain Service en `domain/`.
+Deliver the use case in `application/{verb}/` with its `Request*` and, if applicable, `Response*` re-exported in the same file; or the Domain Service in `domain/`.
 
 ## References
 
-- [`references/patterns.md`](references/patterns.md): código de use cases, `Request*`/`Response*`, domain services, inyección y anti-patterns.
-- Usa el template de [`assets/use-case.template.md`](assets/use-case.template.md) al crear un nuevo use case.
-- Lee [`references/docs.md`](references/docs.md) para ADRs, skills relacionadas y docs externos.
+- [`references/patterns.md`](references/patterns.md): code for use cases, `Request*`/`Response*`, domain services, injection and anti-patterns.
+- Use the template in [`assets/use-case.template.md`](assets/use-case.template.md) when creating a new use case.
+- Read [`references/docs.md`](references/docs.md) for ADRs, related skills and external docs.
+- Load the project's stack skill for dependency injection (`stack-nestjs`) and read its `references/api-application.md`. Load the project's test stack skill (`stack-jest`) and read its `references/api-application.md` when testing use cases.

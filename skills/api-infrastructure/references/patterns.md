@@ -1,33 +1,33 @@
-# Infrastructure: estructura y anti-patterns
+# Infrastructure: structure and anti-patterns
 
-## Estructura de carpetas
+## Folder structure
 
 ```
 infrastructure/
 ├── controllers/
 │   ├── {verb}-{resource}-{method}.controller.ts
 │   └── {verb}-{resource}-{method}.payload.ts
-├── framework/        ← NestJS modules + exception registries
-└── persistence/      ← TypeORM entities + repositories
+├── framework/        ← framework modules + exception registries
+└── persistence/      ← persistence entities + repositories
 ```
 
 ## Anti-patterns
 
 ```typescript
-// ❌ Un controller para todo el recurso
+// ❌ One controller for the whole resource
 export class OrderController { }
 
-// ❌ Payload pasando a application
+// ❌ Payload passing into application
 async execute(payload: StartOrderPostPayload): Promise<void> {}
 
-// ❌ match() que ignora Criteria
+// ❌ match() that ignores Criteria
 async match(criteria: Criteria): Promise<Order[]> {
-  return this.repo.find(); // criteria ignorado
+  return this.repo.find(); // criteria ignored
 }
 
-// ❌ TypeORM entity saliendo del repositorio
+// ❌ Persistence entity leaving the repository
 async search(id: OrderId): Promise<OrderEntity> { ... }
 
-// ❌ Controller sin Swagger
-@Post() async handler(@Body() body): Promise<void> {}
 ```
+
+A controller without API documentation is also an anti-pattern.

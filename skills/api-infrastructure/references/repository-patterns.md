@@ -1,58 +1,19 @@
 # Repository Patterns — Reference
 
-## TypeORM Repository completo con Criteria
+The complete persistence implementation lives in the project's persistence stack skill, in `references/api-infrastructure.md`, and the module in the HTTP stack skill.
+
+## Repository
+
+A repository adapter implements the domain port (`implements OrderRepository`):
+
+- `search(id)` finds by `id.value` and returns `this.toDomain(entity)`, or `null` when there is no entity.
+- `match(criteria)` applies all the `Criteria` fields, as `api-criteria` describes, and maps each result with `toDomain()`.
+- `save(order)` saves `this.toEntity(order)`.
+- `remove(id)` deletes by `id.value`.
+
+The private mappers:
 
 ```typescript
-// sales/infrastructure/persistence/typeorm-order.repository.ts
-@Injectable()
-export class TypeOrmOrderRepository implements OrderRepository {
-  constructor(
-    @InjectRepository(OrderEntity)
-    private readonly orderRepo: Repository<OrderEntity>,
-  ) {}
-
-  async search(id: OrderId): Promise<Order | null> {
-    const entity = await this.orderRepo.findOneBy({ id: id.value });
-    return entity ? this.toDomain(entity) : null;
-  }
-
-  async match(criteria: Criteria): Promise<Order[]> {
-    const qb = this.orderRepo.createQueryBuilder('g');
-
-    for (const filter of criteria.filters) {
-      const param = `p_${filter.field}`;
-      if (filter.value === null) {
-        if (filter.operator === FilterOperator.EQ) {
-          qb.andWhere(`g.${filter.field} IS NULL`);
-        } else {
-          qb.andWhere(`g.${filter.field} IS NOT NULL`);
-        }
-      } else {
-        qb.andWhere(`g.${filter.field} ${filter.operator} :${param}`, {
-          [param]: filter.value,
-        });
-      }
-    }
-
-    if (criteria.order) {
-      qb.orderBy(`g.${criteria.order.field}`, criteria.order.direction);
-    }
-
-    if (criteria.limit !== null) qb.take(criteria.limit);
-    if (criteria.offset !== null) qb.skip(criteria.offset);
-
-    const entities = await qb.getMany();
-    return entities.map((e) => this.toDomain(e));
-  }
-
-  async save(order: Order): Promise<void> {
-    await this.orderRepo.save(this.toEntity(order));
-  }
-
-  async remove(id: OrderId): Promise<void> {
-    await this.orderRepo.delete({ id: id.value });
-  }
-
   private toDomain(entity: OrderEntity): Order {
     return Order.fromPrimitives({
       id: entity.id,
@@ -85,77 +46,44 @@ export class TypeOrmOrderRepository implements OrderRepository {
     e.finishedAt = p.finishedAt;
     return e;
   }
-}
 ```
 
-## TypeORM Entity completa
+## Persistence entity
 
 ```typescript
 // sales/infrastructure/persistence/order.entity.ts
-@Entity('orders')
 export class OrderEntity {
-  @PrimaryColumn('uuid')
   id: string;
 
-  @Column({ name: 'user_id', nullable: true, type: 'uuid' })
   userId: string | null;
 
-  @Column()
   mode: string;
 
-  @Column({ nullable: true })
   module: string | null;
 
-  @Column({ nullable: true })
   subcategory: string | null;
 
-  @Column({ default: 'catalog' })
   source: string;
 
-  @Column({ name: 'item_count' })
   itemCount: string;
 
-  @Column({ default: 'in_progress' })
   status: string;
 
-  @Column({ name: 'last_product_id', nullable: true })
   lastProductId: string | null;
 
-  @Column({ name: 'started_at', type: 'timestamptz' })
   startedAt: Date;
 
-  @Column({ name: 'finished_at', type: 'timestamptz', nullable: true })
   finishedAt: Date | null;
 }
 ```
 
-## Módulo NestJS
+Each column maps its `snake_case` DB name: `user_id`, `item_count`, `last_product_id`, `started_at`, `finished_at`.
 
-```typescript
-// sales/infrastructure/framework/sales.module.ts
-@Module({
-  imports: [TypeOrmModule.forFeature([OrderEntity])],
-  controllers: [
-    StartOrderPostController,
-    CompleteOrderPostController,
-    AbandonOrderPostController,
-    PauseOrderPostController,
-    ResumeOrderPostController,
-    FindOrderSummaryGetController,
-  ],
-  providers: [
-    OrderStarter,
-    OrderCompleter,
-    OrderAbandonner,
-    OrderPauser,
-    OrderResumer,
-    OrderSummaryFinder,
-    SalesExceptionRegistry,
-    {
-      provide: ORDER_REPOSITORY,
-      useClass: TypeOrmOrderRepository,
-    },
-  ],
-})
-export class SalesModule {}
-```
+Nullable columns: `userId`, `module`, `subcategory`, `lastProductId`, `finishedAt`. Defaults: `source` is `'catalog'` and `status` is `'in_progress'`.
+
+## Module
+
+The BC's framework module (`sales/infrastructure/framework/sales.module.ts`) imports the persistence entities it needs and registers:
+
+- Controllers: `StartOrderPostController`, `CompleteOrderPostController`, `AbandonOrderPostController`, `PauseOrderPostController`, `ResumeOrderPostController`, `FindOrderSummaryGetController`.
+- Providers: `OrderStarter`, `OrderCompleter`, `OrderAbandonner`, `OrderPauser`, `OrderResumer`, `OrderSummaryFinder`, `SalesExceptionRegistry`, and `ORDER_REPOSITORY` bound to the repository adapter.

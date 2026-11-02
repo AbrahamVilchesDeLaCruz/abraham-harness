@@ -2,30 +2,30 @@
 
 ## Related Skills
 
-| Skill | Por qué leerla |
+| Skill | Why read it |
 |---|---|
-| `api-domain` | Aggregate, Value Objects, Repository interface — qué revisar en domain/ |
-| `api-application` | Use Cases, Domain Services — qué revisar en application/ |
-| `api-infrastructure` | Controllers, TypeORM entities — qué revisar en infrastructure/ |
-| `api-di` | Tokens, módulos — cómo evaluar el grafo de dependencias |
-| `api-events` | Subscriber, EventBus — revisión del flujo de eventos |
-| `api-testing` | Object Mothers, mocks — cómo evaluar la calidad de los tests |
+| `api-domain` | Aggregate, Value Objects, Repository interface — what to review in domain/ |
+| `api-application` | Use Cases, Domain Services — what to review in application/ |
+| `api-infrastructure` | Controllers, ORM entities — what to review in infrastructure/ |
+| `api-di` | Tokens, modules — how to assess the dependency graph |
+| `api-events` | Subscriber, EventBus — review of the event flow |
+| `api-testing` | Object Mothers, mocks — how to assess test quality |
 
 ## DDD References
 
 - [Domain-Driven Design Reference (Evans)](https://www.domainlanguage.com/ddd/reference/) — Bounded Context, Aggregate, Ubiquitous Language
-- [Implementing DDD (Vaughn Vernon)](https://vaughnvernon.com/?page_id=168) — patrones tácticos con ejemplos
+- [Implementing DDD (Vaughn Vernon)](https://vaughnvernon.com/?page_id=168) — tactical patterns with examples
 - [Patterns, Principles, and Practices of DDD (Millett & Tune)](https://www.oreilly.com/library/view/patterns-principles-and/9781118714706/) — Strategic Design
 
 ## Architectural Decisions in This Project
 
-- BCs comunican solo via domain events (AMQP) o API calls — nunca shared repositories
-- Un BC puede tener múltiples módulos NestJS internos si tiene mucha carga
-- El `shared/` dentro de un BC exporta interfaces, no implementaciones
+- BCs communicate only via domain events (message bus) or API calls — never shared repositories
+- A BC may have multiple internal framework modules if it carries a lot of load
+- The `shared/` inside a BC exports interfaces, not implementations
 
 ## Internal Docs
 
-| Doc | Contenido relevante |
+| Doc | Relevant content |
 |---|---|
-| `docs/engineering/backend-architecture.md` | Reglas de la arquitectura que se auditan (capas, dependencias, módulos) |
-| `docs/engineering/engineering-principles.md` | Principios que cada BC debe respetar (SRP, DIP, OCP) |
+| `docs/engineering/backend-architecture.md` | Rules of the architecture being audited (layers, dependencies, modules) |
+| `docs/engineering/engineering-principles.md` | Principles each BC must respect (SRP, DIP, OCP) |

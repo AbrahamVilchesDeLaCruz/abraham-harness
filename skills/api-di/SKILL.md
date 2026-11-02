@@ -1,65 +1,67 @@
 ---
 name: api-di
-description: "Trigger: Al definir tokens de inyección, registrar providers en módulos, o inyectar dependencias en use cases o controllers. Tokens Symbol, registro de providers, inyección sin acoplamiento en apps/api/."
+description: "Trigger: When defining injection tokens, registering providers in modules, or injecting dependencies in use cases or controllers. Symbol tokens, provider registration, decoupled injection in apps/api/."
 license: Apache-2.0
 metadata:
   author: AbrahamVilchesDeLaCruz
   version: "1.0"
 ---
 
+
 ## Activation Contract
 
-- Al definir el token de inyección para un repositorio, servicio o cualquier abstracción
-- Al registrar providers en un módulo
-- Al inyectar dependencias en use cases o controllers
+- When defining the injection token for a repository, service or any abstraction
+- When registering providers in a module
+- When injecting dependencies in use cases or controllers
 
 ## Hard Rules
 
-- El dominio y la aplicación **no deben saber que NestJS existe**. Para lograrlo, cada interfaz tiene un token de inyección propio que no importa nada de `@nestjs/common`.
-- Los tokens son `Symbol` — **siempre** — no strings (colisiones), no clases de NestJS (acoplamiento).
-- El token se define en el mismo archivo que la interface — en la capa de domain o shared/domain
-- Los use cases inyectan por **interface** — nunca por clase concreta
-- El tipo del parámetro es la **interface** — nunca la implementación concreta. `@Inject(TOKEN)` es el único rastro de NestJS en application/domain.
-- Los módulos son los únicos que conocen las implementaciones concretas (TypeORM, RabbitMQ, etc.)
-- Un módulo exporta el **token** — nunca la clase de implementación
-- Formato siempre `SCREAMING_SNAKE_CASE`.
+- The domain and the application **must not know the framework exists**. To achieve this, each interface has its own injection token that imports nothing from the framework.
+- Tokens are `Symbol` — **always** — not strings (collisions), not framework classes (coupling).
+- The token is defined in the same file as the interface — in the domain or shared/domain layer
+- Use cases inject by **interface** — never by concrete class
+- The parameter type is the **interface** — never the concrete implementation. The injection marker is the only trace of the framework in application/domain.
+- Modules are the only ones that know the concrete implementations (persistence, messaging, etc.)
+- A module exports the **token** — never the implementation class
+- Format always `SCREAMING_SNAKE_CASE`.
 
 ## Decision Gates
 
-### Registro en el módulo
+### Registration in the module
 
-| Situación | Provider |
+| Situation | Provider |
 | --- | --- |
-| Caso más común (repositorios, servicios) | `useClass` |
-| Singleton compartido bajo múltiples tokens | `useExisting` |
-| Providers que dependen de múltiples instancias | `useFactory` |
+| Most common case (repositories, services) | Bind the token to a class |
+| Singleton shared under multiple tokens | Alias each token to the existing singleton |
+| Providers that depend on multiple instances | Bind the token to a factory |
 
 ### Naming Conventions
 
-| Abstracción | Token | Ejemplo |
+| Abstraction | Token | Example |
 |---|---|---|
-| Repositorio | `{ENTITY}_REPOSITORY` | `ORDER_REPOSITORY`, `USER_REPOSITORY` |
-| Query de solo lectura | `{ENTITY}_QUERY` | `ORDER_STATS_QUERY`, `USER_STATS_QUERY` |
-| Selector de dominio | `{ENTITY}_SELECTOR` | `PRODUCT_SELECTOR` |
-| Provider de dominio | `{ENTITY}_PROVIDER` | `WEAKEST_PRODUCT_IDS_PROVIDER` |
-| Servicio externo | `{ENTITY}_SERVICE` | `AUDIO_SERVICE` |
-| Publisher de eventos | `DOMAIN_EVENT_PUBLISHER` | shared — publica eventos de dominio |
-| Consumer de eventos | `DOMAIN_EVENT_CONSUMER` | shared — consume colas AMQP |
-| Logger | `LOGGER_SERVICE` | shared — interface Logger |
-| Métricas | `APP_METRICS` | shared — interface AppMetrics |
+| Repository | `{ENTITY}_REPOSITORY` | `ORDER_REPOSITORY`, `USER_REPOSITORY` |
+| Read-only query | `{ENTITY}_QUERY` | `ORDER_STATS_QUERY`, `USER_STATS_QUERY` |
+| Domain selector | `{ENTITY}_SELECTOR` | `PRODUCT_SELECTOR` |
+| Domain provider | `{ENTITY}_PROVIDER` | `WEAKEST_PRODUCT_IDS_PROVIDER` |
+| External service | `{ENTITY}_SERVICE` | `AUDIO_SERVICE` |
+| Event publisher | `DOMAIN_EVENT_PUBLISHER` | shared — publishes domain events |
+| Event consumer | `DOMAIN_EVENT_CONSUMER` | shared — consumes message queues |
+| Logger | `LOGGER_SERVICE` | shared — Logger interface |
+| Metrics | `APP_METRICS` | shared — AppMetrics interface |
 
 ## Execution Steps
 
-1. Define la interface y su token en el mismo archivo, con el nombre de la tabla.
-2. Registra token → implementación en el módulo con el provider que corresponda.
-3. Inyecta con `@Inject(TOKEN)` tipando el parámetro con la interface.
+1. Define the interface and its token in the same file, with the name from the table.
+2. Register token → implementation in the module with the matching provider.
+3. Inject with the token, typing the parameter with the interface.
 
 ## Output Contract
 
-Entrega la interface con su token `Symbol`, el registro en el módulo y la inyección en el use case o controller.
+Deliver the interface with its `Symbol` token, the registration in the module and the injection in the use case or controller.
 
 ## References
 
-- [`references/patterns.md`](references/patterns.md): flujo interface → token → implementación → registro → inyección, y código de cada paso.
-- Usa el template de [`assets/di-tokens.template.md`](assets/di-tokens.template.md) al añadir tokens y módulos a un nuevo BC.
-- Lee [`references/docs.md`](references/docs.md) para el rationale de Symbol vs string y docs externos.
+- [`references/patterns.md`](references/patterns.md): interface → token → implementation → registration → injection flow, and the code for each step.
+- Use the template in [`assets/di-tokens.template.md`](assets/di-tokens.template.md) when adding tokens and modules to a new BC.
+- Read [`references/docs.md`](references/docs.md) for the rationale of Symbol vs string and external docs.
+- Load the project's stack skill for dependency injection (`stack-nestjs`) and read its `references/api-di.md`. Do the same for the messaging and logging stack skills (`stack-rabbitmq`, `stack-observability`) when binding those adapters.

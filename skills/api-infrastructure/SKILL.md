@@ -1,75 +1,77 @@
 ---
 name: api-infrastructure
-description: "Trigger: Al crear o modificar controllers, entidades TypeORM, repositorios o módulos en apps/api/. Convenciones de la capa Infrastructure en la API: Controllers, TypeORM entities, repositorios y módulos NestJS."
+description: "Trigger: When creating or modifying controllers, persistence entities, repositories or modules in apps/api/. Infrastructure layer conventions in the API: controllers, persistence entities, repositories and framework modules."
 license: Apache-2.0
 metadata:
   author: AbrahamVilchesDeLaCruz
   version: "2.0"
 ---
 
+
 ## Activation Contract
 
-- Al crear o modificar un controller
-- Al crear una TypeORM entity o repositorio
-- Al crear o modificar un módulo NestJS
+- When creating or modifying a controller
+- When creating a persistence entity or repository
+- When creating or modifying a framework module
 
 ## Hard Rules
 
 ### Controllers
 
-- Un controller por acción. Nombre: `{Verb}{Entity}{Method}Controller`. Método siempre `handler()`.
-- Archivo: `{verb}-{resource}-{method}.controller.ts` — `start-order-post.controller.ts`
-- Clase: `{Verb}{Resource}{Method}Controller` — `StartOrderPostController`
+- One controller per action. Name: `{Verb}{Entity}{Method}Controller`. Method always `handler()`.
+- File: `{verb}-{resource}-{method}.controller.ts` — `start-order-post.controller.ts`
+- Class: `{Verb}{Resource}{Method}Controller` — `StartOrderPostController`
 - Payload (POST/PATCH body): `{Verb}{Resource}{Method}Payload`
 - Query (GET params): `{Verb}{Resource}{Method}Query`
-- Un controller = un caso de uso = una responsabilidad
-- Sin lógica — recibe HTTP, construye el `Request*`, delega al use case, devuelve respuesta
-- Swagger obligatorio: `@ApiTags`, `@ApiOperation`, `@ApiBearerAuth`, respuestas con status codes
-- `resolveRequestId(req)` en todos los endpoints que devuelven envelope
+- One controller = one use case = one responsibility
+- No logic — receives HTTP, builds the `Request*`, delegates to the use case, returns the response
+- API documentation is mandatory: tags, operation, bearer auth, responses with status codes
+- `resolveRequestId(req)` on all endpoints that return an envelope
 
-### Payloads y Queries
+### Payloads and Queries
 
-- Solo en infrastructure — nunca pasan a application
-- El controller construye el `Request*` del use case a partir del payload/query
-- `@IsOptional()` para campos opcionales
-- `@Type(() => Number)` en Query únicamente para `page`, `limit` (strings en HTTP)
-- `@ApiProperty` / `@ApiPropertyOptional` en todos los campos
+- Only in infrastructure — they never pass into application
+- The controller builds the use case's `Request*` from the payload/query
+- Mark optional fields as optional
+- Coerce to number in a Query only for `page`, `limit` (strings in HTTP)
+- API documentation on all fields
 
-### TypeORM Entities
+### Persistence Entities
 
-- Sufijo `Entity` — diferencia la entidad de domain
-- Tabla en `snake_case` plural: `orders`, `products`
-- Columnas: `snake_case` en DB, `camelCase` en código — usar `name` en `@Column`
-- Solo en `infrastructure/persistence/` — nunca en domain ni application
+- `Entity` suffix — distinguishes it from the domain entity
+- Table in plural `snake_case`: `orders`, `products`
+- Columns: `snake_case` in the DB, `camelCase` in code — name the column explicitly in its mapping
+- Only in `infrastructure/persistence/` — never in domain or application
 
-### Repositorios TypeORM
+### Persistence Repositories
 
-- Prefijo `TypeOrm` — deja claro la implementación concreta
-- `toDomain()` y `toEntity()` privados — la TypeORM Entity nunca sale del repositorio
-- `match()` SIEMPRE aplica todos los campos de `Criteria`: filters, order, limit, offset
-- `value: null` + `EQ`/`NEQ` → `IS NULL` / `IS NOT NULL` (nunca `= null` en SQL)
+- Prefix with the persistence technology — makes the concrete implementation clear
+- `toDomain()` and `toEntity()` are private — the persistence entity never leaves the repository
+- `match()` ALWAYS applies all the `Criteria` fields: filters, order, limit, offset
+- `value: null` + `EQ`/`NEQ` → `IS NULL` / `IS NOT NULL` (never `= null` in SQL)
 
 ## Decision Gates
 
-| Tipo de endpoint | Respuesta | Status |
+| Endpoint type | Response | Status |
 | --- | --- | --- |
-| Commands con datos (POST que crea) | `ApiResponse<T>` | `201` |
-| Commands puros (PATCH/DELETE) | `void` | `204` |
-| Queries (GET) | `ApiResponse<T>` o `PaginatedApiResponse<T>` | `200` |
+| Commands with data (POST that creates) | `ApiResponse<T>` | `201` |
+| Pure commands (PATCH/DELETE) | `void` | `204` |
+| Queries (GET) | `ApiResponse<T>` or `PaginatedApiResponse<T>` | `200` |
 
 ## Execution Steps
 
-1. Ubica cada pieza en la estructura de carpetas de `references/patterns.md`.
-2. Aplica las Hard Rules de la pieza y carga la referencia de su patrón completo.
-3. Contrasta con los anti-patterns de `references/patterns.md`.
+1. Place each piece in the folder structure from `references/patterns.md`.
+2. Apply the piece's Hard Rules and load the reference with its complete pattern.
+3. Check against the anti-patterns in `references/patterns.md`.
 
 ## Output Contract
 
-Entrega el controller, payload o query, TypeORM entity, repositorio o módulo NestJS en su carpeta de `infrastructure/`.
+Deliver the controller, payload or query, persistence entity, repository or framework module in its `infrastructure/` folder.
 
 ## References
 
-- [`references/patterns.md`](references/patterns.md): estructura de carpetas y anti-patterns.
-- Lee [`references/controller-patterns.md`](references/controller-patterns.md) cuando necesites el patrón completo de Swagger, Payloads o Query GET.
-- Lee [`references/repository-patterns.md`](references/repository-patterns.md) cuando necesites la implementación completa de TypeORM con Criteria o el módulo NestJS.
-- Lee [`references/docs.md`](references/docs.md) para skills relacionadas, ADRs y documentación externa.
+- [`references/patterns.md`](references/patterns.md): folder structure and anti-patterns.
+- Read [`references/controller-patterns.md`](references/controller-patterns.md) when you need the complete controller, Payload or GET Query pattern.
+- Read [`references/repository-patterns.md`](references/repository-patterns.md) when you need the repository mapping and the persistence entity.
+- Read [`references/docs.md`](references/docs.md) for related skills, ADRs and external documentation.
+- Load the project's stack skills for HTTP (`stack-nestjs`) and persistence (the matching `stack-*`), and read `references/api-infrastructure.md` in each.

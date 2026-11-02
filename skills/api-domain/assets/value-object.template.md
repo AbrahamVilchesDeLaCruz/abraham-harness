@@ -1,11 +1,11 @@
 # Template — Value Objects
 
-Reemplazá `__EntityName__` y `__FieldName__` por los nombres reales.
+Replace `__EntityName__` and `__FieldName__` with the real names.
 
-## UUID — para IDs de aggregates
+## UUID — for aggregate IDs
 
-Los IDs de aggregates siempre extienden `UuidValueObject` (no `StringValueObject`).
-La validación del formato UUID se hace **antes** del `super()`.
+Aggregate IDs always extend `UuidValueObject` (not `StringValueObject`).
+UUID format validation happens **before** `super()`.
 
 ```typescript
 import { UuidValueObject } from '@/shared/domain/uuid-value-object';
@@ -25,9 +25,9 @@ export class __EntityName__Id extends UuidValueObject {
 }
 ```
 
-> `UuidValueObject.random()` devuelve `string` (no un VO), así que se pasa directamente al constructor.
+> `UuidValueObject.random()` returns a `string` (not a value object), so it is passed directly to the constructor.
 
-## String — para campos de texto con validación
+## String — for text fields with validation
 
 ```typescript
 import { StringValueObject } from '@/shared/domain/string-value-object';
@@ -35,7 +35,7 @@ import { __EntityName____FieldName__Empty } from './exceptions/__entity-name__-_
 import { __EntityName____FieldName__TooLong } from './exceptions/__entity-name__-__field-name__-too-long';
 
 export class __EntityName____FieldName__ extends StringValueObject {
-  private static readonly MAX_LENGTH = 255; // ajustar según negocio
+  private static readonly MAX_LENGTH = 255; // adjust per business rules
 
   constructor(value: string) {
     super(value);

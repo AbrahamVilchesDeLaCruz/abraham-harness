@@ -1,26 +1,22 @@
 # Template — Migration
 
-Reemplazá `__TIMESTAMP__` y `__table_name__` por los valores reales.
-
-El timestamp se genera automáticamente con `typeorm migration:generate`.
+Replace `__TIMESTAMP__` and `__table_name__` with the real values.
 
 ```typescript
-import { type MigrationInterface, type QueryRunner } from 'typeorm';
-
 // Naming: Migration{YYYYMMDDHHmmss}{epochMs}
-// Ejemplo: Migration202606291200001779990000008
-export class Migration__TIMESTAMP__ implements MigrationInterface {
+// Example: Migration202606291200001779990000008
+export class Migration__TIMESTAMP__ {
   name = 'Migration__TIMESTAMP__';
 
-  public async up(queryRunner: QueryRunner): Promise<void> {
-    // SQL raw siempre — nunca QueryBuilder (frágil ante cambios de versión de TypeORM)
-    await queryRunner.query(`
+  public async up(db): Promise<void> {
+    // Raw SQL always — never the ORM's query builder (fragile across version changes)
+    await db.query(`
       CREATE TABLE "__table_name__" (
         "id"         uuid        NOT NULL,
         "created_at" TIMESTAMP   NOT NULL DEFAULT now(),
         "updated_at" TIMESTAMP   NOT NULL DEFAULT now(),
         CONSTRAINT "PK___table_name__" PRIMARY KEY ("id")
-        -- Columnas adicionales de ejemplo:
+        -- Example additional columns:
         -- "name"    character varying(255) NOT NULL,
         -- "score"   integer                NOT NULL DEFAULT 0,
         -- "user_id" uuid                   NOT NULL REFERENCES "users"("id") ON DELETE CASCADE,
@@ -28,9 +24,9 @@ export class Migration__TIMESTAMP__ implements MigrationInterface {
     `);
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {
-    // Revertir completamente — siempre implementar
-    await queryRunner.query(`DROP TABLE IF EXISTS "__table_name__"`);
+  public async down(db): Promise<void> {
+    // Revert completely — always implement
+    await db.query(`DROP TABLE IF EXISTS "__table_name__"`);
   }
 }
 ```

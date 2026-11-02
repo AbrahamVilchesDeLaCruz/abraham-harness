@@ -1,6 +1,6 @@
 # DI Tokens Template
 
-Copy this template when adding dependency injection tokens to a new module.
+Copy this template when adding dependency injection tokens to a new module. The module registration lives in the project's stack skill, in `references/api-di.md`.
 
 ## File: `{context}/domain/{entity}.repository.ts` (token alongside interface)
 
@@ -10,40 +10,10 @@ export interface {Entity}Repository {
   save({entity}: {Entity}): Promise<void>;
   search(id: {Entity}Id): Promise<{Entity} | null>;
   match(criteria: Criteria): Promise<{Entity}[]>;
-  // remove() es opcional — añadir solo si el dominio lo requiere
+  // remove() is optional — add it only if the domain requires it
 }
 
 export const {ENTITY}_REPOSITORY = Symbol('{Entity}Repository');
-```
-
-## File: `{context}/infrastructure/framework/{context}.module.ts` (registration)
-
-```typescript
-import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { {Entity}Entity } from '../persistence/{entity}.entity';
-import { TypeOrm{Entity}Repository } from '../persistence/typeorm-{entity}.repository';
-import { {ENTITY}_REPOSITORY } from '../../domain/{entity}.repository';
-import { {Entity}{Verb}er } from '../../application/{verb}/{entity}-{verb}er';
-import { {Verb}{Entity}PostController } from '../controllers/{verb}-{entity}-post.controller';
-import { SharedModule } from '@/shared/infrastructure/framework/shared.module';
-
-@Module({
-  imports: [SharedModule, TypeOrmModule.forFeature([{Entity}Entity])],
-  controllers: [{Verb}{Entity}PostController],
-  providers: [
-    // Ports
-    {
-      provide: {ENTITY}_REPOSITORY,
-      useClass: TypeOrm{Entity}Repository,
-    },
-    // Use cases
-    {Entity}{Verb}er,
-  ],
-  // Solo exportar tokens que otros módulos necesitan
-  exports: [],
-})
-export class {Entity}Module {}
 ```
 
 ## Naming convention for tokens
@@ -54,16 +24,16 @@ export class {Entity}Module {}
 {ENTITY}_SELECTOR          → PRODUCT_SELECTOR (domain selectors)
 {ENTITY}_PROVIDER          → WEAKEST_PRODUCT_IDS_PROVIDER (domain providers)
 {ENTITY}_SERVICE           → AUDIO_SERVICE (external services)
-DOMAIN_EVENT_PUBLISHER     → shared — publica DomainEvent[]
-DOMAIN_EVENT_CONSUMER      → shared — consume colas AMQP
-LOGGER_SERVICE             → shared — interface Logger
-APP_METRICS                → shared — interface AppMetrics
+DOMAIN_EVENT_PUBLISHER     → shared — publishes DomainEvent[]
+DOMAIN_EVENT_CONSUMER      → shared — consumes message queues
+LOGGER_SERVICE             → shared — Logger interface
+APP_METRICS                → shared — AppMetrics interface
 ```
 
 ## Checklist
 
-- [ ] El token (`Symbol`) está en el mismo archivo que la interfaz
-- [ ] La clase concreta (`TypeOrm*`, `Amqp*`) se registra solo en el módulo de infrastructure
-- [ ] Las clases concretas **nunca** se exportan — solo el token
-- [ ] El use case inyecta por token: `@Inject({ENTITY}_REPOSITORY)`
-- [ ] Sin `forwardRef()` si no hay dependencia circular real
+- [ ] The token (`Symbol`) is in the same file as the interface
+- [ ] The concrete class (persistence and messaging adapters) is registered only in the infrastructure module
+- [ ] Concrete classes are **never** exported — only the token
+- [ ] The use case injects by token
+- [ ] No circular-reference workaround if there is no real circular dependency

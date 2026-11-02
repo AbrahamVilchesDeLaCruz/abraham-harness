@@ -1,34 +1,32 @@
-# REST: patrones y ejemplos
+# REST: patterns and examples
 
-### Rutas — convenciones base
-
-```
-GET    /products              ← listar (con query params para filtros)
-GET    /products/:id          ← obtener uno
-POST   /products              ← crear
-PATCH  /products/:id          ← actualizar parcialmente
-DELETE /products/:id          ← eliminar
-```
-
-### Acciones DDD con POST
+### Routes — base conventions
 
 ```
-POST /products/:id/review          ← revisar un product
-POST /products/:id/archive         ← archivar
-POST /orders/:id/complete             ← completar partida (devuelve stats)
-POST /orders/:id/resume               ← reanudar partida pausada (devuelve estado)
-POST /orders/:id/payments             ← registrar intento (sin body de respuesta)
-POST /reviews-sessions/:id/end ← finalizar sesión
+GET    /products              ← list (with query params for filters)
+GET    /products/:id          ← get one
+POST   /products              ← create
+PATCH  /products/:id          ← update partially
+DELETE /products/:id          ← delete
+```
+
+### DDD actions with POST
+
+```
+POST /products/:id/review          ← review a product
+POST /products/:id/archive         ← archive
+POST /orders/:id/complete             ← complete an order (returns stats)
+POST /orders/:id/resume               ← resume a paused order (returns state)
+POST /orders/:id/payments             ← record an attempt (no response body)
+POST /reviews-sessions/:id/end ← end the session
 ```
 
 ```typescript
-// ✅ Acción DDD sin body de respuesta → 204
-@Post(':id/payments')
-@HttpCode(HttpStatus.NO_CONTENT)
+// ✅ DDD action without a response body → 204
 async handler(
-  @Param('id') id: string,
-  @Body() body: RecordPaymentPostPayload,
-  @CurrentUser() user: UserContext,
+  id: string,
+  body: RecordPaymentPostPayload,
+  user: UserContext,
 ): Promise<void> {
   await this.recorder.execute({
     orderId: id,
@@ -38,76 +36,45 @@ async handler(
   });
 }
 
-// ✅ Acción DDD con body de respuesta → 200
-@Post(':id/complete')
-@HttpCode(HttpStatus.OK)
+// ✅ DDD action with a response body → 200
 async handler(
-  @Param('id') id: string,
-  @CurrentUser() user: UserContext,
+  id: string,
+  user: UserContext,
 ): Promise<ApiResponse<ResponseOrderCompleter>> {
   const data = await this.completer.execute({ orderId: id, userId: user.userId ?? null });
   return ApiResponse.of(data, resolveRequestId(req));
 }
 
-// ❌ Verbo en la ruta
-@Post(':id/doReview')
-@Post('review/:id')
 ```
 
-### Swagger — decoradores obligatorios
+A verb in the route, such as `:id/doReview` or `review/:id`, is forbidden.
 
-**A nivel de clase:**
+### API documentation — mandatory
 
-```typescript
-@ApiTags('sales')               // ← nombre del bounded context / recurso
-@ApiBearerAuth('access-token')   // ← si el endpoint requiere JWT (omitir en endpoints públicos)
-@Controller('orders')
-@UseGuards(JwtAuthGuard)
-export class CompleteOrderPostController { ... }
-```
+**At class level:**
 
-**A nivel de método:**
+- Tags: the bounded context / resource name.
+- Bearer auth: if the endpoint requires a JWT (omit on public endpoints).
 
-```typescript
-@Post(':id/complete')
-@HttpCode(HttpStatus.OK)
-@ApiOperation({
-  summary: 'Complete an order session',
-  description: 'Marks the order as completed and returns summary stats.',
-})
-@ApiOkResponse({ description: 'Order completed with summary stats' })
-@ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
-@ApiUnprocessableEntityResponse({
-  description: 'Validation error',
-  type: ValidationErrorResponse,
-})
-async handler(...) { ... }
-```
+**At method level:**
 
-**Decoradores de respuesta por status code:**
+- Operation: summary and description.
+- One documented response for each status code the endpoint can really return, each with a description. `422` also names `ValidationErrorResponse` as its type.
+- `204` carries no body and no success-response documentation.
 
-| Status | Decorador Swagger |
-| ------ | ----------------- |
-| `200`  | `@ApiOkResponse({ description: '...' })` |
-| `201`  | `@ApiCreatedResponse({ description: '...' })` |
-| `204`  | (ninguno — 204 no lleva body ni decorador de respuesta exitosa) |
-| `401`  | `@ApiUnauthorizedResponse({ description: '...' })` |
-| `403`  | `@ApiForbiddenResponse({ description: '...' })` |
-| `404`  | `@ApiNotFoundResponse({ description: '...' })` |
-| `409`  | `@ApiConflictResponse({ description: '...' })` |
-| `422`  | `@ApiUnprocessableEntityResponse({ description: '...', type: ValidationErrorResponse })` |
+The markers per status code live in the project's stack skill.
 
-### Naming del método de acción
+### Naming the action method
 
 ```typescript
 async handler(
-  @Param('id') id: string,
-  @Body() body: RecordPaymentPostPayload,
-  @CurrentUser() user: UserContext,
+  id: string,
+  body: RecordPaymentPostPayload,
+  user: UserContext,
 ): Promise<void> { ... }
 ```
 
-### Un controller por acción
+### One controller per action
 
 ```
 products/infrastructure/controllers/
@@ -119,21 +86,9 @@ products/infrastructure/controllers/
 └── review-product-post.controller.ts       + review-product-post.payload.ts
 ```
 
-```typescript
-@Module({
-  controllers: [
-    CreateProductPostController,
-    SearchProductsGetController,
-    FindProductGetController,
-    UpdateProductPatchController,
-    DeleteProductDeleteController,
-    ReviewProductPostController,
-  ],
-})
-export class ProductModule {}
-```
+Register all of them in the module `ProductModule`.
 
-### Query params para listados
+### Query params for lists
 
 ```
 GET /products?orderBy=createdAt&orderType=DESC&limit=20&offset=0
@@ -143,26 +98,24 @@ GET /products?filters[0][field]=name&filters[0][operator]=CONTAINS&filters[0][va
 ## Anti-patterns
 
 ```typescript
-// ❌ Un controller para todo el recurso
-export class ProductController { } // un controller por acción
+// ❌ One controller for the whole resource
+export class ProductController { } // one controller per action
 
-// ❌ DTO genérico sin nombre semántico
+// ❌ Generic DTO without a semantic name
 export class ProductDto { }        // CreateProductPostPayload / SearchProductsGetQuery
 
-// ❌ Verbo en la ruta
+// ❌ Verb in the route
 GET  /products/getAll
 POST /products/create
 POST /products/doReview/:id
 
-// ❌ ID en body para GET
+// ❌ ID in the body for GET
 GET /products  body: { id: '123' }
 
-// ❌ 200 para creación
-@Post() @HttpCode(HttpStatus.OK)  // debe ser 201
+// ❌ 200 for creation — must be 201
 
-// ❌ Devolver entidad de dominio
-return product; // devolver product.toPrimitives()
+// ❌ Returning a domain entity
+return product; // return product.toPrimitives()
 
-// ❌ Lógica de negocio en controller
-if (body.quality > 5) throw new BadRequestException(); // va en VO o dominio
+// ❌ Business logic in a controller — belongs in a value object or the domain
 ```

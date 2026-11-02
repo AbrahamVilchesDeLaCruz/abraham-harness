@@ -1,32 +1,18 @@
 # Controller Patterns — Reference
 
-## Controller completo con Swagger
+These are framework-free versions. Routing, status, validation and API documentation markers live in the project's stack skill, in `references/api-infrastructure.md`.
+
+## Complete controller
 
 ```typescript
 // sales/infrastructure/controllers/start-order-post.controller.ts
-@ApiTags('sales')
-@ApiBearerAuth('access-token')
-@Controller('orders')
-@UseGuards(AnyAuthGuard)
 export class StartOrderPostController {
   constructor(private readonly starter: OrderStarter) {}
 
-  @Post()
-  @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({
-    summary: 'Start a new order session',
-    description: 'Creates an order with the selected mode, module and item count.',
-  })
-  @ApiCreatedResponse({ description: 'Order created with id and product ids' })
-  @ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
-  @ApiUnprocessableEntityResponse({
-    description: 'Invalid mode, module or item count',
-    type: ValidationErrorResponse,
-  })
   async handler(
-    @Req() req: Request,
-    @Body() body: StartOrderPostPayload,
-    @CurrentUser() user: UserContext,
+    req: Request,
+    body: StartOrderPostPayload,
+    user: UserContext,
   ): Promise<ApiResponse<ResponseOrderStarter>> {
     const data = await this.starter.execute({
       userId: user.userId ?? null,
@@ -41,83 +27,46 @@ export class StartOrderPostController {
 }
 ```
 
-## Payload con Swagger
+## Payload
 
 ```typescript
 // sales/infrastructure/controllers/start-order-post.payload.ts
 export class StartOrderPostPayload {
-  @ApiProperty({ description: 'Order mode', enum: ['standard', 'express'] })
-  @IsString()
-  @IsNotEmpty()
   mode: string;
 
-  @ApiPropertyOptional({ description: 'Learning module' })
-  @IsOptional()
-  @IsString()
   module?: string;
 
-  @ApiPropertyOptional({ description: 'Subcategory' })
-  @IsOptional()
-  @IsString()
   subcategory?: string;
 
-  @ApiProperty({ description: 'Number of items', example: 10 })
-  @IsInt()
-  @Min(1)
-  @Max(50)
   itemCount: number;
 
-  @ApiPropertyOptional({ description: 'Selection source', enum: ['catalog', 'weakest'] })
-  @IsOptional()
-  @IsString()
   source?: string;
 }
 ```
 
-## Query GET con paginación
+## GET Query with pagination
 
 ```typescript
 // sales/infrastructure/controllers/search-orders-stats-get.query.ts
 export class SearchOrdersGetQuery {
-  @ApiPropertyOptional({ example: 1 })
-  @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
   page?: number = 1;
 
-  @ApiPropertyOptional({ example: 20 })
-  @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
-  @Max(100)
   limit?: number = 20;
 
-  @ApiPropertyOptional({ enum: ['standard', 'express'] })
-  @IsOptional()
-  @IsString()
   mode?: string;
 }
 ```
 
-## Controller de GET con paginación
+## GET controller with pagination
 
 ```typescript
-@ApiTags('sales')
-@ApiBearerAuth('access-token')
-@Controller('orders')
-@UseGuards(JwtAuthGuard)
 export class SearchOrdersGetController {
   constructor(private readonly searcher: OrdersSearcher) {}
 
-  @Get()
-  @ApiOperation({ summary: 'Search orders with filters and pagination' })
-  @ApiOkResponse({ description: 'Paginated list of orders' })
   async handler(
-    @Req() req: Request,
-    @Query() query: SearchOrdersGetQuery,
-    @CurrentUser() user: UserContext,
+    req: Request,
+    query: SearchOrdersGetQuery,
+    user: UserContext,
   ): Promise<PaginatedApiResponse<OrderPrimitives>> {
     const result = await this.searcher.execute({
       userId: user.userId!,
@@ -142,24 +91,17 @@ export class SearchOrdersGetController {
 }
 ```
 
-## Controller command puro (PATCH/DELETE)
+## Pure command controller (PATCH/DELETE)
 
 ```typescript
-@Patch(':id')
-@HttpCode(HttpStatus.NO_CONTENT)
-@ApiOperation({ summary: 'Update product' })
-@ApiNoContentResponse({ description: 'Updated successfully' })
 async handler(
-  @Param('id') id: string,
-  @Body() body: UpdateProductPatchPayload,
+  id: string,
+  body: UpdateProductPatchPayload,
 ): Promise<void> {
   await this.updater.execute({ id, ...body });
 }
 
-@Delete(':id')
-@HttpCode(HttpStatus.NO_CONTENT)
-@ApiNoContentResponse({ description: 'Deleted successfully' })
-async handler(@Param('id') id: string): Promise<void> {
+async handler(id: string): Promise<void> {
   await this.deleter.execute({ id });
 }
 ```

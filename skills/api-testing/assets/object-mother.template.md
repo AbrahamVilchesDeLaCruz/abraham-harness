@@ -1,24 +1,13 @@
 # Template — Object Mother
 
-Reemplazá `__EntityName__` y `__module__` por los valores reales.
+Replace `__EntityName__` and `__module__` with the real values.
 
-La jerarquía es: `MotherCreator` → Mothers de primitivos → Mothers de VOs → Mother del aggregate.
-**Faker solo vive en `MotherCreator`** — nunca importar faker directamente en un Mother de VO o aggregate.
+The hierarchy is: `MotherCreator` → primitive Mothers → VO Mothers → aggregate Mother.
+**The test-data library lives only in `MotherCreator`** — never import it directly in a VO or aggregate Mother.
 
-## MotherCreator (shared — ya existe, no recrear)
+`MotherCreator` is shared and already exists — do not recreate it. It is in the testing stack skill.
 
-```typescript
-// apps/api/test/shared/domain/mother-creator.ts
-import { faker, type Faker } from '@faker-js/faker';
-
-export class MotherCreator {
-  static random(): Faker {
-    return faker;
-  }
-}
-```
-
-## Mother de VO
+## VO Mother
 
 ```typescript
 // apps/api/test/__module__/domain/__entity-name__-id-mother.ts
@@ -36,7 +25,7 @@ export class __EntityName__IdMother {
 }
 ```
 
-## Mother del Aggregate
+## Aggregate Mother
 
 ```typescript
 // apps/api/test/__module__/domain/__entity-name__-mother.ts
@@ -46,28 +35,28 @@ import { StringMother } from '@test/shared/domain/string-mother';
 
 type __EntityName__Primitives = {
   id: string;
-  // añadir campos aquí
+  // add fields here
 };
 
 type Overrides = Partial<__EntityName__Primitives>;
 
 export class __EntityName__Mother {
 
-  // Valores aleatorios — acepta overrides parciales
+  // Random values — accepts partial overrides
   static random(overrides?: Overrides): __EntityName__ {
     return __EntityName__.fromPrimitives({
       id: __EntityName__IdMother.random().value,
-      // añadir campos usando Mothers de VO aquí
+      // add fields using VO Mothers here
       ...overrides,
     });
   }
 
-  // Valores explícitos — tests con datos controlados
+  // Explicit values — tests with controlled data
   static create(primitives: __EntityName__Primitives): __EntityName__ {
     return __EntityName__.fromPrimitives(primitives);
   }
 
-  // Reconstruye desde request — tests de use case
+  // Rebuilds from the request — use case tests
   static from(request: Request__EntityName__Creator): __EntityName__ {
     return __EntityName__.fromPrimitives({ ...request });
   }

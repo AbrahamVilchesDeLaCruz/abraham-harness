@@ -1,47 +1,24 @@
 # Repository Criteria — Reference
 
-## `match()` en repositorio TypeORM — implementación completa
+The complete persistence implementation lives in the project's persistence stack skill, in `references/api-criteria.md`.
+
+## What `match()` does
+
+For every filter in `criteria.filters`:
+
+- `value === null` with `EQ` → `IS NULL`; with any other operator → `IS NOT NULL`.
+- Any other value → `field operator :param`, with a named parameter `p_{field}`.
+
+Then apply `criteria.order` when present, `criteria.limit` when it is not `null`, and `criteria.offset` when it is not `null`. Map each result to the domain with `toDomain()`.
+
+## Complete flow: Controller → Use Case → Repository
+
+### Controller — extracts params, passes primitives to the use case
 
 ```typescript
-async match(criteria: Criteria): Promise<Order[]> {
-  const qb = this.orderRepo.createQueryBuilder('g');
-
-  for (const filter of criteria.filters) {
-    const param = `p_${filter.field}`;
-    if (filter.value === null) {
-      if (filter.operator === FilterOperator.EQ) {
-        qb.andWhere(`g.${filter.field} IS NULL`);
-      } else {
-        qb.andWhere(`g.${filter.field} IS NOT NULL`);
-      }
-    } else {
-      qb.andWhere(`g.${filter.field} ${filter.operator} :${param}`, {
-        [param]: filter.value,
-      });
-    }
-  }
-
-  if (criteria.order) {
-    qb.orderBy(`g.${criteria.order.field}`, criteria.order.direction);
-  }
-
-  if (criteria.limit !== null) qb.take(criteria.limit);
-  if (criteria.offset !== null) qb.skip(criteria.offset);
-
-  const entities = await qb.getMany();
-  return entities.map((e) => this.toDomain(e));
-}
-```
-
-## Flujo completo: Controller → Use Case → Repository
-
-### Controller — extrae params, pasa primitivos al use case
-
-```typescript
-@Get()
 async handler(
-  @Query() query: SearchOrdersGetQuery,
-  @CurrentUser() user: UserContext,
+  query: SearchOrdersGetQuery,
+  user: UserContext,
 ): Promise<PaginatedApiResponse<OrderPrimitives>> {
   return this.searcher.execute({
     userId: user.userId ?? null,
@@ -52,10 +29,9 @@ async handler(
 }
 ```
 
-### Use Case — construye `Criteria`
+### Use Case — builds `Criteria`
 
 ```typescript
-@Injectable()
 export class PausedOrdersLister {
   async execute(request: RequestPausedOrdersLister): Promise<OrderPrimitives[]> {
     const criteria = new Criteria(
@@ -72,30 +48,11 @@ export class PausedOrdersLister {
 }
 ```
 
-## `count()` en repositorio — para paginación
+## `count()` in the repository — for pagination
 
-Si el endpoint devuelve paginación, el repositorio también implementa `count()` con el mismo `Criteria` (sin `limit`/`offset` para el total):
+If the endpoint returns pagination, the repository also implements `count()` with the same `Criteria` (without `limit`/`offset` for the total). It applies the same filters as `match()` and returns the count.
 
-```typescript
-async count(criteria: Criteria): Promise<number> {
-  const qb = this.productRepo.createQueryBuilder('f');
-
-  for (const filter of criteria.filters) {
-    const param = `p_${filter.field}`;
-    if (filter.value === null) {
-      qb.andWhere(filter.operator === FilterOperator.EQ
-        ? `f.${filter.field} IS NULL`
-        : `f.${filter.field} IS NOT NULL`);
-    } else {
-      qb.andWhere(`f.${filter.field} ${filter.operator} :${param}`, { [param]: filter.value });
-    }
-  }
-
-  return qb.getCount();
-}
-```
-
-Llamar ambos en paralelo desde el use case — nunca secuencial:
+Call both in parallel from the use case — never sequentially:
 
 ```typescript
 const [items, total] = await Promise.all([
@@ -104,15 +61,15 @@ const [items, total] = await Promise.all([
 ]);
 ```
 
-## Operadores disponibles
+## Available operators
 
-| Operador | SQL generado | Caso de uso |
+| Operator | Generated SQL | Use case |
 |---|---|---|
-| `FilterOperator.EQ` | `= :value` / `IS NULL` | Igualdad exacta, null check |
-| `FilterOperator.NEQ` | `!= :value` / `IS NOT NULL` | Diferente de, not null |
-| `FilterOperator.GT` | `> :value` | Mayor que (fechas, números) |
-| `FilterOperator.LT` | `< :value` | Menor que |
-| `FilterOperator.GTE` | `>= :value` | Mayor o igual |
-| `FilterOperator.LTE` | `<= :value` | Menor o igual |
-| `FilterOperator.LIKE` | `LIKE :value` | Búsqueda parcial — añadir `%` en el value |
-| `FilterOperator.IN` | `IN (:...value)` | Lista de valores |
+| `FilterOperator.EQ` | `= :value` / `IS NULL` | Exact equality, null check |
+| `FilterOperator.NEQ` | `!= :value` / `IS NOT NULL` | Not equal, not null |
+| `FilterOperator.GT` | `> :value` | Greater than (dates, numbers) |
+| `FilterOperator.LT` | `< :value` | Less than |
+| `FilterOperator.GTE` | `>= :value` | Greater than or equal |
+| `FilterOperator.LTE` | `<= :value` | Less than or equal |
+| `FilterOperator.LIKE` | `LIKE :value` | Partial search — add `%` in the value |
+| `FilterOperator.IN` | `IN (:...value)` | List of values |

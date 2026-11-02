@@ -1,21 +1,45 @@
 ---
 name: client-pods
-description: "Estructura de pods, naming, cuándo crear qué en apps/client/. Trigger: Al crear un nuevo pod, definir la estructura de directorios de una feature, o decidir qué va dentro de un pod."
+description: "Trigger: Al crear un nuevo pod, definir la estructura de directorios de una feature, o decidir qué va dentro de un pod. Estructura de pods, naming, cuándo crear qué en apps/client/."
 license: Apache-2.0
 metadata:
   author: AbrahamVilchesDeLaCruz
   version: "1.0"
 ---
 
+## Activation Contract
+
+Usa esta skill al crear un nuevo pod, definir la estructura de directorios de una feature, o decidir qué va dentro de un pod.
+
 Estructura de pods para `apps/client/`. Un pod es una unidad funcional autocontenida que encapsula toda la lógica, UI y acceso a datos de una feature de dominio.
 
-> Usa el scaffold de `assets/pod-scaffold.md` al crear un nuevo pod (estructura de directorios + naming).
-> Lee `references/docs.md` para skills relacionadas y decisión arquitectónica.
-> Referencia completa: `docs/engineering/frontend-architecture.md`
+## Hard Rules
 
----
+- Un pod **NO importa de otro pod** directamente
+- Comunicación entre pods solo a través de `core/`, `common/`, o `common-app/`
+- El punto de entrada de un pod es siempre su `index.ts` (que exporta el Container)
 
-## Estructura global
+## Decision Gates
+
+Si un pod es simple, no hace falta crear todas las carpetas. La estructura crece con la complejidad:
+
+| Complejidad | Qué crear |
+|---|---|
+| Pod mínimo | `Container.tsx`, `Component.tsx`, `index.ts` |
+| Con data fetching | + `api/` |
+| Con estado de UI complejo | + `hooks/` |
+| Con sub-componentes | + `components/` |
+| Con transformación de datos | + `mapper.ts`, `types.ts` |
+
+## Execution Steps
+
+1. Usa el scaffold de `assets/pod-scaffold.md` al crear un nuevo pod (estructura de directorios + naming).
+2. Crea solo lo que pida la tabla de Decision Gates.
+3. Nombra cada archivo con la tabla de Naming conventions.
+
+## Output Contract
+
+Estructura global:
 
 ```
 apps/client/src/
@@ -27,7 +51,7 @@ apps/client/src/
 └── views/         ← Páginas que seleccionan layout + renderizan pods
 ```
 
-## Estructura interna de un Pod
+Estructura interna de un Pod:
 
 ```
 containers/
@@ -49,7 +73,7 @@ containers/
     └── index.ts                      ← Barrel: exporta el Container
 ```
 
-## Naming conventions
+Naming conventions:
 
 | Elemento | Convención | Ejemplo |
 |---|---|---|
@@ -65,35 +89,9 @@ containers/
 | Styles | `camelCase.styles.ts` | `products.styles.ts` |
 | Barrels | `index.ts` | `hooks/index.ts`, `api/index.ts` |
 
-## Reglas de aislamiento
+## References
 
-- Un pod **NO importa de otro pod** directamente
-- Comunicación entre pods solo a través de `core/`, `common/`, o `common-app/`
-- El punto de entrada de un pod es siempre su `index.ts` (que exporta el Container)
-
-## No sobre-arquitecturar
-
-Si un pod es simple, no hace falta crear todas las carpetas. La estructura crece con la complejidad:
-
-| Complejidad | Qué crear |
-|---|---|
-| Pod mínimo | `Container.tsx`, `Component.tsx`, `index.ts` |
-| Con data fetching | + `api/` |
-| Con estado de UI complejo | + `hooks/` |
-| Con sub-componentes | + `components/` |
-| Con transformación de datos | + `mapper.ts`, `types.ts` |
-
-## Ejemplo — pod mínimo
-
-```
-containers/
-└── profile/
-    ├── api/
-    │   ├── index.ts
-    │   ├── profile.api-model.ts
-    │   └── profile.api.ts
-    ├── ProfileContainer.tsx
-    ├── ProfileComponent.tsx
-    ├── profile.types.ts
-    └── index.ts
-```
+- [`references/patterns.md`](references/patterns.md) — ejemplo de pod mínimo.
+- [`assets/pod-scaffold.md`](assets/pod-scaffold.md) — scaffold al crear un nuevo pod.
+- [`references/docs.md`](references/docs.md) — Lee `references/docs.md` para skills relacionadas y decisión arquitectónica.
+- Referencia completa: `docs/engineering/frontend-architecture.md`

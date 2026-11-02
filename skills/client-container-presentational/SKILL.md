@@ -1,25 +1,25 @@
 ---
 name: client-container-presentational
-description: "Contrato Container/Component, responsabilidades, prohibiciones en apps/client/. Trigger: Al crear o modificar Containers y Components en pods, definir el contrato de props, o separar lógica de UI."
+description: "Trigger: Al crear o modificar Containers y Components en pods, definir el contrato de props, o separar lógica de UI. Contrato Container/Component, responsabilidades, prohibiciones en apps/client/."
 license: Apache-2.0
 metadata:
   author: AbrahamVilchesDeLaCruz
   version: "1.0"
 ---
 
+## Activation Contract
+
+Usa esta skill al crear o modificar Containers y Components en pods, definir el contrato de props, o separar lógica de UI en `apps/client/`.
+
 El patrón central del cliente. Cada pod tiene dos piezas obligatorias: **Container** y **Component**.
 
-> Usa el template de `assets/container.template.md` al crear un Container + Component nuevo.
-> Lee `references/docs.md` para el rationale del patrón y docs externos.
-> Referencia completa: `docs/engineering/frontend-architecture.md`
+## Hard Rules
 
----
-
-## Container (`*Container.tsx`)
+### Container (`*Container.tsx`)
 
 La **puerta de entrada al mundo exterior** del pod.
 
-### Responsabilidades exclusivas
+Responsabilidades exclusivas:
 
 - Data binding: `useQuery` / `useMutation` de TanStack Query
 - Routing: `useParams`, `useLocation`, `useNavigate`, `useSearchParams`
@@ -27,46 +27,18 @@ La **puerta de entrada al mundo exterior** del pod.
 - Callbacks que disparan mutations o navegación
 - `useMemo` para derivar parámetros de query (nunca `useState` para valores derivados)
 
-### Prohibiciones
+Prohibiciones:
 
 - ❌ `useState` de UI (modals, tooltips, filtros visuales)
 - ❌ JSX complejo — solo renderiza `<{Feature}Component />` con props
 - ❌ `useEffect` salvo sync trivial hacia afuera
 - ❌ Transformaciones de datos (eso es el mapper)
 
-### Ejemplo
-
-```tsx
-// ProductsContainer.tsx
-export const ProductsContainer = () => {
-  const { deckId } = useParams<{ deckId: string }>();
-  const [page, setPage] = useState(1);
-
-  // TanStack Query — data binding
-  const { data: products, isLoading } = useProducts({ deckId, page });
-  const { mutate: deleteProduct } = useDeleteProduct();
-
-  // Callback que dispara mutation
-  const handleDelete = (id: string) => deleteProduct({ id });
-
-  return (
-    <ProductsComponent
-      products={products ?? []}
-      isLoading={isLoading}
-      onDelete={handleDelete}
-      onPageChange={setPage}
-    />
-  );
-};
-```
-
----
-
-## Component (`*Component.tsx`)
+### Component (`*Component.tsx`)
 
 El **dueño de la UI**: estado visual, ciclo de vida, composición.
 
-### Responsabilidades
+Responsabilidades:
 
 - Estado de UI: `useState` para modals, tooltips, filtros, toggles
 - `useEffect` para sincronizar estado de UI local
@@ -74,110 +46,38 @@ El **dueño de la UI**: estado visual, ciclo de vida, composición.
 - Composición: renderiza sub-componentes de `components/`
 - Consume hooks del pod (`hooks/`) para encapsular lógica de UI compleja
 
-### Prohibiciones
+Prohibiciones:
 
 - ❌ `useQuery` / `useMutation` — no hace fetch de datos
 - ❌ `useParams`, `useNavigate`, `useLocation` — no accede a routing
 - ❌ Zustand store ni `useContext` global
 - ❌ Lógica de negocio — solo presentación y estado de UI
 
-### Props interface
+### Contrato de props
 
-Siempre declarar una interface explícita para las props del Component:
+- Siempre declarar una interface explícita para las props del Component.
+- El Component nunca sabe cómo se ejecuta una acción — solo recibe callbacks.
 
-```tsx
-interface ProductsComponentProps {
-  products: ProductVM[];
-  isLoading: boolean;
-  onDelete: (id: string) => void;
-  onPageChange: (page: number) => void;
-}
-```
+## Decision Gates
 
-### Ejemplo
+| Archivo | Líneas aprox. | Si lo supera |
+|---|---|---|
+| Container | ~40–80 líneas | Si el Container supera 80 líneas, probablemente tiene lógica de UI que no le corresponde. |
+| Component | ~80–150 líneas | Si el Component supera 150 líneas, probablemente hay hooks del pod por extraer. |
 
-```tsx
-// ProductsComponent.tsx
-export const ProductsComponent = ({
-  products,
-  isLoading,
-  onDelete,
-  onPageChange,
-}: ProductsComponentProps) => {
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [filters, filterHandlers] = useProductFilters();
+## Execution Steps
 
-  return (
-    <div>
-      <ProductToolbar filters={filters} onFilter={filterHandlers.setDifficulty} />
-      <ProductGrid
-        products={products}
-        isLoading={isLoading}
-        onSelect={setSelectedId}
-        onDelete={onDelete}
-      />
-      {selectedId && (
-        <ProductDetailPopup
-          id={selectedId}
-          onClose={() => setSelectedId(null)}
-        />
-      )}
-    </div>
-  );
-};
-```
+1. Usa el template de `assets/container.template.md` al crear un Container + Component nuevo.
+2. Reparte cada pieza según las Hard Rules; la forma de cada archivo, el contrato visual y el flujo de callbacks están en `references/patterns.md`.
+3. Comprueba el tamaño de cada archivo con la tabla de Decision Gates.
 
----
+## Output Contract
 
-## Contrato visual
+Un `*Container.tsx` que solo renderiza `<{Feature}Component />` con props y un `*Component.tsx` con su interface de props explícita, ambos dentro de los límites de las Hard Rules.
 
-```
-┌─────────────────────────────────────────────┐
-│               Container                      │
-│  (useQuery, useMutation, useParams,         │
-│   Zustand, callbacks)                       │
-│                                              │
-│   ┌─────────────────────────────────────┐   │
-│   │           Component                  │   │
-│   │  (useState UI, useEffect, useRef,   │   │
-│   │   hooks del pod)                    │   │
-│   │                                      │   │
-│   │  ┌──────────┐  ┌──────────────────┐ │   │
-│   │  │ Toolbar  │  │  FilterChips     │ │   │
-│   │  └──────────┘  └──────────────────┘ │   │
-│   │  ┌──────────────────────────────────┐│   │
-│   │  │           Grid                   ││   │
-│   │  └──────────────────────────────────┘│   │
-│   │  ┌──────────┐  ┌──────────────────┐ │   │
-│   │  │  Popup   │  │    Tooltip       │ │   │
-│   │  └──────────┘  └──────────────────┘ │   │
-│   └─────────────────────────────────────┘   │
-└─────────────────────────────────────────────┘
-```
+## References
 
----
-
-## Flujo de callbacks
-
-El Component nunca sabe cómo se ejecuta una acción — solo recibe callbacks:
-
-```
-Container                          Component
-─────────                          ─────────
-handleDelete = (id) =>             onDelete(id)  ← prop
-  deleteProduct({ id })          ↑
-                                   llama al callback
-                            mutation ejecutada en Container
-```
-
----
-
-## Tamaño esperado
-
-| Archivo | Líneas aprox. |
-|---|---|
-| Container | ~40–80 líneas |
-| Component | ~80–150 líneas |
-
-Si el Container supera 80 líneas, probablemente tiene lógica de UI que no le corresponde.
-Si el Component supera 150 líneas, probablemente hay hooks del pod por extraer.
+- [`references/patterns.md`](references/patterns.md) — ejemplos de Container y Component, Props interface, contrato visual y flujo de callbacks.
+- [`assets/container.template.md`](assets/container.template.md) — template al crear un Container + Component nuevo.
+- [`references/docs.md`](references/docs.md) — Lee `references/docs.md` para el rationale del patrón y docs externos.
+- Referencia completa: `docs/engineering/frontend-architecture.md`

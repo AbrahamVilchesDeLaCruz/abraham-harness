@@ -1,183 +1,54 @@
 ---
 name: client-hooks
-description: "Hooks del pod [State, Handlers], hooks globales, cuándo extraer en apps/client/. Trigger: Al crear hooks de estado o handlers en un pod, extraer lógica a hooks globales, o decidir cuándo crear un hook."
+description: "Trigger: Al crear hooks de estado o handlers en un pod, extraer lógica a hooks globales, o decidir cuándo crear un hook. Hooks del pod [State, Handlers], hooks globales, cuándo extraer en apps/client/."
 license: Apache-2.0
 metadata:
   author: AbrahamVilchesDeLaCruz
   version: "1.0"
 ---
 
+## Activation Contract
+
+Usa esta skill al crear hooks de estado o handlers en un pod, extraer lógica a hooks globales, o decidir cuándo crear un hook.
+
 Hooks del pod y hooks globales en `apps/client/`.
 
-> Usa el template de `assets/use-state-handlers.template.md` al extraer `use{Pod}State` y `use{Pod}Handlers`.
-> Lee `references/docs.md` para el rationale del patrón tupla y docs externos.
+## Hard Rules
 
----
+- Un hook del pod **no se importa desde otro pod** — si se necesita en dos pods, muévelo a `core/hooks/`
+- Los hooks del pod pueden usar hooks globales
+- Los hooks del pod **no hacen fetch** — eso es responsabilidad de `api.ts`
+- Un hook global **no tiene lógica de dominio** — si la tiene, es un hook del pod
+- Los hooks del pod retornan siempre una tupla para desestructurar limpiamente en el Component: `[State, Handlers]`
+- Naming: archivo `camelCase.ts` → `useProductFilters.ts`; export `camelCase` → `useProductFilters`
+- Barrel obligatorio: `hooks/index.ts` re-exporta todo
 
-## Dos tipos de hooks
+## Decision Gates
 
 | Tipo | Ubicación | Alcance |
 |---|---|---|
 | Hooks del pod | `containers/{feature}/hooks/` | Solo dentro del pod |
 | Hooks globales | `core/hooks/` o `common/hooks/` | Reutilizables entre pods |
 
----
-
-## Hooks del pod
-
-### Cuándo crear uno
+Crea un hook del pod:
 
 - Cuando hay un grupo de `useState` + handlers cohesionados (filtros, tooltips, paginación, selección)
 - Cuando el Component tiene más de ~5 `useState` → señal de que hay hooks por extraer
 - Cuando la lógica se puede nombrar con un sustantivo claro: `filters`, `tooltip`, `pagination`
 
-### Naming
+## Execution Steps
 
-- Archivo: `camelCase.ts` → `useProductFilters.ts`
-- Export: `camelCase` → `useProductFilters`
-- Barrel obligatorio: `hooks/index.ts` re-exporta todo
+1. Decide tipo y ubicación con la tabla de Decision Gates.
+2. Usa el template de `assets/use-state-handlers.template.md` al extraer `use{Pod}State` y `use{Pod}Handlers`.
+3. Sigue la forma de `references/patterns.md`: tupla, uso en el Component, barrel y hooks globales de ejemplo.
+4. Añade el hook del pod al barrel `hooks/index.ts`.
 
-### Patrón de retorno — tupla `[State, Handlers]`
+## Output Contract
 
-Los hooks del pod retornan siempre una tupla para desestructurar limpiamente en el Component:
+Un hook del pod que retorna la tupla `[State, Handlers]` y está re-exportado en `hooks/index.ts`, o un hook global sin lógica de dominio en su ubicación global.
 
-```ts
-// hooks/useProductFilters.ts
+## References
 
-interface ProductFiltersState {
-  difficulty: 'easy' | 'medium' | 'hard' | null;
-  showReviewOnly: boolean;
-}
-
-interface ProductFiltersHandlers {
-  setDifficulty: (d: ProductFiltersState['difficulty']) => void;
-  toggleReviewOnly: () => void;
-  resetFilters: () => void;
-}
-
-export const useProductFilters = (): [ProductFiltersState, ProductFiltersHandlers] => {
-  const [difficulty, setDifficulty] = useState<ProductFiltersState['difficulty']>(null);
-  const [showReviewOnly, setShowReviewOnly] = useState(false);
-
-  const resetFilters = () => {
-    setDifficulty(null);
-    setShowReviewOnly(false);
-  };
-
-  return [
-    { difficulty, showReviewOnly },
-    { setDifficulty, toggleReviewOnly: () => setShowReviewOnly(v => !v), resetFilters },
-  ];
-};
-```
-
-### Uso en el Component
-
-```tsx
-// ProductsComponent.tsx
-export const ProductsComponent = ({ products, ... }: ProductsComponentProps) => {
-  const [filters, filterHandlers] = useProductFilters();
-  const [tooltip, tooltipHandlers] = useProductTooltip();
-
-  return (
-    <div>
-      <ProductToolbar
-        filters={filters}
-        onFilter={filterHandlers.setDifficulty}
-        onReset={filterHandlers.resetFilters}
-      />
-      {products.map(product => (
-        <ProductItem
-          key={product.id}
-          product={product}
-          onHover={tooltipHandlers.show}
-        />
-      ))}
-      {tooltip.visible && <ProductTooltip {...tooltip} onClose={tooltipHandlers.close} />}
-    </div>
-  );
-};
-```
-
-### Barrel del pod
-
-```ts
-// hooks/index.ts
-export { useProductFilters } from './useProductFilters';
-export { useProductTooltip } from './useProductTooltip';
-export { useProductPagination } from './useProductPagination';
-```
-
----
-
-## Hooks globales
-
-Hooks reutilizables entre pods — sin lógica de dominio.
-
-### Ubicación
-
-```
-core/hooks/
-├── useClickOutside.ts
-├── useDebounce.ts
-├── useLocalStorage.ts
-└── index.ts
-```
-
-### Ejemplos
-
-```ts
-// useClickOutside.ts
-export const useClickOutside = (
-  ref: RefObject<HTMLElement>,
-  handler: () => void,
-) => {
-  useEffect(() => {
-    const listener = (e: MouseEvent) => {
-      if (!ref.current?.contains(e.target as Node)) handler();
-    };
-    document.addEventListener('mousedown', listener);
-    return () => document.removeEventListener('mousedown', listener);
-  }, [ref, handler]);
-};
-```
-
-```ts
-// useDebounce.ts
-export const useDebounce = <T>(value: T, delay: number): T => {
-  const [debounced, setDebounced] = useState(value);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setDebounced(value), delay);
-    return () => clearTimeout(timer);
-  }, [value, delay]);
-
-  return debounced;
-};
-```
-
-```ts
-// useLocalStorage.ts
-export const useLocalStorage = <T>(key: string, initialValue: T) => {
-  const [value, setValue] = useState<T>(() => {
-    const stored = localStorage.getItem(key);
-    return stored ? JSON.parse(stored) : initialValue;
-  });
-
-  const set = (newValue: T) => {
-    setValue(newValue);
-    localStorage.setItem(key, JSON.stringify(newValue));
-  };
-
-  return [value, set] as const;
-};
-```
-
----
-
-## Reglas
-
-- Un hook del pod **no se importa desde otro pod** — si se necesita en dos pods, muévelo a `core/hooks/`
-- Los hooks del pod pueden usar hooks globales
-- Los hooks del pod **no hacen fetch** — eso es responsabilidad de `api.ts`
-- Un hook global **no tiene lógica de dominio** — si la tiene, es un hook del pod
+- [`references/patterns.md`](references/patterns.md) — patrón de retorno, uso en el Component, barrel del pod y hooks globales.
+- [`assets/use-state-handlers.template.md`](assets/use-state-handlers.template.md) — template al extraer `use{Pod}State` y `use{Pod}Handlers`.
+- [`references/docs.md`](references/docs.md) — Lee `references/docs.md` para el rationale del patrón tupla y docs externos.

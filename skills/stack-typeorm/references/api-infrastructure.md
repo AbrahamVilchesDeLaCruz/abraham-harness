@@ -67,7 +67,7 @@ export class TypeOrmOrderRepository implements OrderRepository {
       id: entity.id,
       userId: entity.userId,
       mode: entity.mode,
-      module: entity.module,
+      channel: entity.channel,
       subcategory: entity.subcategory,
       source: entity.source ?? 'catalog',
       itemCount: entity.itemCount,
@@ -84,7 +84,7 @@ export class TypeOrmOrderRepository implements OrderRepository {
     e.id = p.id;
     e.userId = p.userId;
     e.mode = p.mode;
-    e.module = p.module;
+    e.channel = p.channel;
     e.subcategory = p.subcategory;
     e.source = p.source;
     e.itemCount = p.itemCount;
@@ -113,7 +113,7 @@ export class OrderEntity {
   mode: string;
 
   @Column({ nullable: true })
-  module: string | null;
+  channel: string | null;
 
   @Column({ nullable: true })
   subcategory: string | null;

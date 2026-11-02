@@ -1,6 +1,6 @@
 # client-query — Patterns
 
-The hooks below are framework-free shapes. The stack reference for server state shows the original code.
+`serverQuery` and `serverMutation` stand for the query and mutation primitives of the stack's server-state library. `serverQuery` returns `data`, `isLoading`, `isError` and `isFetching`; `serverMutation` returns `execute` and `isSubmitting`. The stack reference for server state shows the original code.
 
 ## Query Keys
 
@@ -30,23 +30,21 @@ export const productKeys = {
 ```ts
 // products.api.ts
 export const useProducts = (params: ProductListParams) => {
-  // Pass this configuration to the stack's server-state query primitive.
-  return {
-    queryKey: productKeys.list(params),
+  return serverQuery({
+    key: productKeys.list(params),
     fetch: () => apiClient.get<ProductApiModel[]>('/products', { params }),
     transform: (data) => data.map(mapProduct),  // mapper here if simple
     freshnessMs: 1000 * 60 * 5,                  // 5 min — adjust as needed
-  };
+  });
 };
 
 export const useProduct = (id: string) => {
-  // Pass this configuration to the stack's server-state query primitive.
-  return {
-    queryKey: productKeys.detail(id),
+  return serverQuery({
+    key: productKeys.detail(id),
     fetch: () => apiClient.get<ProductApiModel>(`/products/${id}`),
     transform: mapProduct,
     enabled: !!id,  // do not run without an id
-  };
+  });
 };
 ```
 
@@ -55,36 +53,33 @@ export const useProduct = (id: string) => {
 ```ts
 // products.api.ts
 export const useCreateProduct = () => {
-  // Pass this configuration to the stack's server-state mutation primitive.
-  return {
+  return serverMutation({
     execute: (data: CreateProductPayload) =>
       apiClient.post<ProductApiModel>('/products', data),
-    onSuccess: () => {
+    onDone: () => {
       // Invalidates every list (productKeys.lists()) — the Container does not need to know how
     },
-  };
+  });
 };
 
 export const useDeleteProduct = () => {
-  // Pass this configuration to the stack's server-state mutation primitive.
-  return {
+  return serverMutation({
     execute: (id: string) => apiClient.delete(`/products/${id}`),
-    onSuccess: (_, id) => {
+    onDone: (_, id) => {
       // Invalidates productKeys.lists() and removes the cache entry at productKeys.detail(id)
     },
-  };
+  });
 };
 
 export const useUpdateProduct = () => {
-  // Pass this configuration to the stack's server-state mutation primitive.
-  return {
+  return serverMutation({
     execute: ({ id, data }: { id: string; data: UpdateProductPayload }) =>
       apiClient.patch<ProductApiModel>(`/products/${id}`, data),
-    onSuccess: (updated) => {
+    onDone: (updated) => {
       // Updates the cache directly at productKeys.detail(updated.id) — avoids an unnecessary refetch
       // Invalidates productKeys.lists()
     },
-  };
+  });
 };
 ```
 

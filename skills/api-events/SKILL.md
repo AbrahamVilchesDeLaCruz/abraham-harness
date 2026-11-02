@@ -39,7 +39,7 @@ Infrastructure → message bus adapter, SubscribersBootstrapper, framework modul
 <bounded-context>.<action>_on_<past_event>
 
 progress.update_product_stats_on_payment_recorded
-content.generate_product_audio_on_product_examples_completed
+content.generate_product_thumbnail_on_product_images_uploaded
 identity.send_welcome_email_on_user_registered
 ```
 

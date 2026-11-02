@@ -63,7 +63,7 @@ export const mapProduct = (raw: ProductApiModel): ProductVM => ({
 
 ## `{feature}.api.ts` — server-state hooks
 
-See skill `client-query` for the full query and mutation pattern. Framework-free shape; the stack reference shows the real hook.
+See skill `client-query` for the full query and mutation pattern. `serverQuery` stands for the query primitive of the stack's server-state library; the stack reference shows the real hook.
 
 ```ts
 // products.api.ts
@@ -75,12 +75,11 @@ export const productKeys = {
 };
 
 export const useProducts = (params: ProductListParams) => {
-  // Pass this configuration to the stack's server-state query primitive.
-  return {
-    queryKey: productKeys.list(params),
+  return serverQuery({
+    key: productKeys.list(params),
     fetch: () => apiClient.get<ProductApiModel[]>('/products', { params }),
     transform: (data) => data.map(mapProduct),
-  };
+  });
 };
 ```
 

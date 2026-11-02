@@ -18,10 +18,8 @@
 
 ## Route naming in this project
 
-The text of the first route is kept verbatim; its `←` carries the English translation.
-
 ```
-GET    /resources          → list/search (con query params)  ← with query params
+GET    /resources          → list/search (with query params)
 GET    /resources/:id      → get one
 POST   /resources          → create
 PATCH  /resources/:id      → partial update

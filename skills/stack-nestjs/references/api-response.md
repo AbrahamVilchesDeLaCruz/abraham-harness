@@ -52,10 +52,10 @@ export function resolveRequestId(req: Request): string {
 import { apiEnvelopeSchema } from '@/shared/infrastructure/http/response/api-envelope.schema';
 
 @ApiOkResponse({
-  description: 'Ranking entries with viewer context',
+  description: 'Top customers with viewer context',
   schema: apiEnvelopeSchema({
-    entries: [{ rank: 1, userId: 'user-uuid', score: 12 }],
-    currentUser: { rank: 1, userId: 'user-uuid', score: 12 },
+    entries: [{ position: 1, userId: 'user-uuid', totalOrders: 12 }],
+    currentUser: { position: 1, userId: 'user-uuid', totalOrders: 12 },
   }),
 })
 ```

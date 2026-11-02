@@ -206,6 +206,28 @@ export function useCreate{PodName}() {
 }
 ```
 
+## Usage in Container
+
+```typescript
+export function {PodName}Container() {
+  const { data: {podName}s, isLoading, isError } = use{PodName}s();
+  const create{PodName}Mutation = useCreate{PodName}();
+
+  const handle{Action} = async (input: Create{PodName}Input) => {
+    await create{PodName}Mutation.mutateAsync(input);
+  };
+
+  return (
+    <{PodName}Component
+      {podName}s={{podName}s ?? []}
+      isLoading={isLoading}
+      isError={isError}
+      on{Action}={handle{Action}}
+    />
+  );
+}
+```
+
 ## External Documentation
 
 - [TanStack Query — Docs](https://tanstack.com/query/latest/docs/framework/react/overview) — full guide
@@ -213,4 +235,4 @@ export function useCreate{PodName}() {
 - [TanStack Query — Mutations](https://tanstack.com/query/latest/docs/framework/react/guides/mutations) — `useMutation`, `onSuccess`, `onError`
 - [TanStack Query — Invalidation](https://tanstack.com/query/latest/docs/framework/react/guides/query-invalidation) — when and how to invalidate
 
-The concept skill uses neutral names: `fetch` is `queryFn`, `execute` is `mutationFn`, `mutate` or `mutateAsync`, `isSubmitting` is `isPending`, `freshnessMs` is `staleTime`, and `transform` is `select`.
+The concept skill uses neutral names: `serverQuery` is `useQuery`, `serverMutation` is `useMutation`, `key` is `queryKey`, `onDone` is `onSuccess`, `onFailure` is `onError`, `fetch` is `queryFn`, `execute` is `mutationFn`, `mutate` or `mutateAsync`, `isSubmitting` is `isPending`, `freshnessMs` is `staleTime`, and `transform` is `select`.

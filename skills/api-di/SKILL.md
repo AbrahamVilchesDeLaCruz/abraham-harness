@@ -42,8 +42,8 @@ metadata:
 | Repository | `{ENTITY}_REPOSITORY` | `ORDER_REPOSITORY`, `USER_REPOSITORY` |
 | Read-only query | `{ENTITY}_QUERY` | `ORDER_STATS_QUERY`, `USER_STATS_QUERY` |
 | Domain selector | `{ENTITY}_SELECTOR` | `PRODUCT_SELECTOR` |
-| Domain provider | `{ENTITY}_PROVIDER` | `WEAKEST_PRODUCT_IDS_PROVIDER` |
-| External service | `{ENTITY}_SERVICE` | `AUDIO_SERVICE` |
+| Domain provider | `{ENTITY}_PROVIDER` | `BESTSELLER_PRODUCT_IDS_PROVIDER` |
+| External service | `{ENTITY}_SERVICE` | `EMAIL_SERVICE` |
 | Event publisher | `DOMAIN_EVENT_PUBLISHER` | shared — publishes domain events |
 | Event consumer | `DOMAIN_EVENT_CONSUMER` | shared — consumes message queues |
 | Logger | `LOGGER_SERVICE` | shared — Logger interface |

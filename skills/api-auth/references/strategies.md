@@ -8,7 +8,7 @@ Validates the Bearer access token, and rejects expired tokens. Reads the secret 
 
 ## Guest strategy
 
-Same structure as the JWT strategy — it also validates a Bearer JWT, but it is registered under the name `'guest'`. Guest and user tokens share the same secret; the payload's `type` field tells them apart. A guest context has `type: 'guest'` and no `userId`.
+Same structure as the JWT strategy — it also validates a Bearer JWT, but it is registered under its own strategy name. Guest and user tokens share the same secret; the payload's `type` field tells them apart. A guest context has `type: 'guest'` and no `userId`.
 
 ## Google strategy
 
@@ -72,10 +72,10 @@ shared/infrastructure/auth/
 ├── google.guard.ts
 ├── any-auth.guard.ts
 ├── roles.guard.ts
-├── roles.decorator.ts
-├── public.decorator.ts
-├── current-user.decorator.ts
-└── auth.module.ts
+├── roles marker
+├── public marker
+├── current-user accessor
+└── auth module
 
 identity/                         ← identity BC (submodules)
 ├── session/                      ← Session aggregate (refresh tokens)
@@ -96,7 +96,7 @@ identity/                         ← identity BC (submodules)
 │   └── infrastructure/
 └── shared/                       ← framework wiring of the identity BC
     └── infrastructure/
-        └── framework/identity.module.ts
+        └── framework/{bc} module
 ```
 
 ## UserContext — shared type

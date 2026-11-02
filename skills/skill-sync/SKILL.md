@@ -20,14 +20,6 @@ allowed-tools: Read, Edit, Write, Glob, Grep, Bash
 - Directories created by `npx skills add` (`.agents/skills/`, `.claude/skills/`) are **generated**: never edit them.
 - A skill added to `skills/` but missing from `AGENTS.md` is invisible to the AI
 
-## Decision Gates
-
-| Scope | When to use |
-|---|---|
-| `global` | Skill applies to the whole monorepo (git-workflow, tdd-workflow) |
-| `api` | Skill applies only to `apps/api/` |
-| `client` | Skill applies only to `apps/client/` |
-
 ## Execution Steps
 
 1. Verify skills on disk:

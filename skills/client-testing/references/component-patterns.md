@@ -54,8 +54,8 @@ export class ProductMother {
   static one(overrides?: Partial<ProductVM>): ProductVM {
     return {
       id: 'test-id-1',
-      name: 'What is your return policy?',
-      description: 'Returns are accepted within 30 days.',
+      name: 'Desk lamp',
+      description: 'Adjustable LED lamp',
       size: 'medium',
       nextReviewAt: new Date('2026-06-01'),
       ...overrides,

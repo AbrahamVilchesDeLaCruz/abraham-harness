@@ -18,12 +18,12 @@ export class ProductCreator {
     const product = Product.create(
       request.id,
       request.name,
-      request.meaning,
+      request.summary,
       request.category,
       request.subcategory,
-      request.ipaNotation,
-      request.nativeSpeech,
-      request.examples.map((e) => ({ ...e, productId: request.id })),
+      request.sku,
+      request.barcode,
+      request.variants.map((e) => ({ ...e, productId: request.id })),
       request.createdBy,
     );
 
@@ -56,12 +56,12 @@ export type { RequestOrderCompleter, ResponseOrderCompleter };
 export type RequestProductCreator = {
   id: string;
   name: string;
-  meaning: string;
+  summary: string;
   category: string;
   subcategory: string;
-  ipaNotation: string | null;
-  nativeSpeech: string | null;
-  examples: { id: string; textEn: string; description: string; position: number }[];
+  sku: string | null;
+  barcode: string | null;
+  variants: { id: string; label: string; description: string; position: number }[];
   createdBy: string;
 };
 ```
@@ -128,12 +128,12 @@ An injected variable is typed with the port, never with the concrete adapter cla
 
 ```typescript
 // ❌ Loose primitives as parameters
-async execute(name: string, meaning: string, category: string): Promise<void> {}
+async execute(name: string, summary: string, category: string): Promise<void> {}
 // ✅ Request type object
 async execute(request: RequestProductCreator): Promise<void> {}
 
 // ❌ DTO class with decorators in application
-export class CreateProductDto { name: string; meaning: string; }
+export class CreateProductDto { name: string; summary: string; }
 
 // ❌ Business logic in a use case
 async execute(request): Promise<void> {

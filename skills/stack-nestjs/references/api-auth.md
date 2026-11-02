@@ -193,6 +193,28 @@ async handler(@Query() query: SearchProductsGetQuery, @CurrentUser() user: UserC
 
 `AuthModule` is registered in `SharedModule`. See `api-di` for how to register strategies and guards in the module.
 
+## File structure of the auth adapters
+
+```
+shared/infrastructure/auth/
+├── jwt.strategy.ts
+├── jwt.guard.ts
+├── guest.strategy.ts
+├── guest.guard.ts
+├── google.strategy.ts
+├── google.guard.ts
+├── any-auth.guard.ts
+├── roles.guard.ts
+├── roles.decorator.ts
+├── public.decorator.ts
+├── current-user.decorator.ts
+└── auth.module.ts
+
+identity/shared/infrastructure/framework/identity.module.ts
+```
+
+The concept skill uses neutral wording: the auth module is `AuthModule`, the current-user parameter is `@CurrentUser`, the public marker is `@Public` (`IS_PUBLIC_KEY`, `public.decorator.ts`), and the guest strategy's own name is the Passport strategy name `'guest'`.
+
 ## External Documentation
 
 - [NestJS — Authentication](https://docs.nestjs.com/security/authentication) — Passport integration, JWT, Guards

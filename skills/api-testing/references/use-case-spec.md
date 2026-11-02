@@ -22,9 +22,9 @@ describe('products/application/create ProductCreator', () => {
   let creator: ProductCreator;
 
   beforeEach(() => {
-    repository.save.mockReset();
-    publisher.publish.mockReset();
-    publisher.publish.mockResolvedValue(undefined);
+    resetMock(repository.save);
+    resetMock(publisher.publish);
+    resolveWith(publisher.publish, undefined);
 
     creator = new ProductCreator(repository, publisher);
   });
@@ -36,7 +36,7 @@ describe('products/application/create ProductCreator', () => {
     await creator.execute(request.name, request.description);
 
     expect(repository.save).toHaveBeenCalledWith(expected);
-    expect(publisher.publish.mock.calls[0][0][0]).toBeInstanceOf(ProductCreatedEvent);
+    expect(firstCallArgs(publisher.publish)[0][0]).toBeInstanceOf(ProductCreatedEvent);
   });
 
   it('should not save nor publish when name is empty', async () => {

@@ -9,7 +9,7 @@ metadata:
 
 ## Activation Contract
 
-- When auditing an existing bounded context (as we did with `achievement`)
+- When auditing an existing bounded context
 - Before creating a new BC — deciding whether it is its own BC, a submodule of another, or shared
 - When a BC grows and mixes several aggregates without clear boundaries
 - After a domain redesign (dynamic catalog, new events, backoffice)
@@ -31,7 +31,7 @@ Phase 1 — Does it deserve its own bounded context? Answer in business language
 | Does it have its own ubiquitous language, distinct from User/Identity? | Separate BC |
 | Does its lifecycle evolve independently (catalog, rules, unlocks)? | Separate BC |
 | Is it only shown in another module's profile/UI? | Does **not** imply a submodule — it is presentation |
-| Is it a projection of events from other BCs (like Ranking)? | Valid consumer/projector BC |
+| Is it a projection of events from other BCs (like Reporting)? | Valid consumer/projector BC |
 | Does it reference `userId` without being a property of the User aggregate? | Reference by ID, do not move to Identity |
 
 **Rule:** if adding a new feature only touches the owning BC (+ the event emitter), the boundary is right.
@@ -45,7 +45,7 @@ Details of Phases 2, 3, 4, 6 and 7 are in `references/review-phases.md`.
 3. Phase 3: audit the per-layer alignment with its table.
 4. Phase 4: verify the allowed suffixes.
 5. Phase 5 — Recommended refactor order:
-   1. **Boundaries and submodules** — folder structure + `shared/infrastructure/framework/{bc}.module.ts`
+   1. **Boundaries and submodules** — folder structure + the `{bc}` module in `shared/infrastructure/framework/`
    2. **Domain** — aggregates, VOs, events from the aggregate
    3. **Application** — use cases, extract logic from subscribers
    4. **Infrastructure** — repos, controllers with envelope, **entity + migration in the ORM data source options**

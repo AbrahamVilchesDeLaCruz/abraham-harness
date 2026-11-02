@@ -31,7 +31,7 @@ async handler(
   await this.recorder.execute({
     orderId: id,
     productId: body.productId,
-    correct: body.correct,
+    approved: body.approved,
     userId: user.userId ?? null,
   });
 }
@@ -86,7 +86,7 @@ products/infrastructure/controllers/
 └── review-product-post.controller.ts       + review-product-post.payload.ts
 ```
 
-Register all of them in the module `ProductModule`.
+Register all of them in the product module.
 
 ### Query params for lists
 

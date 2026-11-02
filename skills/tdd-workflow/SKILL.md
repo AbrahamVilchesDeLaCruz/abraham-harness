@@ -72,10 +72,6 @@ Always in this order:
    - **The tests must stay green** after each change
 5. **Repeat for each scenario.** Go back to step 2 for the next scenario. One Red → Green → Refactor cycle per behavior.
 
-## Output Contract
-
-For each behavior: a test observed failing with the expected error, the minimum code that makes it pass, and a clean refactor with the tests still green.
-
 ## References
 
 - [`references/test-examples.md`](references/test-examples.md): shape of the RED test.

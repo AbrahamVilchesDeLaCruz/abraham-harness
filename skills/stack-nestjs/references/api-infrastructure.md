@@ -36,12 +36,12 @@ export class StartOrderPostController {
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'Start a new order session',
-    description: 'Creates an order with the selected mode, module and item count.',
+    description: 'Creates an order with the selected mode, channel and item count.',
   })
   @ApiCreatedResponse({ description: 'Order created with id and product ids' })
   @ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
   @ApiUnprocessableEntityResponse({
-    description: 'Invalid mode, module or item count',
+    description: 'Invalid mode, channel or item count',
     type: ValidationErrorResponse,
   })
   async handler(
@@ -52,7 +52,7 @@ export class StartOrderPostController {
     const data = await this.starter.execute({
       userId: user.userId ?? null,
       mode: body.mode,
-      module: body.module ?? null,
+      channel: body.channel ?? null,
       subcategory: body.subcategory ?? null,
       itemCount: body.itemCount,
       source: body.source,
@@ -72,10 +72,10 @@ export class StartOrderPostPayload {
   @IsNotEmpty()
   mode: string;
 
-  @ApiPropertyOptional({ description: 'Learning module' })
+  @ApiPropertyOptional({ description: 'Sales channel' })
   @IsOptional()
   @IsString()
-  module?: string;
+  channel?: string;
 
   @ApiPropertyOptional({ description: 'Subcategory' })
   @IsOptional()
@@ -88,7 +88,7 @@ export class StartOrderPostPayload {
   @Max(50)
   itemCount: number;
 
-  @ApiPropertyOptional({ description: 'Selection source', enum: ['catalog', 'weakest'] })
+  @ApiPropertyOptional({ description: 'Selection source', enum: ['catalog', 'recommended'] })
   @IsOptional()
   @IsString()
   source?: string;

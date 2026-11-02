@@ -72,4 +72,4 @@ const [items, total] = await Promise.all([
 | `FilterOperator.GTE` | `>= :value` | Greater than or equal |
 | `FilterOperator.LTE` | `<= :value` | Less than or equal |
 | `FilterOperator.LIKE` | `LIKE :value` | Partial search — add `%` in the value |
-| `FilterOperator.IN` | `IN (:...value)` | List of values |
+| `FilterOperator.IN` | `IN` with the list bound as one parameter | List of values |

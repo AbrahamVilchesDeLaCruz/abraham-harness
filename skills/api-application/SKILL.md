@@ -26,7 +26,7 @@ metadata:
 - Re-export `Request*` and `Response*` in the same file as the use case.
 - Create `response-{entity}-{verb}er.ts` whenever the use case returns more than one field or the type is not a simple primitive.
 - **Write use cases always inject `DOMAIN_EVENT_PUBLISHER`** — if the aggregate emits no events, that is a bug in the aggregate, not a reason to omit it
-- Inject `LOGGER_SERVICE` and `APP_METRICS` in all use cases that execute state
+- Inject `LOGGER_SERVICE` and `APP_METRICS` in all use cases that mutate state
 - Use `toPrimitives()` to serialize the response
 - The name of the injected variable reflects the ROLE, not the concrete class.
 

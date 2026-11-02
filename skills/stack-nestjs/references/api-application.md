@@ -29,12 +29,12 @@ export class ProductCreator {
     const product = Product.create(
       request.id,
       request.name,
-      request.meaning,
+      request.summary,
       request.category,
       request.subcategory,
-      request.ipaNotation,
-      request.nativeSpeech,
-      request.examples.map((e) => ({ ...e, productId: request.id })),
+      request.sku,
+      request.barcode,
+      request.variants.map((e) => ({ ...e, productId: request.id })),
       request.createdBy,
     );
 

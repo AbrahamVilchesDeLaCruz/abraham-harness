@@ -2,7 +2,7 @@
 
 File: `pods/{pod-name}/api/{pod-name}.api.ts`
 
-Framework-free shapes. The stack reference for server state shows the original hooks.
+`serverQuery` and `serverMutation` stand for the query and mutation primitives of the stack's server-state library. The stack reference for server state shows the original hooks.
 
 ## Query hook
 
@@ -12,26 +12,24 @@ import { get{PodName}s } from './{pod-name}.api-client';
 import { map{PodName} } from './{pod-name}.mapper';
 
 export function use{PodName}s(filters?: {PodName}Filters) {
-  // Pass this configuration to the stack's server-state query primitive.
-  return {
-    queryKey: {podName}Keys.list(filters),
+  return serverQuery({
+    key: {podName}Keys.list(filters),
     fetch: async () => {
       const raw = await get{PodName}s(filters);
       return raw.map(map{PodName});
     },
-  };
+  });
 }
 
 export function use{PodName}(id: string) {
-  // Pass this configuration to the stack's server-state query primitive.
-  return {
-    queryKey: {podName}Keys.detail(id),
+  return serverQuery({
+    key: {podName}Keys.detail(id),
     fetch: async () => {
       const raw = await get{PodName}(id);
       return map{PodName}(raw);
     },
     enabled: !!id,
-  };
+  });
 }
 ```
 
@@ -42,17 +40,16 @@ import { {podName}Keys } from './{pod-name}.query-keys';
 import { create{PodName} } from './{pod-name}.api-client';
 
 export function useCreate{PodName}() {
-  // Pass this configuration to the stack's server-state mutation primitive.
-  return {
+  return serverMutation({
     execute: (data: Create{PodName}Input) => create{PodName}(data),
-    onSuccess: () => {
+    onDone: () => {
       // Invalidate {podName}Keys.lists() to trigger refetch of affected queries
     },
-    onError: (error) => {
+    onFailure: (error) => {
       // Handle error (show toast, etc.)
       console.error('{PodName} creation failed', error);
     },
-  };
+  });
 }
 ```
 
@@ -108,7 +105,7 @@ export function {PodName}Container() {
 
   return (
     <{PodName}Component
-      {podName}s={podName}s ?? []}
+      {podName}s={{podName}s ?? []}
       isLoading={isLoading}
       isError={isError}
       on{Action}={handle{Action}}

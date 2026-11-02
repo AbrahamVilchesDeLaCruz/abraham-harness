@@ -26,9 +26,9 @@ export abstract class AggregateRoot<Primitives> {
 export type ProductPrimitives = {
   id: string;
   name: string;
-  meaning: string;
+  summary: string;
   category: string;
-  audioStatus: string;
+  stockStatus: string;
   createdBy: string;
 };
 
@@ -36,27 +36,27 @@ export class Product extends AggregateRoot<ProductPrimitives> {
   public constructor(
     public readonly id: ProductId,
     private _name: ProductName,
-    private _meaning: Meaning,
+    private _summary: Summary,
     private _category: Category,
-    private _audioStatus: AudioStatus,
+    private _stockStatus: StockStatus,
     public readonly createdBy: string,
   ) {
     super();
   }
 
   get name(): ProductName { return this._name; }
-  get meaning(): Meaning { return this._meaning; }
+  get summary(): Summary { return this._summary; }
   get category(): Category { return this._category; }
-  get audioStatus(): AudioStatus { return this._audioStatus; }
+  get stockStatus(): StockStatus { return this._stockStatus; }
 
   // Factory for new entities — records the creation domain event
-  static create(id: string, name: string, meaning: string, category: string, createdBy: string): Product {
+  static create(id: string, name: string, summary: string, category: string, createdBy: string): Product {
     const product = new Product(
       new ProductId(id),
       new ProductName(name),
-      new Meaning(meaning),
+      new Summary(summary),
       new Category(category),
-      new AudioStatus(AudioStatusValue.Pending),
+      new StockStatus(StockStatusValue.Pending),
       createdBy,
     );
     product.record(new ProductCreatedEvent(product.id.value, product.toPrimitives()));
@@ -68,9 +68,9 @@ export class Product extends AggregateRoot<ProductPrimitives> {
     return new Product(
       new ProductId(p.id),
       new ProductName(p.name),
-      new Meaning(p.meaning),
+      new Summary(p.summary),
       new Category(p.category),
-      new AudioStatus(p.audioStatus),
+      new StockStatus(p.stockStatus),
       p.createdBy,
     );
   }
@@ -79,9 +79,9 @@ export class Product extends AggregateRoot<ProductPrimitives> {
     return {
       id: this.id.value,
       name: this.name.value,
-      meaning: this.meaning.value,
+      summary: this.summary.value,
       category: this.category.value,
-      audioStatus: this.audioStatus.value,
+      stockStatus: this.stockStatus.value,
       createdBy: this.createdBy,
     };
   }

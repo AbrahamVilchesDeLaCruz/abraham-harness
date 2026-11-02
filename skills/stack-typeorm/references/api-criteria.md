@@ -62,3 +62,5 @@ async count(criteria: Criteria): Promise<number> {
 
 - [TypeORM — SelectQueryBuilder](https://typeorm.io/select-query-builder) — `andWhere`, `orderBy`, `take`, `skip`
 - [TypeORM — Parameter binding](https://typeorm.io/select-query-builder#adding-where-name) — `:param` syntax to prevent SQL injection
+
+The concept skill uses neutral wording: `query.addCondition(...)` is `qb.andWhere(...)`, and `IN` with the list bound as one parameter is `IN (:...value)`.

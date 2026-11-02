@@ -239,7 +239,7 @@ Red → Green → Refactor
 | Container (frontend) | Full flow with data | Integration: mocked HTTP |
 | Critical flows | Registration, login, main action | E2E |
 
-**Why the Domain is not tested directly**: aggregates, Value Objects and Domain Services make no sense tested in isolation: their behavior gains meaning in the context of a use case. If `Product.create()` throws a domain exception, that is verified in the test of the Use Case that invokes it, not in a unit test of `Product`.
+**Why the Domain is not tested directly**: aggregates, Value Objects and Domain Services make no sense tested in isolation: their behavior gains summary in the context of a use case. If `Product.create()` throws a domain exception, that is verified in the test of the Use Case that invokes it, not in a unit test of `Product`.
 
 ### Object Mother — test data
 
@@ -295,7 +295,7 @@ export class ProductMother {
     });
   }
 
-  static withSize(size: Difficulty): Product {
+  static withSize(size: ProductSize): Product {
     return ProductMother.random({ size });
   }
 }

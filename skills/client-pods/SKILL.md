@@ -19,6 +19,8 @@ Pod structure for `apps/client/`. A pod is a self-contained functional unit that
 - Communication between pods only through `core/`, `common/`, or `common-app/`
 - A pod's entry point is always its `index.ts` (which exports the Container)
 
+`.{view}` is the file extension of the project's view layer.
+
 ## Decision Gates
 
 If a pod is simple, there is no need to create every folder. The structure grows with complexity:

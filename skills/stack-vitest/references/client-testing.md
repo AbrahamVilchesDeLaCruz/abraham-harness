@@ -198,11 +198,11 @@ test('user can create and review a product', async ({ page }) => {
   await page.goto('/products');
 
   await page.getByRole('button', { name: 'New Product' }).click();
-  await page.getByLabel('Front').fill('What is your return policy?');
-  await page.getByLabel('Back').fill('Linking final consonant to initial vowel');
+  await page.getByLabel('Name').fill('Desk lamp');
+  await page.getByLabel('Description').fill('Adjustable LED lamp');
   await page.getByRole('button', { name: 'Save' }).click();
 
-  await expect(page.getByText('What is your return policy?')).toBeVisible();
+  await expect(page.getByText('Desk lamp')).toBeVisible();
 });
 ```
 

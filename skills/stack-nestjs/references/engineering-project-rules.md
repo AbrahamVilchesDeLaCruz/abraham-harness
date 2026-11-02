@@ -10,3 +10,5 @@ Project rules from the `AGENTS.md` templates that name NestJS or its libraries.
 - `pnpm start:dev` starts the dev server with hot-reload.
 - **Zod and Class Validator** for client-server validation.
 - Class Validator validates HTTP payloads in controllers.
+
+For `no-console` warnings in code that goes to production, the logger port the conventions name is the NestJS logger (`Logger`).

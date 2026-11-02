@@ -17,7 +17,7 @@ export class StartOrderPostController {
     const data = await this.starter.execute({
       userId: user.userId ?? null,
       mode: body.mode,
-      module: body.module ?? null,
+      channel: body.channel ?? null,
       subcategory: body.subcategory ?? null,
       itemCount: body.itemCount,
       source: body.source,
@@ -34,7 +34,7 @@ export class StartOrderPostController {
 export class StartOrderPostPayload {
   mode: string;
 
-  module?: string;
+  channel?: string;
 
   subcategory?: string;
 

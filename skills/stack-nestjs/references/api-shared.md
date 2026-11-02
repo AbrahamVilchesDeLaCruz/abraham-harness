@@ -284,7 +284,7 @@ export const envValidationSchema = Joi.object({
 
   // RabbitMQ — AMQP_URI (no RABBITMQ_URL)
   AMQP_URI: Joi.string().required(),
-  ELEVEN_LABS_API_KEY: Joi.string().required(),
+  EMAIL_PROVIDER_API_KEY: Joi.string().required(),
   CLOUD_STORAGE: Joi.string().uri().required(),
   CLOUD_STORAGE_PUBLIC_URL: Joi.string().uri().required(),
   CLOUD_STORAGE_ACCESS_KEY_ID: Joi.string().required(),
@@ -304,3 +304,5 @@ export const envValidationSchema = Joi.object({
 - [NestJS — Configuration](https://docs.nestjs.com/techniques/configuration) — `ConfigModule`, `ConfigService`
 - [NestJS — Global Modules](https://docs.nestjs.com/modules#global-modules) — `@Global()` and its implications
 - [Joi — Validation](https://joi.dev/api/) — schema validation for env vars
+
+The concept skill uses neutral wording: the shared module is `SharedModule`, the application root module is `AppModule`, and the auth module is `AuthModule`.

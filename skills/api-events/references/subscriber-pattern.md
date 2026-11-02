@@ -47,7 +47,7 @@ The subscriber lives **next to the use case it triggers**, not in its own `subsc
 progress/application/
   update/
     product-stats-updater.ts                        ← use case
-    random-module-progress-updater.ts                 ← use case
+    category-stats-updater.ts                 ← use case
     update-product-stats-on-payment-recorded.ts     ← subscriber
 ```
 
@@ -64,7 +64,7 @@ import {
   type PaymentRecordedAttributes,
 } from '@/sales/domain/events/payment-recorded.event';
 import { ProductStatsUpdater } from './product-stats-updater';
-import { RandomModuleProgressUpdater } from './random-module-progress-updater';
+import { CategoryStatsUpdater } from './category-stats-updater';
 
 export class ProductStatsUpdaterOnPaymentRecorded extends Subscriber {
   readonly queueName = 'progress.update_product_stats_on_payment_recorded';
@@ -75,7 +75,7 @@ export class ProductStatsUpdaterOnPaymentRecorded extends Subscriber {
   constructor(
     consumer: DomainEventConsumer,
     private readonly productStatsUpdater: ProductStatsUpdater,
-    private readonly randomModuleProgressUpdater: RandomModuleProgressUpdater,
+    private readonly categoryStatsUpdater: CategoryStatsUpdater,
   ) {
     super(consumer);
   }
@@ -87,12 +87,12 @@ export class ProductStatsUpdaterOnPaymentRecorded extends Subscriber {
     await this.productStatsUpdater.execute({
       userId: attrs.userId,
       productId: attrs.productId,
-      correct: attrs.correct,
+      approved: attrs.approved,
       mode: attrs.mode,
     });
 
     if (attrs.mode === 'order') {
-      await this.randomModuleProgressUpdater.executeForRandomPayment({
+      await this.categoryStatsUpdater.executeForOrderPayment({
         userId: attrs.userId,
         orderId: attrs.orderId,
         productId: attrs.productId,

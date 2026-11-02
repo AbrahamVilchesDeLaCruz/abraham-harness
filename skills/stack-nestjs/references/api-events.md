@@ -32,7 +32,7 @@ import {
   type PaymentRecordedAttributes,
 } from '@/sales/domain/events/payment-recorded.event';
 import { ProductStatsUpdater } from './product-stats-updater';
-import { RandomModuleProgressUpdater } from './random-module-progress-updater';
+import { CategoryStatsUpdater } from './category-stats-updater';
 
 @Injectable()
 export class ProductStatsUpdaterOnPaymentRecorded extends Subscriber {
@@ -45,8 +45,8 @@ export class ProductStatsUpdaterOnPaymentRecorded extends Subscriber {
     @Inject(DOMAIN_EVENT_CONSUMER) consumer: DomainEventConsumer,
     @Inject(ProductStatsUpdater)
     private readonly productStatsUpdater: ProductStatsUpdater,
-    @Inject(RandomModuleProgressUpdater)
-    private readonly randomModuleProgressUpdater: RandomModuleProgressUpdater,
+    @Inject(CategoryStatsUpdater)
+    private readonly categoryStatsUpdater: CategoryStatsUpdater,
   ) {
     super(consumer);
   }
@@ -58,12 +58,12 @@ export class ProductStatsUpdaterOnPaymentRecorded extends Subscriber {
     await this.productStatsUpdater.execute({
       userId: attrs.userId,
       productId: attrs.productId,
-      correct: attrs.correct,
+      approved: attrs.approved,
       mode: attrs.mode,
     });
 
     if (attrs.mode === 'order') {
-      await this.randomModuleProgressUpdater.executeForRandomPayment({
+      await this.categoryStatsUpdater.executeForOrderPayment({
         userId: attrs.userId,
         orderId: attrs.orderId,
         productId: attrs.productId,
@@ -96,7 +96,7 @@ export class SubscribersBootstrapper implements OnModuleInit {
   providers: [
     // Use cases
     ProductStatsUpdater,
-    RandomModuleProgressUpdater,
+    CategoryStatsUpdater,
 
     // Event subscribers
     ProductStatsUpdaterOnPaymentRecorded,

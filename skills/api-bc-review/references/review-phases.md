@@ -17,7 +17,7 @@ See `apps/api/AGENTS.md` → *DDD modules inside a Bounded Context*.
 - `catalog/` — achievement definitions (catalog, unlock rules)
 - `progress/` — `UserAchievementProgress` aggregate (counters, touched modules)
 - `user-achievement/` — unlocks per user
-- `shared/` — `AchievementKey`, `AchievementCategory`, `AchievementModule`
+- `shared/` — `AchievementKey`, `AchievementCategory`, the achievement module
 
 **Forbidden:** loose layers (`domain/`, `application/`) at the BC root when there are submodules.
 
@@ -56,7 +56,7 @@ Use it as an audit table. Load the indicated skill before fixing each row.
 
 ## Phase 6 — Duplicated source of truth
 
-Warning signs (e.g. `achievement` pre-refactor):
+Warning signs:
 - Catalog in code **and** in an unused DB
 - Rules hardcoded in subscribers **and** in evaluators
 - i18n in the client **and** title/description in the API with no contract
@@ -71,7 +71,7 @@ Audit **after** boundaries and DDD layers. Load the indicated skill before fixin
 
 | Area | Skill | What to verify |
 |------|-------|---------------|
-| **Logger** | `api-observability` | `LOGGER_SERVICE` injected in domain services / use cases that execute relevant state (`unlock`, `create`, `import`). `info` log with context (`userId`, aggregate id). Do **not** log in controllers — the filter/interceptor does it |
+| **Logger** | `api-observability` | `LOGGER_SERVICE` injected in domain services / use cases that mutate relevant state (`unlock`, `create`, `import`). `info` log with context (`userId`, aggregate id). Do **not** log in controllers — the filter/interceptor does it |
 | **API documentation** | `api-rest` | Per GET endpoint: operation, bearer auth (`access-token`), properties and optional properties on Query/Payload, response with the envelope schema `{ data, meta }`, codes 401/422. Tags alone = incomplete |
 | **BC docs** | — | `docs/apps/api/{bc}/README.md`: submodules, endpoints, consumed/published events, tables, **v2** handlers (real subscriber names) |
 | **Cross-cutting docs** | — | Sync if the BC emits/consumes events: the feature spec, `docs/domain/bounded-contexts.md` (diagram + table), the messaging design doc (exchanges, queues, handlers) |
@@ -82,7 +82,7 @@ Audit **after** boundaries and DDD layers. Load the indicated skill before fixin
 | **Client** | `client-api` | `ApiEnvelope<T>` in fetches, mapper + types, i18n if the API returns only structural keys |
 | **Custom metrics** | `api-observability` | Optional — counters on key mutations (`*_total`). HTTP/messaging infrastructure is already covered globally |
 
-### Documentation lag signals (e.g. `achievement` pre-fix)
+### Documentation lag signals
 
 - v1 handler names in the spec (`UnlockAchievementOnOrderCompleted` vs `UnlockUserAchievementOnOrderCompleted`)
 - Incomplete consumed events (`PaymentRecorded`/`ProductViewed` missing from bounded-contexts)

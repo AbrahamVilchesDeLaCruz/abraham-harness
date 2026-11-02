@@ -22,7 +22,7 @@ async handler(
   await this.recorder.execute({
     orderId: id,
     productId: body.productId,
-    correct: body.correct,
+    approved: body.approved,
     userId: user.userId ?? null,
   });
 }
@@ -136,7 +136,7 @@ GET /products  body: { id: '123' }
 return product; // return product.toPrimitives()
 
 // ❌ Business logic in a controller
-if (body.quality > 5) throw new BadRequestException(); // belongs in a value object or the domain
+if (body.quantity > 5) throw new BadRequestException(); // belongs in a value object or the domain
 ```
 
 ## External Documentation

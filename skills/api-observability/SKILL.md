@@ -21,11 +21,11 @@ metadata:
 - Log **errors with the full `Error` object** — it preserves the stack trace
 - **Do not log in controllers** — the filter and interceptor do it automatically
 - Re-throw in subscribers after logging — for retry and DLQ
-- `APP_METRICS` is registered in `ObservabilityModule`, not in `SharedModule`
-- `APP_METRICS` is injected the same way as `LOGGER_SERVICE` — the `ObservabilityModule` module exports it globally.
+- `APP_METRICS` is registered in the observability module, not in the shared module
+- `APP_METRICS` is injected the same way as `LOGGER_SERVICE` — the observability module exports it globally.
 - Always log with context: the aggregate identifier; never without context.
 - The tracing SDK instruments and exports — it is not a storage.
-- `AppMetrics` only has `increment` — all business counters are counters.
+- `AppMetrics` only has `increment` — all business metrics are monotonic counters.
 - There is no `gauge` or `histogram` in the domain interface: `MetricsInterceptor` manages the HTTP histograms directly.
 
 ## Decision Gates

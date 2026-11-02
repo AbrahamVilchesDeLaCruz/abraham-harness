@@ -30,9 +30,9 @@ src/
         │   ├── env.validation.ts        ← env schema
         │   └── use-stub-adapters.ts
         ├── framework/
-        │   └── shared.module.ts         ← global — imported ONCE in AppModule
+        │   └── shared module            ← global — imported ONCE in the application root module
         ├── auth/
-        │   └── auth.module.ts           ← JWT + Google + Guest strategies
+        │   └── auth module              ← JWT + Google + Guest strategies
         ├── event-bus/
         │   └── subscribers-bootstrapper.ts
         └── exceptions/
@@ -52,7 +52,7 @@ src/
         │   └── exceptions/                 ← the BC's domain errors
         └── infrastructure/
             └── framework/
-                ├── achievement.module.ts           ← framework module of the whole BC
+                ├── {bc} module                    ← framework module of the whole BC
                 └── achievement-exception-registry.ts
 ```
 

@@ -96,8 +96,6 @@ export class PinoLogger implements Logger {
 
 ## `PrometheusAppMetrics` — custom business metrics
 
-The source skill also calls this adapter `MetricsService`.
-
 ```typescript
 // src/shared/infrastructure/metrics/prometheus-app-metrics.ts
 import { Inject, Injectable } from '@nestjs/common';

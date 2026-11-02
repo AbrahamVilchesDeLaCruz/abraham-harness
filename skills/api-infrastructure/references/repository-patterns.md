@@ -19,7 +19,7 @@ The private mappers:
       id: entity.id,
       userId: entity.userId,
       mode: entity.mode,
-      module: entity.module,
+      channel: entity.channel,
       subcategory: entity.subcategory,
       source: entity.source ?? 'catalog',
       itemCount: entity.itemCount,
@@ -36,7 +36,7 @@ The private mappers:
     e.id = p.id;
     e.userId = p.userId;
     e.mode = p.mode;
-    e.module = p.module;
+    e.channel = p.channel;
     e.subcategory = p.subcategory;
     e.source = p.source;
     e.itemCount = p.itemCount;
@@ -59,7 +59,7 @@ export class OrderEntity {
 
   mode: string;
 
-  module: string | null;
+  channel: string | null;
 
   subcategory: string | null;
 
@@ -79,11 +79,11 @@ export class OrderEntity {
 
 Each column maps its `snake_case` DB name: `user_id`, `item_count`, `last_product_id`, `started_at`, `finished_at`.
 
-Nullable columns: `userId`, `module`, `subcategory`, `lastProductId`, `finishedAt`. Defaults: `source` is `'catalog'` and `status` is `'in_progress'`.
+Nullable columns: `userId`, `channel`, `subcategory`, `lastProductId`, `finishedAt`. Defaults: `source` is `'catalog'` and `status` is `'in_progress'`.
 
 ## Module
 
-The BC's framework module (`sales/infrastructure/framework/sales.module.ts`) imports the persistence entities it needs and registers:
+The BC's framework module (in `sales/infrastructure/framework/`) imports the persistence entities it needs and registers:
 
 - Controllers: `StartOrderPostController`, `CompleteOrderPostController`, `AbandonOrderPostController`, `PauseOrderPostController`, `ResumeOrderPostController`, `FindOrderSummaryGetController`.
 - Providers: `OrderStarter`, `OrderCompleter`, `OrderAbandonner`, `OrderPauser`, `OrderResumer`, `OrderSummaryFinder`, `SalesExceptionRegistry`, and `ORDER_REPOSITORY` bound to the repository adapter.

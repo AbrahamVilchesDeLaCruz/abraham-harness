@@ -8,7 +8,7 @@ const FORBIDDEN_TERMS = ['flashcard', 'ididntcatchthat', 'tfm', 'big-school', 'e
 const FORBIDDEN = new RegExp(`\\b(${FORBIDDEN_TERMS.join('|')})\\b`, 'i');
 const REQUIRED_FIELDS = ['name', 'description', 'license'];
 // Concept skills describe patterns. Framework details belong in stack-* skills.
-const FRAMEWORK = /(@nestjs|NestJS|TypeORM|typeorm|class-validator|class-transformer|Passport|@Injectable|@Controller|@Module|useState|useEffect|useQuery|useMutation|TanStack|React|Zustand|\bJest\b|jest\.|jest-mock|Vitest|Playwright|\bMSW\b|RabbitMQ|amqplib|\bpino\b|Prometheus|OpenTelemetry|Swagger|\bJoi\b|Faker|queryRunner|AppDataSource|\bdataSource\b|queryFn|mutationFn|mutateAsync|staleTime|invalidateQueries|QueryClient|\.tsx|\.jsx|\bJSX\b|mock<)/;
+const FRAMEWORK = /(@nestjs|NestJS|TypeORM|typeorm|class-validator|class-transformer|Passport|@Injectable|@Controller|@Module|useState|useEffect|useQuery|useMutation|TanStack|React|Zustand|\bJest\b|jest\.|jest-mock|Vitest|Playwright|\bMSW\b|RabbitMQ|amqplib|\bpino\b|Prometheus|OpenTelemetry|Swagger|\bJoi\b|Faker|queryRunner|AppDataSource|\bdataSource\b|queryFn|mutationFn|mutateAsync|staleTime|invalidateQueries|QueryClient|\.tsx|\.jsx|\bJSX\b|mock<|migrationsRun|migrationsTableName|LOKI_URL|AMQP_URI|qb\.|mockReset|mockResolvedValue|\.mock\.calls|IS_PUBLIC_KEY|SharedModule|AppModule|AuthModule|\.module\.ts|\.decorator\.ts|@CurrentUser|queryKey|onSuccess)/;
 const STACK_SKILL_NAME = /stack-[a-z-]+/g;
 const CONCEPT_SKILL = /^(api|client)-/;
 const PINNED_VERSION = /\b([A-Z][\w.]+ v\d+)\b/;

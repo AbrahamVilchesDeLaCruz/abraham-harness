@@ -10,7 +10,7 @@ metadata:
 
 ## Activation Contract
 
-- When configuring global input validation in `main.ts`
+- When configuring global input validation in the application bootstrap
 - When creating a `Payload` (body) or `Query` (query params) DTO
 - When defining global guards and global filters at bootstrap
 
@@ -35,9 +35,9 @@ metadata:
 
 ### Guards and filters
 
-- **Global guards and filters do not go in `main.ts`** — they are registered through DI in the modules:
-  - `HttpExceptionFilter` → registered as the global filter in `SharedModule`
-  - `JwtAuthGuard`, `GuestAuthGuard`, etc. → provided and exported from `AuthModule`
+- **Global guards and filters do not go in the application bootstrap** — they are registered through DI in the modules:
+  - `HttpExceptionFilter` → registered as the global filter in the shared module
+  - `JwtAuthGuard`, `GuestAuthGuard`, etc. → provided and exported from the auth module
 - Public endpoints are marked with the public marker. See skill `api-auth` for the complete wiring.
 
 ## Decision Gates
@@ -50,13 +50,13 @@ metadata:
 
 ## Execution Steps
 
-1. Configure global input validation in `main.ts` with the options from the Hard Rules.
+1. Configure global input validation in the application bootstrap with the options from the Hard Rules.
 2. Create the Payload or Query from the template and apply the Decision Gates.
-3. Register global guards and filters through DI, never in `main.ts`.
+3. Register global guards and filters through DI, never in the application bootstrap.
 
 ## Output Contract
 
-Deliver the `main.ts` configuration, the Payload or Query in `infrastructure/controllers/`, or the guard with its public marker.
+Deliver the bootstrap configuration, the Payload or Query in `infrastructure/controllers/`, or the guard with its public marker.
 
 ## References
 

@@ -102,7 +102,7 @@ async execute(request: ...): Promise<...> {
 this.metrics.increment('app_image_generated_total', { provider: 'external-provider' });
 ```
 
-> `APP_METRICS` is injected the same way as `LOGGER_SERVICE` — the `ObservabilityModule` module exports it globally.
+> `APP_METRICS` is injected the same way as `LOGGER_SERVICE` — the observability module exports it globally.
 
 ## Where to log
 

@@ -16,10 +16,11 @@ Delivery: one PR per delivery. Test runner: node --test.
 ## Tasks
 
 - [x] T1 S1 S2 S6-S9 lanes, plan skills and agents. Route: inline, no writer reason.
-- [ ] T2 S3-S5 concept skills in English, stack skills. Route: delegated, parallelism.
-- [ ] T3 S3-S5 independent verification. Risk: item 6, no test catches a change of meaning in prose.
+- [x] T2 S3-S5 concept skills in English, stack skills. Route: delegated, parallelism.
+- [x] T3 S3-S5 independent verification. Risk: item 6, no test catches a change of meaning in prose.
 
 ## Log
 
 - L1 (2026-11-02): "para el planner y builder estaría bien cómo hacen los de codely. Y para el flow lo que hace el chico de ericrisco. Además siento que las skills mías en castellano pueden perder eficiencia y están demasiado casadas al framework en su verisón actual. Sin embargo quiero mantener toda esa separación de conceptos ddd, hexagonal, object mothers, domain-events, excepccions. ports-adapters, use-cases, domain services, value-objects etc"
 - L2: Engram mirror pending: no Engram tool is available in this session.
+- L3: T3 found 11 blockers: two rules mistranslated by a global rename, Spanish left in two files, a broken neutral query example, framework names and source-project terms the validator missed, and two sections with no baseline source. All corrected, and the validator now rejects those names. Recheck limited to these blockers.

@@ -15,12 +15,10 @@ The concept skill `api-di` defines the rules. This reference shows how to apply 
 
 ## Concept flow
 
-The arrow text in this diagram is kept verbatim; each `←` carries its English translation.
-
 ```
-Interface (domain)       → define el contrato  ← defines the contract
-Token (domain/shared)    → Symbol — el identificador de DI  ← the DI identifier
-Implementation (infra)   → clase concreta que implementa la interface  ← concrete class that implements the interface
+Interface (domain)       → defines the contract
+Token (domain/shared)    → Symbol — the DI identifier
+Implementation (infra)   → concrete class that implements the interface
 Registration (module)    → NestJS binds token → implementation
 Injection (use case)     → @Inject(TOKEN) — the only contact point
 ```
@@ -173,8 +171,8 @@ export class {Entity}Module {}
 {ENTITY}_REPOSITORY        → ORDER_REPOSITORY, USER_REPOSITORY
 {ENTITY}_QUERY             → ORDER_STATS_QUERY, USER_STATS_QUERY (read-only projections)
 {ENTITY}_SELECTOR          → PRODUCT_SELECTOR (domain selectors)
-{ENTITY}_PROVIDER          → WEAKEST_PRODUCT_IDS_PROVIDER (domain providers)
-{ENTITY}_SERVICE           → AUDIO_SERVICE (external services)
+{ENTITY}_PROVIDER          → BESTSELLER_PRODUCT_IDS_PROVIDER (domain providers)
+{ENTITY}_SERVICE           → EMAIL_SERVICE (external services)
 DOMAIN_EVENT_PUBLISHER     → shared — publishes DomainEvent[]
 DOMAIN_EVENT_CONSUMER      → shared — consumes AMQP queues
 LOGGER_SERVICE             → shared — interface Logger

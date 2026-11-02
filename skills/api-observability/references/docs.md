@@ -21,6 +21,6 @@
 The logger emits one line of JSON per log. Example:
 
 ```json
-{"level":"info","time":"2026-05-21T12:00:00.000Z","productId":"abc123","name":"what is liaison","msg":"Product created"}
+{"level":"info","time":"2026-05-21T12:00:00.000Z","productId":"abc123","name":"desk lamp","msg":"Product created"}
 {"level":"error","time":"2026-05-21T12:00:01.000Z","productId":"abc123","provider":"external-provider","err":{"type":"Error","message":"timeout","stack":"..."},"msg":"Image generation failed"}
 ```

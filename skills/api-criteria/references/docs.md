@@ -21,10 +21,10 @@ The query builder uses named parameters (`:param`) — never string interpolatio
 
 ```typescript
 // ✅ Safe — parameterized
-qb.andWhere(`g.${filter.field} = :p_status`, { p_status: filter.value });
+query.addCondition(`g.${filter.field} = :p_status`, { p_status: filter.value });
 
 // ❌ Vulnerable — direct interpolation
-qb.andWhere(`g.status = '${filter.value}'`);
+query.addCondition(`g.status = '${filter.value}'`);
 ```
 
 ## Internal Docs

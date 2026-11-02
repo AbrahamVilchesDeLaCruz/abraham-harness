@@ -98,16 +98,16 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
-export class ExampleItem {
+export class VariantItem {
   @ApiProperty({ example: '660e8400-e29b-41d4-a716-446655440001' })
   @IsString()
   @IsNotEmpty()
   id: string;
 
-  @ApiProperty({ example: 'I need to catch up on my emails.' })
+  @ApiProperty({ example: 'Black, 40 cm' })
   @IsString()
   @IsNotEmpty()
-  textEn: string;
+  label: string;
 
   @ApiProperty({ example: 'Adjustable desk lamp with LED light.' })
   @IsString()
@@ -128,38 +128,38 @@ export class CreateProductPostPayload {
   @IsNotEmpty()
   id: string;
 
-  @ApiProperty({ example: 'catch up' })
+  @ApiProperty({ example: 'desk lamp' })
   @IsString()
   @IsNotEmpty()
   name: string;
 
-  @ApiProperty({ example: 'desk lamp' })
+  @ApiProperty({ example: 'Adjustable LED lamp' })
   @IsString()
   @IsNotEmpty()
-  meaning: string;
+  summary: string;
 
-  @ApiProperty({ example: 'phrasal_verbs' })
+  @ApiProperty({ example: 'lighting' })
   @IsString()
   @IsNotEmpty()
   category: string;
 
-  @ApiProperty({ example: 'daily_life' })
+  @ApiProperty({ example: 'desk_lamps' })
   @IsString()
   @IsNotEmpty()
   subcategory: string;
 
-  @ApiPropertyOptional({ example: '/kætʃ ʌp/', nullable: true })
+  @ApiPropertyOptional({ example: 'LAMP-0042', nullable: true })
   @IsOptional()
   @ValidateIf((_, v) => v !== null)  // validates only if the value is not null (allows explicit null)
   @IsString()
   @IsNotEmpty()
-  ipaNotation: string | null = null;
+  sku: string | null = null;
 
-  @ApiProperty({ type: [ExampleItem] })
+  @ApiProperty({ type: [VariantItem] })
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => ExampleItem)
-  examples: ExampleItem[];
+  @Type(() => VariantItem)
+  variants: VariantItem[];
 }
 ```
 
@@ -172,23 +172,23 @@ import { IsIn, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class SearchProductsGetQuery {
-  @ApiPropertyOptional({ example: 'native_sounds' })
+  @ApiPropertyOptional({ example: 'lighting' })
   @IsOptional()
   @IsString()
   category?: string;
 
-  @ApiPropertyOptional({ example: 'vowel_sounds' })
+  @ApiPropertyOptional({ example: 'desk_lamps' })
   @IsOptional()
   @IsString()
   subcategory?: string;
 
   @ApiPropertyOptional({
-    enum: ['pending', 'generating', 'ready', 'failed'],
-    example: 'ready',
+    enum: ['pending', 'in_stock', 'out_of_stock', 'discontinued'],
+    example: 'in_stock',
   })
   @IsOptional()
-  @IsIn(['pending', 'generating', 'ready', 'failed'])
-  audioStatus?: string;
+  @IsIn(['pending', 'in_stock', 'out_of_stock', 'discontinued'])
+  stockStatus?: string;
 
   @ApiPropertyOptional({ example: 1, minimum: 1, default: 1 })
   @IsOptional()
@@ -328,3 +328,5 @@ export class {Verb}{Entity}GetQuery {
 - [class-transformer — GitHub](https://github.com/typestack/class-transformer) — `@Type()`, `@Transform()`, `@Exclude()`
 - [NestJS — Validation](https://docs.nestjs.com/techniques/validation) — `ValidationPipe`, `whitelist`, `forbidNonWhitelisted`
 - [NestJS Swagger — @nestjs/swagger](https://docs.nestjs.com/openapi/introduction) — `@ApiProperty`, `@ApiPropertyOptional`
+
+The concept skill uses neutral wording: the application bootstrap is `src/main.ts`.

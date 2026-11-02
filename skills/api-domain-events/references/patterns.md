@@ -67,7 +67,7 @@ export class ProductCreatedEvent extends DomainEvent {
 
 ```typescript
 // sales/domain/order.ts
-recordPayment(productId: string, correct: boolean, productModule: string | null): Payment {
+recordPayment(productId: string, approved: boolean, productChannel: string | null): Payment {
   if (this.mode.isDraft()) {
     throw new PaymentRequiresOrderMode(this.id.value);
   }
@@ -78,7 +78,7 @@ recordPayment(productId: string, correct: boolean, productModule: string | null)
     throw new ProductNotInOrder(productId, this.id.value);
   }
 
-  const payment = Payment.create(this.id.value, productId, correct);
+  const payment = Payment.create(this.id.value, productId, approved);
   this._payments.push(payment);
 
   this.record(
@@ -86,8 +86,8 @@ recordPayment(productId: string, correct: boolean, productModule: string | null)
       orderId: this.id.value,
       userId: this.userId,
       productId,
-      productModule,
-      correct,
+      productChannel,
+      approved,
       mode: this.mode.value,
       paidAt: payment.paidAt.toISOString(),
     }),
@@ -109,8 +109,8 @@ export interface PaymentRecordedAttributes extends DomainEventAttributes {
   orderId: string;
   userId: string | null;
   productId: string;
-  productModule: string | null;
-  correct: boolean;
+  productChannel: string | null;
+  approved: boolean;
   mode: string;
   paidAt: string;
 }

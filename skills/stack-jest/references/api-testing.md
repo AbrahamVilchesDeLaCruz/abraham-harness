@@ -177,3 +177,5 @@ const repository = { save: jest.fn(), search: jest.fn() };
 - [Jest — Mock Functions](https://jestjs.io/docs/mock-functions) — `mockResolvedValueOnce`, `mockReset`
 
 The concept skill uses the neutral name `createMock<T>()` for `mock<T>()` from jest-mock-extended.
+
+The concept skill also uses neutral helpers: `resetMock(fn)` is `fn.mockReset()`, `resolveWith(fn, value)` is `fn.mockResolvedValue(value)`, and `firstCallArgs(fn)` is `fn.mock.calls[0]`.

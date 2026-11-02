@@ -85,4 +85,4 @@ pnpm exec prettier --write "src/**/*.ts" # format
 
 - **Do not disable rules with `// eslint-disable`** without a comment that justifies why
 - **Do not use `any`**: if you need to type something unknown, use `unknown` with type guards
-- **Do not ignore `no-console` warnings** in code that goes to production: use the NestJS logger (`Logger`) in the api
+- **Do not ignore `no-console` warnings** in code that goes to production: use the logger port in the api

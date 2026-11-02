@@ -19,8 +19,8 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 | Create domain errors or register exceptions in a module | `api-error-handler` |
 | Design or implement REST endpoints or DDD actions | `api-rest` |
 | Audit or refactor a bounded context (boundaries, submodules, debt) | `api-bc-review` |
-| Implement auth, guards, strategies, @CurrentUser, voters | `api-auth` |
-| Create or modify SharedModule, internal shared, env validation | `api-shared` |
+| Implement auth, guards, strategies, the current-user parameter, voters | `api-auth` |
+| Create or modify the shared module, internal shared, env validation | `api-shared` |
 | Define or implement EventBus, DomainEventConsumer, abstract Handler | `api-events` |
 | Implement the message bus, HandlersBootstrapper, retry, DLQ | `api-events-infra` |
 | Define DI tokens, register providers, inject interfaces | `api-di` |
@@ -159,8 +159,8 @@ pnpm test:debug       # Test runner with the Node inspector
 | `api-error-handler`    | api    | GlobalExceptionRegistry, per-module filters, HttpExceptionFilter |
 | `api-rest`             | api    | RESTful conventions + DDD actions with POST                      |
 | `api-bc-review`        | api    | DDD audit of bounded contexts: boundaries, submodules, checklist |
-| `api-auth`             | api    | JWT, OAuth Google, guest token, guards, @CurrentUser, voters     |
-| `api-shared`           | api    | Global SharedModule, bounded context shared, env validation      |
+| `api-auth`             | api    | JWT, OAuth Google, guest token, guards, the current-user parameter, voters     |
+| `api-shared`           | api    | Global the shared module, bounded context shared, env validation      |
 | `api-events`           | api    | EventBus interface, DomainEventConsumer, abstract Handler        |
 | `api-events-infra`     | api    | Message bus, HandlersBootstrapper, retry, DLQ, idempotency       |
 | `api-di`               | api    | Symbol tokens, provider registration, injection without coupling |

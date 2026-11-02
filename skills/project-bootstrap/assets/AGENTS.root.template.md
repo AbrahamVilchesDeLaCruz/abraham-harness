@@ -60,8 +60,8 @@ After a concept skill, load the stack skill that matches this project's stack ta
 | `api-error-handler`  | api    | GlobalExceptionRegistry, per-module filters, HttpExceptionFilter |
 | `api-rest`           | api    | RESTful conventions + DDD actions with POST                      |
 | `api-bc-review`      | api    | DDD audit of bounded contexts: boundaries, submodules, checklist |
-| `api-auth`           | api    | JWT, OAuth Google, guest token, guards, @CurrentUser, voters     |
-| `api-shared`         | api    | Global SharedModule, bounded context shared, env validation      |
+| `api-auth`           | api    | JWT, OAuth Google, guest token, guards, the current-user parameter, voters     |
+| `api-shared`         | api    | Global the shared module, bounded context shared, env validation      |
 | `api-events`         | api    | EventBus interface, DomainEventConsumer, abstract Handler        |
 | `api-events-infra`   | api    | Message bus, HandlersBootstrapper, retry, DLQ, idempotency       |
 | `api-di`             | api    | Symbol tokens, provider registration, injection without coupling |

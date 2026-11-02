@@ -166,7 +166,7 @@ test('rejects a pinned library version', () => {
   assert.match(r.stderr, /stack-demo\/references\/guide\.md:1: pinned version "Faker\.js v9"/);
 });
 
-for (const term of ['queryRunner', 'mutationFn', 'staleTime', 'Container.tsx', 'mock<Repo>']) {
+for (const term of ['queryRunner', 'mutationFn', 'staleTime', 'Container.tsx', 'mock<Repo>', 'migrationsRun', 'qb.andWhere', 'repo.mock.calls', 'auth.module.ts', '@CurrentUser']) {
   test(`rejects the framework API name ${term} in a concept skill`, () => {
     const r = run(concept(`Example: ${term}\n`));
     assert.equal(r.status, 1);

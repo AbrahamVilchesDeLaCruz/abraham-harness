@@ -31,7 +31,7 @@ skills/{skill-name}/
 ```yaml
 ---
 name: skill-name                  # lowercase, hyphens, max 64 chars
-description: "One-line description — includes trigger phrase"
+description: "Trigger: {When the AI should load this skill}. {One-line description of what this skill does}."
 license: Apache-2.0
 metadata:
   author: AbrahamVilchesDeLaCruz

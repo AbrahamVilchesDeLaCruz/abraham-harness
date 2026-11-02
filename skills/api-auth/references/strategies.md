@@ -195,16 +195,16 @@ identity/                         ← BC de identidad (submódulos)
 
 ```typescript
 // shared/domain/user-context.ts
-export type UserType = 'guest' | 'user' | 'teacher' | 'admin';
+export type UserType = 'guest' | 'user' | 'staff' | 'admin';
 
 export type UserContext = {
   type: UserType;
   deviceId: string;    // UUID generado por el backend — no falsificable
   fingerprint?: string; // hash(userAgent + acceptLanguage + ip) — opcional
   ip: string;
-  userId?: string;     // solo user / teacher / admin
-  email?: string;      // solo user / teacher / admin
-  roles?: string[];    // solo user / teacher / admin
+  userId?: string;     // solo user / staff / admin
+  email?: string;      // solo user / staff / admin
+  roles?: string[];    // solo user / staff / admin
 };
 ```
 
@@ -212,7 +212,7 @@ export type UserContext = {
 ## Uso de guards en controllers
 
 ```typescript
-@UseGuards(JwtAuthGuard)                          // solo usuarios registrados (type: user/teacher/admin)
+@UseGuards(JwtAuthGuard)                          // solo usuarios registrados (type: user/staff/admin)
 @UseGuards(GuestAuthGuard)                        // solo guests
 @UseGuards(AnyAuthGuard)                          // registrado o guest (acepta ambos tokens)
 @UseGuards(JwtAuthGuard, RolesGuard) @Roles('admin')  // admin

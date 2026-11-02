@@ -71,10 +71,10 @@ const repository = new TypeOrmProductRepository(dataSource);
 let sharedProduct: Product; // fuera de beforeEach
 
 // ❌ String mágico cuando existe un Mother
-const product = Product.fromPrimitives({ id: "123", front: "test", back: "test" });
+const product = Product.fromPrimitives({ id: "123", name: "test", description: "test" });
 
 // ❌ Mother inline en el spec
-const mother = { id: uuid(), front: faker.lorem.word() };
+const mother = { id: uuid(), name: faker.lorem.word() };
 
 // ❌ jest.fn() para puertos tipados
 const repository = { save: jest.fn(), search: jest.fn() };

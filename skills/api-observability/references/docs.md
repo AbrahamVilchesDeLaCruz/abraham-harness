@@ -29,6 +29,6 @@ Ver `resources/setup.md` para la configuración completa de Loki, Prometheus, Gr
 Pino emite JSON en una línea por log. Ejemplo:
 
 ```json
-{"level":"info","time":"2026-05-21T12:00:00.000Z","productId":"abc123","phrase":"what is liaison","msg":"Product created"}
+{"level":"info","time":"2026-05-21T12:00:00.000Z","productId":"abc123","name":"what is liaison","msg":"Product created"}
 {"level":"error","time":"2026-05-21T12:00:01.000Z","productId":"abc123","provider":"external-provider","err":{"type":"Error","message":"timeout","stack":"..."},"msg":"Image generation failed"}
 ```

@@ -13,7 +13,7 @@ DELETE /products/:id          ← eliminar
 ### Acciones DDD con POST
 
 ```
-POST /products/:id/review          ← revisar una product (spaced repetition)
+POST /products/:id/review          ← revisar un product
 POST /products/:id/archive         ← archivar
 POST /orders/:id/complete             ← completar partida (devuelve stats)
 POST /orders/:id/resume               ← reanudar partida pausada (devuelve estado)
@@ -137,7 +137,7 @@ export class ProductModule {}
 
 ```
 GET /products?orderBy=createdAt&orderType=DESC&limit=20&offset=0
-GET /products?filters[0][field]=front&filters[0][operator]=CONTAINS&filters[0][value]=hello
+GET /products?filters[0][field]=name&filters[0][operator]=CONTAINS&filters[0][value]=hello
 ```
 
 ## Anti-patterns

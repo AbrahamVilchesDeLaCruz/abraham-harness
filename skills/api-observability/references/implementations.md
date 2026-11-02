@@ -246,7 +246,7 @@ constructor(
 
 async execute(request: ...): Promise<...> {
   // ... lógica ...
-  this.logger.info('Product created', { productId: id, expression, createdBy });
+  this.logger.info('Product created', { productId: id, name, createdBy });
   this.metrics.increment('app_products_created_total');
 }
 
@@ -261,14 +261,14 @@ this.metrics.increment('app_audio_generated_total', { provider: 'external-provid
 ### Use Case — eventos de negocio
 
 ```typescript
-async execute(params: { id: string; phrase: string }): Promise<void> {
+async execute(params: { id: string; name: string }): Promise<void> {
   const product = Product.create(params);
   await this.repository.save(product);
   await this.eventBus.publish(product.pullDomainEvents());
 
   this.logger.info('Product created', {
     productId: params.id,
-    phrase: params.phrase,
+    name: params.name,
   });
 }
 ```
@@ -277,7 +277,7 @@ async execute(params: { id: string; phrase: string }): Promise<void> {
 
 ```typescript
 // ✅ Con identificador del aggregate
-this.logger.info('Product updated', { productId, userId, field: 'phrase' });
+this.logger.info('Product updated', { productId, userId, field: 'name' });
 this.logger.error('Image generation failed', error, { productId, provider: 'external-provider' });
 
 // ❌ Sin contexto

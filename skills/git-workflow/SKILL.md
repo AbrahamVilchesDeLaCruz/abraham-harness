@@ -49,13 +49,13 @@ chore/nombre-descriptivo    ← mantenimiento, deps, config
 
 ```bash
 # ✅ Correcto
-feat/spaced-repetition-algorithm
+feat/discount-rules
 fix/payment-provider-timeout
-refactor/session-domain-model
+refactor/order-domain-model
 
 # ❌ Incorrecto
 feature-1
-abraham-working
+my-working-branch
 fix
 ```
 
@@ -121,7 +121,7 @@ Títulos de PR:
 
 ```
 # ✅ Correcto
-feat(products): implement SM-2 discount rules
+feat(products): implement discount rules
 fix(payments): handle provider timeout with retry logic
 
 # ❌ Incorrecto

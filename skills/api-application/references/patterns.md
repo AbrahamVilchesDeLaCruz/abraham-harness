@@ -20,7 +20,7 @@ export class ProductCreator {
   async execute(request: RequestProductCreator): Promise<ProductPrimitives> {
     const product = Product.create(
       request.id,
-      request.expression,
+      request.name,
       request.meaning,
       request.category,
       request.subcategory,
@@ -35,7 +35,7 @@ export class ProductCreator {
 
     this.logger.info("Product created", {
       productId: request.id,
-      expression: request.expression,
+      name: request.name,
     });
 
     this.metrics.increment("app_products_created_total");
@@ -58,7 +58,7 @@ export type { RequestOrderCompleter, ResponseOrderCompleter };
 // catalog/product/application/create/request-product-creator.ts
 export type RequestProductCreator = {
   id: string;
-  expression: string;
+  name: string;
   meaning: string;
   category: string;
   subcategory: string;
@@ -132,12 +132,12 @@ constructor(private readonly productFinderService: ProductFinderService) {}
 
 ```typescript
 // ❌ Primitivos sueltos como parámetros
-async execute(expression: string, meaning: string, category: string): Promise<void> {}
+async execute(name: string, meaning: string, category: string): Promise<void> {}
 // ✅ Request type object
 async execute(request: RequestProductCreator): Promise<void> {}
 
 // ❌ Clase DTO con decoradores en application
-export class CreateProductDto { expression: string; meaning: string; }
+export class CreateProductDto { name: string; meaning: string; }
 
 // ❌ Lógica de negocio en use case
 async execute(request): Promise<void> {

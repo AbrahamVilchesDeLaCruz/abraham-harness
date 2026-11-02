@@ -370,7 +370,7 @@ export const useClickOutside = (ref: RefObject<HTMLElement>, handler: () => void
 | `/profile` | `containers/profile` | Cuenta, ranking (user), preferencias |
 | `/stats` | `containers/stats` | Progreso del jugador |
 | `/ranking` | `containers/ranking` | Leaderboard |
-| `/backoffice/*` | backoffice | teacher / admin |
+| `/backoffice/*` | backoffice | staff / admin |
 
 Post-login por defecto: `/home` (ver `core/navigation/sessionNav.ts`).
 

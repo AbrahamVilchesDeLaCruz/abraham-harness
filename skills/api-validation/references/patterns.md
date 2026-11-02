@@ -84,7 +84,7 @@ export class CreateProductPostPayload {
   @ApiProperty({ example: 'catch up' })
   @IsString()
   @IsNotEmpty()
-  expression: string;
+  name: string;
 
   @ApiProperty({ example: 'ponerse al día' })
   @IsString()

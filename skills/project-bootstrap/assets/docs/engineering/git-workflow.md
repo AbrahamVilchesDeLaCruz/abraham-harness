@@ -21,10 +21,10 @@ Seguir el mismo patrón que los conventional commits:
 
 ```bash
 feat/product-order-flow
-feat/spaced-repetition-algorithm
+feat/discount-rules
 fix/image-pipeline-timeout
 fix/reviews-score-calculation
-refactor/session-domain-model
+refactor/order-domain-model
 chore/update-dependencies
 ```
 
@@ -40,7 +40,7 @@ chore/update-dependencies
    git checkout -b feat/nombre-descriptivo
 
 3. Trabajar con commits convencionales
-   git commit -m "feat(products): add SM-2 interval calculation"
+   git commit -m "feat(products): add discount calculation"
 
 4. Abrir PR: feat/xxx → dev  (Squash and merge)
 
@@ -166,6 +166,6 @@ e4f5g6h Merge pull request #8 from dev                 ← release anterior
 
 # git log --oneline en dev
 i7j8k9l feat(reviews): add rating score
-m0n1o2p feat(products): implement SM-2 algorithm
+m0n1o2p feat(products): implement discount rules
 q3r4s5t feat(auth): add JWT authentication
 ```

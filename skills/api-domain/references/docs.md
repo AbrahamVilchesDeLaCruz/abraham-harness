@@ -26,11 +26,11 @@ Las invariantes se validan en el constructor del Value Object o en el método de
 
 ```typescript
 // ✅ Invariante en el VO — lanza error antes de crear el objeto inválido
-export class ProductFront extends StringValueObject {
+export class ProductName extends StringValueObject {
   constructor(value: string) {
     super(value);
-    if (value.trim().length === 0) throw new ProductFrontEmpty();
-    if (value.length > 500) throw new ProductFrontTooLong(value.length);
+    if (value.trim().length === 0) throw new ProductNameEmpty();
+    if (value.length > 500) throw new ProductNameTooLong(value.length);
   }
 }
 ```

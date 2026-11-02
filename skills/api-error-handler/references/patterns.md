@@ -96,7 +96,7 @@ export class ProductExceptionRegistry implements OnModuleInit {
     this.globalRegistry.register(
       new Map<string, number>([
         [ProductNotFound.name, HttpStatus.NOT_FOUND],
-        [ProductFrontEmpty.name, HttpStatus.UNPROCESSABLE_ENTITY],
+        [ProductNameEmpty.name, HttpStatus.UNPROCESSABLE_ENTITY],
         [ProductAlreadyExists.name, HttpStatus.CONFLICT],
       ]),
     );

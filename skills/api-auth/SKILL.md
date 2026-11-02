@@ -28,7 +28,7 @@ metadata:
 
 | Acceso | Guard |
 |---|---|
-| Solo usuarios registrados (type: user/teacher/admin) | `@UseGuards(JwtAuthGuard)` |
+| Solo usuarios registrados (type: user/staff/admin) | `@UseGuards(JwtAuthGuard)` |
 | Solo guests | `@UseGuards(GuestAuthGuard)` |
 | Registrado o guest (acepta ambos tokens) | `@UseGuards(AnyAuthGuard)` |
 | Admin | `@UseGuards(JwtAuthGuard, RolesGuard) @Roles('admin')` |

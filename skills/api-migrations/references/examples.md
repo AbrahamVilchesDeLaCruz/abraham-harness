@@ -13,7 +13,7 @@ export class Migration202605230526271779506787479 implements MigrationInterface 
     await queryRunner.query(`
       CREATE TABLE "products" (
         "id"         UUID        NOT NULL,
-        "expression" VARCHAR     NOT NULL,
+        "name" VARCHAR     NOT NULL,
         "created_at" TIMESTAMP   NOT NULL DEFAULT now(),
         "updated_at" TIMESTAMP   NOT NULL DEFAULT now(),
         CONSTRAINT "PK_products" PRIMARY KEY ("id")
@@ -49,7 +49,7 @@ export async function seedLocalDemo(dataSource: DataSource): Promise<void> {
   }
 
   await dataSource.query(
-    `INSERT INTO users (id, email, nickname, role, longest_streak, created_at, updated_at)
+    `INSERT INTO users (id, email, nickname, role, created_at, updated_at)
      VALUES ($1, $2, 'demo', 'admin', true, 0, 0, NOW(), NOW())`,
     [DEMO_USER_ID, DEMO_EMAIL],
   );

@@ -36,14 +36,14 @@ describe('products/application/create ProductCreator', () => {
     const request = RequestProductCreatorMother.random();
     const expected = ProductMother.from(request);
 
-    await creator.execute(request.front, request.back);
+    await creator.execute(request.name, request.description);
 
     expect(repository.save).toHaveBeenCalledWith(expected);
     expect(publisher.publish.mock.calls[0][0][0]).toBeInstanceOf(ProductCreatedEvent);
   });
 
-  it('should not save nor publish when front is empty', async () => {
-    await expect(creator.execute('', 'back')).rejects.toThrow(ProductFrontEmpty);
+  it('should not save nor publish when name is empty', async () => {
+    await expect(creator.execute('', 'description')).rejects.toThrow(ProductNameEmpty);
 
     expect(repository.save).not.toHaveBeenCalled();
     expect(publisher.publish).not.toHaveBeenCalled();
@@ -152,19 +152,19 @@ import { ProductIdMother } from './product-id-mother';
 import { StringMother } from '@test/shared/domain/string-mother';
 
 export class ProductMother {
-  static create(id: string, front: string, back: string): Product {
-    return Product.fromPrimitives({ id, front, back });
+  static create(id: string, name: string, description: string): Product {
+    return Product.fromPrimitives({ id, name, description });
   }
 
   static from(request: RequestProductCreator): Product {
-    return this.create(request.id, request.front, request.back);
+    return this.create(request.id, request.name, request.description);
   }
 
-  static random(overrides?: Partial<{ id: string; front: string; back: string }>): Product {
+  static random(overrides?: Partial<{ id: string; name: string; description: string }>): Product {
     return this.create(
       overrides?.id ?? ProductIdMother.random().value,
-      overrides?.front ?? StringMother.sentence(),
-      overrides?.back ?? StringMother.sentence(),
+      overrides?.name ?? StringMother.sentence(),
+      overrides?.description ?? StringMother.sentence(),
     );
   }
 }
@@ -182,8 +182,8 @@ export class RequestProductCreatorMother {
   static random(overrides?: Partial<RequestProductCreator>): RequestProductCreator {
     return {
       id: overrides?.id ?? UuidMother.random(),
-      front: overrides?.front ?? StringMother.sentence(),
-      back: overrides?.back ?? StringMother.sentence(),
+      name: overrides?.name ?? StringMother.sentence(),
+      description: overrides?.description ?? StringMother.sentence(),
     };
   }
 }

@@ -68,7 +68,7 @@ export class ProductCreatedEvent extends DomainEvent {
 ```typescript
 // sales/domain/order.ts
 recordPayment(productId: string, correct: boolean, productModule: string | null): Payment {
-  if (this.mode.isStudy()) {
+  if (this.mode.isDraft()) {
     throw new PaymentRequiresOrderMode(this.id.value);
   }
   if (!this._status.isInProgress()) {

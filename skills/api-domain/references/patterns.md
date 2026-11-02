@@ -25,7 +25,7 @@ export abstract class AggregateRoot<Primitives> {
 // catalog/product/domain/product.ts
 export type ProductPrimitives = {
   id: string;
-  expression: string;
+  name: string;
   meaning: string;
   category: string;
   audioStatus: string;
@@ -50,7 +50,7 @@ export class Product extends AggregateRoot<ProductPrimitives> {
   get audioStatus(): AudioStatus { return this._audioStatus; }
 
   // Factory para nuevas entidades — registra el domain event de creación
-  static create(id: string, expression: string, meaning: string, category: string, createdBy: string): Product {
+  static create(id: string, name: string, meaning: string, category: string, createdBy: string): Product {
     const product = new Product(
       new ProductId(id),
       new Expression(expression),
@@ -78,7 +78,7 @@ export class Product extends AggregateRoot<ProductPrimitives> {
   toPrimitives(): ProductPrimitives {
     return {
       id: this.id.value,
-      expression: this.expression.value,
+      name: this.expression.value,
       meaning: this.meaning.value,
       category: this.category.value,
       audioStatus: this.audioStatus.value,
@@ -214,10 +214,10 @@ interface ProductRepository {
 }
 
 // ❌ Lógica de negocio fuera del aggregate
-async execute(expression: string): Promise<void> {
+async execute(name: string): Promise<void> {
   if (expression.length > 200) throw new Error('too long'); // esto va en el VO
 }
 
 // ❌ fromPrimitives para crear entidades nuevas (sin eventos)
-const product = Product.fromPrimitives({ id, expression, ... }); // usar create()
+const product = Product.fromPrimitives({ id, name, ... }); // usar create()
 ```

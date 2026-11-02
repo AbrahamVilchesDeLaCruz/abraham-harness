@@ -2,6 +2,13 @@
 
 This project follows [Semantic Versioning](https://semver.org/): a major version changes a convention that existing projects must adapt to, a minor version adds skills or guidance, and a patch version fixes them.
 
+## 0.4.0
+
+- Add `plan-create` and `plan-phase-implement`: agreed contracts, vertical slices, one phase per invocation and no automatic commits.
+- Rewrite `factory-workflow` around three lanes: Answer, FTD and SDD.
+- Add `finding-verifier`, which tries to refute blocking findings before they count.
+- Review the staged tree instead of a commit, because the builder no longer commits.
+
 ## 0.3.0
 
 - Add role agents for Claude Code, Codex and OpenCode: `spec-planner`, `builder`, `security`, `ux`, `ui`, `code-reviewer` and `approver`.

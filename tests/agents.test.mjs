@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os';
 import { delimiter, join } from 'node:path';
 
 const BIN = new URL('../bin/abraham-harness.mjs', import.meta.url).pathname;
-const ROLES = ['spec-planner', 'builder', 'security', 'ux', 'ui', 'code-reviewer', 'approver'];
+const ROLES = ['spec-planner', 'builder', 'security', 'ux', 'ui', 'code-reviewer', 'finding-verifier', 'approver'];
 const REVIEWERS = ['security', 'ux', 'ui', 'code-reviewer'];
 
 function withProject(fn, exitCode = 0) {
@@ -48,9 +48,9 @@ test('Claude Code agents preload their skills and reviewers cannot edit', () => 
     run();
     const builder = read(project, '.claude/agents/builder.md');
     assert.match(builder, /^name: builder$/m);
-    assert.match(builder, /^skills:\n  - tdd-workflow$/m);
+    assert.match(builder, /^skills:\n  - plan-phase-implement\n  - tdd-workflow$/m);
     assert.doesNotMatch(builder, /^tools:/m);
-    for (const role of [...REVIEWERS, 'approver']) {
+    for (const role of [...REVIEWERS, 'finding-verifier', 'approver']) {
       const tools = read(project, `.claude/agents/${role}.md`).match(/^tools: (.*)$/m)[1];
       assert.doesNotMatch(tools, /\b(Write|Edit)\b/, role);
     }
@@ -65,7 +65,7 @@ test('OpenCode agents are subagents, reviewers cannot edit, and the spec-planner
     assert.match(read(project, '.opencode/agents/security.md'), /^permission:\n  edit: deny$/m);
     assert.match(
       read(project, '.opencode/agents/spec-planner.md'),
-      /^permission:\n  edit:\n    "\*": deny\n    "docs\/specs\/\*\*": allow$/m,
+      /^permission:\n  edit:\n    "\*": deny\n    "\.agents\/plans\/\*\*": allow$/m,
     );
   });
 });
@@ -76,8 +76,8 @@ test('Codex and OpenCode agents are told to load the skills that Claude Code pre
     const toml = read(project, '.codex/agents/builder.toml');
     assert.match(toml, /^name = "builder"$/m);
     assert.match(toml, /^description = ".+"$/m);
-    assert.match(toml, /^developer_instructions = ".*Load these skills before you work: `tdd-workflow`\..*"$/m);
-    assert.match(read(project, '.opencode/agents/builder.md'), /Load these skills before you work: `tdd-workflow`\./);
+    assert.match(toml, /^developer_instructions = ".*Load these skills before you work: `plan-phase-implement`, `tdd-workflow`\..*"$/m);
+    assert.match(read(project, '.opencode/agents/builder.md'), /Load these skills before you work: `plan-phase-implement`, `tdd-workflow`\./);
     assert.doesNotMatch(read(project, '.claude/agents/builder.md'), /Load these skills before you work/);
   });
 });
@@ -223,5 +223,31 @@ test('a write failure reports one clear line, without a stack trace or a success
     assert.match(r.stderr, /^Could not write agents: /);
     assert.doesNotMatch(r.stderr, /\n\s+at /);
     assert.doesNotMatch(r.stdout, /agent files/);
+  });
+});
+
+test('the builder never commits, and reviewers and the approver bind to the staged tree', () => {
+  withProject(({ project, run }) => {
+    run();
+    const builder = read(project, '.claude/agents/builder.md');
+    assert.match(builder, /Never commit, push or merge/);
+    assert.match(builder, /git write-tree/);
+    assert.match(read(project, '.claude/agents/approver.md'), /git write-tree/);
+    for (const role of REVIEWERS) {
+      assert.match(read(project, `.claude/agents/${role}.md`), /CANDIDATE: <`git write-tree` SHA>/, role);
+      assert.match(read(project, `.claude/agents/${role}.md`), /git diff --cached/, role);
+    }
+  });
+});
+
+test('a finding is confirmed only with proof, and the approver accepts only refuted blockers', () => {
+  withProject(({ project, run }) => {
+    run();
+    const verifier = read(project, '.claude/agents/finding-verifier.md');
+    assert.match(verifier, /Assume the finding is false/);
+    assert.match(verifier, /CONFIRMED \| REFUTED/);
+    const approver = read(project, '.claude/agents/approver.md');
+    assert.match(approver, /every blocker is `REFUTED` by `finding-verifier`/);
+    assert.match(approver, /A review that could not finish cannot be refuted/);
   });
 });

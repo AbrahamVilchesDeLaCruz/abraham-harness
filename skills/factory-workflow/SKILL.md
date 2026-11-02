@@ -1,33 +1,48 @@
 ---
 name: factory-workflow
-description: "Trigger: When building a feature or behavior change with the role agents. Coordinates spec-planner, builder, the four reviewers and the approver."
+description: "Trigger: On every request in a project that uses this harness. Picks one lane (Answer, FTD or SDD), runs the role agents, and gates code changes on four reviewers and the approver."
 license: Apache-2.0
 metadata:
   author: AbrahamVilchesDeLaCruz
-  version: "1.0"
+  version: "2.0"
 ---
 
 ## Activation Contract
 
-Use this skill to deliver a feature or behavior change with the role agents. Do not use it for questions or for changes that only touch documentation.
+Use this skill to route every request and to coordinate the role agents.
 
 ## Hard Rules
 
-- Only the `approver` declares a candidate good. It needs a positive verdict from `security`, `ux`, `ui` and `code-reviewer` on the same commit.
-- Any new commit invalidates all earlier verdicts, so the four reviewers run again.
-- Keep the base commit of the first `builder` run through every round. Each review covers the whole change since that base, never only the latest correction.
-- Reviewers and the approver do not edit files. Only the `builder` changes code.
-- Stop after 3 rejected rounds and return the open blockers to the user.
-- Merging and pushing stay with the user, even when the approver approves.
+- Every turn takes exactly one lane. Name it in one line, in the user's language.
+- Answer is read-only: write nothing and create no artifact. When intent is unclear, ask one question and stay in Answer.
+- Size never selects SDD. Only several open decisions that affect each other select it.
+- Promote FTD to SDD by using its document as input. Never restart or discard completed work.
+- Check a task off only with observed proof. Record a check that failed, was skipped or could not run.
+- Every code change passes the gate in `references/gate.md`. Only changes limited to documentation or configuration skip it.
+- Stop after each phase, and wait for the user. There is no autopilot.
+- Only the user commits, pushes and merges, even after approval.
+
+## Decision Gates
+
+| The request | Lane |
+| --- | --- |
+| Asks to explain, compare, investigate, audit, review or propose | Answer |
+| Authorizes a change, and no open decisions interact | FTD (the default for change) |
+| Authorizes a change with several decisions that affect each other | SDD |
+| Asks for a specific lane | That lane |
 
 ## Execution Steps
 
-1. Delegate to `spec-planner`. Show the user the spec and any open question, and wait for approval.
-2. For each task in the spec, delegate to `builder` with the spec path and the task. Keep the commit SHA and the base commit it returns.
-3. Delegate to `security`, `ux`, `ui` and `code-reviewer` in parallel. Give each one the same commit SHA, the base commit and the spec path.
-4. Delegate to `approver` with the four verdict blocks, unchanged.
-5. On `APPROVER: REJECTED`, send `BLOCKERS` to `builder`, and repeat from step 3 with the new commit and the same base.
+- **Answer:** Answer from evidence, and change nothing.
+- **FTD:** Follow `references/ftd.md`: one feature document, then `builder`, then the gate.
+- **SDD:** Follow `references/sdd.md`: `spec-planner`, then one `builder` phase at a time, each with the gate.
 
 ## Output Contract
 
-Report the final approver block, the number of rounds, and the commit that is ready for the user to deliver.
+Report the lane, the final approver block, any refuted findings, each check with its observed result, and suggested commit messages.
+
+## References
+
+- `references/ftd.md`: the default lane for change.
+- `references/sdd.md`: the phase chain for interacting decisions.
+- `references/gate.md`: reviewers, finding verification and approval.

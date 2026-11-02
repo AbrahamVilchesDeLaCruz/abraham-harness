@@ -45,19 +45,32 @@ Install per project, which is the default. The `--global` option replaces any sk
 
 ## Role agents
 
-The installer also adds these agents to `.claude/agents/`, `.codex/agents/` and `.opencode/agents/`. The `factory-workflow` skill coordinates them.
+The installer also adds these agents to `.claude/agents/`, `.codex/agents/` and `.opencode/agents/`.
 
 | Agent | Role | Can edit |
 | --- | --- | --- |
-| `spec-planner` | Writes the spec and the plan | Only `docs/specs/` |
-| `builder` | Implements with tests first, and applies corrections | Yes |
+| `spec-planner` | Writes the spec and the phased plan | Only `.agents/plans/` |
+| `builder` | Implements one phase with tests first, stages it and never commits | Yes |
 | `security` | Reviews security | No |
 | `ux` | Reviews flows, states, messages and accessibility | No |
 | `ui` | Reviews visual consistency and layout | No |
 | `code-reviewer` | Reviews correctness, architecture and tests | No |
-| `approver` | Approves only when the four reviewers are positive on the same commit | No |
+| `finding-verifier` | Tries to prove blocking findings false | No |
+| `approver` | Approves only when the four reviewers are positive on the same staged tree | No |
 
-Edit limits are not a sandbox. Claude Code removes the edit tools and OpenCode denies edits, but read-only roles keep shell access to run `git` and tests. Claude Code can't limit `spec-planner` to `docs/specs/`, and Codex has no per-agent sandbox, so there these limits are only instructions.
+## Workflow
+
+The `factory-workflow` skill gives every request one lane:
+
+| Lane | Use | What happens |
+| --- | --- | --- |
+| Answer | Questions, audits and proposals | Nothing is written |
+| FTD | Ordinary change, the default | One feature document, the builder, then the gate |
+| SDD | Several decisions that affect each other | Spec, plan and one builder phase at a time, each with the gate |
+
+Every code change passes the gate: `security`, `ux`, `ui` and `code-reviewer` review the staged tree, `finding-verifier` tests their blockers, and `approver` gives the verdict. The agent then stops after each phase, and you commit.
+
+Edit limits are not a sandbox. Claude Code removes the edit tools and OpenCode denies edits, but read-only roles keep shell access to run `git` and tests. Claude Code can't limit `spec-planner` to `.agents/plans/`, and Codex has no per-agent sandbox, so there these limits are only instructions.
 
 `install` adds the agents and `update` refreshes the generated ones that exist, in the project and in your home directory. Neither overwrites a file you wrote by hand.
 
@@ -69,10 +82,14 @@ Edit shared skills here, never in the generated skills directory of a project. S
 
 | Group | Skills |
 | --- | --- |
-| Project | `project-bootstrap`, `factory-workflow` |
+| Project | `project-bootstrap`, `factory-workflow`, `plan-create`, `plan-phase-implement` |
 | Workflow | `tdd-workflow`, `git-workflow`, `skill-creator`, `skill-sync` |
 | API | `api-application`, `api-auth`, `api-bc-review`, `api-criteria`, `api-di`, `api-domain`, `api-domain-events`, `api-error-handler`, `api-events`, `api-events-infra`, `api-infrastructure`, `api-migrations`, `api-observability`, `api-response`, `api-rest`, `api-shared`, `api-testing`, `api-validation` |
 | Client | `client-api`, `client-container-presentational`, `client-hooks`, `client-pods`, `client-query`, `client-testing` |
+
+## Credits
+
+The plan skills follow the approach of [Codely's Agent Harness](https://github.com/CodelyTV/agent-harness), and the lanes and finding verification follow [rsc-harness](https://github.com/ericrisco/rsc-harness). Both are written here in my own words.
 
 ## License
 

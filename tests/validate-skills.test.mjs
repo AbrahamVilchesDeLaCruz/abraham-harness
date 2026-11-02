@@ -15,7 +15,13 @@ metadata:
   version: "1.0"
 ---
 
-Read [the guide](references/guide.md).
+## Activation Contract
+
+Use this skill when testing.
+
+## Hard Rules
+
+- Read [the guide](references/guide.md).
 `;
 
 function run(files) {
@@ -60,4 +66,30 @@ test('rejects terms leaked from a source project', () => {
   const r = run({ 'demo/SKILL.md': GOOD, 'demo/references/guide.md': 'A flashcard example\n' });
   assert.equal(r.status, 1);
   assert.match(r.stderr, /demo\/references\/guide\.md:1: project-specific term "flashcard"/);
+});
+
+test('rejects a description longer than 250 characters', () => {
+  const long = 'x'.repeat(240);
+  const r = run({ 'demo/SKILL.md': GOOD.replace('Demo skill.', long), 'demo/references/guide.md': '' });
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /description exceeds 250 characters/);
+});
+
+test('rejects a missing required section', () => {
+  const r = run({ 'demo/SKILL.md': GOOD.replace('## Hard Rules\n', ''), 'demo/references/guide.md': '' });
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /missing section "## Hard Rules"/);
+});
+
+test('rejects required sections in the wrong order', () => {
+  const swapped = GOOD.replace('## Activation Contract', '## TEMP').replace('## Hard Rules', '## Activation Contract').replace('## TEMP', '## Hard Rules');
+  const r = run({ 'demo/SKILL.md': swapped, 'demo/references/guide.md': '' });
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /"## Activation Contract" must come before "## Hard Rules"/);
+});
+
+test('rejects a body over the 4000 character budget', () => {
+  const r = run({ 'demo/SKILL.md': `${GOOD}\n${'y'.repeat(4001)}\n`, 'demo/references/guide.md': '' });
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /body has \d+ characters, the budget is 4000/);
 });

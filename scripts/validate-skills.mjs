@@ -7,6 +7,9 @@ const FORBIDDEN_TERMS = ['flashcard', 'ididntcatchthat', 'tfm', 'big-school', 'e
 const FORBIDDEN = new RegExp(`\\b(${FORBIDDEN_TERMS.join('|')})\\b`, 'i');
 const REQUIRED_FIELDS = ['name', 'description', 'license'];
 const LINK = /\]\(([^)\s]+)\)/g;
+const MAX_DESCRIPTION = 250;
+const MAX_BODY = 4000; // Roughly the style guide's hard maximum of 1000 tokens.
+const REQUIRED_SECTIONS = ['## Activation Contract', '## Hard Rules'];
 
 const root = resolve(process.argv[2] ?? 'skills');
 const errors = [];
@@ -30,9 +33,24 @@ function parseFrontmatter(text) {
   return fields;
 }
 
+function checkBody(path, text) {
+  const body = text.replace(/^---\n[\s\S]*?\n---\n/, '').trim();
+  if (body.length > MAX_BODY) errors.push(`${label(path)}: body has ${body.length} characters, the budget is ${MAX_BODY}`);
+  const lines = body.split('\n');
+  const positions = REQUIRED_SECTIONS.map((section) => lines.indexOf(section));
+  REQUIRED_SECTIONS.forEach((section, i) => {
+    if (positions[i] === -1) errors.push(`${label(path)}: missing section "${section}"`);
+  });
+  if (positions.every((p) => p !== -1) && positions[0] > positions[1]) {
+    errors.push(`${label(path)}: "${REQUIRED_SECTIONS[0]}" must come before "${REQUIRED_SECTIONS[1]}"`);
+  }
+}
+
 function checkFrontmatter(skillDir, path) {
   const dirName = label(skillDir);
-  const fields = parseFrontmatter(readFileSync(path, 'utf8'));
+  const text = readFileSync(path, 'utf8');
+  checkBody(path, text);
+  const fields = parseFrontmatter(text);
   if (!fields) {
     errors.push(`${label(path)}: missing frontmatter`);
     return;
@@ -42,6 +60,9 @@ function checkFrontmatter(skillDir, path) {
   }
   if (fields.name && fields.name !== dirName) {
     errors.push(`${label(path)}: name "${fields.name}" must match directory "${dirName}"`);
+  }
+  if (fields.description && fields.description.length > MAX_DESCRIPTION) {
+    errors.push(`${label(path)}: description exceeds ${MAX_DESCRIPTION} characters`);
   }
   if (fields.description && !fields.description.includes('Trigger:')) {
     errors.push(`${label(path)}: description must include "Trigger:"`);

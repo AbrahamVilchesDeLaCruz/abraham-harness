@@ -6,6 +6,7 @@ import { dirname, join, relative, resolve, sep } from 'node:path';
 const FORBIDDEN_TERMS = ['flashcard', 'ididntcatchthat', 'tfm', 'big-school', 'elevenlabs', 'deepseek', 'doppler'];
 const FORBIDDEN = new RegExp(`\\b(${FORBIDDEN_TERMS.join('|')})\\b`, 'i');
 const REQUIRED_FIELDS = ['name', 'description', 'license'];
+const MOJIBAKE = /[\u00c3\u00c2][\u0080-\u00bf]|\u00e2\u20ac/;
 const LINK = /\]\(([^)\s]+)\)/g;
 const MAX_DESCRIPTION = 250;
 const MAX_BODY = 4000; // Roughly the style guide's hard maximum of 1000 tokens.
@@ -76,6 +77,7 @@ function checkMarkdown(skillDir, path) {
   lines.forEach((line, index) => {
     const term = line.match(FORBIDDEN);
     if (term) errors.push(`${label(path)}:${index + 1}: project-specific term "${term[1].toLowerCase()}"`);
+    if (MOJIBAKE.test(line)) errors.push(`${label(path)}:${index + 1}: corrupted encoding`);
     if (inTemplates) return;
     for (const [, raw] of line.matchAll(LINK)) {
       if (/^(https?:|mailto:|#)/.test(raw) || raw.includes('{')) continue;

@@ -29,7 +29,7 @@ metadata:
 - **Request**: validado con `class-validator` + DTO solo en el controller (no pasa a application)
 - **Response**: primitivos planos — nunca entidades de dominio
 - **snake_case** en JSON de respuesta cuando es convención del equipo — decidir y ser consistente
-- El controller extrae y pasa a use case como primitivos — ver skill `api-criteria`.
+- Query params de listados: el controller los extrae y pasa a use case como primitivos — ver skill `api-criteria`.
 
 ## Decision Gates
 

@@ -93,3 +93,9 @@ test('rejects a body over the 4000 character budget', () => {
   assert.equal(r.status, 1);
   assert.match(r.stderr, /body has \d+ characters, the budget is 4000/);
 });
+
+test('rejects corrupted encoding', () => {
+  const r = run({ 'demo/SKILL.md': GOOD, 'demo/references/guide.md': 'Las 3 seÃ±ales\n' });
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /demo\/references\/guide\.md:1: corrupted encoding/);
+});

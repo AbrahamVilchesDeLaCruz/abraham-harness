@@ -53,7 +53,7 @@ Detalle de las Fases 2, 3, 4, 6 y 7 en `references/review-phases.md`.
    6. **Operabilidad y contrato** — logger, Swagger, docs (ver Fase 7)
    7. **E2E API** — al menos un `*.e2e-spec.ts` por endpoint HTTP del BC
    8. **Cliente** — `ApiEnvelope<T>` + i18n si el copy vive en frontend
-6. Fase 6: detecta fuente de verdad duplicada, decide **una** fuente y documenta en ADR si es decisiÃ³n de producto.
+6. Fase 6: detecta fuente de verdad duplicada, decide **una** fuente y documenta en ADR si es decisión de producto.
 7. Fase 7: audita operabilidad, contrato y documentación **después** de límites y capas DDD.
 
 ## Output Contract

@@ -30,7 +30,7 @@ metadata:
 
 ## Decision Gates
 
-Las 3 seÃ±ales:
+Las 3 señales:
 
 | Signal | Qué captura | Storage | Consultado en |
 |---|---|---|---|

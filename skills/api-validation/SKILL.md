@@ -20,14 +20,17 @@ metadata:
 - `whitelist: true` + `forbidNonWhitelisted: true` — **siempre** — rechaza campos extra
 - `transform: true` + `errorHttpStatusCode: 422` — **siempre** — habilita `@Type()` en queries y mapea errores de validación a 422
 
-### Payload y Query
+### Payload
 
 - Nombre: `{Action}{Entity}{Method}Payload` → `CreateProductPostPayload`
 - Todos los campos son **strings, números o arrays primitivos** — sin Value Objects
-- `@Type(() => Number)` **solo en Query** para `page`, `pageSize`, `limit` y similares — query params llegan como string desde HTTP
 - Nunca `@Type()` en Payloads — el body JSON ya viene tipado
-- `@ApiProperty` / `@ApiPropertyOptional` en todos los campos de Payload y Query — Swagger es obligatorio; en Payload, con `example`
 - Los `example` usan strings UUID hardcodeados — no se importan Value Objects en Payloads
+
+### Payload y Query
+
+- `@Type(() => Number)` **solo en Query** para `page`, `pageSize`, `limit` y similares — query params llegan como string desde HTTP
+- `@ApiProperty` / `@ApiPropertyOptional` en todos los campos de Payload y Query — Swagger es obligatorio; en Payload, con `example`
 
 ### Guards y filtros
 
@@ -41,7 +44,7 @@ metadata:
 | Campo | Decoradores |
 | --- | --- |
 | Para campos opcionales simples | `@IsOptional()` + `@ApiPropertyOptional` |
-| Para campos que aceptan `null` explícito con validaciones adicionales | `@IsOptional()` + `@ValidateIf((_, v) => v !== null)` para saltar validaciones cuando el valor es `null` |
+| Para campos que aceptan `null` explícito | `@IsOptional()` + `@ValidateIf((_, v) => v !== null)` para saltar validaciones cuando el valor es `null` |
 | Para objetos anidados (arrays de objetos anidados) | `@ValidateNested({ each: true })` + `@Type(() => NestedClass)` + `@IsArray()` |
 
 ## Execution Steps

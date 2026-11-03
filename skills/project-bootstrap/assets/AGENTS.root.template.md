@@ -169,8 +169,6 @@ From the monorepo root, these scripts propagate the command to all workspaces:
 pnpm lint          # oxlint in api + client
 pnpm test          # Unit tests in api + client
 pnpm test:e2e      # E2E tests in api + client
-pnpm test:all      # Unit + E2E in api + client
-pnpm test:ci       # Tests + coverage in CI mode (GitHub Actions)
 ```
 
 > To run in only one workspace: `pnpm --filter @{{PROJECT_NAME}}/api test`

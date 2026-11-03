@@ -74,8 +74,6 @@ After this, `node_modules/.bin/tsc` may point to the alias, so call the binary b
 
 Remove the alias when `nest build` accepts the newer version: check this on each framework upgrade.
 
-Alternative with no Nest CLI: `tsc -p tsconfig.build.json --watch` plus `node --watch dist/main` worked, but it gives up `nest build`, `nest start` and CLI plugins, so it is not the default.
-
 ## Notes
 
 - Do NOT install TypeORM, class-validator or any domain packages at this stage — they come later

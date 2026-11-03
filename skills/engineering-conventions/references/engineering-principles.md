@@ -267,8 +267,8 @@ A Mother lives next to the test that uses it. Shared Mothers go in `test/shared`
 
 ```ts
 // apps/api/test/shared/product/product-id-mother.ts
-import { UuidMother } from '@test/shared/domain/uuid-mother';
-import { ProductId } from '@/catalog/product/domain/product-id';
+import { UuidMother } from '@test/shared/domain/uuid-mother.js';
+import { ProductId } from '@/catalog/product/domain/product-id.js';
 
 export class ProductIdMother {
   static random(): ProductId {
@@ -283,9 +283,9 @@ export class ProductIdMother {
 
 ```ts
 // apps/api/test/shared/product/product-mother.ts
-import { ProductIdMother } from './product-id-mother';
-import { ProductNameMother } from './product-name-mother';
-import { Product } from '@/catalog/product/domain/product';
+import { ProductIdMother } from './product-id-mother.js';
+import { ProductNameMother } from './product-name-mother.js';
+import { Product } from '@/catalog/product/domain/product.js';
 
 export class ProductMother {
   static random(overrides?: Partial<ProductPrimitives>): Product {

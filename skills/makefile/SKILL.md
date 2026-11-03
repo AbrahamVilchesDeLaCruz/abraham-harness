@@ -42,11 +42,11 @@ Use this skill when a project needs a Makefile, when you add a command to one, o
 2. Replace `{{PROJECT_NAME}}` in the `Makefile`.
 3. Create the compose files: `infra/docker-compose.local.yml`, `infra/docker-compose.dev.yml` and `infra/docker-compose.prod.yml`. Give each service a health check, because `up --wait` relies on it.
 4. Set `PM` if the project does not use pnpm, and `APP_DIRS` if its apps live elsewhere. Add the scripts that `make/code.mk` calls to the root `package.json`.
-5. Run `make` and `make local`, and confirm that the stack starts.
+5. Run `make`. Once the compose files exist, run `make local`, and confirm that the stack starts.
 
 ## Output Contract
 
-Return the targets the project has, and the result of `make local`.
+Return the targets the project has and, once the compose files exist, the result of `make local`.
 
 ## References
 

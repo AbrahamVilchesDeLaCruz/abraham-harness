@@ -4,7 +4,7 @@ TypeORM details for the concepts in `testing.md` in `engineering-conventions`.
 
 ## Migrations in E2E
 
-If the schema changes, it is applied automatically on the next `make test:e2e:up` (TypeORM `migrationsRun: true`).
+If the schema changes, it is applied automatically the next time the test database starts (TypeORM `migrationsRun: true`).
 
 ## Known gotchas
 

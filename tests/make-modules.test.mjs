@@ -74,6 +74,19 @@ test('update keeps a module edited by hand, and reports it', () => {
   });
 });
 
+test('update keeps a module with a note on its stamp line, and reports it', () => {
+  withProject(({ project, run }) => {
+    install(project);
+    const noted = asset('dev.mk').replace('make/project.mk.\n', 'make/project.mk. Keep this: staging only.\n');
+    assert.notEqual(noted, asset('dev.mk'));
+    writeFileSync(join(project, 'make/dev.mk'), noted);
+    const r = run('update');
+    assert.equal(r.status, 0);
+    assert.equal(read(project, 'make/dev.mk'), noted);
+    assert.match(r.stderr, /Skipped make\/dev\.mk: /);
+  });
+});
+
 test('update keeps a module without a stamp, and reports it', () => {
   withProject(({ project, run }) => {
     install(project);

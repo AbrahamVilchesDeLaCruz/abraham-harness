@@ -40,7 +40,9 @@ Add these rules to the `rules` block of each app's `.oxlintrc.json`. Keep what t
 | `typescript/prefer-optional-chain` | `error` | Prefers `a?.b` over `a && a.b`: safer and more readable |
 | `typescript/no-floating-promises` | `error` | A promise without `await` or `.catch()` is a silent error waiting to reach production |
 | `eqeqeq` | `error` | `===` always. `==` has type coercions that produce hard-to-find bugs |
-| `no-console` | `error` | Debug `console.log` must not reach production. Use the logger port in the api |
+| `no-console` | `warn` | Debug `console.log` must not reach production. Use the logger port in the api |
+
+The template's `lint` script has no flag that fails on warnings, so a `warn` rule does not fail `pnpm lint`.
 
 ### App-specific rules
 
@@ -98,4 +100,4 @@ Pre-commit runs `lint-staged`, which runs oxlint and Prettier on the staged file
 - **Do not replace the template's linter or formatter** from a guide
 - **Do not disable rules with `// oxlint-disable`** without a comment that justifies why
 - **Do not use `any`**: if you need to type something unknown, use `unknown` with type guards
-- **Do not silence `no-console`** in code that goes to production: use the logger port in the api
+- **Do not ignore `no-console` warnings** in code that goes to production: use the logger port in the api

@@ -25,7 +25,7 @@ function withProject(fn, { dockerUp = true } = {}) {
     mkdirSync(bin);
     writeFileSync(log, '');
     stub(bin, 'docker', `if [ "$1" = "info" ]; then exit ${dockerUp ? 0 : 1}; fi\necho "docker $*" >> "${log}"`);
-    for (const name of ['pnpm', 'doppler', 'open', 'sudo']) stub(bin, name, `echo "${name} $*" >> "${log}"`);
+    for (const name of ['pnpm', 'npm', 'doppler', 'open', 'sudo']) stub(bin, name, `echo "${name} $*" >> "${log}"`);
     stub(bin, 'sleep', 'exit 0');
     const make = (...args) => {
       const r = spawnSync('make', ['PROJECT=demo', ...args], {
@@ -119,11 +119,22 @@ test('code targets use the package manager, which can be changed', () => {
   withProject(({ make, clear }) => {
     for (const [target, script] of [['test', 'test'], ['test-e2e', 'test:e2e'], ['lint', 'lint'], ['format', 'format'], ['typecheck', 'typecheck']]) {
       clear();
-      assert.deepEqual(make(target).calls, [`pnpm ${script}`], target);
+      assert.deepEqual(make(target).calls, [`pnpm run ${script}`], target);
     }
     clear();
     const r = make('test', 'PM=npm');
     assert.equal(r.calls.filter((c) => c.startsWith('pnpm')).length, 0);
+  });
+});
+
+test('every code target works with npm, which needs the run command', () => {
+  withProject(({ make, clear }) => {
+    for (const [target, script] of [['test', 'test'], ['test-e2e', 'test:e2e'], ['lint', 'lint'], ['format', 'format'], ['typecheck', 'typecheck']]) {
+      clear();
+      const r = make(target, 'PM=npm');
+      assert.equal(r.status, 0, r.stderr);
+      assert.deepEqual(r.calls, [`npm run ${script}`], target);
+    }
   });
 });
 

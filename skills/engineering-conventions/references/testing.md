@@ -64,21 +64,17 @@ E2E tests need Postgres running **on port 5433** (not 5432 — do not interfere 
 #### Locally
 
 ```bash
-# 1. Start the test Postgres (Docker)
-make test:e2e:up
+# 1. Start the local stack (Docker)
+make local
 
 # 2. Run the tests
-pnpm --filter @myapp/api test:e2e
+make test-e2e
 
-# 3. Stop the infrastructure
-make test:e2e:down
+# 3. Stop the local stack
+make local-down
 ```
 
-Or all at once (up, run, down):
-
-```bash
-make test:e2e
-```
+The shared Makefile has no target for a separate test database. A target for a test database belongs in `make/project.mk`.
 
 #### In CI (GitHub Actions)
 
@@ -129,7 +125,7 @@ FRONTEND_URL=http://localhost:5173
 
 ### Migrations in E2E
 
-Migrations run **only once** when the test DB starts. The DB is ephemeral (tmpfs): each `make test:e2e:down` destroys it. If the schema changes, it is applied automatically on the next `make test:e2e:up`.
+Migrations run **only once** when the test DB starts. The DB is ephemeral (tmpfs): stopping it destroys it. If the schema changes, it is applied automatically the next time it starts.
 
 ### E2E execution
 
@@ -153,12 +149,10 @@ Migrations run **only once** when the test DB starts. The DB is ephemeral (tmpfs
 | `pnpm --filter @myapp/api test`       | Unit tests API only                   |
 | `pnpm --filter @myapp/api test:cov`   | Unit tests + coverage                 |
 | `pnpm --filter @myapp/api test:watch` | Unit tests in watch mode              |
-| `make test:e2e`                       | Complete E2E: up + run + down         |
-| `make test:e2e:up`                    | Only start the test Postgres          |
-| `pnpm --filter @myapp/api test:e2e`   | Only run E2E (requires an active DB)  |
-| `make test:e2e:down`                  | Stop and destroy the test Postgres    |
-| `pnpm test:all`                       | Unit + E2E in all workspaces          |
-| `pnpm test:ci`                        | Unit + coverage in CI mode            |
+| `make local`                          | Start the local stack                 |
+| `make test-e2e`                       | E2E in all workspaces (requires an active DB) |
+| `pnpm --filter @myapp/api test:e2e`   | Only run E2E API (requires an active DB) |
+| `make local-down`                     | Stop the local stack, and keep its data |
 
 ---
 
@@ -188,10 +182,7 @@ apps/api/
 
 ## Coverage
 
-Coverage is generated with `--coverage` and written to:
-
-- Unit: `apps/api/coverage/unit/`
-- E2E: `apps/api/coverage/e2e/`
+Coverage is generated with `pnpm test:cov`, and written where the test runner's configuration says.
 
 In CI, coverage is collected for the report but **there is no minimum threshold** configured: the goal is visibility, not blocking the merge.
 
@@ -201,7 +192,7 @@ In CI, coverage is collected for the report but **there is no minimum threshold*
 
 | Problem                                 | Cause                                               | Solution                                       |
 | --------------------------------------- | --------------------------------------------------- | ---------------------------------------------- |
-| `connect ECONNREFUSED 127.0.0.1:5433`   | The test Postgres is not running                    | `make test:e2e:up`                             |
+| `connect ECONNREFUSED 127.0.0.1:5433`   | The test Postgres is not running                    | `make local`, or the project's test database target |
 | `SSL required` in E2E                   | The persistence layer uses SSL outside test mode    | Disable SSL when `NODE_ENV=test`               |
 | `422` instead of `400` on validation    | The validation layer is configured to answer 422    | Expected: use 422 in the specs                 |
 | E2E tests interfere with each other     | Shared data in the DB                               | Use unique emails/nicknames via `Date.now()`   |

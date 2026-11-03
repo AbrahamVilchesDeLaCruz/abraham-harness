@@ -1,19 +1,19 @@
-# Managed by abraham-harness, sha256=15edcaf2a5962bcf4b274de9a092ee72b79563dfcdd3eccac5d765bfa8a925c0. Put your own targets in make/project.mk.
+# Managed by abraham-harness, sha256=3207ea728e9b4d98d4bf4a1a3de45c64f9931c5cf911ba161afa0161341c67ec. Put your own targets in make/project.mk.
 # Code: the same commands in every project, through the package manager.
 
 .PHONY: test test-e2e lint format typecheck
 
 test: ## Run the unit tests
-	$(PM) test
+	$(PM) run test
 
 test-e2e: ## Run the end-to-end tests
-	$(PM) test:e2e
+	$(PM) run test:e2e
 
 lint: ## Run the linter
-	$(PM) lint
+	$(PM) run lint
 
 format: ## Format the code
-	$(PM) format
+	$(PM) run format
 
 typecheck: ## Check the types
-	$(PM) typecheck
+	$(PM) run typecheck

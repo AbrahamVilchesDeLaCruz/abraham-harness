@@ -125,19 +125,10 @@ pnpm lint             # oxlint with type-aware rules on src/ and test/
 # ─── Unit tests ───────────────────────────────────────────────────────────────
 pnpm test             # Unit tests
 pnpm test:watch       # TDD loop — re-run on change
-pnpm test:cov         # Unit tests + coverage → coverage/unit/
+pnpm test:cov         # Unit tests + coverage
 
 # ─── E2E tests ────────────────────────────────────────────────────────────────
-pnpm test:e2e         # E2E tests (requires the DB running: make up)
-pnpm test:e2e:watch   # E2E in watch mode
-pnpm test:e2e:cov     # E2E + coverage → coverage/e2e/
-
-# ─── All ──────────────────────────────────────────────────────────────────────
-pnpm test:all         # Unit + E2E sequentially
-
-# ─── CI ───────────────────────────────────────────────────────────────────────
-pnpm test:ci          # Unit + coverage (GitHub Actions)
-pnpm test:e2e:ci      # E2E + coverage (GitHub Actions)
+pnpm test:e2e         # E2E tests (requires the DB running: make local)
 
 # ─── Debug ────────────────────────────────────────────────────────────────────
 pnpm test:debug       # Test runner with the Node inspector
@@ -147,7 +138,9 @@ pnpm test:debug       # Test runner with the Node inspector
 - Unit tests (`test/**/*.spec.ts`)
 - E2E tests (`test/**/*.e2e-spec.ts`)
 
-**Coverage thresholds (unit):** 90% branches / 100% functions / 100% lines / 100% statements
+**Coverage target (unit), for the project to configure:** 90% branches / 100% functions / 100% lines / 100% statements
+
+Any other script is the project's own.
 
 ---
 

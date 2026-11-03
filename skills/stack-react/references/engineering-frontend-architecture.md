@@ -112,15 +112,15 @@ export const CalendarComponent = ({
   onCreateEvent,
 }: CalendarComponentProps) => {
   const calendarRef = useRef<FullCalendar>(null);
-  const [filters, filterHandlers] = useCalendarFilters();
-  const [tooltip, tooltipHandlers] = useCalendarTooltip();
+  const { typeFilter, showCompleted, setTypeFilter, resetFilters } = useCalendarFilters();
+  const { tooltip, closeTooltip } = useCalendarTooltip();
 
   return (
     <div>
-      <CalendarToolbar filters={filters} onFilter={filterHandlers.setTypeFilter} />
-      <CalendarFilterChips filters={filters} onReset={filterHandlers.resetFilters} />
+      <CalendarToolbar typeFilter={typeFilter} onFilter={setTypeFilter} />
+      <CalendarFilterChips typeFilter={typeFilter} showCompleted={showCompleted} onReset={resetFilters} />
       <CalendarGrid ref={calendarRef} events={events} isLoading={isLoading} />
-      {tooltip.visible && <AppointmentTooltip {...tooltip} onClose={tooltipHandlers.close} />}
+      {tooltip.visible && <AppointmentTooltip {...tooltip} onClose={closeTooltip} />}
     </div>
   );
 };
@@ -152,12 +152,12 @@ export const CalendarComponent = ({
 
 ## Pod hooks
 
-### Return pattern: `[State, Handlers]` tuple
+### Return pattern: object with named fields
 
-A pod hook that exposes state returns a tuple. A hook that only exposes functions may return named functions.
+Every pod hook returns an object with named fields, also when it exposes state. No tuples.
 
 ```ts
-export function useCalendarFilters(): [CalendarFiltersState, CalendarFiltersHandlers] {
+export function useCalendarFilters() {
   const [typeFilter, setTypeFilter] = useState<string | null>(null);
   const [showCompleted, setShowCompleted] = useState(false);
 
@@ -166,10 +166,13 @@ export function useCalendarFilters(): [CalendarFiltersState, CalendarFiltersHand
     setShowCompleted(false);
   };
 
-  return [
-    { typeFilter, showCompleted },
-    { setTypeFilter, toggleCompleted: () => setShowCompleted((v) => !v), resetFilters },
-  ];
+  return {
+    typeFilter,
+    showCompleted,
+    setTypeFilter,
+    toggleCompleted: () => setShowCompleted((v) => !v),
+    resetFilters,
+  };
 }
 ```
 

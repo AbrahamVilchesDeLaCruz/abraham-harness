@@ -25,7 +25,7 @@ The data access layer of each pod. It has three responsibilities: raw types and 
 
 | What you define | Where | Rule |
 |---|---|---|
-| Raw types of the server response | `{pod-name}.api-model.ts` | Represents **exactly** what the server returns. Snake_case if the server uses snake_case. |
+| Raw types of the server response | `{pod-name}.api-model.ts` | Represents **exactly** what the server returns: camelCase fields, dates as strings. |
 | ViewModel types | `{pod-name}.types.ts` | Types **adapted to the UI**. camelCase always. Dates as `Date`, not strings. |
 | Transformation | `{pod-name}.mapper.ts`, always at the pod root | Converts the raw API model to the ViewModel the UI uses. |
 | Server-state hooks | `{pod-name}.api.ts` | See skill `client-query` for the full query and mutation pattern. |

@@ -20,7 +20,7 @@ Anti-patterns:
 vi.mock('@tanstack/react-query', () => ({ useQuery: vi.fn() }));
 
 // ❌ E2E test for everything — Playwright is slow and fragile
-test('mapper transforms snake_case', () => { await page.goto(...) }); // unit test
+test('mapper formats the dates', () => { await page.goto(...) }); // unit test
 
 // ❌ Container without MSW — mocking the fetch function
 vi.mock('../products.api', () => ({ getProducts: vi.fn() }));
@@ -58,35 +58,30 @@ import { useProductFilters } from './useProductFilters';
 describe('useProductFilters', () => {
   it('initializes with default values', () => {
     const { result } = renderHook(() => useProductFilters());
-    const [state] = result.current;
 
-    expect(state.size).toBeNull();
-    expect(state.showFeaturedOnly).toBe(false);
+    expect(result.current.size).toBeNull();
+    expect(result.current.showFeaturedOnly).toBe(false);
   });
 
   it('setSize updates the state', () => {
     const { result } = renderHook(() => useProductFilters());
 
     act(() => {
-      const [, handlers] = result.current;
-      handlers.setSize('large');
+      result.current.setSize('large');
     });
 
-    const [state] = result.current;
-    expect(state.size).toBe('large');
+    expect(result.current.size).toBe('large');
   });
 
   it('resetFilters returns to the default values', () => {
     const { result } = renderHook(() => useProductFilters());
 
     act(() => {
-      const [, handlers] = result.current;
-      handlers.setSize('small');
-      handlers.resetFilters();
+      result.current.setSize('small');
+      result.current.resetFilters();
     });
 
-    const [state] = result.current;
-    expect(state.size).toBeNull();
+    expect(result.current.size).toBeNull();
   });
 });
 ```
@@ -156,8 +151,8 @@ describe('ProductsContainer', () => {
             name: 'Desk lamp',
             description: 'Adjustable LED lamp',
             size: 'small',
-            restocked_at: '2026-06-01T00:00:00Z',
-            created_at: '2026-01-01T00:00:00Z',
+            restockedAt: '2026-06-01T00:00:00Z',
+            createdAt: '2026-01-01T00:00:00Z',
           },
         ]),
       ),

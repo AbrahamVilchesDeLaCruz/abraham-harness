@@ -2,25 +2,16 @@
 
 ## Pod hooks
 
-### Return pattern — `[State, Handlers]` tuple
+### Return pattern — object with named fields
 
-A pod hook that exposes state returns a tuple, to destructure cleanly in the Component. A hook that only exposes functions may return named functions. Framework-free shape; the stack reference for views shows the original.
+Every pod hook returns an object with named fields, also when it exposes state, to destructure cleanly in the Component. No tuples. Framework-free shape; the stack reference for views shows the original.
 
 ```ts
 // hooks/useProductFilters.ts
 
-interface ProductFiltersState {
-  size: 'small' | 'medium' | 'large' | null;
-  showFeaturedOnly: boolean;
-}
+type ProductSize = 'small' | 'medium' | 'large';
 
-interface ProductFiltersHandlers {
-  setSize: (d: ProductFiltersState['size']) => void;
-  toggleFeaturedOnly: () => void;
-  resetFilters: () => void;
-}
-
-export function useProductFilters(): [ProductFiltersState, ProductFiltersHandlers] {
+export function useProductFilters() {
   // size starts at null and showFeaturedOnly at false, held in the stack's local state primitive.
 
   const resetFilters = () => {
@@ -28,10 +19,13 @@ export function useProductFilters(): [ProductFiltersState, ProductFiltersHandler
     setShowFeaturedOnly(false);
   };
 
-  return [
-    { size, showFeaturedOnly },
-    { setSize, toggleFeaturedOnly: () => setShowFeaturedOnly(v => !v), resetFilters },
-  ];
+  return {
+    size,
+    showFeaturedOnly,
+    setSize,
+    toggleFeaturedOnly: () => setShowFeaturedOnly(v => !v),
+    resetFilters,
+  };
 }
 ```
 
@@ -40,24 +34,25 @@ export function useProductFilters(): [ProductFiltersState, ProductFiltersHandler
 ```tsx
 // ProductsComponent.{view}
 export const ProductsComponent = ({ products, ... }: ProductsComponentProps) => {
-  const [filters, filterHandlers] = useProductFilters();
-  const [tooltip, tooltipHandlers] = useProductTooltip();
+  const { size, showFeaturedOnly, setSize, resetFilters } = useProductFilters();
+  const { tooltip, showTooltip, closeTooltip } = useProductTooltip();
 
   return (
     <div>
       <ProductToolbar
-        filters={filters}
-        onFilter={filterHandlers.setSize}
-        onReset={filterHandlers.resetFilters}
+        size={size}
+        showFeaturedOnly={showFeaturedOnly}
+        onFilter={setSize}
+        onReset={resetFilters}
       />
       {products.map(product => (
         <ProductItem
           key={product.id}
           product={product}
-          onHover={tooltipHandlers.show}
+          onHover={showTooltip}
         />
       ))}
-      {tooltip.visible && <ProductTooltip {...tooltip} onClose={tooltipHandlers.close} />}
+      {tooltip.visible && <ProductTooltip {...tooltip} onClose={closeTooltip} />}
     </div>
   );
 };

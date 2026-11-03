@@ -9,12 +9,12 @@
 | `client-pods` | Pod structure — where the `hooks/` folder lives |
 | `client-testing` | How to test hooks |
 
-## State tuple vs. object return
+## Why named fields
 
-A hook that exposes state uses the `[state, handlers]` tuple pattern (inspired by the local state primitive of the view library) instead of a plain `{ state, handlers }` object. The advantages:
+A pod hook returns an object with named fields, also when it exposes state, instead of a tuple. The advantages:
 
-1. **Destructuring with rename**: `const [productState, productHandlers] = useProductState()` — no name conflicts when the Container uses several state hooks
-2. **Clear convention**: `state` = read-only, `handlers` = write-only — the tuple enforces the contract visually
+1. **Read what you need**: `const { size, setSize } = useProductFilters()` — the Component names the fields it uses, in any order
+2. **Rename on conflict**: `const { reset: resetFilters } = useProductFilters()` — no name conflicts when the Component uses several hooks
 
 ## Internal Docs
 

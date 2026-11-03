@@ -21,6 +21,7 @@ Class — name: `{Aggregate}{ActionPast}Event` — PascalCase, `Event` suffix.
 - `EVENT_NAME` is `static readonly` — never an instance field
 - `eventName()` is an instance method that returns the static constant
 - `attributes` is typed with the aggregate's specific type (e.g. `ProductPrimitives`)
+- Event payloads use camelCase; queue names use snake_case.
 - `fromPrimitives()` is static — fixed signature: `(aggregateId, eventId, occurredOn, attributes)`
 - `eventId` and `occurredOn` are optional in the constructor — the base class assigns defaults
 - Raise events only inside the aggregate method, never outside the aggregate (use case)

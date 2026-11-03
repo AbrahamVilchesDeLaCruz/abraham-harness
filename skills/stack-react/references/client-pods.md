@@ -38,7 +38,7 @@ pods/{pod-name}/
 ├── {pod-name}.types.ts               ← ViewModel types (ViewModels only)
 ├── {pod-name}.mapper.ts              ← ApiModel → ViewModel
 └── api/
-    ├── {pod-name}.api-model.ts       ← raw API response types (snake_case)
+    ├── {pod-name}.api-model.ts       ← raw API response types (camelCase)
     └── {pod-name}.api.ts             ← fetch functions + TanStack Query hooks
 ```
 

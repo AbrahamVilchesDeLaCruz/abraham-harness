@@ -66,11 +66,11 @@ export const ProductsComponent = ({
   onPageChange,
 }: ProductsComponentProps) => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [filters, filterHandlers] = useProductFilters();
+  const { size, setSize } = useProductFilters();
 
   return (
     <div>
-      <ProductToolbar filters={filters} onFilter={filterHandlers.setSize} />
+      <ProductToolbar size={size} onFilter={setSize} />
       <ProductGrid
         products={products}
         isLoading={isLoading}

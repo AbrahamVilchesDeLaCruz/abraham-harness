@@ -34,7 +34,7 @@ export class ProductMother {
 Anti-patterns:
 
 - ❌ Mocking the server-state library directly.
-- ❌ E2E test for everything — the browser runner is slow and fragile. A test such as `mapper transforms snake_case` that opens a page belongs in a unit test.
+- ❌ E2E test for everything — the browser runner is slow and fragile. A test such as `mapper formats the dates` that opens a page belongs in a unit test.
 - ❌ Container without HTTP interception — mocking the fetch function.
 
 ## Decision Gates

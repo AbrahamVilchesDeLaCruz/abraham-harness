@@ -33,6 +33,7 @@ Framework shutdown hook        → closes channel + connection on shutdown
 - Fetch one message at a time, always — sequential processing per consumer
 - `DomainEventClass` is `new (...args: unknown[]) => DomainEvent` — not `never`, not `any`
 - The published payload uses the `data` field for the event attributes, not `attributes` or `toPrimitives()`
+- Event payloads use camelCase; queue names use snake_case.
 - The message bus adapter reconnects automatically: when the connection closes, it waits `RECONNECT_DELAY_MS` and re-registers all consumers
 
 ## Decision Gates

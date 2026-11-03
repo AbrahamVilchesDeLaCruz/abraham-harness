@@ -13,7 +13,7 @@ export class ApiResponse<T> {
   static of<T>(data: T, requestId: string): ApiResponse<T> {
     return new ApiResponse(data, {
       timestamp: new Date().toISOString(),
-      request_id: requestId,
+      requestId,
     });
   }
 }
@@ -32,23 +32,23 @@ export class PaginatedApiResponse<T> {
   ): PaginatedApiResponse<T> {
     return new PaginatedApiResponse(data, pagination, {
       timestamp: new Date().toISOString(),
-      request_id: requestId,
+      requestId,
     });
   }
 }
 
 export interface ResponseMeta {
   timestamp: string;
-  request_id: string;
+  requestId: string;
 }
 
 export interface PaginationMeta {
   page: number;
-  page_size: number;
-  total_items: number;
-  total_pages: number;
-  has_next_page: boolean;
-  has_prev_page: boolean;
+  pageSize: number;
+  totalItems: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
 }
 ```
 
@@ -97,11 +97,11 @@ async handler(
     result.data,
     {
       page: result.page,
-      page_size: pageSize,
-      total_items: result.total,
-      total_pages: totalPages,
-      has_next_page: result.page < totalPages,
-      has_prev_page: result.page > 1,
+      pageSize,
+      totalItems: result.total,
+      totalPages,
+      hasNextPage: result.page < totalPages,
+      hasPrevPage: result.page > 1,
     },
     resolveRequestId(req),
   );

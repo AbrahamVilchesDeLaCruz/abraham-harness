@@ -15,7 +15,7 @@
 
 ## Pattern: Why separate ApiModel and ViewModel
 
-**ApiModel** captures exactly what the backend returns (snake_case, strings for dates). When the backend changes, only the mapper is updated.
+**ApiModel** captures exactly what the backend returns (camelCase fields, strings for dates). When the backend changes, only the mapper is updated.
 
 **ViewModel** is what the components consume. It stays stable even if the backend changes its naming or structure. Component tests use ViewModels directly (via Object Mothers), not raw API data.
 

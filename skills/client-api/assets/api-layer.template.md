@@ -5,15 +5,15 @@ File structure for the `api/` folder inside a pod, plus the mapper at the pod ro
 ## `{pod-name}.api-model.ts` — Raw API types
 
 ```typescript
-// Raw response from the backend — snake_case, strings for dates
+// Raw response from the backend — camelCase fields, strings for dates
 export type {PodName}ApiModel = {
   id: string;
-  user_id: string | null;
-  some_field: string;
-  numeric_field: number;
+  userId: string | null;
+  someField: string;
+  numericField: number;
   status: '{status-a}' | '{status-b}';
-  created_at: string;       // ISO string from API
-  updated_at: string | null;
+  createdAt: string;        // ISO string from API
+  updatedAt: string | null;
 };
 
 // For paginated responses
@@ -22,14 +22,14 @@ export type {PodName}ListApiResponse = {
   pagination: {
     page: number;
     pageSize: number;
-    total_items: number;
-    total_pages: number;
-    has_next_page: boolean;
-    has_prev_page: boolean;
+    totalItems: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
   };
   meta: {
     timestamp: string;
-    request_id: string;
+    requestId: string;
   };
 };
 ```
@@ -45,12 +45,11 @@ import type { {PodName}VM } from './{pod-name}.types';
 export function map{PodName}({raw}: {PodName}ApiModel): {PodName}VM {
   return {
     id: raw.id,
-    userId: raw.user_id,
-    someField: raw.some_field,
-    numericField: raw.numeric_field,
+    someField: raw.someField,
     status: raw.status,
-    createdAt: new Date(raw.created_at),
-    updatedAt: raw.updated_at ? new Date(raw.updated_at) : null,
+    isAssigned: raw.userId !== null,
+    createdAt: new Date(raw.createdAt),
+    updatedAt: raw.updatedAt ? new Date(raw.updatedAt) : null,
   };
 }
 ```
@@ -61,10 +60,9 @@ export function map{PodName}({raw}: {PodName}ApiModel): {PodName}VM {
 // camelCase, Date for temporal fields — no API details leak here
 export type {PodName}VM = {
   id: string;
-  userId: string | null;
   someField: string;
-  numericField: number;
   status: '{status-a}' | '{status-b}';
+  isAssigned: boolean;
   createdAt: Date;
   updatedAt: Date | null;
 };
@@ -78,7 +76,7 @@ export type Create{PodName}Input = {
 
 ## Checklist
 
-- [ ] `api-model` uses `snake_case` — mirrors the JSON that arrives from the API
+- [ ] `api-model` uses `camelCase` — mirrors the JSON that arrives from the API
 - [ ] ViewModel uses `camelCase` — TypeScript/JavaScript convention
 - [ ] Dates: `string` in ApiModel → `Date` in ViewModel (the mapper does the conversion)
 - [ ] The mapper is a pure function — easy to unit test

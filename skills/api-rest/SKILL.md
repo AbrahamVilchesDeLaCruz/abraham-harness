@@ -29,7 +29,7 @@ metadata:
 - All the resource's controllers are registered in the module.
 - **Request**: validated with a validation DTO only in the controller (it does not pass into application)
 - **Response**: flat primitives — never domain entities
-- **snake_case** in the response JSON when it is the team's convention — decide and be consistent
+- Response JSON uses camelCase.
 - List query params: the controller extracts them and passes them to the use case as primitives — see skill `api-criteria`.
 
 ## Decision Gates

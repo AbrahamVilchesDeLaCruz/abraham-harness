@@ -1,7 +1,7 @@
 ---
-name: "{plan_name}"
-description: "{plan_description}"
-created_at: "{YYYY-MM-DDTHH:MM:SSZ}"
+name: "{planName}"
+description: "{planDescription}"
+createdAt: "{YYYY-MM-DDTHH:MM:SSZ}"
 ---
 
 # {Plan name}

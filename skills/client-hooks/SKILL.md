@@ -1,6 +1,6 @@
 ---
 name: client-hooks
-description: "Trigger: When creating state or handler hooks in a pod, extracting logic to global hooks, or deciding when to create a hook. Pod hooks [State, Handlers], global hooks, when to extract in apps/client/."
+description: "Trigger: When creating state or handler hooks in a pod, extracting logic to global hooks, or deciding when to create a hook. Pod hooks with named fields, global hooks, when to extract in apps/client/."
 license: Apache-2.0
 metadata:
   author: AbrahamVilchesDeLaCruz
@@ -20,8 +20,7 @@ Pod hooks and global hooks in `apps/client/`. A hook here is a named unit of reu
 - Pod hooks **do not fetch** — that is the responsibility of `api.ts`
 - A global hook **has no domain logic** — if it has any, it is a pod hook
 - Pod hooks are named functions in a separate `hooks` file or folder of the pod, called `use{Something}`
-- A pod hook that exposes state returns a tuple, to destructure cleanly in the Component: `[State, Handlers]`
-- A pod hook that only exposes functions may return named functions
+- Every pod hook returns an object with named fields, also when it exposes state, to destructure cleanly in the Component. No tuples.
 - Naming: file `camelCase.ts` → `useProductFilters.ts`; export `camelCase` → `useProductFilters`
 - Mandatory barrel for a `hooks/` folder: `hooks/index.ts` re-exports everything
 
@@ -42,18 +41,18 @@ Create a pod hook:
 
 1. Decide type and location with the Decision Gates table.
 2. Use the template in `assets/use-state-handlers.template.md` when extracting `use{Pod}State` and `use{Pod}Handlers`.
-3. Follow the shape in `references/patterns.md`: tuple, usage in the Component, barrel and example global hooks.
+3. Follow the shape in `references/patterns.md`: named fields, usage in the Component, barrel and example global hooks.
 4. Add the pod hook to the `hooks/index.ts` barrel.
 
 ## Output Contract
 
-A pod hook that returns the `[State, Handlers]` tuple when it exposes state and is re-exported in `hooks/index.ts`, or a global hook with no domain logic in its global location.
+A pod hook that returns an object with named fields and is re-exported in `hooks/index.ts`, or a global hook with no domain logic in its global location.
 
 ## References
 
 - [`references/patterns.md`](references/patterns.md) — return pattern, usage in the Component, pod barrel and global hooks.
 - [`assets/use-state-handlers.template.md`](assets/use-state-handlers.template.md) — template for extracting `use{Pod}State` and `use{Pod}Handlers`.
-- [`references/docs.md`](references/docs.md) — Read `references/docs.md` for the tuple pattern rationale and external docs.
+- [`references/docs.md`](references/docs.md) — Read `references/docs.md` for the named fields rationale and external docs.
 - Load the project's stack skill for views (`stack-react`) and read its `references/client-hooks.md`.
 - Load the project's stack skill for server state (`stack-tanstack-query`) and read its `references/client-hooks.md`.
 - Load the project's stack skill for tests (`stack-vitest`) and read its `references/client-hooks.md`.

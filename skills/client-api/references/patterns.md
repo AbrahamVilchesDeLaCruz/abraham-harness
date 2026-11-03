@@ -2,7 +2,7 @@
 
 ## `{pod-name}.api-model.ts` — raw types
 
-Represents **exactly** what the server returns. Snake_case if the server uses snake_case.
+Represents **exactly** what the server returns: camelCase fields, dates as strings.
 
 ```ts
 // products.api-model.ts
@@ -11,14 +11,14 @@ export interface ProductApiModel {
   name: string;
   description: string;
   size: 'small' | 'medium' | 'large';
-  restocked_at: string;   // ISO string
-  created_at: string;
+  restockedAt: string;   // ISO string
+  createdAt: string;
 }
 
 export interface CreateProductPayload {
   name: string;
   description: string;
-  category_id: string;
+  categoryId: string;
 }
 
 export interface UpdateProductPayload {
@@ -39,7 +39,7 @@ export interface ProductVM {
   name: string;
   description: string;
   size: 'small' | 'medium' | 'large';
-  nextReviewAt: Date;
+  restockedAt: Date;
 }
 ```
 
@@ -57,7 +57,7 @@ export const mapProduct = (raw: ProductApiModel): ProductVM => ({
   name: raw.name,
   description: raw.description,
   size: raw.size,
-  nextReviewAt: new Date(raw.restocked_at),
+  restockedAt: new Date(raw.restockedAt),
 });
 ```
 

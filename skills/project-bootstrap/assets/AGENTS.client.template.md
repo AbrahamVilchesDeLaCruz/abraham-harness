@@ -126,7 +126,7 @@ pnpm test:e2e:ci      # E2E with the GitHub reporter (GitHub Actions)
 | `client-container-presentational` | Container/Component contract, responsibilities, prohibitions |
 | `client-query` | Server state: queries, mutations, query keys, invalidation |
 | `client-api` | api/ layer: api-model, api.ts; pod-root mapper and ViewModel types |
-| `client-hooks` | Pod hooks [State, Handlers], global hooks, when to extract |
+| `client-hooks` | Pod hooks with named fields, global hooks, when to extract |
 | `client-testing` | Unit/integration tests, E2E, API mocks |
 | `stack-react` | Maps the concept skills to React |
 | `stack-tanstack-query` | Maps the concept skills to TanStack Query |

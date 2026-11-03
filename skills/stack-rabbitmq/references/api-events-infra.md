@@ -226,7 +226,7 @@ export class AmqpMessageBus
       const ch = await this.getChannel();
       this.logger.error('Message exhausted retries → DLQ', error, { queueName });
       ch.sendToQueue(`${queueName}.dead_letter`, content, {
-        headers: { reason: error.message, exhausted_at: new Date().toISOString() },
+        headers: { reason: error.message, exhaustedAt: new Date().toISOString() },
       });
     }
   }

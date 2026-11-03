@@ -57,11 +57,11 @@ export const ProductsComponent = ({
   onPageChange,
 }: ProductsComponentProps) => {
   // selectedId and setSelectedId come from the stack's local state primitive.
-  const [filters, filterHandlers] = useProductFilters();
+  const { size, setSize } = useProductFilters();
 
   return (
     <div>
-      <ProductToolbar filters={filters} onFilter={filterHandlers.setSize} />
+      <ProductToolbar size={size} onFilter={setSize} />
       <ProductGrid
         products={products}
         isLoading={isLoading}

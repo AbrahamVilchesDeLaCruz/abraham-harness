@@ -34,7 +34,7 @@ Use this skill to implement the current phase of a plan in `.agents/plans/`.
 3. Implement the phase's to-do items with `tdd-workflow`.
 4. Run the project's verification command, and fix any issue.
 5. Check the completed items, and update the plan's `Next step` section.
-6. In the plan's frontmatter, set `last_implementation_at` and `has_completed_all_phases`.
+6. In the plan's frontmatter, set `lastImplementationAt` and `hasCompletedAllPhases`.
 7. Stage the changes with `git add`, and get the candidate with `git write-tree`.
 
 ## Output Contract

@@ -19,7 +19,7 @@ metadata:
 - No `success` field — the HTTP status expresses it
 - No `message` field — errors have their own format (see `api-error-handler`)
 - `pagination` only if the endpoint accepts `page` and `pageSize`
-- `meta.request_id` always via `resolveRequestId(req)` — never inline
+- `meta.requestId` always via `resolveRequestId(req)` — never inline
 - Auth endpoints use a passthrough response object to manage cookies and return the token directly without an envelope. This is the only exception to the `ApiResponse<T>` pattern.
 
 ### Anti-patterns
@@ -78,7 +78,7 @@ async handler(): Promise<ProductPrimitives[]> { ... } // must be ApiResponse<Pro
   "data": { ... },
   "meta": {
     "timestamp": "2026-05-21T12:00:00Z",
-    "request_id": "req_abc123"
+    "requestId": "req_abc123"
   }
 }
 ```
@@ -89,11 +89,11 @@ With pagination:
 {
   "data": [...],
   "pagination": {
-    "page": 1, "page_size": 10,
-    "total_items": 125, "total_pages": 13,
-    "has_next_page": true, "has_prev_page": false
+    "page": 1, "pageSize": 10,
+    "totalItems": 125, "totalPages": 13,
+    "hasNextPage": true, "hasPrevPage": false
   },
-  "meta": { "timestamp": "...", "request_id": "..." }
+  "meta": { "timestamp": "...", "requestId": "..." }
 }
 ```
 

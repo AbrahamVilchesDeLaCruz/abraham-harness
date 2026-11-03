@@ -83,11 +83,11 @@ async handler(
     result.data,
     {
       page: result.page,
-      page_size: pageSize,
-      total_items: result.total,
-      total_pages: totalPages,
-      has_next_page: result.page < totalPages,
-      has_prev_page: result.page > 1,
+      pageSize,
+      totalItems: result.total,
+      totalPages,
+      hasNextPage: result.page < totalPages,
+      hasPrevPage: result.page > 1,
     },
     resolveRequestId(req),
   );

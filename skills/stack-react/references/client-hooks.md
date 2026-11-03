@@ -5,26 +5,17 @@ The concept skill `client-hooks` defines the rules. This file maps them to React
 - Create a pod hook when there is a cohesive group of `useState` + handlers.
 - When the Component has more than ~5 `useState` calls, that is a sign that there are hooks to extract.
 
-## Return pattern — `[State, Handlers]` tuple
+## Return pattern — object with named fields
 
-A pod hook that exposes state returns a tuple. A hook that only exposes functions may return named functions.
+Every pod hook returns an object with named fields, also when it exposes state. No tuples. `useState` itself returns a tuple because it is a framework primitive: the rule is about pod hooks.
 
 ```ts
 // hooks/useProductFilters.ts
 
-interface ProductFiltersState {
-  size: 'small' | 'medium' | 'large' | null;
-  showFeaturedOnly: boolean;
-}
+type ProductSize = 'small' | 'medium' | 'large';
 
-interface ProductFiltersHandlers {
-  setSize: (d: ProductFiltersState['size']) => void;
-  toggleFeaturedOnly: () => void;
-  resetFilters: () => void;
-}
-
-export function useProductFilters(): [ProductFiltersState, ProductFiltersHandlers] {
-  const [size, setSize] = useState<ProductFiltersState['size']>(null);
+export function useProductFilters() {
+  const [size, setSize] = useState<ProductSize | null>(null);
   const [showFeaturedOnly, setShowFeaturedOnly] = useState(false);
 
   const resetFilters = () => {
@@ -32,11 +23,20 @@ export function useProductFilters(): [ProductFiltersState, ProductFiltersHandler
     setShowFeaturedOnly(false);
   };
 
-  return [
-    { size, showFeaturedOnly },
-    { setSize, toggleFeaturedOnly: () => setShowFeaturedOnly(v => !v), resetFilters },
-  ];
+  return {
+    size,
+    showFeaturedOnly,
+    setSize,
+    toggleFeaturedOnly: () => setShowFeaturedOnly(v => !v),
+    resetFilters,
+  };
 }
+```
+
+The Component reads the fields it needs:
+
+```ts
+const { size, setSize } = useProductFilters();
 ```
 
 ## Global hooks
@@ -93,12 +93,6 @@ export const useLocalStorage = <T>(key: string, initialValue: T) => {
 ```typescript
 import { useState } from 'react';
 
-export type {PodName}State = {
-  selectedId: string | null;
-  isModalOpen: boolean;
-  filters: {PodName}Filters;
-};
-
 export type {PodName}Filters = {
   search: string;
   status: 'active' | 'inactive' | null;
@@ -109,12 +103,15 @@ const DEFAULT_FILTERS: {PodName}Filters = {
   status: null,
 };
 
-export function use{PodName}State(): [{PodName}State, {PodName}StateHandlers] {
+export function use{PodName}State() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [filters, setFilters] = useState<{PodName}Filters>(DEFAULT_FILTERS);
 
-  const handlers: {PodName}StateHandlers = {
+  return {
+    selectedId,
+    isModalOpen,
+    filters,
     selectItem: (id: string) => setSelectedId(id),
     clearSelection: () => setSelectedId(null),
     openModal: () => setIsModalOpen(true),
@@ -124,18 +121,7 @@ export function use{PodName}State(): [{PodName}State, {PodName}StateHandlers] {
     },
     resetFilters: () => setFilters(DEFAULT_FILTERS),
   };
-
-  return [{ selectedId, isModalOpen, filters }, handlers];
 }
-
-export type {PodName}StateHandlers = {
-  selectItem: (id: string) => void;
-  clearSelection: () => void;
-  openModal: () => void;
-  closeModal: () => void;
-  setFilter: <K extends keyof {PodName}Filters>(key: K, value: {PodName}Filters[K]) => void;
-  resetFilters: () => void;
-};
 ```
 
 ## Handlers hook template — `use{PodName}Handlers.ts`
@@ -165,23 +151,18 @@ export function use{PodName}Handlers() {
     }
   }, [delete{PodName}Mutation]);
 
-  return [
-    {
-      isCreating: create{PodName}Mutation.isPending,
-      isDeleting: delete{PodName}Mutation.isPending,
-    },
-    { handleCreate, handleDelete },
-  ] as const;
+  return {
+    isCreating: create{PodName}Mutation.isPending,
+    isDeleting: delete{PodName}Mutation.isPending,
+    handleCreate,
+    handleDelete,
+  };
 }
 ```
 
 ## When to extract
 
 The concept skill lists every trigger. In React terms: extract to `use{PodName}State` when the Container has > 3 `useState` calls, and extract to `use{PodName}Handlers` when handler logic needs `useCallback` for performance.
-
-## Tuple rationale
-
-The `[state, handlers]` tuple pattern is inspired by `useState`.
 
 ## External Documentation
 

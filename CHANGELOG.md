@@ -9,7 +9,9 @@ This project follows [Semantic Versioning](https://semver.org/): a major version
 - Add the Brain: every role reads the project's `docs/` conventions, and Engram when it is available.
 - Send large work to SDD: work that could not be resumed from the request and `git diff` alone.
 - Remove generated agents of retired roles on install and update.
-- Settle rules across skills: HTTP status codes, `page` and `pageSize`, the error registry, domain services in `domain`, domain tests through use cases, Object Mother location, the pod root `pods/{pod-name}`, the mapper in the pod root, and pod hooks. Pagination in responses uses `page_size`.
+- Settle rules across skills: HTTP status codes, `page` and `pageSize`, the error registry, domain services in `domain`, domain tests through use cases, Object Mother location, the pod root `pods/{pod-name}`, the mapper in the pod root, and pod hooks.
+- Use camelCase for API fields, TypeScript fields and event payloads. SQL columns, queue names and Prometheus metrics keep snake_case.
+- Every pod hook returns an object with named fields, also when it exposes state.
 
 ## 0.5.0
 

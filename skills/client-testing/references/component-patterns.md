@@ -9,21 +9,21 @@ The stack reference for tests holds the original code of the hook and Component 
 import { mapProduct } from '../products.mapper';
 
 describe('mapProduct', () => {
-  it('transforms snake_case to camelCase', () => {
+  it('maps the API model to the view model', () => {
     const raw = {
       id: 'abc',
       name: 'Desk lamp',
       description: 'Adjustable LED lamp',
       size: 'small' as const,
-      restocked_at: '2026-05-21T10:00:00.000Z',
-      created_at: '2026-01-01T00:00:00.000Z',
+      restockedAt: '2026-05-21T10:00:00.000Z',
+      createdAt: '2026-01-01T00:00:00.000Z',
     };
 
     const result = mapProduct(raw);
 
     expect(result.name).toBe('Desk lamp');
     expect(result.description).toBe('Adjustable LED lamp');
-    expect(result.nextReviewAt).toBeInstanceOf(Date);
+    expect(result.restockedAt).toBeInstanceOf(Date);
   });
 });
 ```
@@ -33,8 +33,8 @@ describe('mapProduct', () => {
 Framework-free shape: run the hook through the stack's hook harness, and apply state changes through it.
 
 - `useProductFilters` initializes with default values: `size` is null and `showFeaturedOnly` is false.
-- `setSize` updates the state: after `handlers.setSize('large')`, `size` is `'large'`.
-- `resetFilters` returns to the default values: after `handlers.setSize('small')` and `handlers.resetFilters()`, `size` is null.
+- `setSize` updates the state: after `setSize('large')`, `size` is `'large'`.
+- `resetFilters` returns to the default values: after `setSize('small')` and `resetFilters()`, `size` is null.
 
 ## Integration test — Component with a view renderer
 
@@ -57,7 +57,7 @@ export class ProductMother {
       name: 'Desk lamp',
       description: 'Adjustable LED lamp',
       size: 'medium',
-      nextReviewAt: new Date('2026-06-01'),
+      restockedAt: new Date('2026-06-01'),
       ...overrides,
     };
   }

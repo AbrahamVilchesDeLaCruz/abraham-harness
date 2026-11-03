@@ -172,9 +172,9 @@ api/
 export interface CalendarEventApiModel {
   id: string;
   title: string;
-  start_date: string; // ISO string — snake_case as it comes from the server
-  end_date: string;
-  created_at: string;
+  startDate: string; // ISO string — as it comes from the server
+  endDate: string;
+  createdAt: string;
 }
 ```
 
@@ -191,8 +191,8 @@ import { CalendarEventVM } from "./calendar.types";
 export const mapCalendarEvent = (raw: CalendarEventApiModel): CalendarEventVM => ({
   id: raw.id,
   title: raw.title,
-  startDate: new Date(raw.start_date),
-  endDate: new Date(raw.end_date),
+  startDate: new Date(raw.startDate),
+  endDate: new Date(raw.endDate),
 });
 ```
 
@@ -202,7 +202,7 @@ export const mapCalendarEvent = (raw: CalendarEventApiModel): CalendarEventVM =>
 export interface CalendarEventVM {
   id: string;
   title: string;
-  startDate: Date; // camelCase — adapted to the UI
+  startDate: Date; // Date — adapted to the UI
   endDate: Date;
 }
 ```
@@ -219,9 +219,9 @@ UI hooks are named functions in a separate `hooks` file or folder of the pod, ca
 - Export: `camelCase` → `useCalendarFilters`
 - Mandatory barrel for a `hooks/` folder: `hooks/index.ts` re-exports everything
 
-### Return pattern: `[State, Handlers]` tuple
+### Return pattern: object with named fields
 
-A pod hook that exposes state returns a tuple: the state first (`{ typeFilter, showCompleted }`), then the handlers that act on it (`{ setTypeFilter, toggleCompleted, resetFilters }`). A hook that only exposes functions may return named functions. The code lives in the stack reference.
+Every pod hook returns an object with named fields, also when it exposes state: `const { typeFilter, setTypeFilter } = useCalendarFilters();`. No tuples. The code lives in the stack reference.
 
 ### When to create a pod hook?
 

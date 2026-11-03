@@ -57,7 +57,7 @@ chore/update-dependencies
 | `fix/*` → `dev`  | **Squash and merge** | Same: one commit per fix                                            |
 | `dev` → `main`   | **Merge commit**     | Explicit mark of each release in the production history             |
 
-**Rebase and merge is disabled**: see ADR-013.
+**Rebase and merge is disabled.**
 
 ---
 

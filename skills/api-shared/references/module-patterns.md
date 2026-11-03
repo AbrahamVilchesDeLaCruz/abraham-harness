@@ -24,7 +24,8 @@ The application root module imports:
 - The persistence root connection, through a factory function that returns the data source options.
 - The scheduler module.
 - The rate limiter, with two named limits, both skipped when `process.env.NODE_ENV === 'test'`: `default` (ttl `60_000`, limit `100`) and `auth` (ttl `60_000`, limit `10`).
-- The shared module. The bounded contexts reach the application through it, so they are not imported here.
+- The shared module.
+- The module of each bounded context, directly: its one module, or each submodule's module when it has submodules. The root shared module receives only the shared modules of the bounded contexts.
 
 It also registers the rate limiter's guard as a global guard.
 
@@ -43,7 +44,7 @@ Persistence is configured with `DATABASE_URL` (a single variable), not with sepa
 
 ## Bounded Context Modules
 
-A bounded context has several submodules, and works almost as a modular monolith.
+A bounded context with several aggregates has submodules, and works almost as a modular monolith.
 
 **Each submodule** has a complete framework module in `{bc}/{module}/infrastructure/framework/`, which wires its repositories, use cases, controllers, subscribers and exception registry, and exports the registry.
 

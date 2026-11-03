@@ -5,6 +5,7 @@ The concept skill `api-shared` defines the rules. This reference shows how to ap
 ## Rules
 
 - `SharedModule` is imported **only once** in `AppModule` — it is `@Global()`.
+- `AppModule` imports each bounded context's module directly: its one module, or each submodule's module when it has submodules.
 - `SharedModule` imports **only the shared modules of the bounded contexts**, never a submodule directly.
 - A BC module never imports `SharedModule`: it is `@Global()`, and importing it back would create a cycle.
 - `ConfigModule.forRoot()` and `TypeOrmModule.forRootAsync()` are configured in **`AppModule`**, not in `SharedModule`.
@@ -134,6 +135,9 @@ import { APP_GUARD } from '@nestjs/core';
 import { SharedModule } from './shared/infrastructure/framework/shared.module';
 import { buildTypeOrmDataSourceOptions } from './shared/infrastructure/persistence/typeorm/typeorm-data-source-options';
 import { envValidationSchema } from './shared/infrastructure/config/env.validation';
+import { SalesModule } from './sales/infrastructure/framework/sales.module';
+import { UserAchievementModule } from './achievement/user-achievement/infrastructure/framework/user-achievement.module';
+// ... the module of each bounded context
 
 @Module({
   imports: [
@@ -164,7 +168,10 @@ import { envValidationSchema } from './shared/infrastructure/config/env.validati
         skipIf: (): boolean => process.env.NODE_ENV === 'test',
       },
     ]),
-    SharedModule, // ← the bounded contexts reach the application through it
+    SharedModule, // ← receives only the shared modules of the bounded contexts
+    SalesModule, // ← a bounded context with a single concept: its one module
+    UserAchievementModule, // ← a bounded context with submodules: each submodule's module
+    // ProgressModule, AchievementCatalogModule, ...
   ],
   providers: [
     {
@@ -178,7 +185,7 @@ export class AppModule {}
 
 ## Bounded Context Modules
 
-A bounded context has several submodules, and works almost as a modular monolith.
+A bounded context with several aggregates has submodules, and works almost as a modular monolith.
 
 Each submodule is a complete NestJS module that wires its repositories, use cases, controllers, subscribers and exception registry, and exports the registry. It lives in `{bc}/{module}/infrastructure/framework/`.
 

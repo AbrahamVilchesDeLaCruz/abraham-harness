@@ -24,9 +24,10 @@ metadata:
 - The config module is declared global so the config service is available in all modules
 - Persistence is configured through a builder function that parses `DATABASE_URL`
 - The shared module does not import or re-export the config module or the persistence module
-- A BC has several submodules, and works almost as a modular monolith
+- A BC with several aggregates has submodules, and works almost as a modular monolith
+- The application root module imports each BC's modules directly
 - The root shared module receives **only the BCs' shared modules**, never a submodule directly
-- A BC's shared module **is not global**. It gathers its submodules and their exception registries, and it reaches the root
+- A BC's shared module **is not global**. It gathers its submodules and their exception registries, and it reaches the root shared module
 - A BC's modules never import the root shared module: it is global, and it imports the BC
 - Submodules export their exception registry, plus only what other BCs need (repository tokens or domain services)
 - Automatic schema synchronization is off **always** — migrations are the source of truth of the schema
@@ -36,7 +37,6 @@ metadata:
 - Abort-early off always — see all errors at once
 - Required in everything that has no default — fails at bootstrap, not at runtime
 - Env validation uses the schema library the stack skill names — do not pick another one
-- Configuration lives in the config module **in the application root module**, not in the shared module
 - Env validation fails at bootstrap — if a variable is missing, the app does not start
 
 ### Criteria + persistence

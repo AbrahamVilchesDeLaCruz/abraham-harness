@@ -34,10 +34,10 @@ Pod hooks and global hooks in `apps/client/`. A hook here is a named unit of reu
 
 Create a pod hook:
 
-- When there is a cohesive group of local state + handlers (filters, tooltips, pagination, selection)
+- When there is a cohesive group of local state + handlers (filters, pagination, selection)
 - When the pod needs data from the server: the server-state hook wraps a repository call (see `client-query`)
 - When the Component has more than ~5 local state values → a sign that there are hooks to extract, for the Container to consume
-- When the logic can be named with a clear noun: `filters`, `tooltip`, `pagination`
+- When the logic can be named with a clear noun: `filters`, `pagination`
 
 ## Execution Steps
 

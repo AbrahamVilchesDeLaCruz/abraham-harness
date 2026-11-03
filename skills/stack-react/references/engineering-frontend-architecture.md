@@ -15,7 +15,6 @@ pods/
     │   ├── useCalendarEvents.ts
     │   ├── useCreateEvent.ts
     │   ├── useCalendarFilters.ts
-    │   ├── useCalendarTooltip.ts
     │   ├── useCalendarDates.ts
     │   └── index.ts                      ← Barrel: re-exports all hooks
     ├── components/                       ← Presentational sub-components
@@ -68,7 +67,6 @@ export const CalendarContainer = () => {
   const { data: events, isLoading } = useCalendarEvents({ month, year });
   const { mutate: createEvent } = useCreateEvent();
   const { typeFilter, showCompleted, setTypeFilter, resetFilters } = useCalendarFilters();
-  const { tooltip, closeTooltip } = useCalendarTooltip();
 
   return (
     <CalendarComponent
@@ -76,7 +74,6 @@ export const CalendarContainer = () => {
       isLoading={isLoading}
       typeFilter={typeFilter}
       showCompleted={showCompleted}
-      tooltip={tooltip}
       onDateChange={(m, y) => {
         setMonth(m);
         setYear(y);
@@ -84,7 +81,6 @@ export const CalendarContainer = () => {
       onCreateEvent={createEvent}
       onFilter={setTypeFilter}
       onResetFilters={resetFilters}
-      onCloseTooltip={closeTooltip}
     />
   );
 };
@@ -115,12 +111,10 @@ interface CalendarComponentProps {
   isLoading: boolean;
   typeFilter: string | null;
   showCompleted: boolean;
-  tooltip: CalendarTooltipVM;
   onDateChange: (month: number, year: number) => void;
   onCreateEvent: (data: CreateEventPayload) => void;
   onFilter: (typeFilter: string | null) => void;
   onResetFilters: () => void;
-  onCloseTooltip: () => void;
 }
 
 export const CalendarComponent = ({
@@ -128,21 +122,21 @@ export const CalendarComponent = ({
   isLoading,
   typeFilter,
   showCompleted,
-  tooltip,
   onDateChange,
   onCreateEvent,
   onFilter,
   onResetFilters,
-  onCloseTooltip,
 }: CalendarComponentProps) => {
   const calendarRef = useRef<FullCalendar>(null);
+  // Purely visual state stays here: it is not a pod hook
+  const [tooltip, setTooltip] = useState<CalendarTooltipVM | null>(null);
 
   return (
     <div>
       <CalendarToolbar typeFilter={typeFilter} onFilter={onFilter} />
       <CalendarFilterChips typeFilter={typeFilter} showCompleted={showCompleted} onReset={onResetFilters} />
-      <CalendarGrid ref={calendarRef} events={events} isLoading={isLoading} />
-      {tooltip.visible && <AppointmentTooltip {...tooltip} onClose={onCloseTooltip} />}
+      <CalendarGrid ref={calendarRef} events={events} isLoading={isLoading} onEventClick={setTooltip} />
+      {tooltip && <AppointmentTooltip {...tooltip} onClose={() => setTooltip(null)} />}
     </div>
   );
 };
@@ -200,7 +194,7 @@ export function useCalendarFilters() {
 
 ### When to create a pod hook
 
-- When a group of `useState` + handlers are cohesive (filters, tooltips, pagination)
+- When a group of `useState` + handlers are cohesive (filters, pagination)
 - When the component has more than ~5 `useState`: a sign that there are hooks to extract, for the Container to consume
 
 ## Global hooks

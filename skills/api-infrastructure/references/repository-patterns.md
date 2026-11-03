@@ -87,3 +87,4 @@ The BC's framework module (in `sales/infrastructure/framework/`) imports the per
 
 - Controllers: `StartOrderPostController`, `CompleteOrderPostController`, `AbandonOrderPostController`, `PauseOrderPostController`, `ResumeOrderPostController`, `FindOrderSummaryGetController`.
 - Providers: `OrderStarter`, `OrderCompleter`, `OrderAbandonner`, `OrderPauser`, `OrderResumer`, `OrderSummaryFinder`, `SalesExceptionRegistry`, and `ORDER_REPOSITORY` bound to the repository adapter.
+- Exports: `SalesExceptionRegistry`.

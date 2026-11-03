@@ -117,7 +117,7 @@ src/
 
 ### Bounded Context = Module (simple case)
 
-When a Bounded Context has a single concept, module and context collapse. Real examples: `sales/`, `progress/`.
+A bounded context with a single concept may be one module, and it splits into submodules when a second aggregate appears. In that case module and context collapse. Real examples: `sales/`, `progress/`.
 
 ```
 src/

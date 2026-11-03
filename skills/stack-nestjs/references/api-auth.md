@@ -191,7 +191,7 @@ async handler(@Query() query: SearchProductsGetQuery, @CurrentUser() user: UserC
 
 ## Registration
 
-`AuthModule` is registered in `SharedModule`. See `api-di` for how to register strategies and guards in the module.
+`AuthModule` lives in `shared/infrastructure/auth/`, and the bounded context modules that need it import it. See `api-di` for how to register strategies and guards in the module.
 
 ## File structure of the auth adapters
 

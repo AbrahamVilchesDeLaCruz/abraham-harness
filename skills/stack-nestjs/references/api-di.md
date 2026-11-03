@@ -44,6 +44,7 @@ import { TypeOrmOrderRepository } from '@/sales/infrastructure/persistence/typeo
 import { OrderEntity } from '@/sales/infrastructure/persistence/order.entity';
 import { OrderStarter } from '@/sales/application/start/order-starter';
 import { StartOrderPostController } from '@/sales/infrastructure/controllers/start-order-post.controller';
+import { SalesExceptionRegistry } from './sales-exception-registry';
 
 @Module({
   imports: [TypeOrmModule.forFeature([OrderEntity])],
@@ -53,9 +54,11 @@ import { StartOrderPostController } from '@/sales/infrastructure/controllers/sta
     { provide: ORDER_REPOSITORY, useClass: TypeOrmOrderRepository },
     // Use cases
     OrderStarter,
+    // The module's exception registry
+    SalesExceptionRegistry,
   ],
-  // Export only tokens that other modules need
-  exports: [],
+  // Export the module's exception registry and only the tokens that other modules need
+  exports: [SalesExceptionRegistry],
 })
 export class SalesModule {}
 ```
@@ -145,6 +148,7 @@ import { TypeOrm{Entity}Repository } from '../persistence/typeorm-{entity}.repos
 import { {ENTITY}_REPOSITORY } from '../../domain/{entity}.repository';
 import { {Entity}{Verb}er } from '../../application/{verb}/{entity}-{verb}er';
 import { {Verb}{Entity}PostController } from '../controllers/{verb}-{entity}-post.controller';
+import { {Entity}ExceptionRegistry } from './{entity}-exception-registry';
 
 @Module({
   imports: [TypeOrmModule.forFeature([{Entity}Entity])],
@@ -157,9 +161,11 @@ import { {Verb}{Entity}PostController } from '../controllers/{verb}-{entity}-pos
     },
     // Use cases
     {Entity}{Verb}er,
+    // The module's exception registry
+    {Entity}ExceptionRegistry,
   ],
-  // Export only tokens that other modules need
-  exports: [],
+  // Export the module's exception registry and only the tokens that other modules need
+  exports: [{Entity}ExceptionRegistry],
 })
 export class {Entity}Module {}
 ```

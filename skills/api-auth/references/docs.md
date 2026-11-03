@@ -5,7 +5,7 @@
 | Skill | Why read it |
 |---|---|
 | `api-infrastructure` | Controllers that use guards and `CurrentUser` |
-| `api-shared` | The shared module where the auth module is registered |
+| `api-shared` | The auth module lives in `shared/infrastructure/auth/`, and the bounded context modules that need it import it |
 | `api-di` | How to register strategies and guards in the module |
 | `api-application` | Use cases that receive `UserContext` as a parameter |
 

@@ -212,6 +212,7 @@ async handler(@Param('id') id: string): Promise<void> {
       useClass: TypeOrmOrderRepository,
     },
   ],
+  exports: [SalesExceptionRegistry],
 })
 export class SalesModule {}
 ```

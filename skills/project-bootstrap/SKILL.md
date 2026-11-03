@@ -32,7 +32,7 @@ metadata:
 1. **Collect the inputs.** Ask for the project name and a one-line description if they are not known yet. Ask whether the project has both an API and a client.
 2. **Inspect the target.** List the files from the target layout that already exist.
 3. **Copy the assets.** Copy them from this skill's `assets/` directory to the paths in the target layout, applying the gates above.
-4. **Fill the placeholders.** Replace `{{PROJECT_NAME}}` and `{{PROJECT_DESCRIPTION}}` in every copied `AGENTS.md`.
+4. **Fill the placeholders.** Replace `{{PROJECT_NAME}}` and `{{PROJECT_DESCRIPTION}}` in every copied `AGENTS.md`, and `{{PROJECT_NAME}}` in `docs/README.md`.
 5. **Fill the stack table.** Ask for the project's stack, offering the values in the `Stack table` lists as the default suggestion. Write the answer in the `Stack table` of every copied `AGENTS.md`.
 6. **Create `CLAUDE.md`** with the single line `@AGENTS.md`.
 7. **Scaffold the code when the apps do not exist yet.** Follow `references/scaffold.md` in the `stack-nestjs` and `stack-react` skills, then apply `eslint-prettier.md` in `engineering-conventions` and `references/esm.md` in the `stack-jest` skill. For another stack, use the stack skill that matches the stack table. Replace the `myapp` example namespace in these guides with the project name.
@@ -51,8 +51,8 @@ The project matches this target layout:
 │   └── client/AGENTS.md       ← assets/AGENTS.client.template.md
 ├── docs/
 │   ├── README.md              ← assets/docs-template/README.md: the Brain's map
-│   ├── domain/                ← created empty, filled with doc-create
-│   └── adr/                   ← created empty, filled with doc-create
+│   ├── domain/.gitkeep        ← keeps the empty folder in git, filled with doc-create
+│   └── adr/.gitkeep           ← keeps the empty folder in git, filled with doc-create
 └── .agents/skills/            ← installed by npx skills (.claude/skills for Claude Code only), never edited by hand
 ```
 

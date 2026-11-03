@@ -58,7 +58,6 @@ pods/
     │   ├── useCalendarEvents.ts
     │   ├── useCreateEvent.ts
     │   ├── useCalendarFilters.ts
-    │   ├── useCalendarTooltip.ts
     │   ├── useCalendarDates.ts
     │   └── index.ts                      ← Barrel: re-exports all hooks
     ├── components/                       ← Presentational sub-components
@@ -273,9 +272,9 @@ Every hook, pod or global, returns an object with named fields, also when it exp
 
 ### When to create a pod hook?
 
-- When a group of state values + handlers are cohesive (filters, tooltips, pagination)
+- When a group of state values + handlers are cohesive (filters, pagination)
 - When the component has more than ~5 state values: a sign that there are hooks to extract, for the Container to consume
-- When the logic can be named with a clear noun (`filters`, `tooltip`, `dates`)
+- When the logic can be named with a clear noun (`filters`, `dates`)
 
 ---
 

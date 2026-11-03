@@ -39,22 +39,20 @@ export const ProductsContainer = () => {
   // categoryId comes from the stack's routing primitive; page from its local state primitive.
   const { data: products = [] } = useProducts({ categoryId, page });
   const { size, showFeaturedOnly, setSize, resetFilters } = useProductFilters();
-  const { tooltip, showTooltip, closeTooltip } = useProductTooltip();
 
   return (
     <ProductsComponent
       products={products}
       size={size}
       showFeaturedOnly={showFeaturedOnly}
-      tooltip={tooltip}
       onFilter={setSize}
       onResetFilters={resetFilters}
-      onShowTooltip={showTooltip}
-      onCloseTooltip={closeTooltip}
     />
   );
 };
 ```
+
+Purely visual state, such as whether a tooltip is open, is not a pod hook: the Component holds it as plain local state.
 
 ### Pod barrel
 
@@ -62,7 +60,6 @@ export const ProductsContainer = () => {
 // hooks/index.ts
 export { useProducts } from './useProducts';
 export { useProductFilters } from './useProductFilters';
-export { useProductTooltip } from './useProductTooltip';
 export { useProductPagination } from './useProductPagination';
 ```
 

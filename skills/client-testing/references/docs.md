@@ -14,5 +14,4 @@
 | Doc | Relevant content |
 |---|---|
 | `testing.md` in `engineering-conventions` | The monorepo's actual test pyramid, run commands |
-| `frontend-architecture.md` in `engineering-conventions` | The pod data flow that the tests cross or mock |
-| `frontend-architecture.md` in `engineering-conventions` | Container-Presentational — what to test with props (Component) and what with HTTP interception (Container) |
+| `frontend-architecture.md` in `engineering-conventions` | The pod data flow that the tests cross or mock; Container-Presentational — what to test with props (Component) and what with HTTP interception (Container) |

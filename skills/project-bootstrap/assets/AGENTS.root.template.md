@@ -45,7 +45,7 @@ After a concept skill, load the stack skill that matches this project's stack ta
 | Skill                | Scope  | Description                                                      |
 | -------------------- | ------ | ---------------------------------------------------------------- |
 | `tdd-workflow`       | global | Mandatory TDD workflow: Red→Green→Refactor before any new code   |
-| `project-bootstrap`  | global | Installs AGENTS.md, architecture docs and scaffold guides        |
+| `project-bootstrap`  | global | Installs AGENTS.md and the docs/ skeleton, and scaffolds the apps |
 | `doc-create`         | global | Records project conventions in the project's `docs/`              |
 | `engineering-conventions` | global | Index of the shared conventions                              |
 | `factory-workflow`   | global | Picks the lane (Answer, FTD or SDD) and coordinates the agents   |

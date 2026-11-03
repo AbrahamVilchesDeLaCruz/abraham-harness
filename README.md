@@ -9,11 +9,15 @@ My meta-harness: one versioned set of agent skills and architecture conventions,
 
 ## Start a project
 
-1. Install the skills in the project for Claude Code, Codex and OpenCode:
+A new project needs both steps. The `npx` command installs the tools, and `/project-bootstrap` sets up the project.
+
+1. Install the skills and agents for Claude Code, Codex and OpenCode, from the project's root:
 
    ```bash
    npx github:AbrahamVilchesDeLaCruz/abraham-harness
    ```
+
+   This creates `.agents/skills/`, `.claude/skills/`, the role agents and `skills-lock.json`. It does not create `AGENTS.md` or `docs/`.
 
 2. Ask your agent to set up the project:
 
@@ -21,7 +25,7 @@ My meta-harness: one versioned set of agent skills and architecture conventions,
    /project-bootstrap
    ```
 
-   It adds the `AGENTS.md` files and the `docs/` skeleton, and scaffolds the apps.
+   This creates `AGENTS.md` with the skills tables, `CLAUDE.md`, and the `docs/` skeleton. It asks for your stack, and scaffolds the apps if they do not exist yet.
 
 3. Commit the result, including `skills-lock.json`.
 

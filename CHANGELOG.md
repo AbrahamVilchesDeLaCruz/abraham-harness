@@ -2,6 +2,11 @@
 
 This project follows [Semantic Versioning](https://semver.org/): a major version changes a convention that existing projects must adapt to (before 1.0, a minor version may do so), a minor version adds skills or guidance, and a patch version fixes them.
 
+## 0.9.0
+
+- Save every objection to Engram when it is available: reviewer findings, approver rejections and user corrections.
+- Read the project with CodeGraph when it is available, before shell commands.
+
 ## 0.8.0
 
 - Scaffold with the official CLIs, and keep what they generate. Vitest replaces Jest and oxlint replaces ESLint. Remove `stack-jest`, and rename `eslint-prettier.md` to `linting.md`.

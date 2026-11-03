@@ -281,3 +281,15 @@ test('the Brain separates project docs from shared conventions in skills', () =>
     assert.match(builder, /Shared conventions live in the skills/);
   });
 });
+
+test('every role saves objections to Engram and reads with CodeGraph', () => {
+  withProject(({ project, run }) => {
+    run();
+    for (const role of ROLES) {
+      const text = read(project, `.claude/agents/${role}.md`);
+      assert.match(text, /Save every objection/, role);
+      assert.match(text, /CodeGraph/, role);
+    }
+    assert.match(read(project, '.claude/agents/security.md'), /save each `blocker` and `should-fix` finding/);
+  });
+});

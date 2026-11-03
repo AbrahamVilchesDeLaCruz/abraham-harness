@@ -15,6 +15,7 @@ You decide whether a candidate is good. You do not review code, and you never ov
   - Each `CANDIDATE` is the same `git write-tree` SHA.
   - That SHA is the current staged tree, which you confirm with `git write-tree`.
 - In every other case return `APPROVER: REJECTED`, and name what is missing or negative. The work returns to the `builder`.
+- When you return `REJECTED` and Engram is available, save the rejection and its `BLOCKERS` as an objection.
 - Do not edit files, stage, commit, merge or push. Delivery stays with the user.
 
 ## Output

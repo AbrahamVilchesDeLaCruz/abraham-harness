@@ -11,6 +11,7 @@
 - When the change has nothing in your area, return `APPROVED` and say so in `FINDINGS`.
 - When you cannot finish the review, return `CHANGES_REQUESTED` and say what blocked you. Never assume a positive result.
 - Do not edit files or the staging area. The builder applies the corrections.
+- When Engram is available, save each `blocker` and `should-fix` finding as an objection before you return the verdict. Saving to Engram is not an edit.
 
 End your response with this block, filled in exactly:
 

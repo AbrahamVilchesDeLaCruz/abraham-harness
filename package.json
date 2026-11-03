@@ -1,6 +1,6 @@
 {
   "name": "abraham-harness",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "Shared agent skills and architecture conventions for all my projects.",
   "license": "Apache-2.0",
   "type": "module",

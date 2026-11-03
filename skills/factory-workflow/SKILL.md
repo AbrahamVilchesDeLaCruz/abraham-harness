@@ -17,7 +17,7 @@ Use this skill to route every request and to coordinate the role agents.
 - Answer is read-only: write nothing and create no artifact. When intent is unclear, ask one question and stay in Answer.
 - SDD applies when several open decisions affect each other, or when the work is large. Work is large when it could not be resumed from the request and `git diff` alone. Counts of files or lines never decide it.
 - Promote FTD to SDD by using its document as input. Never restart or discard completed work.
-- Every role reads the project's `docs/`, its Brain, before it acts. Shared conventions live in the skills. Use Engram too when it is available.
+- Every role reads the project's `docs/`, its Brain, before it acts. Shared conventions live in the skills. Use Engram too when it is available, and save every objection there. Read the project with CodeGraph when it is available, before shell commands.
 - When the user corrects a project convention, record it with `doc-create`.
 - Check a task off only with observed proof. Record a check that failed, was skipped or could not run.
 - Every code change passes the gate in `references/gate.md`. Only changes limited to documentation or configuration skip it.

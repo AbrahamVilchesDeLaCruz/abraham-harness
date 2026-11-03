@@ -9,7 +9,7 @@ None: this skill cuts across all the others.
 - [Conventional Commits — Spec](https://www.conventionalcommits.org/en/v1.0.0/) — commit message format
 - [commitlint — Docs](https://commitlint.js.org/) — commit validation (configured in `commitlint.config.ts`)
 - [Husky — Docs](https://typicode.github.io/husky/) — git hooks (`.husky/` at the monorepo root)
-- [lint-staged — Docs](https://github.com/okonet/lint-staged) — ESLint + Prettier on staged files
+- [lint-staged — Docs](https://github.com/okonet/lint-staged) — oxlint + Prettier on staged files
 - [GitHub Flow](https://docs.github.com/en/get-started/using-github/github-flow) — the base flow (branching from main, PRs)
 
 ## Branch types reference

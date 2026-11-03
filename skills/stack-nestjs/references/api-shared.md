@@ -73,15 +73,15 @@ src/
 // src/shared/infrastructure/framework/shared.module.ts
 import { Global, Module } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
-import { LOGGER_SERVICE } from '@/shared/domain/logger';
-import { DOMAIN_EVENT_PUBLISHER } from '@/shared/domain/domain-event-publisher';
-import { DOMAIN_EVENT_CONSUMER } from '@/shared/application/domain-event-consumer';
-import { HealthGetController } from '../controllers/health-get.controller';
-import { PinoLogger } from '../logger/pino-logger';
-import { GlobalExceptionRegistry } from '../exceptions/global-exception-registry';
-import { HttpExceptionFilter } from '../exceptions/http-exception.filter';
-import { AmqpMessageBus } from '../event-bus/amqp-message-bus';
-import { AchievementSharedModule } from '@/achievement/shared/infrastructure/framework/achievement-shared.module';
+import { LOGGER_SERVICE } from '@/shared/domain/logger.js';
+import { DOMAIN_EVENT_PUBLISHER } from '@/shared/domain/domain-event-publisher.js';
+import { DOMAIN_EVENT_CONSUMER } from '@/shared/application/domain-event-consumer.js';
+import { HealthGetController } from '../controllers/health-get.controller.js';
+import { PinoLogger } from '../logger/pino-logger.js';
+import { GlobalExceptionRegistry } from '../exceptions/global-exception-registry.js';
+import { HttpExceptionFilter } from '../exceptions/http-exception.filter.js';
+import { AmqpMessageBus } from '../event-bus/amqp-message-bus.js';
+import { AchievementSharedModule } from '@/achievement/shared/infrastructure/framework/achievement-shared.module.js';
 // ... the shared module of each bounded context
 
 @Global()
@@ -132,11 +132,11 @@ import { join } from 'node:path';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
-import { SharedModule } from './shared/infrastructure/framework/shared.module';
-import { buildTypeOrmDataSourceOptions } from './shared/infrastructure/persistence/typeorm/typeorm-data-source-options';
-import { envValidationSchema } from './shared/infrastructure/config/env.validation';
-import { SalesModule } from './sales/infrastructure/framework/sales.module';
-import { UserAchievementModule } from './achievement/user-achievement/infrastructure/framework/user-achievement.module';
+import { SharedModule } from './shared/infrastructure/framework/shared.module.js';
+import { buildTypeOrmDataSourceOptions } from './shared/infrastructure/persistence/typeorm/typeorm-data-source-options.js';
+import { envValidationSchema } from './shared/infrastructure/config/env.validation.js';
+import { SalesModule } from './sales/infrastructure/framework/sales.module.js';
+import { UserAchievementModule } from './achievement/user-achievement/infrastructure/framework/user-achievement.module.js';
 // ... the module of each bounded context
 
 @Module({
@@ -193,16 +193,16 @@ Each submodule is a complete NestJS module that wires its repositories, use case
 // src/achievement/user-achievement/infrastructure/framework/user-achievement.module.ts
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AuthModule } from '@/shared/infrastructure/auth/auth.module';
-import { SUBSCRIBERS, SubscribersBootstrapper } from '@/shared/infrastructure/event-bus/subscribers-bootstrapper';
+import { AuthModule } from '@/shared/infrastructure/auth/auth.module.js';
+import { SUBSCRIBERS, SubscribersBootstrapper } from '@/shared/infrastructure/event-bus/subscribers-bootstrapper.js';
 
-import { USER_ACHIEVEMENT_REPOSITORY } from '@/achievement/user-achievement/domain/user-achievement.repository';
-import { UserAchievementEntity } from '@/achievement/user-achievement/infrastructure/persistence/user-achievement.entity';
-import { TypeOrmUserAchievementRepository } from '@/achievement/user-achievement/infrastructure/persistence/typeorm-user-achievement.repository';
+import { USER_ACHIEVEMENT_REPOSITORY } from '@/achievement/user-achievement/domain/user-achievement.repository.js';
+import { UserAchievementEntity } from '@/achievement/user-achievement/infrastructure/persistence/user-achievement.entity.js';
+import { TypeOrmUserAchievementRepository } from '@/achievement/user-achievement/infrastructure/persistence/typeorm-user-achievement.repository.js';
 
-import { AchievementsSearcher } from '@/achievement/user-achievement/application/search/achievements-searcher';
-import { SearchAchievementsGetController } from '@/achievement/user-achievement/infrastructure/controllers/search-achievements-get.controller';
-import { UserAchievementExceptionRegistry } from './user-achievement-exception-registry';
+import { AchievementsSearcher } from '@/achievement/user-achievement/application/search/achievements-searcher.js';
+import { SearchAchievementsGetController } from '@/achievement/user-achievement/infrastructure/controllers/search-achievements-get.controller.js';
+import { UserAchievementExceptionRegistry } from './user-achievement-exception-registry.js';
 // ... more use cases and subscribers
 
 @Module({
@@ -242,9 +242,9 @@ The BC's shared module gathers its submodules and their registries. It is what `
 ```typescript
 // src/achievement/shared/infrastructure/framework/achievement-shared.module.ts
 import { Module } from '@nestjs/common';
-import { UserAchievementModule } from '@/achievement/user-achievement/infrastructure/framework/user-achievement.module';
-import { ProgressModule } from '@/achievement/progress/infrastructure/framework/progress.module';
-import { AchievementCatalogModule } from '@/achievement/catalog/infrastructure/framework/achievement-catalog.module';
+import { UserAchievementModule } from '@/achievement/user-achievement/infrastructure/framework/user-achievement.module.js';
+import { ProgressModule } from '@/achievement/progress/infrastructure/framework/progress.module.js';
+import { AchievementCatalogModule } from '@/achievement/catalog/infrastructure/framework/achievement-catalog.module.js';
 
 @Module({
   imports: [UserAchievementModule, ProgressModule, AchievementCatalogModule],
@@ -274,7 +274,7 @@ export const envValidationSchema = Joi.object({
 
 ```typescript
 // src/shared/infrastructure/config/env.validation.ts
-import * as Joi from 'joi';
+import Joi from 'joi';
 
 export const envValidationSchema = Joi.object({
   // App

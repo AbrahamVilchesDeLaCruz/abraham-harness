@@ -39,12 +39,12 @@ Injection (use case)     → @Inject(TOKEN) — the only contact point
 // src/sales/infrastructure/framework/sales.module.ts
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ORDER_REPOSITORY } from '@/sales/domain/order.repository';
-import { TypeOrmOrderRepository } from '@/sales/infrastructure/persistence/typeorm-order.repository';
-import { OrderEntity } from '@/sales/infrastructure/persistence/order.entity';
-import { OrderStarter } from '@/sales/application/start/order-starter';
-import { StartOrderPostController } from '@/sales/infrastructure/controllers/start-order-post.controller';
-import { SalesExceptionRegistry } from './sales-exception-registry';
+import { ORDER_REPOSITORY } from '@/sales/domain/order.repository.js';
+import { TypeOrmOrderRepository } from '@/sales/infrastructure/persistence/typeorm-order.repository.js';
+import { OrderEntity } from '@/sales/infrastructure/persistence/order.entity.js';
+import { OrderStarter } from '@/sales/application/start/order-starter.js';
+import { StartOrderPostController } from '@/sales/infrastructure/controllers/start-order-post.controller.js';
+import { SalesExceptionRegistry } from './sales-exception-registry.js';
 
 @Module({
   imports: [TypeOrmModule.forFeature([OrderEntity])],
@@ -104,13 +104,13 @@ import { Inject, Injectable } from '@nestjs/common';
 import {
   type OrderRepository,
   ORDER_REPOSITORY,
-} from '@/sales/domain/order.repository';
+} from '@/sales/domain/order.repository.js';
 import {
   type DomainEventPublisher,
   DOMAIN_EVENT_PUBLISHER,
-} from '@/shared/domain/domain-event-publisher';
-import { type Logger, LOGGER_SERVICE } from '@/shared/domain/logger';
-import { type AppMetrics, APP_METRICS } from '@/shared/domain/app-metrics';
+} from '@/shared/domain/domain-event-publisher.js';
+import { type Logger, LOGGER_SERVICE } from '@/shared/domain/logger.js';
+import { type AppMetrics, APP_METRICS } from '@/shared/domain/app-metrics.js';
 
 @Injectable()
 export class OrderCompleter {
@@ -143,12 +143,12 @@ File: `{context}/infrastructure/framework/{context}.module.ts` (registration)
 ```typescript
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { {Entity}Entity } from '../persistence/{entity}.entity';
-import { TypeOrm{Entity}Repository } from '../persistence/typeorm-{entity}.repository';
-import { {ENTITY}_REPOSITORY } from '../../domain/{entity}.repository';
-import { {Entity}{Verb}er } from '../../application/{verb}/{entity}-{verb}er';
-import { {Verb}{Entity}PostController } from '../controllers/{verb}-{entity}-post.controller';
-import { {Entity}ExceptionRegistry } from './{entity}-exception-registry';
+import { {Entity}Entity } from '../persistence/{entity}.entity.js';
+import { TypeOrm{Entity}Repository } from '../persistence/typeorm-{entity}.repository.js';
+import { {ENTITY}_REPOSITORY } from '../../domain/{entity}.repository.js';
+import { {Entity}{Verb}er } from '../../application/{verb}/{entity}-{verb}er.js';
+import { {Verb}{Entity}PostController } from '../controllers/{verb}-{entity}-post.controller.js';
+import { {Entity}ExceptionRegistry } from './{entity}-exception-registry.js';
 
 @Module({
   imports: [TypeOrmModule.forFeature([{Entity}Entity])],

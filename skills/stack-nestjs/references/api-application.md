@@ -95,17 +95,17 @@ import { Injectable, Inject } from '@nestjs/common';
 import {
   type {Entity}Repository,
   {ENTITY}_REPOSITORY,
-} from '@/{context}/domain/{entity}.repository';
+} from '@/{context}/domain/{entity}.repository.js';
 import {
   type DomainEventPublisher,
   DOMAIN_EVENT_PUBLISHER,
-} from '@/shared/domain/domain-event-publisher';
-import { type Logger, LOGGER_SERVICE } from '@/shared/domain/logger';
-import { type AppMetrics, APP_METRICS } from '@/shared/domain/app-metrics';
-import { {Entity}Id } from '@/{context}/domain/{entity}-id';
-import { {Entity}NotFound } from '@/{context}/domain/exceptions/{entity}-not-found';
-import { type Request{Entity}{Verb}er } from './request-{entity}-{verb}er';
-import { type Response{Entity}{Verb}er } from './response-{entity}-{verb}er';
+} from '@/shared/domain/domain-event-publisher.js';
+import { type Logger, LOGGER_SERVICE } from '@/shared/domain/logger.js';
+import { type AppMetrics, APP_METRICS } from '@/shared/domain/app-metrics.js';
+import { {Entity}Id } from '@/{context}/domain/{entity}-id.js';
+import { {Entity}NotFound } from '@/{context}/domain/exceptions/{entity}-not-found.js';
+import { type Request{Entity}{Verb}er } from './request-{entity}-{verb}er.js';
+import { type Response{Entity}{Verb}er } from './response-{entity}-{verb}er.js';
 
 export type { Request{Entity}{Verb}er, Response{Entity}{Verb}er };
 

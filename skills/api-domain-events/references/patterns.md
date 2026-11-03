@@ -28,8 +28,8 @@ Name: `{Aggregate}{ActionPast}Event` — PascalCase, `Event` suffix.
 
 ```typescript
 // catalog/product/domain/events/product-created.event.ts
-import { DomainEvent, type DomainEventAttributes } from '@/shared/domain/domain-event';
-import { type ProductPrimitives } from '../product';
+import { DomainEvent, type DomainEventAttributes } from '@/shared/domain/domain-event.js';
+import { type ProductPrimitives } from '../product.js';
 
 export class ProductCreatedEvent extends DomainEvent {
   static readonly EVENT_NAME = 'myapp.catalog.product.created';

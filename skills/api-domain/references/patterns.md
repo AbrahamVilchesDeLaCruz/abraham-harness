@@ -114,8 +114,8 @@ export abstract class UuidValueObject extends StringValueObject {
 
 ```typescript
 // shared/domain/product-id.ts  ← global IDs go in shared/domain/
-import { UuidValueObject } from '@/shared/domain/uuid-value-object';
-import { ProductIdInvalid } from '@/shared/domain/exceptions/product-id-invalid';
+import { UuidValueObject } from '@/shared/domain/uuid-value-object.js';
+import { ProductIdInvalid } from '@/shared/domain/exceptions/product-id-invalid.js';
 
 export class ProductId extends UuidValueObject {
   constructor(value: string) {
@@ -131,7 +131,7 @@ export class ProductId extends UuidValueObject {
 
 ```typescript
 // catalog/product/domain/product-name.ts  ← value objects owned by the BC go in its domain/
-import { StringValueObject } from '@/shared/domain/string-value-object';
+import { StringValueObject } from '@/shared/domain/string-value-object.js';
 
 export class ProductName extends StringValueObject {
   private static readonly MAX_LENGTH = 200;
@@ -148,9 +148,9 @@ export class ProductName extends StringValueObject {
 
 ```typescript
 // catalog/product/domain/product.repository.ts
-import { type Criteria } from '@/shared/domain/criteria';
-import { type Product } from './product';
-import { type ProductId } from '@/shared/domain/product-id';
+import { type Criteria } from '@/shared/domain/criteria.js';
+import { type Product } from './product.js';
+import { type ProductId } from '@/shared/domain/product-id.js';
 
 export interface ProductRepository {
   match(criteria: Criteria): Promise<Product[]>;
@@ -176,7 +176,7 @@ export abstract class DomainException extends Error {
 }
 
 // catalog/product/domain/exceptions/product-not-found.ts
-import { DomainException } from '@/shared/domain/exceptions/domain-exception';
+import { DomainException } from '@/shared/domain/exceptions/domain-exception.js';
 
 export class ProductNotFound extends DomainException {
   constructor() {

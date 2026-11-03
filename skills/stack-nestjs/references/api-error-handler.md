@@ -189,9 +189,9 @@ File: `{bc}/{module}/infrastructure/framework/{module}-exception-registry.ts`
 
 ```typescript
 import { HttpStatus, Injectable, OnModuleInit } from '@nestjs/common';
-import { GlobalExceptionRegistry } from '@/shared/infrastructure/exceptions/global-exception-registry';
-import { {Entity}NotFound } from '../../domain/exceptions/{entity}-not-found';
-import { {Entity}AlreadyExists } from '../../domain/exceptions/{entity}-already-exists';
+import { GlobalExceptionRegistry } from '@/shared/infrastructure/exceptions/global-exception-registry.js';
+import { {Entity}NotFound } from '../../domain/exceptions/{entity}-not-found.js';
+import { {Entity}AlreadyExists } from '../../domain/exceptions/{entity}-already-exists.js';
 // Import all domain errors of this submodule
 
 @Injectable()

@@ -22,7 +22,7 @@ Apply the rules of `api-observability`. This reference shows the adapters and th
 // src/shared/infrastructure/logger/pino-logger.ts
 import { Injectable } from '@nestjs/common';
 import pino, { type Logger as PinoInstance } from 'pino';
-import { type LogContext, type Logger } from '@/shared/domain/logger';
+import { type LogContext, type Logger } from '@/shared/domain/logger.js';
 
 @Injectable()
 export class PinoLogger implements Logger {
@@ -100,8 +100,8 @@ export class PinoLogger implements Logger {
 // src/shared/infrastructure/metrics/prometheus-app-metrics.ts
 import { Inject, Injectable } from '@nestjs/common';
 import { Counter, Registry } from 'prom-client';
-import { type AppMetrics } from '@/shared/domain/app-metrics';
-import { METRICS_REGISTRY } from '@/shared/domain/metrics-registry';
+import { type AppMetrics } from '@/shared/domain/app-metrics.js';
+import { METRICS_REGISTRY } from '@/shared/domain/metrics-registry.js';
 
 @Injectable()
 export class PrometheusAppMetrics implements AppMetrics {

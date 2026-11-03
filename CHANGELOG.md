@@ -4,7 +4,8 @@ This project follows [Semantic Versioning](https://semver.org/): a major version
 
 ## 0.8.0
 
-- Scaffold with the official CLIs, and keep what they generate. Vitest replaces Jest and oxlint replaces ESLint. Remove `stack-jest`.
+- Scaffold with the official CLIs, and keep what they generate. Vitest replaces Jest and oxlint replaces ESLint. Remove `stack-jest`, and rename `eslint-prettier.md` to `linting.md`.
+- API examples use `.js` import extensions, as the current NestJS template requires.
 - Use the newest TypeScript each app's CLI accepts. `stack-nestjs` explains how to keep `nest build` working with TypeScript 7 for type checking.
 - Add `makefile`: the same commands in every project. `update` refreshes the shared modules, and keeps and reports one edited by hand.
 

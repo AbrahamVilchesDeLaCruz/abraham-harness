@@ -8,8 +8,8 @@ Aggregate IDs always extend `UuidValueObject` (not `StringValueObject`).
 UUID format validation happens **before** `super()`.
 
 ```typescript
-import { UuidValueObject } from '@/shared/domain/uuid-value-object';
-import { __EntityName__IdInvalid } from './__bc__/domain/exceptions/__entity-name__-id-invalid';
+import { UuidValueObject } from '@/shared/domain/uuid-value-object.js';
+import { __EntityName__IdInvalid } from './__bc__/domain/exceptions/__entity-name__-id-invalid.js';
 
 export class __EntityName__Id extends UuidValueObject {
   constructor(value: string) {
@@ -30,9 +30,9 @@ export class __EntityName__Id extends UuidValueObject {
 ## String — for text fields with validation
 
 ```typescript
-import { StringValueObject } from '@/shared/domain/string-value-object';
-import { __EntityName____FieldName__Empty } from './exceptions/__entity-name__-__field-name__-empty';
-import { __EntityName____FieldName__TooLong } from './exceptions/__entity-name__-__field-name__-too-long';
+import { StringValueObject } from '@/shared/domain/string-value-object.js';
+import { __EntityName____FieldName__Empty } from './exceptions/__entity-name__-__field-name__-empty.js';
+import { __EntityName____FieldName__TooLong } from './exceptions/__entity-name__-__field-name__-too-long.js';
 
 export class __EntityName____FieldName__ extends StringValueObject {
   private static readonly MAX_LENGTH = 255; // adjust per business rules

@@ -18,9 +18,9 @@ Tokens are `Symbol` — not strings (collisions), not framework classes (couplin
 
 ```typescript
 // src/sales/domain/order.repository.ts
-import { type Criteria } from '@/shared/domain/criteria';
-import { type Order } from './order';
-import { type OrderId } from './order-id';
+import { type Criteria } from '@/shared/domain/criteria.js';
+import { type Order } from './order.js';
+import { type OrderId } from './order-id.js';
 
 export interface OrderRepository {
   save(order: Order): Promise<void>;
@@ -71,13 +71,13 @@ The infrastructure module connects each token to its implementation. Registratio
 import {
   type OrderRepository,
   ORDER_REPOSITORY,
-} from '@/sales/domain/order.repository';
+} from '@/sales/domain/order.repository.js';
 import {
   type DomainEventPublisher,
   DOMAIN_EVENT_PUBLISHER,
-} from '@/shared/domain/domain-event-publisher';
-import { type Logger, LOGGER_SERVICE } from '@/shared/domain/logger';
-import { type AppMetrics, APP_METRICS } from '@/shared/domain/app-metrics';
+} from '@/shared/domain/domain-event-publisher.js';
+import { type Logger, LOGGER_SERVICE } from '@/shared/domain/logger.js';
+import { type AppMetrics, APP_METRICS } from '@/shared/domain/app-metrics.js';
 
 export class OrderCompleter {
   constructor(

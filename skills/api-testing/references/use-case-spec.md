@@ -9,12 +9,12 @@ This version omits the mock library import and the fake-timers helper. The origi
 
 ```typescript
 // apps/api/test/catalog/product/application/create/product-creator.spec.ts
-import { type ProductRepository } from '@/catalog/product/domain/product.repository';
-import { type DomainEventPublisher } from '@/shared/domain/domain-event-publisher';
-import { ProductCreator } from '@/catalog/product/application/create/product-creator';
-import { ProductCreatedEvent } from '@/catalog/product/domain/events/product-created.event';
-import { ProductMother } from '@test/shared/product/product-mother';
-import { RequestProductCreatorMother } from './request-product-creator.mother';
+import { type ProductRepository } from '@/catalog/product/domain/product.repository.js';
+import { type DomainEventPublisher } from '@/shared/domain/domain-event-publisher.js';
+import { ProductCreator } from '@/catalog/product/application/create/product-creator.js';
+import { ProductCreatedEvent } from '@/catalog/product/domain/events/product-created.event.js';
+import { ProductMother } from '@test/shared/product/product-mother.js';
+import { RequestProductCreatorMother } from './request-product-creator.mother.js';
 
 describe('catalog/product/application/create ProductCreator', () => {
   const repository = createMock<ProductRepository>();
@@ -33,14 +33,16 @@ describe('catalog/product/application/create ProductCreator', () => {
     const request = RequestProductCreatorMother.random();
     const expected = ProductMother.from(request);
 
-    await creator.execute(request.name, request.description);
+    await creator.execute(request);
 
     expect(repository.save).toHaveBeenCalledWith(expected);
     expect(firstCallArgs(publisher.publish)[0][0]).toBeInstanceOf(ProductCreatedEvent);
   });
 
   it('should not save nor publish when name is empty', async () => {
-    await expect(creator.execute('', 'description')).rejects.toThrow(ProductNameEmpty);
+    const request = RequestProductCreatorMother.random({ name: '' });
+
+    await expect(creator.execute(request)).rejects.toThrow(ProductNameEmpty);
 
     expect(repository.save).not.toHaveBeenCalled();
     expect(publisher.publish).not.toHaveBeenCalled();
@@ -58,8 +60,8 @@ describe('catalog/product/application/create ProductCreator', () => {
 
 ```typescript
 // apps/api/test/shared/product/product-id-mother.ts
-import { UuidMother } from '@test/shared/domain/uuid-mother';
-import { ProductId } from '@/catalog/product/domain/product-id';
+import { UuidMother } from '@test/shared/domain/uuid-mother.js';
+import { ProductId } from '@/catalog/product/domain/product-id.js';
 
 export class ProductIdMother {
   static random(): ProductId {
@@ -76,9 +78,10 @@ export class ProductIdMother {
 
 ```typescript
 // apps/api/test/shared/product/product-mother.ts
-import { Product } from '@/catalog/product/domain/product';
-import { ProductIdMother } from './product-id-mother';
-import { StringMother } from '@test/shared/domain/string-mother';
+import { type RequestProductCreator } from '@/catalog/product/application/create/product-creator.js';
+import { Product } from '@/catalog/product/domain/product.js';
+import { ProductIdMother } from './product-id-mother.js';
+import { StringMother } from '@test/shared/domain/string-mother.js';
 
 export class ProductMother {
   static create(id: string, name: string, description: string): Product {
@@ -103,9 +106,9 @@ export class ProductMother {
 
 ```typescript
 // apps/api/test/catalog/product/application/create/request-product-creator.mother.ts
-import { type RequestProductCreator } from '@/catalog/product/application/create/product-creator';
-import { UuidMother } from '@test/shared/domain/uuid-mother';
-import { StringMother } from '@test/shared/domain/string-mother';
+import { type RequestProductCreator } from '@/catalog/product/application/create/product-creator.js';
+import { UuidMother } from '@test/shared/domain/uuid-mother.js';
+import { StringMother } from '@test/shared/domain/string-mother.js';
 
 export class RequestProductCreatorMother {
   static random(overrides?: Partial<RequestProductCreator>): RequestProductCreator {

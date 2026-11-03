@@ -98,7 +98,7 @@ Fill in this list with this project's stack. The values shown are the default su
 - ORM, only in `infrastructure/`: TypeORM (`stack-typeorm`)
 - HTTP payload validation in controllers: Class Validator (`stack-nestjs`)
 - Database: PostgreSQL
-- Testing: Jest + Faker.js + jest-mock-extended (`stack-jest`)
+- Testing: Vitest + Faker.js + vitest-mock-extended (`stack-vitest`)
 - API contract: OpenAPI / Swagger (`stack-nestjs`)
 - Message bus: RabbitMQ (`stack-rabbitmq`)
 - Logs, metrics, traces: Pino, Prometheus, OpenTelemetry (`stack-observability`)
@@ -120,10 +120,10 @@ Fill in this list with this project's stack. The values shown are the default su
 ```bash
 # From apps/api/
 pnpm start:dev        # Dev server with hot-reload
-pnpm lint             # ESLint --fix on src/ and test/
+pnpm lint             # oxlint with type-aware rules on src/ and test/
 
 # ─── Unit tests ───────────────────────────────────────────────────────────────
-pnpm test             # Unit tests (passes if there are no tests yet)
+pnpm test             # Unit tests
 pnpm test:watch       # TDD loop — re-run on change
 pnpm test:cov         # Unit tests + coverage → coverage/unit/
 
@@ -136,8 +136,8 @@ pnpm test:e2e:cov     # E2E + coverage → coverage/e2e/
 pnpm test:all         # Unit + E2E sequentially
 
 # ─── CI ───────────────────────────────────────────────────────────────────────
-pnpm test:ci          # Unit + coverage --ci --forceExit (GitHub Actions)
-pnpm test:e2e:ci      # E2E + coverage --ci --forceExit (GitHub Actions)
+pnpm test:ci          # Unit + coverage (GitHub Actions)
+pnpm test:e2e:ci      # E2E + coverage (GitHub Actions)
 
 # ─── Debug ────────────────────────────────────────────────────────────────────
 pnpm test:debug       # Test runner with the Node inspector
@@ -176,7 +176,7 @@ pnpm test:debug       # Test runner with the Node inspector
 | `api-observability`    | api    | Logger interface, structured logs, metrics, traces               |
 | `stack-nestjs`         | api    | Maps the concept skills to NestJS                                |
 | `stack-typeorm`        | api    | Maps the concept skills to TypeORM                               |
-| `stack-jest`           | api    | Maps the concept skills to Jest                                  |
+| `stack-vitest`         | api    | Maps the concept skills to Vitest, vitest-mock-extended and Faker |
 | `stack-rabbitmq`       | api    | Maps the concept skills to RabbitMQ                              |
 | `stack-observability`  | api    | Maps the concept skills to Pino, Prometheus and OpenTelemetry    |
 <!-- abraham-harness:available-skills:end -->

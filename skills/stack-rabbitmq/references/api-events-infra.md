@@ -41,12 +41,12 @@ import {
   type Channel,
   type ConsumeMessage,
 } from 'amqplib';
-import { type DomainEvent } from '@/shared/domain/domain-event';
-import { type DomainEventPublisher } from '@/shared/domain/domain-event-publisher';
-import { type DomainEventConsumer } from '@/shared/application/domain-event-consumer';
-import { type Logger } from '@/shared/domain/logger';
-import { LOGGER_SERVICE } from '@/shared/domain/logger';
-import { InvalidEventPayload } from '@/shared/domain/exceptions/invalid-event-payload';
+import { type DomainEvent } from '@/shared/domain/domain-event.js';
+import { type DomainEventPublisher } from '@/shared/domain/domain-event-publisher.js';
+import { type DomainEventConsumer } from '@/shared/application/domain-event-consumer.js';
+import { type Logger } from '@/shared/domain/logger.js';
+import { LOGGER_SERVICE } from '@/shared/domain/logger.js';
+import { InvalidEventPayload } from '@/shared/domain/exceptions/invalid-event-payload.js';
 
 const RETRY_DELAYS = [1000, 5000, 10000]; // ms — exponential backoff
 const RECONNECT_DELAY_MS = 5000;

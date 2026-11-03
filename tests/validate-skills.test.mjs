@@ -187,6 +187,19 @@ for (const term of ['containers/{feature}', '__mothers__', 'criteria.limit', 'ge
   });
 }
 
+for (const term of ['stack-jest', 'ts-jest', 'jest-mock-extended', 'jest.fn()', 'eslint-prettier.md', 'typescript-eslint']) {
+  test(`rejects the retired tooling ${term} in any skill`, () => {
+    const r = run({ 'demo/SKILL.md': GOOD, 'demo/references/guide.md': `Example: ${term}\n` });
+    assert.equal(r.status, 1);
+    assert.match(r.stderr, /demo\/references\/guide\.md:1: retired convention/);
+  });
+}
+
+test('allows the Testing Library matchers package, which only sounds like the retired runner', () => {
+  const r = run({ 'demo/SKILL.md': GOOD, 'demo/references/guide.md': 'Setup imports @testing-library/jest-dom in the test setup.\n', });
+  assert.equal(r.status, 0, r.stderr);
+});
+
 test('rejects a reference to convention docs copied into a project', () => {
   const r = run({ 'demo/SKILL.md': GOOD, 'demo/references/guide.md': 'See docs/engineering/testing.md\n' });
   assert.equal(r.status, 1);

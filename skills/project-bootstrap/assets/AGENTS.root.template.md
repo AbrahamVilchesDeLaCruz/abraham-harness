@@ -35,6 +35,7 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 | Starting a new project or aligning an existing one   | `project-bootstrap` |
 | Every request: pick the lane and coordinate the agents | `factory-workflow` |
 | The user corrects a project convention, or asks to document one | `doc-create` |
+| Creating or changing a Makefile, or a command to start the stack | `makefile` |
 | Planning a task, or implementing one plan phase      | `plan-create`, `plan-phase-implement` |
 
 After a concept skill, load the stack skill that matches this project's stack table, and read its `references/{concept-skill}.md`.
@@ -49,6 +50,7 @@ After a concept skill, load the stack skill that matches this project's stack ta
 | -------------------- | ------ | ---------------------------------------------------------------- |
 | `tdd-workflow`       | global | Mandatory TDD workflow: Red→Green→Refactor before any new code   |
 | `project-bootstrap`  | global | Installs AGENTS.md and the docs/ skeleton, and scaffolds the apps |
+| `makefile`           | global | The same make commands in every project: help, local, dev, prod |
 | `doc-create`         | global | Records project conventions in the project's `docs/`              |
 | `engineering-conventions` | global | Index of the shared conventions                              |
 | `factory-workflow`   | global | Picks the lane (Answer, FTD or SDD) and coordinates the agents   |
@@ -83,12 +85,11 @@ After a concept skill, load the stack skill that matches this project's stack ta
 | `client-testing`                 | client | Unit/integration tests, E2E, API mocks                           |
 | `stack-nestjs`        | api    | Maps the concept skills to NestJS                                |
 | `stack-typeorm`       | api    | Maps the concept skills to TypeORM                               |
-| `stack-jest`          | api    | Maps the concept skills to Jest                                  |
 | `stack-rabbitmq`      | api    | Maps the concept skills to RabbitMQ                              |
 | `stack-observability` | api    | Maps the concept skills to Pino, Prometheus and OpenTelemetry    |
 | `stack-react`         | client | Maps the concept skills to React                                 |
 | `stack-tanstack-query`| client | Maps the concept skills to TanStack Query                        |
-| `stack-vitest`        | client | Maps the concept skills to Vitest, Testing Library, MSW and Playwright |
+| `stack-vitest`        | api, client | Maps the concept skills to Vitest, plus Testing Library, MSW and Playwright on the client |
 <!-- abraham-harness:available-skills:end -->
 
 ---
@@ -125,7 +126,7 @@ Fill in this list with this project's stack. The values shown are the default su
 - Backend: NestJS, TypeScript, TypeORM, Class Validator (`stack-nestjs`, `stack-typeorm`)
 - Database: PostgreSQL
 - Message bus: RabbitMQ (`stack-rabbitmq`)
-- Testing: Vitest, Jest, Playwright (`stack-vitest`, `stack-jest`)
+- Testing: Vitest, Playwright (`stack-vitest`)
 - Observability: OpenTelemetry, Prometheus, Grafana, Loki (`stack-observability`)
 - Infra: Docker, GitHub Actions
 
@@ -136,7 +137,7 @@ Fill in this list with this project's stack. The values shown are the default su
 - Strict **TypeScript** in all packages: do not use `any`
 - **Schema validators** for client-server validation
 - **Conventional Commits**: `feat`, `fix`, `docs`, `chore`, `refactor`, `test`, `perf`, `ci`, `revert`
-- **ESLint + Prettier**: do not commit code without passing linting, enforced by Husky
+- **oxlint + Prettier**: do not commit code without passing linting, enforced by Husky
 - **Imports**: use path aliases, never long relative paths
 
 ---
@@ -147,12 +148,12 @@ Configured in `.husky/` at the monorepo root.
 
 | Hook | Tool | What it does |
 | ------------- | ----------- | ------------------------------------------------------------ |
-| `pre-commit`  | lint-staged | ESLint --fix + Prettier --write on staged files only         |
+| `pre-commit`  | lint-staged | oxlint --fix + Prettier --write on staged files only         |
 | `commit-msg`  | commitlint  | Validates that the message follows Conventional Commits      |
 
-**lint-staged** runs eslint and prettier **only on the staged files**, not on the whole project. Fast, < 2s.
+**lint-staged** runs oxlint and Prettier **only on the staged files**, not on the whole project. Fast, < 2s.
 
-**tsc --noEmit** is NOT in pre-commit: it goes in CI. ESLint with `recommendedTypeChecked` covers per-file type safety.
+**tsc --noEmit** is NOT in pre-commit: it goes in CI. oxlint with `--type-aware` covers per-file type safety.
 
 **Valid types in commit-msg:** `feat` | `fix` | `docs` | `chore` | `refactor` | `test` | `perf` | `ci` | `revert`
 
@@ -165,7 +166,7 @@ commitlint config: `commitlint.config.ts` at the root.
 From the monorepo root, these scripts propagate the command to all workspaces:
 
 ```bash
-pnpm lint          # ESLint in api + client
+pnpm lint          # oxlint in api + client
 pnpm test          # Unit tests in api + client
 pnpm test:e2e      # E2E tests in api + client
 pnpm test:all      # Unit + E2E in api + client

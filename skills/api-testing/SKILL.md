@@ -60,5 +60,5 @@ metadata:
 - [`references/test-structure.md`](references/test-structure.md) — pyramid, `/test` structure, Mother hierarchy and anti-patterns.
 - [`assets/object-mother.template.md`](assets/object-mother.template.md) — generic Object Mother template.
 - [`references/docs.md`](references/docs.md) — related skills, ADRs and documentation.
-- Load the project's stack skill for testing (`stack-jest`) and read its `references/api-testing.md` for the mock library, fake timers, `MotherCreator` and primitive Mothers.
+- Load the project's stack skill for testing (`stack-vitest`) and read its `references/api-testing.md` for the mock library, fake timers, `MotherCreator` and primitive Mothers.
 - Load the project's stack skill for the HTTP framework (`stack-nestjs`) and read its `references/api-testing.md` for E2E tests.

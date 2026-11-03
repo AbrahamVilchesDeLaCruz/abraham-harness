@@ -13,8 +13,8 @@ A Mother lives next to the test that uses it; shared Mothers go in `test/shared`
 
 ```typescript
 // apps/api/test/shared/__module__/__entity-name__-id-mother.ts
-import { UuidMother } from '@test/shared/domain/uuid-mother';
-import { __EntityName__Id } from '@/__bc__/__module__/domain/__entity-name__-id';
+import { UuidMother } from '@test/shared/domain/uuid-mother.js';
+import { __EntityName__Id } from '@/__bc__/__module__/domain/__entity-name__-id.js';
 
 export class __EntityName__IdMother {
   static random(): __EntityName__Id {
@@ -31,9 +31,9 @@ export class __EntityName__IdMother {
 
 ```typescript
 // apps/api/test/shared/__module__/__entity-name__-mother.ts
-import { __EntityName__ } from '@/__bc__/__module__/domain/__entity-name__';
-import { __EntityName__IdMother } from './__entity-name__-id-mother';
-import { StringMother } from '@test/shared/domain/string-mother';
+import { __EntityName__ } from '@/__bc__/__module__/domain/__entity-name__.js';
+import { __EntityName__IdMother } from './__entity-name__-id-mother.js';
+import { StringMother } from '@test/shared/domain/string-mother.js';
 
 type __EntityName__Primitives = {
   id: string;

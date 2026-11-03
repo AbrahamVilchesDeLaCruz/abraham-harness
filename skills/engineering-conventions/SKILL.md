@@ -27,7 +27,7 @@ Use this skill when a task needs the reasoning behind a convention, or a convent
 | Principles and code design | `references/engineering-principles.md` |
 | The test pyramid and how to test | `references/testing.md` |
 | Branches, commits and merging | `references/git-workflow.md` |
-| Linting and formatting | `references/eslint-prettier.md` |
+| Linting and formatting | `references/linting.md` |
 
 ## References
 

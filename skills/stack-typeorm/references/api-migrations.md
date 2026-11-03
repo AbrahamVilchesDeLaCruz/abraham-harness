@@ -69,8 +69,8 @@ export async function seedLocalDemo(dataSource: DataSource): Promise<void> {
 
 ```typescript
 // src/shared/infrastructure/persistence/seeds/run-local-seeds.ts
-import { AppDataSource } from '../typeorm/typeorm.config.cli';
-import { seedLocalDemo } from './local-demo.seed';
+import { AppDataSource } from '../typeorm/typeorm.config.cli.js';
+import { seedLocalDemo } from './local-demo.seed.js';
 
 async function run(): Promise<void> {
   await AppDataSource.initialize();

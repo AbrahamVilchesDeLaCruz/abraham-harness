@@ -3,9 +3,9 @@
 Replace `__EntityName__` with the aggregate name (e.g.: `Product`).
 
 ```typescript
-import { AggregateRoot } from '@/shared/domain/aggregate-root';
-import { __EntityName__Id } from './__entity-name__-id';
-import { __EntityName__CreatedEvent } from './events/__entity-name__-created.event';
+import { AggregateRoot } from '@/shared/domain/aggregate-root.js';
+import { __EntityName__Id } from './__entity-name__-id.js';
+import { __EntityName__CreatedEvent } from './events/__entity-name__-created.event.js';
 
 // ─── Primitives ──────────────────────────────────────────────────────────────
 // All fields as primitive types (string, number, boolean, Date, null)

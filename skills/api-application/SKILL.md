@@ -85,4 +85,4 @@ Deliver the use case in `application/{verb}/` with its `Request*` and, if applic
 - [`references/patterns.md`](references/patterns.md): code for use cases, `Request*`/`Response*`, domain services, injection and anti-patterns.
 - Use the template in [`assets/use-case.template.md`](assets/use-case.template.md) when creating a new use case.
 - Read [`references/docs.md`](references/docs.md) for ADRs, related skills and external docs.
-- Load the project's stack skill for dependency injection (`stack-nestjs`) and read its `references/api-application.md`. Load the project's test stack skill (`stack-jest`) and read its `references/api-application.md` when testing use cases.
+- Load the project's stack skill for dependency injection (`stack-nestjs`) and read its `references/api-application.md`. Load the project's test stack skill (`stack-vitest`) and read its `references/api-application.md` when testing use cases.

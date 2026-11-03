@@ -12,7 +12,7 @@ Delivery: single-pr. Test runner: node --test.
 
 ## Tasks
 
-- [ ] T1 S1-S5 stack skills. Route: delegated, parallel unit with T2.
+- [x] T1 S1-S5 stack skills. Route: delegated, parallel unit with T2.
 - [x] T2 S6 Makefile skill and templates. Route: inline.
 - [ ] T3 independent verification. Risk: item 6, and item 5 for build tooling guidance.
 

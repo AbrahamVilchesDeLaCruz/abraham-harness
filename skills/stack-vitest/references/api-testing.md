@@ -1,27 +1,30 @@
-# api-testing with Jest, jest-mock-extended and Faker
+# api-testing with Vitest, vitest-mock-extended and Faker
 
-Apply the rules of `api-testing`. This reference shows the Jest implementation.
+Apply the rules of `api-testing`. This reference shows the Vitest implementation.
 
 ## Rules
 
 - **Rule**: faker lives only in `MotherCreator`. Never import faker directly in a domain Mother.
 - Reset only the methods the test uses (`.mockReset()`).
-- Use `JestTimers.setup()` / `JestTimers.teardown()` (from `@test/shared/jest-timers`) when the aggregate or event depends on `new Date()`.
-- No `jest.fn()` for typed ports.
-- Create mocks with `mock<ProductRepository>()`, from `jest-mock-extended`.
+- Use `FakeTimers.setup()` / `FakeTimers.teardown()` (from `@test/shared/fake-timers.js`) when the aggregate or event depends on `new Date()`.
+- No `vi.fn()` for typed ports.
+- Create mocks with `mock<ProductRepository>()`, from `vitest-mock-extended`. Add it, and `@faker-js/faker`, as dev dependencies: the NestJS template brings neither.
+- `describe`, `it`, `expect`, `beforeEach` and `vi` are globals, because the template sets `globals: true` and lists `vitest/globals` in `tsconfig.json`. Do not import them.
+- The template is ESM, so imports of project files end in `.js`, also through the `@/` and `@test/` aliases.
 
 ## Canonical use case test
 
 ```typescript
 // apps/api/test/catalog/product/application/create/product-creator.spec.ts
-import { mock } from 'jest-mock-extended';
-import { type ProductRepository } from '@/catalog/product/domain/product.repository';
-import { type DomainEventPublisher } from '@/shared/domain/domain-event-publisher';
-import { ProductCreator } from '@/catalog/product/application/create/product-creator';
-import { ProductCreatedEvent } from '@/catalog/product/domain/events/product-created.event';
-import { ProductMother } from '@test/shared/product/product-mother';
-import { RequestProductCreatorMother } from './request-product-creator.mother';
-import { JestTimers } from '@test/shared/jest-timers';
+import { mock } from 'vitest-mock-extended';
+import { type ProductRepository } from '@/catalog/product/domain/product.repository.js';
+import { type DomainEventPublisher } from '@/shared/domain/domain-event-publisher.js';
+import { ProductCreator } from '@/catalog/product/application/create/product-creator.js';
+import { ProductCreatedEvent } from '@/catalog/product/domain/events/product-created.event.js';
+import { ProductNameEmpty } from '@/catalog/product/domain/exceptions/product-name-empty.js';
+import { ProductMother } from '@test/shared/product/product-mother.js';
+import { FakeTimers } from '@test/shared/fake-timers.js';
+import { RequestProductCreatorMother } from './request-product-creator.mother.js';
 
 describe('catalog/product/application/create ProductCreator', () => {
   const repository = mock<ProductRepository>();
@@ -29,7 +32,7 @@ describe('catalog/product/application/create ProductCreator', () => {
   let creator: ProductCreator;
 
   beforeEach(() => {
-    JestTimers.setup();
+    FakeTimers.setup();
     repository.save.mockReset();
     publisher.publish.mockReset();
     publisher.publish.mockResolvedValue(undefined);
@@ -37,20 +40,22 @@ describe('catalog/product/application/create ProductCreator', () => {
     creator = new ProductCreator(repository, publisher);
   });
 
-  afterEach(() => JestTimers.teardown());
+  afterEach(() => FakeTimers.teardown());
 
   it('should save the product and publish the created event', async () => {
     const request = RequestProductCreatorMother.random();
     const expected = ProductMother.from(request);
 
-    await creator.execute(request.name, request.description);
+    await creator.execute(request);
 
     expect(repository.save).toHaveBeenCalledWith(expected);
     expect(publisher.publish.mock.calls[0][0][0]).toBeInstanceOf(ProductCreatedEvent);
   });
 
   it('should not save nor publish when name is empty', async () => {
-    await expect(creator.execute('', 'description')).rejects.toThrow(ProductNameEmpty);
+    const request = RequestProductCreatorMother.random({ name: '' });
+
+    await expect(creator.execute(request)).rejects.toThrow(ProductNameEmpty);
 
     expect(repository.save).not.toHaveBeenCalled();
     expect(publisher.publish).not.toHaveBeenCalled();
@@ -77,6 +82,8 @@ export class MotherCreator {
 
 ```typescript
 // apps/api/test/shared/domain/string-mother.ts
+import { MotherCreator } from './mother-creator.js';
+
 export class StringMother {
   static random(): string { return MotherCreator.random().lorem.word(); }
   static sentence(): string { return MotherCreator.random().lorem.sentence(); }
@@ -93,8 +100,12 @@ export class StringMother {
     return MotherCreator.random().internet.ipv4();
   }
 }
+```
 
+```typescript
 // apps/api/test/shared/domain/uuid-mother.ts
+import { MotherCreator } from './mother-creator.js';
+
 export class UuidMother {
   static random(): string { return MotherCreator.random().string.uuid(); }
 }
@@ -102,21 +113,19 @@ export class UuidMother {
 
 > **Note**: There is no `NumberMother` in the project. Use `faker.number.int(...)` directly in domain Mothers when a number is needed, or add a specific method to the aggregate's Mother.
 
-## `JestTimers` helper
+## `FakeTimers` helper
 
 ```typescript
-// apps/api/test/shared/jest-timers.ts
-import { jest } from '@jest/globals';
-
+// apps/api/test/shared/fake-timers.ts
 const FIXED_DATE = new Date('2026-01-01T12:00:00Z');
 
-export class JestTimers {
+export class FakeTimers {
   static setup(date: Date = FIXED_DATE): void {
-    jest.useFakeTimers().setSystemTime(date);
+    vi.useFakeTimers().setSystemTime(date);
   }
 
   static teardown(): void {
-    jest.useRealTimers();
+    vi.useRealTimers();
   }
 }
 ```
@@ -125,20 +134,14 @@ Use it only when the aggregate or event depends on `new Date()`:
 
 ```typescript
 beforeEach(() => {
-  JestTimers.setup();
+  FakeTimers.setup();
   // ...
 });
 
-afterEach(() => JestTimers.teardown());
+afterEach(() => FakeTimers.teardown());
 ```
 
-Shared timers helper:
-
-```
-apps/api/test/shared/jest-timers.ts   ← JestTimers.setup() / teardown()
-```
-
-## Mocks with jest-mock-extended
+## Mocks with vitest-mock-extended
 
 ```typescript
 const repository = mock<ProductRepository>();
@@ -146,7 +149,27 @@ repository.save.mockResolvedValueOnce(undefined);
 expect(repository.save).toHaveBeenCalledWith(expected);
 
 // ❌ Instead, do NOT do this:
-const repository = { save: jest.fn(), search: jest.fn() }; // untyped
+const repository = { save: vi.fn(), search: vi.fn() }; // untyped
+```
+
+## Mocking a module
+
+Ports cover almost every case. When an infrastructure test must replace a third-party module, use `vi.mock`, which is hoisted above the imports, and `vi.mocked` for the types. `vi.importActual` is async, so the factory is async too.
+
+```typescript
+import { randomUUID } from 'node:crypto';
+import type * as NodeCrypto from 'node:crypto';
+
+vi.mock('node:crypto', async () => ({
+  ...(await vi.importActual<typeof NodeCrypto>('node:crypto')),
+  randomUUID: vi.fn(),
+}));
+
+it('should use the generated id', () => {
+  vi.mocked(randomUUID).mockReturnValue('00000000-0000-4000-8000-000000000000');
+
+  expect(randomUUID()).toBe('00000000-0000-4000-8000-000000000000');
+});
 ```
 
 ## Anti-patterns
@@ -164,18 +187,18 @@ const product = Product.fromPrimitives({ id: "123", name: "test", description: "
 // ❌ Inline Mother in the spec
 const mother = { id: uuid(), name: faker.lorem.word() };
 
-// ❌ jest.fn() for typed ports
-const repository = { save: jest.fn(), search: jest.fn() };
+// ❌ vi.fn() for typed ports
+const repository = { save: vi.fn(), search: vi.fn() };
 ```
 
 ## External Documentation
 
-- [Jest — Docs](https://jestjs.io/docs/getting-started) — test runner and assertions
-- [jest-mock-extended](https://github.com/marchaos/jest-mock-extended) — `mock<T>()` for TypeScript interfaces
+- [Vitest — Guide](https://vitest.dev/guide/) — test runner and assertions
+- [vitest-mock-extended](https://github.com/eratio08/vitest-mock-extended) — `mock<T>()` for TypeScript interfaces
 - [Faker.js — Docs](https://fakerjs.dev/api/) — test data generation (used in `MotherCreator`)
-- [Jest — Fake Timers](https://jestjs.io/docs/timer-mocks) — `jest.useFakeTimers()` to control `new Date()`
-- [Jest — Mock Functions](https://jestjs.io/docs/mock-functions) — `mockResolvedValueOnce`, `mockReset`
+- [Vitest — Mocking timers](https://vitest.dev/guide/mocking/timers) — `vi.useFakeTimers()` to control `new Date()`
+- [Vitest — Mock Functions](https://vitest.dev/api/mock) — `mockResolvedValueOnce`, `mockReset`
 
-The concept skill uses the neutral name `createMock<T>()` for `mock<T>()` from jest-mock-extended.
+The concept skill uses the neutral name `createMock<T>()` for `mock<T>()` from vitest-mock-extended.
 
 The concept skill also uses neutral helpers: `resetMock(fn)` is `fn.mockReset()`, `resolveWith(fn, value)` is `fn.mockResolvedValue(value)`, and `firstCallArgs(fn)` is `fn.mock.calls[0]`.

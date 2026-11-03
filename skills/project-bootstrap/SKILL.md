@@ -16,6 +16,7 @@ metadata:
 
 - Keep the `abraham-harness` markers in `AGENTS.md`: `update` refreshes the tables between them, and never changes anything else.
 - Do not copy shared conventions into the project. They live in the skills, and `update` keeps them current.
+- When a CLI generates an `AGENTS.md`, use this skill's template, and append that content under `## Framework Notes`, outside the markers.
 - Never overwrite an existing file from the target layout without showing the difference and getting confirmation.
 - Product and domain examples in these assets (`product`, `order`, `payment`) illustrate the patterns. Do not create them in the project.
 - Record project-specific decisions in `docs/adr/`. Change a shared convention in the `abraham-harness` repository so that every project receives it.
@@ -37,7 +38,7 @@ metadata:
 5. **Fill the stack table.** Ask for the project's stack, offering the values in the `Stack table` lists as the default suggestion. Write the answer in the `Stack table` of every copied `AGENTS.md`.
 6. **Create `CLAUDE.md`** with the single line `@AGENTS.md`.
    Then add the Makefile, following the `makefile` skill.
-7. **Scaffold the code when the apps do not exist yet.** Follow `references/scaffold.md` in the `stack-nestjs` and `stack-react` skills, then apply `eslint-prettier.md` in `engineering-conventions` and `references/esm.md` in the `stack-jest` skill. For another stack, use the stack skill that matches the stack table. Replace the `myapp` example namespace in these guides with the project name.
+7. **Scaffold the code when the apps do not exist yet.** Follow `references/scaffold.md` in the `stack-nestjs` and `stack-react` skills, then apply `linting.md` in `engineering-conventions`. For another stack, use the stack skill that matches the stack table. Replace the `myapp` example namespace in these guides with the project name.
 8. **Check the result.** Confirm that no `{{` placeholder remains and that every skill listed in `AGENTS.md` exists in the project's skills directory (`.agents/skills/` or `.claude/skills/`).
 
 ## Output Contract
@@ -64,4 +65,4 @@ The project matches this target layout:
 - [`assets/AGENTS.root.template.md`](assets/AGENTS.root.template.md), [`assets/AGENTS.api.template.md`](assets/AGENTS.api.template.md), [`assets/AGENTS.client.template.md`](assets/AGENTS.client.template.md): `AGENTS.md` templates.
 - [`assets/docs-template/README.md`](assets/docs-template/README.md): the map of the project's `docs/`.
 - `engineering-conventions`: the shared conventions, which stay in the skills.
-- `references/scaffold.md` in `stack-nestjs` and `stack-react`, and `references/esm.md` in `stack-jest`: scaffolding guides.
+- `references/scaffold.md` in `stack-nestjs` and `stack-react`: scaffolding guides.

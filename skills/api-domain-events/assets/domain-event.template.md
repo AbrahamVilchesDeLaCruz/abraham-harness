@@ -5,7 +5,7 @@ Copy this template when creating a new domain event. Replace all `{Placeholders}
 ## File: `{context}/domain/events/{entity}-{past-verb}.event.ts`
 
 ```typescript
-import { DomainEvent, type DomainEventAttributes } from '@/shared/domain/domain-event';
+import { DomainEvent, type DomainEventAttributes } from '@/shared/domain/domain-event.js';
 
 // 1. Define the attributes type (primitives only — no domain objects)
 export type {Entity}{PastVerb}Attributes = {

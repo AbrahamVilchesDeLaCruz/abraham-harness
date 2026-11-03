@@ -60,7 +60,7 @@ export async function seedLocalDemo(db): Promise<void> {
 
 ```typescript
 // src/shared/infrastructure/persistence/seeds/run-local-seeds.ts
-import { seedLocalDemo } from './local-demo.seed';
+import { seedLocalDemo } from './local-demo.seed.js';
 
 async function run(): Promise<void> {
   await db.initialize();

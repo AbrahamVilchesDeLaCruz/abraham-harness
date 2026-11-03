@@ -71,7 +71,7 @@ export function resolveRequestId(req: Request): string {
 Import it in all controllers that return an envelope:
 
 ```typescript
-import { resolveRequestId } from '@/shared/infrastructure/http/resolve-request-id';
+import { resolveRequestId } from '@/shared/infrastructure/http/resolve-request-id.js';
 ```
 
 ---

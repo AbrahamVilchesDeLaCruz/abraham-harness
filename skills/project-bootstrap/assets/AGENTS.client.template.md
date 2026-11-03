@@ -97,7 +97,7 @@ Fill in this list with this project's stack. The values shown are the default su
 ```bash
 # From apps/client/
 pnpm dev              # Dev server
-pnpm lint             # ESLint --fix
+pnpm lint             # oxlint with type-aware rules
 
 # ─── Unit tests ───────────────────────────────────────────────────────────────
 pnpm test             # Test runner, single pass (passes if there are no tests yet)

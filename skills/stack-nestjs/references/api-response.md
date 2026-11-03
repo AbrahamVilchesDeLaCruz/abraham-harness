@@ -49,7 +49,7 @@ export function resolveRequestId(req: Request): string {
 
 ```typescript
 // shared/infrastructure/http/response/api-envelope.schema.ts
-import { apiEnvelopeSchema } from '@/shared/infrastructure/http/response/api-envelope.schema';
+import { apiEnvelopeSchema } from '@/shared/infrastructure/http/response/api-envelope.schema.js';
 
 @ApiOkResponse({
   description: 'Top customers with viewer context',

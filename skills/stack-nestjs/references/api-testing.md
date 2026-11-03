@@ -8,7 +8,7 @@ E2E tests live in `test/{bc}/infrastructure/` and use `supertest` with `createTe
 // apps/api/test/sales/infrastructure/start-order-post.e2e-spec.ts
 import { type INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import { createTestApp } from '../../shared/infrastructure/create-test-app';
+import { createTestApp } from '../../shared/infrastructure/create-test-app.js';
 
 describe('sales/order StartOrderPostController (e2e)', () => {
   let app: INestApplication;

@@ -6,8 +6,8 @@
 
 ```typescript
 // src/shared/application/subscriber.ts
-import { type DomainEvent } from '@/shared/domain/domain-event';
-import { type DomainEventConsumer } from './domain-event-consumer';
+import { type DomainEvent } from '@/shared/domain/domain-event.js';
+import { type DomainEventConsumer } from './domain-event-consumer.js';
 
 type DomainEventClass = new (...args: never) => DomainEvent;
 
@@ -37,7 +37,7 @@ export abstract class Subscriber {
 > In TypeScript, function and constructor parameters are **contravariant**.
 > `unknown[]` would make any subclass with typed parameters fail.
 > `never` in parameter position is the correct supertype — it accepts any
-> constructor signature without needing `any` or `eslint-disable`.
+> constructor signature without needing `any` or disabling a lint rule.
 
 ## Concrete subscriber — full example
 
@@ -53,18 +53,18 @@ progress/application/
 
 ```typescript
 // src/progress/application/update/update-product-stats-on-payment-recorded.ts
-import { Subscriber } from '@/shared/application/subscriber';
+import { Subscriber } from '@/shared/application/subscriber.js';
 import {
   type DomainEventConsumer,
   DOMAIN_EVENT_CONSUMER,
-} from '@/shared/application/domain-event-consumer';
-import { type DomainEvent } from '@/shared/domain/domain-event';
+} from '@/shared/application/domain-event-consumer.js';
+import { type DomainEvent } from '@/shared/domain/domain-event.js';
 import {
   PaymentRecordedEvent,
   type PaymentRecordedAttributes,
-} from '@/sales/domain/events/payment-recorded.event';
-import { ProductStatsUpdater } from './product-stats-updater';
-import { CategoryStatsUpdater } from './category-stats-updater';
+} from '@/sales/domain/events/payment-recorded.event.js';
+import { ProductStatsUpdater } from './product-stats-updater.js';
+import { CategoryStatsUpdater } from './category-stats-updater.js';
 
 export class ProductStatsUpdaterOnPaymentRecorded extends Subscriber {
   readonly queueName = 'progress.update_product_stats_on_payment_recorded';

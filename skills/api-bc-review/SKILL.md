@@ -78,4 +78,4 @@ feat(client): type {resource} API response with ApiEnvelope
 - [`assets/audit-checklist.md`](assets/audit-checklist.md) — audit checklist.
 - [`references/docs.md`](references/docs.md) — DDD references and related skills.
 - `apps/api/AGENTS.md` — DDD submodules
-- For framework detail, load each stack skill the project uses and read its `references/api-bc-review.md`: HTTP framework (`stack-nestjs`), persistence, testing (`stack-jest`), messaging (`stack-rabbitmq`), observability (`stack-observability`).
+- For framework detail, load each stack skill the project uses and read its `references/api-bc-review.md`: HTTP framework (`stack-nestjs`), persistence, testing (`stack-vitest`), messaging (`stack-rabbitmq`), observability (`stack-observability`).

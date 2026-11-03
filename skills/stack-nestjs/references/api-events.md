@@ -21,18 +21,18 @@ Infrastructure → AmqpMessageBus, SubscribersBootstrapper, NestJS modules
 ```typescript
 // src/progress/application/update/update-product-stats-on-payment-recorded.ts
 import { Inject, Injectable } from '@nestjs/common';
-import { Subscriber } from '@/shared/application/subscriber';
+import { Subscriber } from '@/shared/application/subscriber.js';
 import {
   type DomainEventConsumer,
   DOMAIN_EVENT_CONSUMER,
-} from '@/shared/application/domain-event-consumer';
-import { type DomainEvent } from '@/shared/domain/domain-event';
+} from '@/shared/application/domain-event-consumer.js';
+import { type DomainEvent } from '@/shared/domain/domain-event.js';
 import {
   PaymentRecordedEvent,
   type PaymentRecordedAttributes,
-} from '@/sales/domain/events/payment-recorded.event';
-import { ProductStatsUpdater } from './product-stats-updater';
-import { CategoryStatsUpdater } from './category-stats-updater';
+} from '@/sales/domain/events/payment-recorded.event.js';
+import { ProductStatsUpdater } from './product-stats-updater.js';
+import { CategoryStatsUpdater } from './category-stats-updater.js';
 
 @Injectable()
 export class ProductStatsUpdaterOnPaymentRecorded extends Subscriber {

@@ -49,8 +49,8 @@ BC modules do NOT re-register `AmqpMessageBus`. They only register their subscri
 
 ```typescript
 // sales/infrastructure/framework/sales.module.ts
-import { SUBSCRIBERS, SubscribersBootstrapper } from '@/shared/infrastructure/event-bus/subscribers-bootstrapper';
-import { type Subscriber } from '@/shared/application/subscriber';
+import { SUBSCRIBERS, SubscribersBootstrapper } from '@/shared/infrastructure/event-bus/subscribers-bootstrapper.js';
+import { type Subscriber } from '@/shared/application/subscriber.js';
 
 @Module({
   imports: [/* ... */], // never SharedModule: it is @Global()

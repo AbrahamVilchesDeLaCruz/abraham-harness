@@ -4,6 +4,7 @@
 
 ---
 
+<!-- abraham-harness:auto-invoke:start -->
 ## Auto-invoke Skills
 
 When performing these actions, ALWAYS invoke the corresponding skill FIRST:
@@ -18,6 +19,7 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 | Write tests (unit, integration, E2E) | `client-testing` |
 
 After a concept skill, load the stack skill that matches this project's stack table, and read its `references/{concept-skill}.md`.
+<!-- abraham-harness:auto-invoke:end -->
 
 ---
 
@@ -121,6 +123,7 @@ pnpm test:e2e:ci      # E2E with the GitHub reporter (GitHub Actions)
 
 ---
 
+<!-- abraham-harness:available-skills:start -->
 ## Available Skills
 
 | Skill | Description |
@@ -134,3 +137,13 @@ pnpm test:e2e:ci      # E2E with the GitHub reporter (GitHub Actions)
 | `stack-react` | Maps the concept skills to React |
 | `stack-tanstack-query` | Maps the concept skills to TanStack Query |
 | `stack-vitest` | Maps the concept skills to Vitest, Testing Library, MSW and Playwright |
+<!-- abraham-harness:available-skills:end -->
+
+---
+
+## Project Skills
+
+Skills that exist only in this project. `skill-sync` keeps this table current. `update` refreshes the tables between the `abraham-harness` markers, and never changes this one.
+
+| Skill | Description |
+| --- | --- |

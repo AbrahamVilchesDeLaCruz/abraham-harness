@@ -6,6 +6,7 @@ This project follows [Semantic Versioning](https://semver.org/): a major version
 
 - Keep shared conventions only in the skills: add `engineering-conventions`, and stop copying them into a project's `docs/`.
 - Add `doc-create`, which turns corrections into documents in the project's `docs/`. `project-bootstrap` creates its skeleton.
+- `update` refreshes the skills tables between markers in `AGENTS.md`, and leaves everything else in the file alone. `skill-sync` lists a project's own skills in a separate table.
 - Use case tests are unit tests that mirror `src` under `test`, with `request-{use-case}.mother.ts` and `{use-case}.spec.ts`.
 - Each submodule exports its exception registry, and only the shared modules of bounded contexts reach the root shared module.
 - Pods flow from Container through hooks, repository and API client to the Component. Add the pod repository.

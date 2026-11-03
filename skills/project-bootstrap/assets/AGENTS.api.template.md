@@ -4,6 +4,7 @@
 
 ---
 
+<!-- abraham-harness:auto-invoke:start -->
 ## Auto-invoke Skills
 
 When performing these actions, ALWAYS invoke the corresponding skill FIRST:
@@ -30,6 +31,7 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 | Configure logging, metrics, traces and their tooling | `api-observability` |
 
 After a concept skill, load the stack skill that matches this project's stack table, and read its `references/{concept-skill}.md`.
+<!-- abraham-harness:auto-invoke:end -->
 
 ---
 
@@ -149,6 +151,7 @@ pnpm test:debug       # Test runner with the Node inspector
 
 ---
 
+<!-- abraham-harness:available-skills:start -->
 ## Available Skills
 
 | Skill | Scope | Description |
@@ -176,3 +179,13 @@ pnpm test:debug       # Test runner with the Node inspector
 | `stack-jest`           | api    | Maps the concept skills to Jest                                  |
 | `stack-rabbitmq`       | api    | Maps the concept skills to RabbitMQ                              |
 | `stack-observability`  | api    | Maps the concept skills to Pino, Prometheus and OpenTelemetry    |
+<!-- abraham-harness:available-skills:end -->
+
+---
+
+## Project Skills
+
+Skills that exist only in this project. `skill-sync` keeps this table current. `update` refreshes the tables between the `abraham-harness` markers, and never changes this one.
+
+| Skill | Description |
+| --- | --- |

@@ -4,6 +4,7 @@ import { spawnSync } from 'node:child_process';
 import { homedir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { installAgents, loadRoles, refreshAgents } from '../lib/agents.mjs';
+import { refreshAgentsMd } from '../lib/agents-md.mjs';
 
 const SOURCE = 'AbrahamVilchesDeLaCruz/abraham-harness';
 const AGENTS = ['claude-code', 'codex', 'opencode'];
@@ -18,7 +19,7 @@ const USAGE = `Usage: abraham-harness [command] [options]
 
 Commands:
   install   Install every skill and role agent for ${AGENTS.join(', ')} (default)
-  update    Update the installed skills, and refresh generated role agents that exist
+  update    Update the installed skills, and refresh generated role agents and AGENTS.md skills tables that exist
   check     Check for updates (exits with code 1 when one is available)
 
 Options are forwarded to the skills CLI, for example: abraham-harness install --global
@@ -70,6 +71,12 @@ try {
     if (!isGlobal) scopes.push({ base: process.cwd(), isGlobal: false });
     const refreshed = refreshAgents(roles, scopes);
     if (refreshed > 0) process.stdout.write(`Refreshed ${refreshed} agent files\n`);
+  }
+  if (!isGlobal) {
+    const templatesDir = fileURLToPath(new URL('../skills/project-bootstrap/assets', import.meta.url));
+    const { refreshed, skipped } = refreshAgentsMd({ base: process.cwd(), templatesDir });
+    for (const item of skipped) process.stderr.write(`Skipped ${item}\n`);
+    if (refreshed > 0) process.stdout.write(`Refreshed the skills tables in ${refreshed} AGENTS.md file(s)\n`);
   }
 } catch (error) {
   process.stderr.write(`Could not write agents: ${error.message}\n`);

@@ -23,6 +23,7 @@ Load the scope `AGENTS.md` as soon as you know which app you are working in. Do 
 
 ---
 
+<!-- abraham-harness:auto-invoke:start -->
 ## Auto-invoke Skills
 
 When performing these actions, ALWAYS invoke the corresponding skill FIRST:
@@ -37,9 +38,11 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 | Planning a task, or implementing one plan phase      | `plan-create`, `plan-phase-implement` |
 
 After a concept skill, load the stack skill that matches this project's stack table, and read its `references/{concept-skill}.md`.
+<!-- abraham-harness:auto-invoke:end -->
 
 ---
 
+<!-- abraham-harness:available-skills:start -->
 ## Available Skills
 
 | Skill                | Scope  | Description                                                      |
@@ -86,6 +89,16 @@ After a concept skill, load the stack skill that matches this project's stack ta
 | `stack-react`         | client | Maps the concept skills to React                                 |
 | `stack-tanstack-query`| client | Maps the concept skills to TanStack Query                        |
 | `stack-vitest`        | client | Maps the concept skills to Vitest, Testing Library, MSW and Playwright |
+<!-- abraham-harness:available-skills:end -->
+
+---
+
+## Project Skills
+
+Skills that exist only in this project. `skill-sync` keeps this table current. `update` refreshes the tables between the `abraham-harness` markers, and never changes this one.
+
+| Skill | Description |
+| --- | --- |
 
 ---
 

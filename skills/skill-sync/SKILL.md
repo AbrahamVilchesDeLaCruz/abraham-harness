@@ -16,38 +16,38 @@ allowed-tools: Read, Edit, Write, Glob, Grep, Bash
 
 ## Hard Rules
 
-- `skills/` is the **source of truth** — never edit symlinked copies
+- The tables between the `abraham-harness` markers in `AGENTS.md` belong to the harness. `update` replaces them, so never edit them.
+- A project's own skill goes in the `## Project Skills` table of that project's `AGENTS.md`, and only there. If it has an automatic trigger, add a row to that table's project section, outside the markers.
+- A project's own skills live in `skills/{name}/` in the project, and that folder is their source of truth. Install them with `npx skills@latest add ./skills/{name} -a claude-code -a codex -a opencode -y`.
 - Directories created by `npx skills add` (`.agents/skills/`, `.claude/skills/`) are **generated**: never edit them.
-- A skill added to `skills/` but missing from `AGENTS.md` is invisible to the AI
+- A skill in `skills/` that is missing from `AGENTS.md` is invisible to the AI.
+- In the `abraham-harness` repository itself, add a shared skill to the matching `AGENTS.*.template.md`, inside the markers.
 
 ## Execution Steps
 
-1. Verify skills on disk:
+1. Find the project's own skills:
 
 ```bash
-find skills .agents/skills .claude/skills -name "SKILL.md" 2>/dev/null | sort
+find skills -name "SKILL.md" 2>/dev/null | sort
 ```
 
-2. Check Available Skills table in root AGENTS.md. Each skill must have a row:
+2. Check the `## Project Skills` table in the root `AGENTS.md`. Each project skill must have a row:
 
 ```markdown
 | `skill-name` | Short description |
 ```
 
-3. Check Auto-invoke table. Each automatic trigger must have a row:
+3. Add a row with its trigger for any automatic trigger:
 
 ```markdown
 | Action description | `skill-name` |
 ```
 
-4. Check scope AGENTS.md files. `apps/api/AGENTS.md` and `apps/client/AGENTS.md` should list only skills relevant to their scope.
+4. Check scope `AGENTS.md` files. `apps/api/AGENTS.md` and `apps/client/AGENTS.md` should list only the project skills relevant to them.
 
 ## Output Contract
 
-Two tables need to stay in sync in **every `AGENTS.md`** that references the skill:
-
-1. **Available Skills** — one row per skill with name, description, link
-2. **Auto-invoke** — one row per trigger action → skill mapping
+Every project skill has a row in the `## Project Skills` table of each `AGENTS.md` it applies to, and no row was edited between the `abraham-harness` markers.
 
 ## References
 

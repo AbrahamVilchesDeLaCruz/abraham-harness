@@ -14,6 +14,7 @@ metadata:
 
 ## Hard Rules
 
+- Keep the `abraham-harness` markers in `AGENTS.md`: `update` refreshes the tables between them, and never changes anything else.
 - Do not copy shared conventions into the project. They live in the skills, and `update` keeps them current.
 - Never overwrite an existing file from the target layout without showing the difference and getting confirmation.
 - Product and domain examples in these assets (`product`, `order`, `payment`) illustrate the patterns. Do not create them in the project.

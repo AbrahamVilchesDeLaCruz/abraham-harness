@@ -31,6 +31,8 @@ A new project needs both steps. The `npx` command installs the tools, and `/proj
 
 ## Keep projects up to date
 
+`update` updates the skills and the generated agents. In `AGENTS.md`, it refreshes only the skills tables between the `abraham-harness` markers, so your stack, your rules and your `## Project Skills` table stay yours.
+
 Run these commands in each project:
 
 ```bash
@@ -91,6 +93,10 @@ Edit limits are not a sandbox. Claude Code removes the edit tools and OpenCode d
 ## Conventions and docs
 
 Shared conventions live only in the skills, so `update` keeps every project current. A project's `docs/` holds what belongs to that project: its domain and its decisions. The `doc-create` skill turns your corrections into documents there.
+
+## Skills for one project
+
+A skill that only one project needs lives in that project, in `skills/{name}/`. Install it with `npx skills@latest add ./skills/{name} -a claude-code -a codex -a opencode -y`, and `skill-sync` lists it in the `## Project Skills` table of `AGENTS.md`. Run the `add` command again after you change it.
 
 ## Change a convention
 

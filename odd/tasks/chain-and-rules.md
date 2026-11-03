@@ -5,6 +5,7 @@ Delivery: single-pr. Test runner: node --test.
 
 - S1. The diagram is the SDD chain: Spec writer, then Builder, then Seguridad, UX, UI and Código in parallel, then Approver. On a rejection, "Vuelve al builder."
 - S2. "Mantener las 3 vías": Answer, FTD and SDD stay.
+- S2b. Lane choice: "si cambialo así". SDD applies when several open decisions affect each other, or when the work is large, meaning it could not be resumed from the request and `git diff` alone. File and line counts never decide it.
 - S3. Agent to model assignment: "era una propuesta, de momento no tenemos una asignación de agente => modelo". Agents use the session's model.
 - S4. Brain: "sí es la carpeta docs con las convenciones y podemos usar engram si lo tenemos en ese sentido".
 - S5. HTTP status: "en el caso de que devuelva, es un 201, pero de normal en acciones DDD el body está vacío. Es decir la response está vacía. Simplemente devuelves el código 200. El patch con body siempre será 204 y no devolvemos body realmente."

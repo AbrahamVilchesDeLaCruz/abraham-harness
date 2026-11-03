@@ -4,7 +4,7 @@ description: "Trigger: On every request in a project that uses this harness. Pic
 license: Apache-2.0
 metadata:
   author: AbrahamVilchesDeLaCruz
-  version: "2.1"
+  version: "2.2"
 ---
 
 ## Activation Contract
@@ -15,7 +15,7 @@ Use this skill to route every request and to coordinate the role agents.
 
 - Every turn takes exactly one lane. Name it in one line, in the user's language.
 - Answer is read-only: write nothing and create no artifact. When intent is unclear, ask one question and stay in Answer.
-- Size never selects SDD. Only several open decisions that affect each other select it.
+- SDD applies when several open decisions affect each other, or when the work is large. Work is large when it could not be resumed from the request and `git diff` alone. Counts of files or lines never decide it.
 - Promote FTD to SDD by using its document as input. Never restart or discard completed work.
 - Every role reads the project's conventions in `docs/`, its Brain, before it acts. Use Engram too when it is available.
 - Check a task off only with observed proof. Record a check that failed, was skipped or could not run.
@@ -28,8 +28,8 @@ Use this skill to route every request and to coordinate the role agents.
 | The request | Lane |
 | --- | --- |
 | Asks to explain, compare, investigate, audit, review or propose | Answer |
-| Authorizes a change, and no open decisions interact | FTD (the default for change) |
-| Authorizes a change with several decisions that affect each other | SDD |
+| Authorizes a change that could be resumed from the request and `git diff`, with no interacting open decisions | FTD (the default for change) |
+| Authorizes a change with several decisions that affect each other, or large work | SDD |
 | Asks for a specific lane | That lane |
 
 ## Execution Steps

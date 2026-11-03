@@ -1,6 +1,6 @@
 # SDD: the phase chain
 
-Use it when several decisions affect each other. The artifact is the contract: code is checked against the plan, and the plan against the spec. When they disagree, fix the disagreement before writing more code.
+Use it when several decisions affect each other, or when the work is too large to resume from the request and `git diff` alone. The artifact is the contract: code is checked against the plan, and the plan against the spec. When they disagree, fix the disagreement before writing more code.
 
 | Phase | Owner | Result |
 | --- | --- | --- |

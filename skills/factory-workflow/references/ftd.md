@@ -28,4 +28,4 @@ The single next step, so an interruption costs nothing.
 3. Run the gate in `gate.md` when the change touches code.
 4. Report to the user and stop.
 
-Do not create a spec or a plan in this lane. If durable artifacts would remove a substantial ambiguity, promote the work to SDD with this document as its input.
+Do not create a spec or a plan in this lane. If decisions start to affect each other, or the work turns out to be large, promote it to SDD with this document as its input.

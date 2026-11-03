@@ -66,7 +66,7 @@ The `factory-workflow` skill gives every request one lane:
 | --- | --- | --- |
 | Answer | Questions, audits and proposals | Nothing is written |
 | FTD | Ordinary change, the default | One feature document, the builder, then the gate |
-| SDD | Several decisions that affect each other | Spec, plan and one builder phase at a time, each with the gate |
+| SDD | Several decisions that affect each other, or work too large to resume from the request and `git diff` | Spec, plan and one builder phase at a time, each with the gate |
 
 The SDD chain:
 

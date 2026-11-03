@@ -1,6 +1,6 @@
 ---
 name: client-api
-description: "Trigger: When creating a pod's api/ layer, defining raw types, server-state hooks, or data mappers. api/ layer: api-model, api.ts, mapper, ViewModel types in apps/client/."
+description: "Trigger: When creating a pod's api/ layer, defining raw types, server-state hooks, or data mappers. api/ layer: api-model, api.ts; pod-root mapper and ViewModel types in apps/client/."
 license: Apache-2.0
 metadata:
   author: AbrahamVilchesDeLaCruz
@@ -35,7 +35,7 @@ The data access layer of each pod. It has three responsibilities: raw types and 
 
 ## Execution Steps
 
-1. Use the template in `assets/api-layer.template.md` when creating the api/ layer of a new pod (api-model, mapper, types).
+1. Use the template in `assets/api-layer.template.md` when creating the api/ layer of a new pod (api-model, api.ts) and its pod-root mapper and types.
 2. Choose the file for each piece with the Decision Gates table and copy its shape from `references/patterns.md`.
 3. Check the Hard Rules before finishing.
 

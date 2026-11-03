@@ -82,10 +82,10 @@ export const useUpdateProduct = () => {
 
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: UpdateProductPayload }) =>
-      apiClient.patch<ProductApiModel>(`/products/${id}`, data),
-    onSuccess: (updated) => {
-      // Updates the cache directly — avoids an unnecessary refetch
-      queryClient.setQueryData(productKeys.detail(updated.id), updated);
+      apiClient.patch<void>(`/products/${id}`, data),
+    onSuccess: (_, { id }) => {
+      // A PATCH returns 204 with no body, so refetch instead of updating the cache
+      queryClient.invalidateQueries({ queryKey: productKeys.detail(id) });
       queryClient.invalidateQueries({ queryKey: productKeys.lists() });
     },
   });

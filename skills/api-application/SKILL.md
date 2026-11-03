@@ -1,6 +1,6 @@
 ---
 name: api-application
-description: "Trigger: When creating or modifying use cases or domain services in apps/api/. Application layer conventions in the API: Use Cases and Domain Services."
+description: "Trigger: When creating or modifying use cases or domain services in apps/api/. API conventions: Use Cases in `application/` and Domain Services in `domain/`."
 license: Apache-2.0
 metadata:
   author: AbrahamVilchesDeLaCruz

@@ -16,6 +16,8 @@ const SPANISH_WORDS = /\b(que|para|los|las|una|del|con|cuando|debe|nunca|siempre
 const MAX_SPANISH_RATIO = 0.03;
 const MIN_SPANISH_WORDS = 5;
 const FENCE = /^[ \t]*```[\s\S]*?^[ \t]*```[ \t]*$/gm;
+// Conventions the project replaced. Keep these narrow, so they cannot match unrelated text.
+const RETIRED_CONVENTION = /(containers\/|__mothers__|criteria\.(limit|offset)|(query|request)\.(limit|offset)|getStatusCode|ResponseOrderCompleter|spec-planner|finding-verifier)/;
 const MOJIBAKE = /[\u00c3\u00c2][\u0080-\u00bf]|\u00e2\u20ac/;
 const LINK = /\]\(([^)\s]+)\)/g;
 const MAX_DESCRIPTION = 250;
@@ -102,6 +104,8 @@ function checkMarkdown(skillDir, path) {
     if (framework) errors.push(`${label(path)}:${index + 1}: concept skill names framework "${framework[1]}"`);
     const pinned = line.match(PINNED_VERSION);
     if (pinned) errors.push(`${label(path)}:${index + 1}: pinned version "${pinned[1]}"`);
+    const retired = line.match(RETIRED_CONVENTION);
+    if (retired) errors.push(`${label(path)}:${index + 1}: retired convention "${retired[1]}"`);
     if (MOJIBAKE.test(line)) errors.push(`${label(path)}:${index + 1}: corrupted encoding`);
     if (inTemplates) return;
     for (const [, raw] of line.matchAll(LINK)) {

@@ -45,5 +45,5 @@ Report the lane, the final approver block, each check with its observed result, 
 ## References
 
 - `references/ftd.md`: the default lane for change.
-- `references/sdd.md`: the phase chain for interacting decisions.
+- `references/sdd.md`: the phase chain for interacting decisions or large work.
 - `references/gate.md`: reviewers and approval.

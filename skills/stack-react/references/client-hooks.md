@@ -25,16 +25,16 @@ interface ProductFiltersHandlers {
 
 export function useProductFilters(): [ProductFiltersState, ProductFiltersHandlers] {
   const [size, setSize] = useState<ProductFiltersState['size']>(null);
-  const [showFeaturedOnly, setShowReviewOnly] = useState(false);
+  const [showFeaturedOnly, setShowFeaturedOnly] = useState(false);
 
   const resetFilters = () => {
     setSize(null);
-    setShowReviewOnly(false);
+    setShowFeaturedOnly(false);
   };
 
   return [
     { size, showFeaturedOnly },
-    { setSize, toggleFeaturedOnly: () => setShowReviewOnly(v => !v), resetFilters },
+    { setSize, toggleFeaturedOnly: () => setShowFeaturedOnly(v => !v), resetFilters },
   ];
 }
 ```

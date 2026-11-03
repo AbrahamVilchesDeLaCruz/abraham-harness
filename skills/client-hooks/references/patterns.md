@@ -25,12 +25,12 @@ export function useProductFilters(): [ProductFiltersState, ProductFiltersHandler
 
   const resetFilters = () => {
     setSize(null);
-    setShowReviewOnly(false);
+    setShowFeaturedOnly(false);
   };
 
   return [
     { size, showFeaturedOnly },
-    { setSize, toggleFeaturedOnly: () => setShowReviewOnly(v => !v), resetFilters },
+    { setSize, toggleFeaturedOnly: () => setShowFeaturedOnly(v => !v), resetFilters },
   ];
 }
 ```

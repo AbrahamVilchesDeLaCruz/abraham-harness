@@ -114,8 +114,6 @@ GET /products  body: { id: '123' }
 
 // ❌ 200 for a POST that returns data — must be 201
 
-// ❌ DDD action that returns data — its response body is empty
-
 // ❌ 200 for a PATCH that receives a body — must be 204 with an empty response body
 
 // ❌ Returning a domain entity

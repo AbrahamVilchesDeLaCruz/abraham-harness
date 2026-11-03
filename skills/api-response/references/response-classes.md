@@ -44,7 +44,7 @@ export interface ResponseMeta {
 
 export interface PaginationMeta {
   page: number;
-  pageSize: number;
+  page_size: number;
   total_items: number;
   total_pages: number;
   has_next_page: boolean;
@@ -97,7 +97,7 @@ async handler(
     result.data,
     {
       page: result.page,
-      pageSize,
+      page_size: pageSize,
       total_items: result.total,
       total_pages: totalPages,
       has_next_page: result.page < totalPages,

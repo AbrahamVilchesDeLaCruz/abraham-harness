@@ -246,11 +246,11 @@ Hooks reusable across pods live in `src/core/hooks/` or `src/common/hooks/`. Exa
 | Sub-components   | `PascalCase`             | `CalendarGrid`          |
 | Pod hooks        | `camelCase.ts`           | `useCalendarFilters.ts` |
 | Global hooks     | `camelCase.ts`           | `useClickOutside.ts`    |
-| API model        | `camelCase.api-model.ts` | `calendar.api-model.ts` |
-| API hooks        | `camelCase.api.ts`       | `calendar.api.ts`       |
+| API model        | `{pod-name}.api-model.ts` | `calendar.api-model.ts` |
+| API hooks        | `{pod-name}.api.ts`      | `calendar.api.ts`       |
 | Mapper (pod root) | `{pod-name}.mapper.ts`  | `calendar.mapper.ts`    |
-| ViewModel types  | `camelCase.types.ts`     | `calendar.types.ts`     |
-| Styles           | `camelCase.styles.ts`    | `calendar.styles.ts`    |
+| ViewModel types  | `{pod-name}.types.ts`    | `calendar.types.ts`     |
+| Styles           | `{pod-name}.styles.ts`   | `calendar.styles.ts`    |
 | Barrels          | `index.ts`               | `hooks/index.ts`        |
 
 ---

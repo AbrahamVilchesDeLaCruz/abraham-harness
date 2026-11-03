@@ -25,7 +25,7 @@ Just add `{Context}ExceptionRegistry` as a provider of `{Context}Module`; its in
 | Credentials invalid / token expired | `401 UNAUTHORIZED` |
 | Rate limit / quota exceeded | `429 TOO_MANY_REQUESTS` |
 | External service failure | `502 BAD_GATEWAY` |
-| Any exception with no mapping | Default response of the registry: `500 INTERNAL_SERVER_ERROR` |
+| Any other exception with no mapping (framework HTTP exceptions keep their own status) | Default response of the registry: `500 INTERNAL_SERVER_ERROR` |
 
 ## Checklist
 

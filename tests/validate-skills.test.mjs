@@ -178,3 +178,11 @@ test('allows a concept skill to name a stack skill', () => {
   const r = run(concept('Load `stack-typeorm` and read its reference.\n'));
   assert.equal(r.status, 0, r.stderr);
 });
+
+for (const term of ['containers/{feature}', '__mothers__', 'criteria.limit', 'getStatusCode', 'spec-planner']) {
+  test(`rejects the retired convention ${term} in any skill`, () => {
+    const r = run({ 'demo/SKILL.md': GOOD, 'demo/references/guide.md': `Example: ${term}\n` });
+    assert.equal(r.status, 1);
+    assert.match(r.stderr, /retired convention/);
+  });
+}

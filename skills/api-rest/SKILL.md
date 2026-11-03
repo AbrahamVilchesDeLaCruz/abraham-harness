@@ -40,8 +40,8 @@ metadata:
 | --- | --- |
 | Successful GET with a result | `200 OK` |
 | Successful GET without a result (empty list) | `200 OK` with `[]` |
-| Successful POST that returns data | `201 CREATED` with the data in the body |
-| Successful POST DDD action | `200 OK` with an empty response body |
+| Successful POST that creates a resource or returns data | `201 CREATED`, with the data in the body when it returns any |
+| Successful POST DDD action with an empty response body | `200 OK` |
 | Successful PATCH that receives a body | `204 NO CONTENT` with an empty response body |
 | Resource not found | `404 NOT FOUND` |
 | Failed validation (invalid field) | `422 UNPROCESSABLE ENTITY` |
@@ -49,8 +49,8 @@ metadata:
 | Unauthorized (no token) | `401 UNAUTHORIZED` |
 | No permissions (valid token, forbidden action) | `403 FORBIDDEN` |
 
-- DDD actions with POST (`/orders/:id/complete`, `/orders/:id/resume`) return `200 OK` with an empty response body. A DDD action never returns data.
-- A POST that returns data, such as `POST /orders` (without `:id`), returns `201 CREATED` with the data in the body.
+- DDD actions with POST (`/orders/:id/complete`, `/orders/:id/resume`) normally have an empty response body and return `200 OK`. If one does return data, it returns `201 CREATED`.
+- A POST that creates a resource or returns data, such as `POST /orders` (without `:id`), returns `201 CREATED`, with the data in the body when it returns any.
 - A PATCH that receives a body always returns `204 NO CONTENT` with an empty response body.
 
 ### When to use a DDD action vs PATCH

@@ -94,10 +94,10 @@ describe('useProductFilters', () => {
 ## Integration test — Component with RTL
 
 ```tsx
-// ProductsComponent.test.tsx
+// __tests__/ProductsComponent.test.tsx
 import { render, screen, fireEvent } from '@testing-library/react';
-import { ProductsComponent } from './ProductsComponent';
-import { ProductMother } from './__tests__/ProductMother';
+import { ProductsComponent } from '../ProductsComponent';
+import { ProductMother } from './ProductMother';
 
 describe('ProductsComponent', () => {
   const defaultProps = {

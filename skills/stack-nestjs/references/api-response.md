@@ -83,7 +83,7 @@ async handler(
     result.data,
     {
       page: result.page,
-      pageSize,
+      page_size: pageSize,
       total_items: result.total,
       total_pages: totalPages,
       has_next_page: result.page < totalPages,

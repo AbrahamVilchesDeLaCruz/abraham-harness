@@ -74,10 +74,10 @@ export const useDeleteProduct = () => {
 export const useUpdateProduct = () => {
   return serverMutation({
     execute: ({ id, data }: { id: string; data: UpdateProductPayload }) =>
-      apiClient.patch<ProductApiModel>(`/products/${id}`, data),
-    onDone: (updated) => {
-      // Updates the cache directly at productKeys.detail(updated.id) — avoids an unnecessary refetch
-      // Invalidates productKeys.lists()
+      apiClient.patch<void>(`/products/${id}`, data),
+    onDone: (_, { id }) => {
+      // A PATCH returns 204 with no body, so refetch instead of updating the cache
+      // Invalidates productKeys.detail(id) and productKeys.lists()
     },
   });
 };

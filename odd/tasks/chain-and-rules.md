@@ -23,9 +23,11 @@ Delivery: single-pr. Test runner: node --test.
 
 - [x] T1 S1-S4 chain, agents, Brain. Route: inline, no writer reason.
 - [x] T2 S5-S14 unify the rules in the skills. Route: delegated, parallel unit and context backstop.
-- [ ] T3 S1-S14 independent verification. Risk: item 6, no test catches a change of meaning in prose.
+- [x] T3 S1-S14 independent verification. Risk: item 6, no test catches a change of meaning in prose.
 
 ## Log
 
 - L1 (2026-11-03): The user's diagram, and the answers quoted in S1-S14. "object models" in the dictated text is read as Object Mothers.
 - L2: Engram mirror pending: no Engram tool is available in this session.
+- L3 (2026-11-03): "pon page_size sino" and "las demás estan bien". The response envelope uses `page_size`, and query parameters keep `pageSize`. The user approved: auth POSTs return 201, an unmapped exception returns 500 from the registry, framework HTTP exceptions keep their status, `CannotX` returns 403, and a pod hook that only exposes functions may return named functions.
+- L4: T3 found 11 blockers, including a client example that read a PATCH response body, and the lost 201 rule for creation. All corrected, and rechecked only for these blockers. The validator now rejects retired conventions.

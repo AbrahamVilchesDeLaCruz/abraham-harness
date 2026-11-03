@@ -89,7 +89,7 @@ With pagination:
 {
   "data": [...],
   "pagination": {
-    "page": 1, "pageSize": 10,
+    "page": 1, "page_size": 10,
     "total_items": 125, "total_pages": 13,
     "has_next_page": true, "has_prev_page": false
   },

@@ -19,7 +19,7 @@ Pod structure for `apps/client/`. A pod is a self-contained functional unit that
 - Communication between pods only through `core/`, `common/`, or `common-app/`
 - A pod's entry point is always its `index.ts` (which exports the Container)
 
-`.{view}` is the file extension of the project's view layer.
+`.{view}` is the view layer's file extension.
 
 ## Decision Gates
 
@@ -84,11 +84,11 @@ Naming conventions:
 | Sub-components | `PascalCase.{view}` | `ProductGrid.{view}` |
 | Pod hooks | `camelCase.ts` | `useProductFilters.ts` |
 | Global hooks | `camelCase.ts` | `useClickOutside.ts` |
-| API model | `camelCase.api-model.ts` | `products.api-model.ts` |
-| API hooks | `camelCase.api.ts` | `products.api.ts` |
+| API model | `{pod-name}.api-model.ts` | `products.api-model.ts` |
+| API hooks | `{pod-name}.api.ts` | `products.api.ts` |
 | Mapper | `{pod-name}.mapper.ts` | `products.mapper.ts` |
-| ViewModel types | `camelCase.types.ts` | `products.types.ts` |
-| Styles | `camelCase.styles.ts` | `products.styles.ts` |
+| ViewModel types | `{pod-name}.types.ts` | `products.types.ts` |
+| Styles | `{pod-name}.styles.ts` | `products.styles.ts` |
 | Barrels | `index.ts` | `hooks/index.ts`, `api/index.ts` |
 
 ## References

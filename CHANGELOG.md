@@ -2,6 +2,14 @@
 
 This project follows [Semantic Versioning](https://semver.org/): a major version changes a convention that existing projects must adapt to, a minor version adds skills or guidance, and a patch version fixes them.
 
+## 0.6.0
+
+- Rename `spec-planner` to `spec-writer`.
+- Remove `finding-verifier`: one negative reviewer rejects the candidate, and the work returns to the builder.
+- Add the Brain: every role reads the project's `docs/` conventions, and Engram when it is available.
+- Remove generated agents of retired roles on install and update.
+- Settle rules across skills: HTTP status codes, `page` and `pageSize`, the error registry, domain services in `domain`, domain tests through use cases, Object Mother location, the pod root `pods/{pod-name}`, the mapper in the pod root, and pod hooks.
+
 ## 0.5.0
 
 - Translate every skill to English.

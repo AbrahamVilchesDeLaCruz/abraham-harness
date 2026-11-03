@@ -1,5 +1,5 @@
 ---
-name: spec-planner
+name: spec-writer
 description: "Writes the spec and the phased plan of a feature before any code exists. Use it first in the SDD lane."
 access: spec
 skills: plan-create

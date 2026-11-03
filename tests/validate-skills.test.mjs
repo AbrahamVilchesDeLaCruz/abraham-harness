@@ -109,14 +109,14 @@ test('rejects corrupted encoding', () => {
 
 test('rejects an agent role that names a skill that does not exist', () => {
   const role = '---\nname: demo\ndescription: "Demo."\naccess: read-only\nskills: missing-skill\n---\n\nBody.\n';
-  const r = run({ 'demo/SKILL.md': GOOD, 'demo/references/guide.md': '' }, { 'demo.md': role, 'shared/review-contract.md': 'Contract\n' });
+  const r = run({ 'demo/SKILL.md': GOOD, 'demo/references/guide.md': '' }, { 'demo.md': role, 'shared/review-contract.md': 'Contract\n', 'shared/brain.md': 'Brain\n' });
   assert.equal(r.status, 1);
   assert.match(r.stderr, /agents\/demo\.md: unknown skill "missing-skill"/);
 });
 
 test('rejects an agent role with an unknown access level', () => {
   const role = '---\nname: demo\ndescription: "Demo."\naccess: readonly\n---\n\nBody.\n';
-  const r = run({ 'demo/SKILL.md': GOOD, 'demo/references/guide.md': '' }, { 'demo.md': role, 'shared/review-contract.md': 'Contract\n' });
+  const r = run({ 'demo/SKILL.md': GOOD, 'demo/references/guide.md': '' }, { 'demo.md': role, 'shared/review-contract.md': 'Contract\n', 'shared/brain.md': 'Brain\n' });
   assert.equal(r.status, 1);
   assert.match(r.stderr, /agents\/demo\.md: unknown access "readonly"/);
 });

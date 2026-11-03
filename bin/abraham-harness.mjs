@@ -72,7 +72,7 @@ try {
     const refreshed = refreshAgents(roles, scopes);
     if (refreshed > 0) process.stdout.write(`Refreshed ${refreshed} agent files\n`);
   }
-  if (!isGlobal) {
+  if (command === 'update' && !isGlobal) {
     const templatesDir = fileURLToPath(new URL('../skills/project-bootstrap/assets', import.meta.url));
     const { refreshed, skipped } = refreshAgentsMd({ base: process.cwd(), templatesDir });
     for (const item of skipped) process.stderr.write(`Skipped ${item}\n`);

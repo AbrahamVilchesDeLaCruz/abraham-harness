@@ -8,19 +8,14 @@
 
 ## What to sync
 
-After creating or modifying any skill, update these two tables in `AGENTS.md`:
+After creating or modifying a project's own skill, update the `## Project Skills` table in `AGENTS.md`:
 
-1. **Auto-invoke Skills** (top of `AGENTS.md`):
-   ```markdown
-   | Action | Skill |
-   | Before implementing any new feature... | `tdd-workflow` |
-   ```
+```markdown
+| Skill | Trigger | Description |
+| `skill-name` | Action that invokes it | Short description |
+```
 
-2. **Available Skills** table:
-   ```markdown
-   | Skill | Scope | Description | URL |
-   | `api-domain` | api | AggregateRoot, Value Objects... |
-   ```
+The Auto-invoke Skills and Available Skills tables sit between `abraham-harness` markers, and `update` replaces them. In the `abraham-harness` repository, shared skills are added to these tables in `AGENTS.*.template.md`.
 
 ## Scopes
 
@@ -34,4 +29,4 @@ After creating or modifying any skill, update these two tables in `AGENTS.md`:
 
 | Doc | Relevant content |
 |---|---|
-| `AGENTS.md` | The tables to sync: Auto-invoke Skills and Available Skills |
+| `AGENTS.md` | The table to sync: Project Skills |

@@ -51,13 +51,9 @@ skills/{skill-name}/
 ```
 
 2. Write `SKILL.md` from [`assets/SKILL.template.md`](assets/SKILL.template.md).
-3. Add it to the **root `AGENTS.md`** Available Skills table:
-   ```markdown
-   | `{skill-name}` | {Description} |
-   ```
-4. Add auto-invoke row if applies (action → skill).
-5. Add it to the relevant scope `AGENTS.md` (`apps/api/AGENTS.md` or `apps/client/AGENTS.md`).
-6. Run `npm test` in `abraham-harness`, then release it so projects receive the skill with `npx skills update`.
+3. Register it:
+   - **For every project,** in the `abraham-harness` repository: add it to the Available Skills table in `AGENTS.root.template.md`, and to the auto-invoke table if it has a trigger, inside the markers. Add it to the matching `AGENTS.api.template.md` or `AGENTS.client.template.md` too. Then run `npm test`, and release it, so projects receive it with `update`.
+   - **For one project:** install it with `npx skills@latest add ./skills/{name} -a claude-code -a codex -a opencode -y`, then run `skill-sync`, which adds it to the `## Project Skills` table.
 
 ## Output Contract
 
@@ -67,8 +63,7 @@ Checklist:
 - [ ] Name follows conventions
 - [ ] Frontmatter complete
 - [ ] Hard Rules clear
-- [ ] Added to root `AGENTS.md`
-- [ ] Added to scope `AGENTS.md` if relevant
+- [ ] Registered as step 3 says
 
 ## References
 

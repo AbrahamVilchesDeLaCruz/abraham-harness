@@ -145,5 +145,5 @@ pnpm test:e2e:ci      # E2E with the GitHub reporter (GitHub Actions)
 
 Skills that exist only in this project. `skill-sync` keeps this table current. `update` refreshes the tables between the `abraham-harness` markers, and never changes this one.
 
-| Skill | Description |
-| --- | --- |
+| Skill | Trigger | Description |
+| --- | --- | --- |

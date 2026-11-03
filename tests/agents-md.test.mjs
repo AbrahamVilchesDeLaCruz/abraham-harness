@@ -47,6 +47,7 @@ test('every template has the managed blocks and a project skills section outside
     }
     const outside = text.replace(/<!-- abraham-harness:([a-z-]+):start -->[\s\S]*?<!-- abraham-harness:\1:end -->/g, '');
     assert.match(outside, /## Project Skills/, name);
+    assert.match(outside, /\| Skill \| Trigger \| Description \|/, name);
   }
 });
 
@@ -67,11 +68,16 @@ for (const [path, name] of [['AGENTS.md', 'root'], ['apps/api/AGENTS.md', 'api']
   });
 }
 
-test('install refreshes the blocks too', () => {
+test('install leaves AGENTS.md alone, and reports nothing about it', () => {
   withProject(({ project, run }) => {
-    write(project, 'AGENTS.md', staleBlock(template('root')));
-    assert.equal(run('install').status, 0);
-    assert.doesNotMatch(read(project, 'AGENTS.md'), /\nstale\n/);
+    const stale = staleBlock(template('root'));
+    write(project, 'AGENTS.md', stale);
+    const r = run('install');
+    assert.equal(r.status, 0);
+    assert.equal(read(project, 'AGENTS.md'), stale);
+    assert.doesNotMatch(r.stdout, /skills tables/);
+    write(project, 'AGENTS.md', '# Mine\n');
+    assert.doesNotMatch(run('install').stderr, /Skipped AGENTS\.md/);
   });
 });
 
@@ -133,4 +139,74 @@ test('a failing skills CLI leaves AGENTS.md alone', () => {
     assert.equal(run('update').status, 3);
     assert.equal(read(project, 'AGENTS.md'), stale);
   }, 3);
+});
+
+const START = '<!-- abraham-harness:auto-invoke:start -->';
+const END = '<!-- abraham-harness:auto-invoke:end -->';
+
+for (const [name, text] of [
+  ['a start marker quoted in prose', `The docs mention \`${START}\` here.\n\nMY RULES\n\n${START}\nOLD\n${END}\n`],
+  ['two start markers', `${START}\nMY RULES\n${START}\nOLD\n${END}\n`],
+  ['a start marker quoted on its own line in a code fence', `\`\`\`\n${START}\n\`\`\`\nMY RULES\n${START}\nOLD\n${END}\n`],
+]) {
+  test(`${name} keeps the user's text`, () => {
+    withProject(({ project, run }) => {
+      write(project, 'AGENTS.md', text);
+      const r = run('update');
+      assert.equal(r.status, 0);
+      if (name.includes('prose')) {
+        const result = read(project, 'AGENTS.md');
+        assert.match(result, /MY RULES/);
+        assert.match(result, /The docs mention/);
+        assert.doesNotMatch(result, /\nOLD\n/);
+      } else {
+        assert.equal(read(project, 'AGENTS.md'), text);
+        assert.match(r.stderr, /Skipped AGENTS\.md: broken abraham-harness block "auto-invoke"/);
+      }
+    });
+  });
+}
+
+test('both markers quoted in prose never receive the table', () => {
+  withProject(({ project, run }) => {
+    const text = `Between \`${START}\` and \`${END}\` lives the table.\n`;
+    write(project, 'AGENTS.md', text);
+    const r = run('update');
+    assert.equal(read(project, 'AGENTS.md'), text);
+    assert.match(r.stderr, /no abraham-harness blocks/);
+  });
+});
+
+test('markers with CRLF line endings still work', () => {
+  withProject(({ project, run }) => {
+    write(project, 'AGENTS.md', `Mine\r\n${START}\r\nOLD\r\n${END}\r\nAfter\r\n`);
+    assert.equal(run('update').status, 0);
+    const result = read(project, 'AGENTS.md');
+    assert.doesNotMatch(result, /OLD/);
+    assert.match(result, /^Mine\r\n/);
+    assert.match(result, /After\r\n$/);
+  });
+});
+
+test('a file that cannot be processed is reported, and the next file still is', () => {
+  withProject(({ project, run }) => {
+    mkdirSync(join(project, 'AGENTS.md'));
+    write(project, 'apps/api/AGENTS.md', staleBlock(template('api')));
+    const r = run('update');
+    assert.equal(r.status, 0);
+    assert.match(r.stderr, /Skipped AGENTS\.md: /);
+    assert.doesNotMatch(read(project, 'apps/api/AGENTS.md'), /\nstale\n/);
+  });
+});
+
+test('a file that is not UTF-8 is kept byte for byte and reported', () => {
+  withProject(({ project, run }) => {
+    const bytes = Buffer.concat([Buffer.from(`${START}\nOLD\n${END}\nCaf`), Buffer.from([0xe9]), Buffer.from('\n')]);
+    mkdirSync(project, { recursive: true });
+    writeFileSync(join(project, 'AGENTS.md'), bytes);
+    const r = run('update');
+    assert.equal(r.status, 0);
+    assert.ok(readFileSync(join(project, 'AGENTS.md')).equals(bytes));
+    assert.match(r.stderr, /Skipped AGENTS\.md: /);
+  });
 });

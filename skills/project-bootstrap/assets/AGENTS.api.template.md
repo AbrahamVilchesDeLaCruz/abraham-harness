@@ -187,5 +187,5 @@ pnpm test:debug       # Test runner with the Node inspector
 
 Skills that exist only in this project. `skill-sync` keeps this table current. `update` refreshes the tables between the `abraham-harness` markers, and never changes this one.
 
-| Skill | Description |
-| --- | --- |
+| Skill | Trigger | Description |
+| --- | --- | --- |

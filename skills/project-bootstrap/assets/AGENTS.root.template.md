@@ -97,8 +97,8 @@ After a concept skill, load the stack skill that matches this project's stack ta
 
 Skills that exist only in this project. `skill-sync` keeps this table current. `update` refreshes the tables between the `abraham-harness` markers, and never changes this one.
 
-| Skill | Description |
-| --- | --- |
+| Skill | Trigger | Description |
+| --- | --- | --- |
 
 ---
 

@@ -31,7 +31,7 @@ A new project needs both steps. The `npx` command installs the tools, and `/proj
 
 ## Keep projects up to date
 
-`update` updates the skills and the generated agents. In `AGENTS.md`, it refreshes only the skills tables between the `abraham-harness` markers, so your stack, your rules and your `## Project Skills` table stay yours.
+`update` updates the skills and the generated agents. In `AGENTS.md`, it refreshes only the skills tables between the `abraham-harness` markers, so your stack, your rules and your `## Project Skills` table stay yours. A project created before these markers existed is reported and left unchanged: run `/project-bootstrap` to add them.
 
 Run these commands in each project:
 

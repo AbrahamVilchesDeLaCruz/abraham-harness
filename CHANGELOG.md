@@ -2,6 +2,12 @@
 
 This project follows [Semantic Versioning](https://semver.org/): a major version changes a convention that existing projects must adapt to (before 1.0, a minor version may do so), a minor version adds skills or guidance, and a patch version fixes them.
 
+## 0.8.0
+
+- Scaffold with the official CLIs, and keep what they generate. Vitest replaces Jest and oxlint replaces ESLint. Remove `stack-jest`.
+- Use the newest TypeScript each app's CLI accepts. `stack-nestjs` explains how to keep `nest build` working with TypeScript 7 for type checking.
+- Add `makefile`: the same commands in every project. `update` refreshes the shared modules, and keeps and reports one edited by hand.
+
 ## 0.7.0
 
 - Keep shared conventions only in the skills: add `engineering-conventions`, and stop copying them into a project's `docs/`.

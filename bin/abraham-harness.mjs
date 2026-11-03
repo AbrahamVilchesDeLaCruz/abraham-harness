@@ -5,6 +5,7 @@ import { homedir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { installAgents, loadRoles, refreshAgents } from '../lib/agents.mjs';
 import { refreshAgentsMd } from '../lib/agents-md.mjs';
+import { refreshMakeModules } from '../lib/make-modules.mjs';
 
 const SOURCE = 'AbrahamVilchesDeLaCruz/abraham-harness';
 const AGENTS = ['claude-code', 'codex', 'opencode'];
@@ -19,7 +20,7 @@ const USAGE = `Usage: abraham-harness [command] [options]
 
 Commands:
   install   Install every skill and role agent for ${AGENTS.join(', ')} (default)
-  update    Update the installed skills, and refresh generated role agents and AGENTS.md skills tables that exist
+  update    Update the installed skills, and refresh generated role agents, AGENTS.md skills tables and make modules that exist
   check     Check for updates (exits with code 1 when one is available)
 
 Options are forwarded to the skills CLI, for example: abraham-harness install --global
@@ -77,6 +78,10 @@ try {
     const { refreshed, skipped } = refreshAgentsMd({ base: process.cwd(), templatesDir });
     for (const item of skipped) process.stderr.write(`Skipped ${item}\n`);
     if (refreshed > 0) process.stdout.write(`Refreshed the skills tables in ${refreshed} AGENTS.md file(s)\n`);
+    const modulesDir = fileURLToPath(new URL('../skills/makefile/assets/make', import.meta.url));
+    const make = refreshMakeModules({ base: process.cwd(), modulesDir });
+    for (const item of make.skipped) process.stderr.write(`Skipped ${item}\n`);
+    if (make.refreshed > 0) process.stdout.write(`Refreshed ${make.refreshed} make module(s)\n`);
   }
 } catch (error) {
   process.stderr.write(`Could not write agents: ${error.message}\n`);

@@ -12,6 +12,10 @@ This repository is the source of truth for the skills and conventions that my pr
 - Concept skills (`api-*`, `client-*`) name no framework, and framework details go to `skills/stack-*/references/{concept-skill}.md`. Stack skills pin no version.
 - Project templates live in `skills/project-bootstrap/assets/`, and shared conventions in `skills/engineering-conventions/`. Never make a project copy shared conventions.
 
+## Change a Makefile module
+
+After changing a file in `skills/makefile/assets/make/`, run `node scripts/stamp-make.mjs`, because `update` uses the stamp to detect hand edits.
+
 ## Change a skill
 
 1. Edit the skill, or use `skill-creator` to add one.

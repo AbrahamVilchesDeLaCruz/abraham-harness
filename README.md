@@ -3,7 +3,7 @@
 My meta-harness: one versioned set of agent skills and architecture conventions, shared by all my projects.
 
 - **Architecture:** DDD and hexagonal architecture for APIs, and pods with Container-Presentational for clients.
-- **Stacks:** Concept skills name no framework. Stack skills map them to NestJS, TypeORM, Jest, RabbitMQ, Pino, Prometheus, OpenTelemetry, React, TanStack Query, Vitest and Playwright, with no pinned versions.
+- **Stacks:** Concept skills name no framework. Stack skills map them to NestJS, TypeORM, RabbitMQ, Pino, Prometheus, OpenTelemetry, React, TanStack Query, Vitest and Playwright, with no pinned versions.
 - **Agents:** Claude Code, Codex and OpenCode. The installer wraps the [`skills` CLI](https://github.com/vercel-labs/skills), which you can also call directly to target other agents.
 - **Distribution:** This GitHub repository. There is no npm package to publish.
 
@@ -25,13 +25,15 @@ A new project needs both steps. The `npx` command installs the tools, and `/proj
    /project-bootstrap
    ```
 
-   This creates `AGENTS.md` with the skills tables, `CLAUDE.md`, and the `docs/` skeleton. It asks for your stack, and scaffolds the apps if they do not exist yet.
+   This creates `AGENTS.md` with the skills tables, `CLAUDE.md`, the `Makefile`, and the `docs/` skeleton. It asks for your stack, and scaffolds the apps with their official CLIs if they do not exist yet.
 
 3. Commit the result, including `skills-lock.json`.
 
 ## Keep projects up to date
 
 `update` updates the skills and the generated agents. In `AGENTS.md`, it refreshes only the skills tables between the `abraham-harness` markers, so your stack, your rules and your `## Project Skills` table stay yours. A project created before these markers existed is reported and left unchanged: run `/project-bootstrap` to add them.
+
+It also refreshes `make/local.mk`, `dev.mk`, `prod.mk` and `code.mk`, so every project has the same commands. It never touches the root `Makefile` or `make/project.mk`, and it keeps and reports a module you edited by hand.
 
 Run these commands in each project:
 
@@ -98,6 +100,18 @@ Shared conventions live only in the skills, so `update` keeps every project curr
 
 A skill that only one project needs lives in that project, in `skills/{name}/`. Install it with `npx skills@latest add ./skills/{name} -a claude-code -a codex -a opencode -y`, and `skill-sync` lists it in the `## Project Skills` table of `AGENTS.md`. Run the `add` command again after you change it.
 
+## Commands
+
+Every project has the same commands. Run `make` to see them.
+
+```bash
+make local      # start the whole stack in Docker. Also: make dev, make prod
+make local-down # stop it. Also: -logs and -status
+make test       # also: test-e2e, lint, format and typecheck
+```
+
+Add a project's own commands to `make/project.mk`.
+
 ## Change a convention
 
 Edit shared skills here, never in the generated skills directory of a project. See [AGENTS.md](AGENTS.md).
@@ -106,11 +120,11 @@ Edit shared skills here, never in the generated skills directory of a project. S
 
 | Group | Skills |
 | --- | --- |
-| Project | `project-bootstrap`, `factory-workflow`, `plan-create`, `plan-phase-implement`, `doc-create`, `engineering-conventions` |
+| Project | `project-bootstrap`, `factory-workflow`, `plan-create`, `plan-phase-implement`, `doc-create`, `engineering-conventions`, `makefile` |
 | Workflow | `tdd-workflow`, `git-workflow`, `skill-creator`, `skill-sync` |
 | API | `api-application`, `api-auth`, `api-bc-review`, `api-criteria`, `api-di`, `api-domain`, `api-domain-events`, `api-error-handler`, `api-events`, `api-events-infra`, `api-infrastructure`, `api-migrations`, `api-observability`, `api-response`, `api-rest`, `api-shared`, `api-testing`, `api-validation` |
 | Client | `client-api`, `client-container-presentational`, `client-hooks`, `client-pods`, `client-query`, `client-testing` |
-| Stack | `stack-nestjs`, `stack-typeorm`, `stack-jest`, `stack-rabbitmq`, `stack-observability`, `stack-react`, `stack-tanstack-query`, `stack-vitest` |
+| Stack | `stack-nestjs`, `stack-typeorm`, `stack-rabbitmq`, `stack-observability`, `stack-react`, `stack-tanstack-query`, `stack-vitest` |
 
 ## Credits
 

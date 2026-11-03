@@ -16,7 +16,8 @@ Use this skill when a project needs a Makefile, when you add a command to one, o
 - Every project has the same targets, with the same names and meanings. Do not rename them.
 - `make` with no target prints the help, and every target has a `## description`.
 - The root `Makefile` is only a dispatcher. Targets live in `make/*.mk`.
-- A command only this project needs goes in `make/project.mk`. Never edit the shared modules for it.
+- A command only this project needs goes in `make/project.mk`. Never edit `make/local.mk`, `dev.mk`, `prod.mk` or `code.mk`: `update` refreshes them, and it keeps and reports a module that was edited by hand, so that module stops receiving updates.
+- `update` never touches the root `Makefile` or `make/project.mk`.
 - Every Docker target goes through `ensure-docker`, and through its environment's compose variable.
 - A target that destroys data needs `CONFIRM=yes`.
 - Secrets come from `SECRETS_LOCAL`, `SECRETS_DEV` and `SECRETS_PROD`. Never write a secret or a provider's command in a shared module.
@@ -32,6 +33,7 @@ Use this skill when a project needs a Makefile, when you add a command to one, o
 | Stop, read logs or see containers | `make {environment}-down`, `-logs` or `-status` |
 | Delete local data and start again | `make local-reset CONFIRM=yes` |
 | Create the env files | `make setup` |
+| Change a shared module, in the `abraham-harness` repository | Edit it, then run `node scripts/stamp-make.mjs` |
 | Test, lint, format or check types | `make test`, `test-e2e`, `lint`, `format` or `typecheck` |
 
 ## Execution Steps

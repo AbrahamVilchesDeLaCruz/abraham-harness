@@ -1,3 +1,4 @@
+# Managed by abraham-harness, sha256=119a29eaa8a98f763585df321cca5aaeab00d20a09751c8ae98cfb4dc5f861ef. Put your own targets in make/project.mk.
 # Dev: the whole development stack in Docker. Set SECRETS_DEV when it needs secrets.
 
 .PHONY: dev dev-down dev-logs dev-status

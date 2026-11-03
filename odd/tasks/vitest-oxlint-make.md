@@ -13,10 +13,11 @@ Delivery: single-pr. Test runner: node --test.
 ## Tasks
 
 - [ ] T1 S1-S5 stack skills. Route: delegated, parallel unit with T2.
-- [ ] T2 S6 Makefile skill and templates. Route: inline.
+- [x] T2 S6 Makefile skill and templates. Route: inline.
 - [ ] T3 independent verification. Risk: item 6, and item 5 for build tooling guidance.
 
 ## Log
 
 - L1 (2026-11-03): "también me gustaría una skill para makefiles (que tengan el help, local, dev, prod, etc) así puedo levantarlo todo el docker desde un comando más sencillo. para que todos los makefiles sean iguales. y si, haz el cambio que me recomiendas. Lo que además cómo solucionaríamos lo del nest build?"
 - L2: Engram mirror pending: no Engram tool is available in this session.
+- L3 (2026-11-03): "vale hagamos así". `update` refreshes `make/local.mk`, `dev.mk`, `prod.mk` and `code.mk`. It never touches the root `Makefile` or `make/project.mk`. A module edited by hand is kept and reported.

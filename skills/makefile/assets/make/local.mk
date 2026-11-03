@@ -1,3 +1,4 @@
+# Managed by abraham-harness, sha256=b7326bb7a3c83b11e3bca98a6597ee42d9e012ce9cd01a3efa507eadcaa5d807. Put your own targets in make/project.mk.
 # Local: the whole stack in Docker, with no paid services and no remote secrets.
 
 .PHONY: setup local local-down local-logs local-status local-reset

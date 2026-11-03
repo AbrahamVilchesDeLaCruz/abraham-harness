@@ -36,6 +36,7 @@ metadata:
 4. **Fill the placeholders.** Replace `{{PROJECT_NAME}}` and `{{PROJECT_DESCRIPTION}}` in every copied `AGENTS.md`, and `{{PROJECT_NAME}}` in `docs/README.md`.
 5. **Fill the stack table.** Ask for the project's stack, offering the values in the `Stack table` lists as the default suggestion. Write the answer in the `Stack table` of every copied `AGENTS.md`.
 6. **Create `CLAUDE.md`** with the single line `@AGENTS.md`.
+   Then add the Makefile, following the `makefile` skill.
 7. **Scaffold the code when the apps do not exist yet.** Follow `references/scaffold.md` in the `stack-nestjs` and `stack-react` skills, then apply `eslint-prettier.md` in `engineering-conventions` and `references/esm.md` in the `stack-jest` skill. For another stack, use the stack skill that matches the stack table. Replace the `myapp` example namespace in these guides with the project name.
 8. **Check the result.** Confirm that no `{{` placeholder remains and that every skill listed in `AGENTS.md` exists in the project's skills directory (`.agents/skills/` or `.claude/skills/`).
 
@@ -47,6 +48,7 @@ The project matches this target layout:
 {project}/
 ├── AGENTS.md                  ← assets/AGENTS.root.template.md
 ├── CLAUDE.md                  ← contains only: @AGENTS.md
+├── Makefile, make/            ← from the makefile skill
 ├── apps/
 │   ├── api/AGENTS.md          ← assets/AGENTS.api.template.md
 │   └── client/AGENTS.md       ← assets/AGENTS.client.template.md

@@ -30,7 +30,7 @@ src/
         │   ├── env.validation.ts        ← env schema
         │   └── use-stub-adapters.ts
         ├── framework/
-        │   └── shared module            ← global — imported ONCE in the application root module
+        │   └── shared module            ← global — imported ONCE in the application root module; imports only the BCs' shared modules
         ├── auth/
         │   └── auth module              ← JWT + Google + Guest strategies
         ├── event-bus/
@@ -40,11 +40,21 @@ src/
             └── http-exception.filter.ts
 ```
 
-### Internal shared per bounded context
+### Internal shared of a bounded context
 
 ```
 src/
 └── achievement/
+    ├── user-achievement/
+    │   └── infrastructure/
+    │       └── framework/
+    │           ├── user-achievement module                ← wires the submodule, exports its registry
+    │           └── user-achievement-exception-registry.ts
+    ├── progress/
+    │   └── infrastructure/
+    │       └── framework/
+    │           ├── progress module
+    │           └── progress-exception-registry.ts
     └── shared/
         ├── domain/
         │   ├── achievement-key.ts          ← value object shared between submodules
@@ -52,8 +62,7 @@ src/
         │   └── exceptions/                 ← the BC's domain errors
         └── infrastructure/
             └── framework/
-                ├── {bc} module                    ← framework module of the whole BC
-                └── achievement-exception-registry.ts
+                └── {bc} shared module      ← gathers the submodules; the root shared module imports it
 ```
 
 ## Env Validation (essentials)

@@ -16,8 +16,10 @@ metadata:
 ## Hard Rules
 
 - Mappers and pure hooks → always unit tests
+- Repository → unit test: mock the pod's HTTP calls, and assert the ViewModels it returns
+- Server-state hook → unit test: mock the repository, never the API client
 - Component (presentational) → view renderer, mocked props, no queries
-- Container → view renderer + HTTP interception, intercepting real HTTP
+- Container → view renderer + HTTP interception, intercepting real HTTP: the test crosses the hooks, the repository and the API client
 - E2E → browser runner, only critical flows — happy path + main error
 - Never mock the whole server-state library module — use HTTP interception
 - Override the HTTP handler per case, inside the `it`
@@ -35,13 +37,14 @@ Anti-patterns:
 
 - ❌ Mocking the server-state library directly.
 - ❌ E2E test for everything — the browser runner is slow and fragile. A test such as `mapper formats the dates` that opens a page belongs in a unit test.
-- ❌ Container without HTTP interception — mocking the fetch function.
+- ❌ Container without HTTP interception — mocking the repository, the fetch function or the hooks.
 
 ## Decision Gates
 
 | What | Level | Tool | Which reference to load |
 |---|---|---|---|
 | Mappers | Unit | Test runner | `component-patterns.md` |
+| Repository | Unit | Test runner | `component-patterns.md` |
 | Pod hooks | Unit | Test runner + hook harness | `component-patterns.md` |
 | Component (presentational) | Integration | View renderer | `component-patterns.md` |
 | Container (with queries) | Integration | View renderer + HTTP interception | `container-integration.md` |
@@ -55,7 +58,7 @@ Test pyramid:
        /──────\
       /Integr. \       ← View renderer — Container + Component together with HTTP interception
      /──────────\
-    /   Unit     \     ← Test runner — hooks, mappers, pure utils
+    /   Unit     \     ← Test runner — hooks, repositories, mappers, pure utils
    /______________\
 ```
 

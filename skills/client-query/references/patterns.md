@@ -16,7 +16,7 @@ Query keys are arrays. They must be **consistent** within the pod:
 Export the keys as constants to reuse them in invalidations:
 
 ```ts
-// products.api.ts
+// hooks.ts
 export const productKeys = {
   all: ['products'] as const,
   lists: () => [...productKeys.all, 'list'] as const,
@@ -27,13 +27,16 @@ export const productKeys = {
 
 ## Queries — data fetching
 
+A query hook wraps a repository call. The repository calls the API client and returns ViewModels through the mapper.
+
 ```ts
-// products.api.ts
+// hooks.ts
+import { productsRepository } from './products.repository';
+
 export const useProducts = (params: ProductListParams) => {
   return serverQuery({
     key: productKeys.list(params),
-    fetch: () => apiClient.get<ProductApiModel[]>('/products', { params }),
-    transform: (data) => data.map(mapProduct),  // mapper here if simple
+    fetch: () => productsRepository.getAll(params),
     freshnessMs: 1000 * 60 * 5,                  // 5 min — adjust as needed
   });
 };
@@ -41,8 +44,7 @@ export const useProducts = (params: ProductListParams) => {
 export const useProduct = (id: string) => {
   return serverQuery({
     key: productKeys.detail(id),
-    fetch: () => apiClient.get<ProductApiModel>(`/products/${id}`),
-    transform: mapProduct,
+    fetch: () => productsRepository.getById(id),
     enabled: !!id,  // do not run without an id
   });
 };
@@ -51,11 +53,10 @@ export const useProduct = (id: string) => {
 ## Mutations — side effects
 
 ```ts
-// products.api.ts
+// hooks.ts
 export const useCreateProduct = () => {
   return serverMutation({
-    execute: (data: CreateProductPayload) =>
-      apiClient.post<ProductApiModel>('/products', data),
+    execute: (data: CreateProductPayload) => productsRepository.create(data),
     onDone: () => {
       // Invalidates every list (productKeys.lists()) — the Container does not need to know how
     },
@@ -64,7 +65,7 @@ export const useCreateProduct = () => {
 
 export const useDeleteProduct = () => {
   return serverMutation({
-    execute: (id: string) => apiClient.delete(`/products/${id}`),
+    execute: (id: string) => productsRepository.remove(id),
     onDone: (_, id) => {
       // Invalidates productKeys.lists() and removes the cache entry at productKeys.detail(id)
     },
@@ -74,7 +75,7 @@ export const useDeleteProduct = () => {
 export const useUpdateProduct = () => {
   return serverMutation({
     execute: ({ id, data }: { id: string; data: UpdateProductPayload }) =>
-      apiClient.patch<void>(`/products/${id}`, data),
+      productsRepository.update(id, data),
     onDone: (_, { id }) => {
       // A PATCH returns 204 with no body, so refetch instead of updating the cache
       // Invalidates productKeys.detail(id) and productKeys.lists()

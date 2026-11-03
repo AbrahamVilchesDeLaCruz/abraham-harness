@@ -16,7 +16,7 @@ Jest details for the concepts in `docs/engineering/testing.md`.
 
 ## Unit tests
 
-Application tests are Use Cases, with repository mocks from `jest-mock-extended`.
+Application tests are Use Cases, with repository mocks from `jest-mock-extended`. `src/{bc}/{module}/application/{action}/{use-case}.ts` is tested in `test/{bc}/{module}/application/{action}/`, with `request-{use-case}.mother.ts` and `{use-case}.spec.ts`.
 
 ### Runner
 
@@ -58,7 +58,7 @@ apps/api/
     │   └── infrastructure/
     │       └── create-test-app.ts  ← helper: bootstraps NestJS for E2E
     └── identity/
-        ├── application/        ← unit specs + the Object Mothers next to them
+        ├── user/application/register/  ← request-user-registrar.mother.ts + user-registrar.spec.ts
         └── infrastructure/     ← E2E specs
             ├── guest-auth-post.e2e-spec.ts
             ├── register-login-auth.e2e-spec.ts
@@ -71,5 +71,5 @@ apps/api/
 - `pnpm test:debug` runs Jest with the Node inspector.
 
 **Jest configs:**
-- `jest.config.ts` — unit tests (`src/**/*.spec.ts`)
+- `jest.config.ts` — unit tests (`test/**/*.spec.ts`)
 - `jest.e2e.config.ts` — E2E tests (`test/**/*.e2e-spec.ts`)

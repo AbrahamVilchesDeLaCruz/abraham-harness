@@ -12,7 +12,8 @@ Exclusive responsibilities:
 
 Prohibitions:
 
-- ❌ `useState` for UI (modals, tooltips, visual filters)
+- ❌ Calling the repository, `apiClient` or `fetch` directly
+- ❌ `useState` for purely visual state (modals, tooltips, toggles) — it may stay in the Component
 - ❌ Complex JSX — renders only `<{PodName}Component />` with props
 - ❌ `useEffect`, except a trivial sync outward
 
@@ -24,18 +25,21 @@ export const ProductsContainer = () => {
   const { categoryId } = useParams<{ categoryId: string }>();
   const [page, setPage] = useState(1);
 
-  // TanStack Query — data binding
+  // Pod hooks — each one reaches the data through the repository
   const { data: products, isLoading } = useProducts({ categoryId, page });
   const { mutate: deleteProduct } = useDeleteProduct();
+  const { size, setSize } = useProductFilters();
 
   // Callback that triggers a mutation
-  const handleDelete = (id: string) => deleteProduct({ id });
+  const handleDelete = (id: string) => deleteProduct(id);
 
   return (
     <ProductsComponent
       products={products ?? []}
       isLoading={isLoading}
+      size={size}
       onDelete={handleDelete}
+      onFilter={setSize}
       onPageChange={setPage}
     />
   );
@@ -46,12 +50,13 @@ export const ProductsContainer = () => {
 
 Responsibilities:
 
-- UI state: `useState` for modals, tooltips, filters, toggles
+- Purely visual local state: `useState` for modals, tooltips, toggles
 - `useEffect` to sync local UI state
 - `useRef` for third-party components, scroll, focus
 
 Prohibitions:
 
+- ❌ Pod hooks, the repository, `apiClient` — the Container consumes the hooks
 - ❌ `useParams`, `useNavigate`, `useLocation` — it does not access routing
 - ❌ Zustand store or global `useContext`
 
@@ -62,15 +67,16 @@ Prohibitions:
 export const ProductsComponent = ({
   products,
   isLoading,
+  size,
   onDelete,
+  onFilter,
   onPageChange,
 }: ProductsComponentProps) => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const { size, setSize } = useProductFilters();
 
   return (
     <div>
-      <ProductToolbar size={size} onFilter={setSize} />
+      <ProductToolbar size={size} onFilter={onFilter} />
       <ProductGrid
         products={products}
         isLoading={isLoading}
@@ -93,13 +99,13 @@ export const ProductsComponent = ({
 ```
 ┌─────────────────────────────────────────────┐
 │               Container                      │
-│  (useQuery, useMutation, useParams,         │
+│  (pod hooks, useParams,                     │
 │   Zustand, callbacks)                       │
 │                                              │
 │   ┌─────────────────────────────────────┐   │
 │   │           Component                  │   │
-│   │  (useState UI, useEffect, useRef,   │   │
-│   │   pod hooks)                        │   │
+│   │  (visual useState, useEffect,       │   │
+│   │   useRef, renders what it receives) │   │
 │   │                                      │   │
 │   │  ┌──────────┐  ┌──────────────────┐ │   │
 │   │  │ Toolbar  │  │  FilterChips     │ │   │
@@ -119,13 +125,12 @@ export const ProductsComponent = ({
 ### Container — `{PodName}Container.tsx`
 
 ```tsx
-import { use{PodName}s } from './api/{pod-name}.api';
-import { useCreate{PodName} } from './api/{pod-name}.api';
+import { use{PodName}s, useCreate{PodName} } from './hooks';
 import { {PodName}Component } from './{PodName}Component';
 import type { Create{PodName}Input } from './{pod-name}.types';
 
 export function {PodName}Container() {
-  // 1. All data fetching here
+  // 1. Consume the pod hooks here — they reach the data through the repository
   const { data: {podName}s, isLoading, isError } = use{PodName}s();
   const create{PodName}Mutation = useCreate{PodName}();
 
@@ -193,15 +198,17 @@ export function {PodName}Component({
 
 | Rule | Container | Component |
 |---|---|---|
-| TanStack Query hooks | ✅ Yes | ❌ Never |
-| `useState` for UI state | ❌ Avoid | ✅ Yes |
+| Pod hooks, TanStack Query hooks included | ✅ Yes | ❌ Never |
+| Repository, `apiClient`, `fetch` | ❌ Never | ❌ Never |
+| `useState` for purely visual state | ❌ Avoid | ✅ Yes |
 | JSX complexity | ❌ Minimal | ✅ Full UI |
 | Test approach | RTL + MSW | RTL with mocked props |
 
 ## Checklist
 
 - [ ] Container has zero styling / JSX beyond the Component call
-- [ ] Component has zero `useQuery`, `useMutation`, `fetch` calls
+- [ ] Container consumes the pod hooks, and never calls the repository directly
+- [ ] Component has zero pod hooks, `useQuery`, `useMutation`, `fetch` calls
 - [ ] Container handles async errors (try/catch or mutation `onError`)
 
 ## External Documentation

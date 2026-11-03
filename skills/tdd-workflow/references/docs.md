@@ -6,7 +6,7 @@
 |---|---|
 | `api-testing` | Pyramid, Object Mothers, port mocks |
 | `api-domain` | Aggregate and VO templates: what the red test exercises through the use case |
-| `api-application` | Use case template: what gets tested in integration |
+| `api-application` | Use case template: what the unit tests exercise |
 | `client-testing` | Rendering, hook tests, mocked HTTP: TDD on the client |
 
 ## External Documentation

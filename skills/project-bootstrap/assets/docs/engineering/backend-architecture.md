@@ -137,12 +137,12 @@ src/
         ├── controllers/
         ├── persistence/       ← repository implementation + mappers + persistence entities
         ├── selectors/         ← optimized read queries (if applicable)
-        └── framework/         ← {bc}.module.ts + {bc}-exception-registry.ts + DI providers
+        └── framework/         ← module + exception registry + DI providers; this module plays both roles of the next section
 ```
 
 ### Bounded Context with multiple modules
 
-When a BC groups several cohesive concepts, each one has its own module. Real examples: `content/` (with `product/`), `identity/` (with `user/` and `session/`).
+When a BC groups several cohesive concepts, each one has its own module, and the BC works almost as a modular monolith. Real examples: `content/` (with `product/`), `identity/` (with `user/` and `session/`).
 
 ```
 src/
@@ -158,14 +158,17 @@ src/
     │   │   └── {aggregate}-{vo}
     │   └── infrastructure/
     │       ├── controllers/
+    │       ├── framework/           ← product.module.ts + product-exception-registry.ts + DI providers
     │       ├── persistence/
     │       └── {external-service}/  ← e.g.: ai/, image/ (adapters of external services)
     └── shared/                      ← shared of the bounded context
         ├── domain/
         ├── application/
         └── infrastructure/
-            └── framework/           ← content.module.ts + content-exception-registry.ts + DI providers
+            └── framework/           ← content-shared.module.ts: gathers the modules and their registries
 ```
+
+Each module exports its own exception registry. The shared module of the bounded context gathers them, and it is what reaches the root shared module. The root shared module receives only the shared modules of the bounded contexts, never a module directly.
 
 ---
 

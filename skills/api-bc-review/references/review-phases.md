@@ -6,10 +6,12 @@ If the BC has **multiple cohesive aggregates**, split:
 
 ```
 apps/api/src/{bc}/
-├── {module-a}/     ← owner of aggregate A
-├── {module-b}/     ← owner of aggregate B
-└── shared/         ← cross-module VOs + framework module + exception registry
+├── {module-a}/     ← owner of aggregate A; framework module + exception registry in infrastructure/framework/
+├── {module-b}/     ← owner of aggregate B; framework module + exception registry in infrastructure/framework/
+└── shared/         ← cross-module VOs + the BC's shared module
 ```
+
+The root shared module receives only the BC's shared module, never a submodule directly. The BC's shared module gathers its submodules' exception registries.
 
 See `apps/api/AGENTS.md` → *DDD modules inside a Bounded Context*.
 
@@ -17,7 +19,7 @@ See `apps/api/AGENTS.md` → *DDD modules inside a Bounded Context*.
 - `catalog/` — achievement definitions (catalog, unlock rules)
 - `progress/` — `UserAchievementProgress` aggregate (counters, touched modules)
 - `user-achievement/` — unlocks per user
-- `shared/` — `AchievementKey`, `AchievementCategory`, the achievement module
+- `shared/` — `AchievementKey`, `AchievementCategory`, the achievement shared module
 
 **Forbidden:** loose layers (`domain/`, `application/`) at the BC root when there are submodules.
 
@@ -28,7 +30,7 @@ Use it as an audit table. Load the indicated skill before fixing each row.
 | Area | Skill | What to verify |
 |------|-------|---------------|
 | Aggregate + VOs | `api-domain` | `AggregateRoot`, `fromPrimitives`/`toPrimitives`, VOs without suffix |
-| Domain errors | `api-domain`, `api-error-handler` | `{Entity}{Problem}`, registry in `shared/infrastructure/framework/` |
+| Domain errors | `api-domain`, `api-error-handler` | `{Entity}{Problem}`, one exported registry per submodule in `{bc}/{module}/infrastructure/framework/` |
 | Repository | `api-domain` | `match/search/save/remove` contract, `toDomain`/`toEntity` |
 | Use cases | `api-application` | `{Entity}{Verb}`, `execute()` method, primitives in/out |
 | Domain services | `api-application`, `api-domain` | In `domain/`, **no `Service` suffix** in class/file |
@@ -37,7 +39,7 @@ Use it as an audit table. Load the indicated skill before fixing each row.
 | Query controllers | `api-response`, `api-rest` | `ApiResponse.of()` / `PaginatedApiResponse.of()` with `meta` |
 | Command controllers | `api-response` | POST that returns data: `201` with the data. DDD action: `200`, empty body. PATCH with a body: `204`, empty body |
 | DI | `api-di` | `Symbol` token next to the interface in domain |
-| Tests | `api-testing` | Mirror the `test/{bc}/{module}/` structure, Object Mothers |
+| Tests | `api-testing` | Mirror the `test/{bc}/{module}/` structure, `request-{use-case}.mother.ts` + `{use-case}.spec.ts`, Object Mothers |
 
 ## Phase 4 — Naming: allowed suffixes
 

@@ -96,7 +96,7 @@ identity/                         ← identity BC (submodules)
 │   └── infrastructure/
 └── shared/                       ← framework wiring of the identity BC
     └── infrastructure/
-        └── framework/{bc} module
+        └── framework/{bc} shared module
 ```
 
 ## UserContext — shared type

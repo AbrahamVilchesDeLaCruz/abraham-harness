@@ -5,8 +5,8 @@
 | Skill | Why read it |
 |---|---|
 | `client-pods` | Pod structure — where the api/ layer lives |
-| `client-query` | Server-state hooks that consume the functions in api.ts |
-| `client-container-presentational` | Container that uses the queries and passes ViewModels to the Component |
+| `client-query` | Server-state hooks that wrap the repository |
+| `client-container-presentational` | Container that consumes the hooks and passes ViewModels to the Component |
 | `client-testing` | How to test mappers (unit) and Containers with HTTP interception (integration) |
 
 ## External Documentation
@@ -28,4 +28,4 @@ This pattern allows:
 
 | Doc | Relevant content |
 |---|---|
-| `docs/engineering/frontend-architecture.md` | How the api/ layer fits into the pod architecture |
+| `docs/engineering/frontend-architecture.md` | How the api/ layer and the repository fit into the pod architecture |

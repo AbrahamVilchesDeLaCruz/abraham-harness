@@ -2,22 +2,28 @@
 
 The concept skill `client-api` defines the rules. This file holds its TanStack Query detail.
 
-The server-state hooks of the `api/` layer are TanStack Query hooks:
+`api/` holds only the raw API model and the HTTP calls. TanStack Query hooks live in the pod's hooks file or folder, and each one wraps a repository call:
 
 ```
 pods/{pod-name}/
+├── hooks.ts                       ← TanStack Query hooks (useQuery / useMutation)
+├── {pod-name}.repository.ts       ← Calls the API client, returns ViewModels
+├── {pod-name}.mapper.ts           ← API response → ViewModel
 └── api/
-    ├── index.ts                    ← Barrel: re-exports hooks and types
+    ├── index.ts                    ← Barrel: re-exports HTTP calls and types
     ├── {pod-name}.api-model.ts    ← Raw types of the server response
-    └── {pod-name}.api.ts          ← TanStack Query hooks (useQuery / useMutation)
+    └── {pod-name}.api.ts          ← HTTP calls
 ```
 
-## `{pod-name}.api.ts` — TanStack Query hooks
+## `hooks.ts` — TanStack Query hooks
 
 See skill `client-query` for the full query and mutation pattern.
 
 ```ts
-// products.api.ts
+// hooks.ts
+import { useQuery } from '@tanstack/react-query';
+import { productsRepository } from './products.repository';
+
 export const productKeys = {
   all: ['products'] as const,
   lists: () => [...productKeys.all, 'list'] as const,
@@ -28,8 +34,7 @@ export const productKeys = {
 export const useProducts = (params: ProductListParams) => {
   return useQuery({
     queryKey: productKeys.list(params),
-    queryFn: () => apiClient.get<ProductApiModel[]>('/products', { params }),
-    select: (data) => data.map(mapProduct),
+    queryFn: () => productsRepository.getAll(params),
   });
 };
 ```

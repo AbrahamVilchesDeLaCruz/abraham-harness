@@ -35,13 +35,15 @@ Use this checklist when auditing an existing bounded context or designing a new 
 - [ ] ORM models have `Entity` suffix — differ from domain aggregates
 - [ ] `toDomain()` and `toEntity()` are private — ORM models never escape the repo
 - [ ] `match()` applies ALL fields of `Criteria`: filters, order, page, pageSize
-- [ ] Exception registry registered at module startup
+- [ ] Exception registry registered at module startup, one per submodule, in `{bc}/{module}/infrastructure/framework/`
 
 ## Phase 5 — DI & Modules
 
 - [ ] Tokens are `Symbol` — defined next to the interface
 - [ ] Module registers its ORM entities for the feature
-- [ ] Shared BC module exports only tokens — never concrete classes
+- [ ] Each submodule exports its exception registry; other exports are tokens only — never concrete classes
+- [ ] The BC's shared module gathers its submodules; the root shared module receives only BC shared modules, never a submodule
+- [ ] No BC module imports the root shared module
 - [ ] No circular imports between BCs
 
 ## Phase 6 — Events
@@ -55,6 +57,7 @@ Use this checklist when auditing an existing bounded context or designing a new 
 
 ## Phase 7 — Testing
 
+- [ ] Use case tests are unit tests in `test/{bc}/{module}/application/{action}/`
 - [ ] Use case tests use `createMock<Repository>()` — no concrete adapters
 - [ ] Object Mothers exist for every aggregate and request type
 - [ ] `beforeEach` resets each mock method explicitly and recreates the use case instance

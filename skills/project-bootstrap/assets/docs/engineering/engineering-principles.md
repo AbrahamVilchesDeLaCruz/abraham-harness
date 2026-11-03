@@ -25,7 +25,7 @@ In the frontend:
 
 - One Container = one data source. It does not mix queries of different resources.
 - A pod hook encapsulates one cohesive group of state. `useProductFilters` does not also manage the tooltip.
-- A Component renders and manages UI state. It does not fetch data.
+- A Component renders what it receives and manages purely visual local state. It does not fetch data.
 
 ```ts
 // ❌ Violates SRP: the use case does too much
@@ -134,7 +134,7 @@ In the backend:
 
 In the frontend:
 
-- The Container depends on hooks (`useProducts`, `useCreateProduct`), not on an HTTP client or `fetch` directly.
+- The Container depends on hooks (`useProducts`, `useCreateProduct`), not on an HTTP client or `fetch` directly. The hooks depend on the pod's repository, and the repository on the API client.
 - Components depend on typed callbacks, not on concrete stores or contexts.
 
 ```ts
@@ -184,7 +184,7 @@ product.archive();
 
 **Why it matters in DDD**: business rules live in the aggregate, not scattered across use cases or services. If the state can be read and modified from outside, invariants are not guaranteed.
 
-**In the frontend**: pod hooks apply the same principle. The Component does not ask for the filter state to decide what to render: the hook exposes the already processed state and handlers to act on it.
+**In the frontend**: pod hooks apply the same principle. The Container does not ask for the filter state to decide what to render: the hook exposes the already processed state and handlers to act on it.
 
 ---
 
@@ -231,9 +231,10 @@ Red → Green → Refactor
 | Layer | What to test | How |
 |---|---|---|
 | Domain (backend) | **Not tested directly**: always exercised through a Use Case. The only exception is a larger Domain Service you want to test on its own | Object Mothers with fake data to build the input data |
-| Application (backend) | Use Cases | Unit: in-memory repository, mocked dependencies |
+| Application (backend) | Use Cases | Unit: mocked ports and Object Mothers, in `test/{bc}/{module}/application/{action}/` |
 | Infrastructure (backend) | Repository implementations | Integration: real or in-memory database |
 | Pod hooks (frontend) | State logic, handlers | Unit: render the hook in isolation |
+| Pod repository (frontend) | ViewModels through the mapper | Unit: mocked HTTP calls |
 | Mappers (frontend/backend) | Data transformation | Unit: pure function |
 | Component (frontend) | Rendering, UI interactions | Integration: no real queries |
 | Container (frontend) | Full flow with data | Integration: mocked HTTP |
@@ -265,9 +266,9 @@ The code of `MotherCreator`, `StringMother` and `UuidMother` depends on the fake
 A Mother lives next to the test that uses it. Shared Mothers go in `test/shared`.
 
 ```ts
-// apps/api/test/product/application/create/product-id-mother.ts
+// apps/api/test/shared/product/product-id-mother.ts
 import { UuidMother } from '@test/shared/domain/uuid-mother';
-import { ProductId } from '@/product/domain/product-id';
+import { ProductId } from '@/catalog/product/domain/product-id';
 
 export class ProductIdMother {
   static random(): ProductId {
@@ -281,10 +282,10 @@ export class ProductIdMother {
 ```
 
 ```ts
-// apps/api/test/product/application/create/product-mother.ts
+// apps/api/test/shared/product/product-mother.ts
 import { ProductIdMother } from './product-id-mother';
 import { ProductNameMother } from './product-name-mother';
-import { Product } from '@/product/domain/product';
+import { Product } from '@/catalog/product/domain/product';
 
 export class ProductMother {
   static random(overrides?: Partial<ProductPrimitives>): Product {
@@ -330,7 +331,8 @@ Concrete manifestations in the project:
 | Business rules                | Domain (backend)                               |
 | Use case orchestration        | Application (backend)                          |
 | Protocol and infra details    | Infrastructure (backend)                       |
-| Server state and cache        | Server-state library / api hooks (frontend)    |
+| Server state and cache        | Server-state library / pod hooks (frontend)    |
+| Data access                   | Pod repository and API client (frontend)       |
 | UI state                      | Pod hooks / Component (frontend)               |
 | Routing and global context    | Container (frontend)                           |
 | Data transformation           | Mappers (frontend and backend)                 |

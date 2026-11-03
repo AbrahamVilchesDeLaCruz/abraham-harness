@@ -6,6 +6,7 @@ The complete module code and the env schema live in the project's stack skills, 
 
 Global module in `src/shared/infrastructure/framework/`:
 
+- Imports: the shared module of each bounded context, never a submodule directly.
 - Controllers: `HealthGetController`.
 - Providers: `LOGGER_SERVICE` bound to the logger adapter, `GlobalExceptionRegistry`, `HttpExceptionFilter` registered as the global filter, and the event bus adapter as a singleton shared by all modules, aliased to `DOMAIN_EVENT_PUBLISHER` and `DOMAIN_EVENT_CONSUMER`.
 - Exports: `LOGGER_SERVICE`, `GlobalExceptionRegistry`, `HttpExceptionFilter`, `DOMAIN_EVENT_PUBLISHER`, `DOMAIN_EVENT_CONSUMER`.
@@ -23,7 +24,7 @@ The application root module imports:
 - The persistence root connection, through a factory function that returns the data source options.
 - The scheduler module.
 - The rate limiter, with two named limits, both skipped when `process.env.NODE_ENV === 'test'`: `default` (ttl `60_000`, limit `100`) and `auth` (ttl `60_000`, limit `10`).
-- The shared module and the BC modules (identity, catalog, sales, ...).
+- The shared module. The bounded contexts reach the application through it, so they are not imported here.
 
 It also registers the rate limiter's guard as a global guard.
 
@@ -40,25 +41,28 @@ Persistence is configured with `DATABASE_URL` (a single variable), not with sepa
 
 ---
 
-## Complete Bounded Context Module
+## Bounded Context Modules
 
-BC modules are complete framework modules that wire the whole BC: repositories, use cases, controllers, subscribers and the exception registry. They live in `{bc}/shared/infrastructure/framework/`.
+A bounded context has several submodules, and works almost as a modular monolith.
 
-The achievement module, in `src/achievement/shared/infrastructure/framework/`, wires:
+**Each submodule** has a complete framework module in `{bc}/{module}/infrastructure/framework/`, which wires its repositories, use cases, controllers, subscribers and exception registry, and exports the registry.
 
-- Repositories — registered with a DI token (`USER_ACHIEVEMENT_REPOSITORY`, `USER_ACHIEVEMENT_PROGRESS_REPOSITORY`).
-- Domain services (`AchievementCatalog`).
+The user-achievement module, in `src/achievement/user-achievement/infrastructure/framework/`, wires:
+
+- Repositories — registered with a DI token (`USER_ACHIEVEMENT_REPOSITORY`).
 - Use cases (`AchievementsSearcher`) and controllers (`SearchAchievementsGetController`).
 - Subscribers — wired via a factory (`SUBSCRIBERS`, `SubscribersBootstrapper`).
-- The BC's exception registry (`AchievementExceptionRegistry`).
+- The submodule's exception registry (`UserAchievementExceptionRegistry`).
 
-Exports: `AchievementCatalog` (domain service — needed by other BCs) and `USER_ACHIEVEMENT_REPOSITORY` (repository token — never the concrete implementation).
+Exports: `UserAchievementExceptionRegistry` and `USER_ACHIEVEMENT_REPOSITORY` (repository token — never the concrete implementation).
 
-**Keys of the BC module pattern:**
-- Imports the shared module and the auth module (does not declare them global)
+**The bounded context's shared module**, in `{bc}/shared/infrastructure/framework/`, imports and re-exports its submodules' modules. It gathers their registries, and it is what the root shared module imports.
+
+**Keys of the module pattern:**
+- Imports the auth module (does not declare it global). It never imports the root shared module: that module is global, and it imports the bounded context
 - Registers its persistence entities
 - Uses tokens (`PRODUCT_REPOSITORY`, `LOGGER_SERVICE`) — never concrete classes directly in injection lists
-- Exports only what other BCs need — DI tokens or domain services
+- Exports its exception registry, plus only what other BCs need — DI tokens or domain services
 
 ---
 

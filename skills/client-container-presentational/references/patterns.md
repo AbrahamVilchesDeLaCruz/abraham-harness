@@ -11,18 +11,21 @@ Framework-free shape; the stack reference for views shows the original.
 export const ProductsContainer = () => {
   // categoryId comes from the stack's routing primitive; page and setPage from its local state primitive.
 
-  // Server state — data binding
+  // Pod hooks — each one reaches the data through the repository
   const { data: products, isLoading } = useProducts({ categoryId, page });
   const { execute: deleteProduct } = useDeleteProduct();
+  const { size, setSize } = useProductFilters();
 
   // Callback that triggers a mutation
-  const handleDelete = (id: string) => deleteProduct({ id });
+  const handleDelete = (id: string) => deleteProduct(id);
 
   return (
     <ProductsComponent
       products={products ?? []}
       isLoading={isLoading}
+      size={size}
       onDelete={handleDelete}
+      onFilter={setSize}
       onPageChange={setPage}
     />
   );
@@ -39,7 +42,9 @@ Always declare an explicit interface for the Component's props:
 interface ProductsComponentProps {
   products: ProductVM[];
   isLoading: boolean;
+  size: ProductSize | null;
   onDelete: (id: string) => void;
+  onFilter: (size: ProductSize | null) => void;
   onPageChange: (page: number) => void;
 }
 ```
@@ -53,15 +58,16 @@ Framework-free shape; the stack reference for views shows the original.
 export const ProductsComponent = ({
   products,
   isLoading,
+  size,
   onDelete,
+  onFilter,
   onPageChange,
 }: ProductsComponentProps) => {
-  // selectedId and setSelectedId come from the stack's local state primitive.
-  const { size, setSize } = useProductFilters();
+  // selectedId and setSelectedId come from the stack's local state primitive: purely visual.
 
   return (
     <div>
-      <ProductToolbar size={size} onFilter={setSize} />
+      <ProductToolbar size={size} onFilter={onFilter} />
       <ProductGrid
         products={products}
         isLoading={isLoading}
@@ -84,13 +90,13 @@ export const ProductsComponent = ({
 ```
 ┌─────────────────────────────────────────────┐
 │               Container                      │
-│  (queries, mutations, route params,         │
+│  (pod hooks, route params,                  │
 │   store, callbacks)                         │
 │                                              │
 │   ┌─────────────────────────────────────┐   │
 │   │           Component                  │   │
-│   │  (UI state, effects, refs,          │   │
-│   │   pod hooks)                        │   │
+│   │  (visual state, effects, refs,      │   │
+│   │   renders what it receives)         │   │
 │   │                                      │   │
 │   │  ┌──────────┐  ┌──────────────────┐ │   │
 │   │  │ Toolbar  │  │  FilterChips     │ │   │
@@ -113,7 +119,7 @@ The Component never knows how an action runs — it only receives callbacks:
 Container                          Component
 ─────────                          ─────────
 handleDelete = (id) =>             onDelete(id)  ← prop
-  deleteProduct({ id })          ↑
+  deleteProduct(id)              ↑
                                    calls the callback
                             mutation executed in Container
 ```

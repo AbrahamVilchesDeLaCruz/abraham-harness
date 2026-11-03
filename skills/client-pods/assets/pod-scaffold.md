@@ -7,13 +7,15 @@ Use this as the directory structure reference when creating a new pod.
 ```
 pods/{pod-name}/
 ├── index.ts                          ← public API: re-exports only
-├── {PodName}Container.{view}            ← fetching, state, handlers
-├── {PodName}Component.{view}            ← pure presentational, no queries
+├── {PodName}Container.{view}            ← consumes the hooks, passes data and callbacks
+├── {PodName}Component.{view}            ← renders what it receives, no queries
+├── hooks.ts                          ← use{Something} functions, call the repository
+├── {pod-name}.repository.ts          ← calls the API client, returns ViewModels through the mapper
 ├── {pod-name}.types.ts               ← ViewModel types (ViewModels only)
 ├── {pod-name}.mapper.ts              ← ApiModel → ViewModel
 └── api/
     ├── {pod-name}.api-model.ts       ← raw API response types (camelCase)
-    └── {pod-name}.api.ts             ← fetch functions + server-state hooks
+    └── {pod-name}.api.ts             ← HTTP calls only
 ```
 
 ## Full Pod (with sub-components and hooks)
@@ -23,6 +25,7 @@ pods/{pod-name}/
 ├── index.ts
 ├── {PodName}Container.{view}
 ├── {PodName}Component.{view}
+├── {pod-name}.repository.ts
 ├── {pod-name}.types.ts
 ├── {pod-name}.mapper.ts
 ├── api/
@@ -37,6 +40,7 @@ pods/{pod-name}/
 └── __tests__/
     ├── {PodName}Component.test.{view}
     ├── {PodName}Container.test.{view}
+    ├── {pod-name}.repository.test.ts
     ├── {pod-name}.mapper.test.ts
     └── {PodName}Mother.ts
 ```
@@ -68,7 +72,8 @@ export type {PodName}VM = {
 | Component | `{PodName}Component.{view}` | `ProductsComponent.{view}` |
 | Types | `{pod-name}.types.ts` | `products.types.ts` |
 | API model | `{pod-name}.api-model.ts` | `products.api-model.ts` |
-| API hooks | `{pod-name}.api.ts` | `products.api.ts` |
+| HTTP calls | `{pod-name}.api.ts` | `products.api.ts` |
+| Repository (pod root) | `{pod-name}.repository.ts` | `products.repository.ts` |
 | Mapper (pod root) | `{pod-name}.mapper.ts` | `products.mapper.ts` |
 | Hook | `use{Something}.ts` | `useProductsFilters.ts` |
 
@@ -76,7 +81,9 @@ export type {PodName}VM = {
 
 - [ ] `index.ts` exports only what is needed — not the internal Container and Component at once if only the Container is used
 - [ ] `{pod-name}.types.ts` contains **only ViewModels** — no raw API types
-- [ ] `api/` has the 2 files: api-model, api.ts
-- [ ] `{pod-name}.mapper.ts` is at the pod root
+- [ ] `api/` has the 2 files: api-model, api.ts — only the raw model and the HTTP calls, no hooks
+- [ ] `{pod-name}.repository.ts` and `{pod-name}.mapper.ts` are at the pod root
+- [ ] Hooks call the repository; the Container and the Component never call it directly
+- [ ] The Container consumes the hooks and passes data and callbacks to the Component
 - [ ] Sub-components in `components/` only if this pod needs them — if shared, they go to `components/shared/`
 - [ ] Hooks extracted to a `hooks` file or folder when the Container exceeds ~80 lines of logic

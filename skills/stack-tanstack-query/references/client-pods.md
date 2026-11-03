@@ -2,7 +2,8 @@
 
 The concept skill `client-pods` defines the rules. This file maps them to TanStack Query.
 
-- `{pod-name}.api.ts` holds the pod's TanStack Query hooks, next to its fetch functions.
+- The pod's hooks file or folder holds its TanStack Query hooks. Each one wraps a call to `{pod-name}.repository.ts`.
+- `api/{pod-name}.api.ts` holds only the HTTP calls.
 
 ## External Documentation
 

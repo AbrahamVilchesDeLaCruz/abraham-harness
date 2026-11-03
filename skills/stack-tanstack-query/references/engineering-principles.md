@@ -6,7 +6,7 @@ TanStack Query details for the concepts in `docs/engineering/engineering-princip
 
 | Concern | Where it lives |
 |---|---|
-| Server state and cache | TanStack Query / api hooks (frontend) |
+| Server state and cache | TanStack Query / pod hooks (frontend) |
 
 ## Composition Root
 

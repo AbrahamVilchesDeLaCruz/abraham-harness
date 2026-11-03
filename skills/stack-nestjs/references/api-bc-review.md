@@ -12,8 +12,8 @@ Apply the process of `api-bc-review`. These are the NestJS forms of its checks.
 
 ## Boundaries
 
-- A BC's `shared/` holds the cross-module VOs, the NestJS module and the exception registry.
-- A BC may have multiple internal NestJS modules if it carries a lot of load.
+- A BC's `shared/` holds the cross-module VOs and the BC's shared NestJS module, which `SharedModule` imports.
+- Each submodule has its own NestJS module and exception registry, in `{bc}/{module}/infrastructure/framework/`. `SharedModule` never imports a submodule directly.
 
 ## Phase 7 — Swagger
 

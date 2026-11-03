@@ -9,6 +9,8 @@
 
 A **pod** is a self-contained functional unit that encapsulates all the logic, UI and data access of one concrete domain functionality.
 
+**Data flow:** Container -> hooks -> repository -> API client -> HTTP request, and then render in the Component.
+
 **Goals:**
 
 - **Encapsulation**: everything of a feature lives together
@@ -48,11 +50,13 @@ apps/client/src/
 ```
 pods/
 └── calendar/
-    ├── api/                              ← Data access layer
+    ├── api/                              ← Raw API model and HTTP calls only
     │   ├── index.ts                      ← Barrel: re-exports everything
     │   ├── calendar.api-model.ts         ← Types of the raw API response
-    │   └── calendar.api.ts               ← Fetch functions (server-state library)
-    ├── hooks/                            ← UI hooks of the pod
+    │   └── calendar.api.ts               ← HTTP calls
+    ├── hooks/                            ← Pod hooks, consumed by the Container
+    │   ├── useCalendarEvents.ts
+    │   ├── useCreateEvent.ts
     │   ├── useCalendarFilters.ts
     │   ├── useCalendarTooltip.ts
     │   ├── useCalendarDates.ts
@@ -62,8 +66,9 @@ pods/
     │   ├── CalendarToolbar
     │   ├── CalendarFilterChips
     │   └── AppointmentTooltip
-    ├── CalendarContainer                 ← Data binding (server state, routing, context)
-    ├── CalendarComponent                 ← UI state + composition
+    ├── CalendarContainer                 ← Consumes the hooks, routing, context
+    ├── CalendarComponent                 ← Renders what it receives + composition
+    ├── calendar.repository.ts            ← Calls the API client, returns ViewModels
     ├── calendar.mapper.ts                ← API response → ViewModel
     ├── calendar.types.ts                 ← ViewModel types (adapted to the UI)
     ├── calendar.styles.ts                ← Styles specific to the pod
@@ -74,15 +79,16 @@ pods/
 
 | File                        | Responsibility                                          |
 | --------------------------- | ------------------------------------------------------- |
-| `CalendarContainer`         | Data binding + routing + global context                 |
-| `CalendarComponent`         | UI state + composition of sub-components                |
-| `api/calendar.api.ts`       | Fetch functions with the server-state library           |
+| `CalendarContainer`         | Consumes the pod hooks + routing + global context       |
+| `CalendarComponent`         | Renders what it receives + composition of sub-components |
+| `api/calendar.api.ts`       | HTTP calls                                              |
 | `api/calendar.api-model.ts` | Types of the raw API response                           |
 | `api/index.ts`              | Barrel of the API layer                                 |
+| `calendar.repository.ts`    | Calls the API client, returns ViewModels through the mapper |
 | `calendar.mapper.ts`        | API response → ViewModel transformation                 |
 | `calendar.types.ts`         | ViewModel types (adapted to the UI)                     |
 | `calendar.styles.ts`        | Styles or classes specific to the pod                   |
-| `hooks/`                    | Custom UI hooks of the pod (encapsulated state)         |
+| `hooks/`                    | Pod hooks: encapsulated state, and server state through the repository |
 | `components/`               | Purely presentational sub-components                    |
 | `index.ts`                  | Barrel that exports the Container (entry point of the pod) |
 
@@ -98,7 +104,7 @@ The container is the **entry door to the outside world**.
 
 **Exclusive responsibilities:**
 
-- Data binding: connection to the server-state library (queries and mutations)
+- Data binding: consumes the pod hooks, and passes data and callbacks to the Component
 - Routing: current location, route params, navigation, search params
 - Global context: context and client store
 - Side effects toward the outside: mutations, navigation, redirects
@@ -106,25 +112,26 @@ The container is the **entry door to the outside world**.
 
 **Prohibitions:**
 
-- ❌ It does NOT have UI state (no modals, no tooltips, no visual filters)
+- ❌ It does NOT call the repository, the API client or HTTP directly
+- ❌ It does NOT have purely visual local state (no modals, no tooltips, no toggles)
 - ❌ It does NOT have complex markup: it only renders the Component and passes it props
 - ❌ It does NOT have lifecycle effects (except trivial sync toward the outside)
 - ❌ It does NOT do data transformations (that is the mapper)
 
 ### 4.2 Component
 
-The component is the **owner of the UI**: visual state, lifecycle, composition.
+The component **renders what it receives**: visual state, lifecycle, composition.
 
 **Responsibilities:**
 
-- UI state: for modals, tooltips, filters, toggles
+- Purely visual local state: for modals, tooltips, toggles
 - Lifecycle: effects to synchronize UI state
 - Imperative refs: for third-party components, scroll, etc.
 - Composition: renders presentational sub-components
-- Pod custom hooks: consumes hooks from `hooks/` that encapsulate UI logic
 
 **Prohibitions:**
 
+- ❌ It does NOT consume pod hooks: the Container does
 - ❌ It does NOT fetch data
 - ❌ It does NOT access routing
 - ❌ It does NOT access global context directly
@@ -134,11 +141,11 @@ The component is the **owner of the UI**: visual state, lifecycle, composition.
 ```
 ┌─────────────────────────────────────────────┐
 │               Container                      │
-│  (routing, server state, client store)      │
+│  (pod hooks, routing, client store)         │
 │                                              │
 │   ┌─────────────────────────────────────┐   │
 │   │           Component                  │   │
-│   │  (UI state, lifecycle, refs)        │   │
+│   │  (visual state, lifecycle, refs)    │   │
 │   │                                      │   │
 │   │  ┌──────────┐  ┌──────────────────┐ │   │
 │   │  │ Toolbar  │  │  FilterChips     │ │   │
@@ -163,8 +170,10 @@ Each pod has an `api/` folder with three files:
 api/
 ├── index.ts               ← Barrel
 ├── calendar.api-model.ts  ← Raw API types (what the server returns)
-└── calendar.api.ts        ← Server-state hooks (queries / mutations)
+└── calendar.api.ts        ← HTTP calls
 ```
+
+`api/` keeps only the raw API model and the HTTP calls. Server-state hooks live in the pod's hooks file or folder.
 
 ### `calendar.api-model.ts` — raw types
 
@@ -176,11 +185,48 @@ export interface CalendarEventApiModel {
   endDate: string;
   createdAt: string;
 }
+
+export interface CreateEventPayload {
+  title: string;
+  startDate: string;
+  endDate: string;
+}
 ```
 
-### `calendar.api.ts` — server-state hooks
+### `calendar.api.ts` — HTTP calls
 
-One hook per query or mutation. A query declares its key and its fetch function. A mutation declares its function, and invalidates the affected query keys on success. The code lives in the stack reference.
+```ts
+import { apiClient } from "@/core/api/apiClient";
+import { CalendarEventApiModel, CreateEventPayload } from "./calendar.api-model";
+
+export const getCalendarEvents = async (params: { month: number; year: number }): Promise<CalendarEventApiModel[]> => {
+  const { data } = await apiClient.get<CalendarEventApiModel[]>("/calendar/events", { params });
+  return data;
+};
+
+export const createCalendarEvent = async (payload: CreateEventPayload): Promise<void> => {
+  await apiClient.post("/calendar/events", payload);
+};
+```
+
+### `calendar.repository.ts` — ViewModels through the mapper
+
+It lives in the pod root, next to the mapper. It calls the API client and returns ViewModels through the mapper. The Component and the Container never call it directly.
+
+```ts
+import { createCalendarEvent, getCalendarEvents } from "./api/calendar.api";
+import { CreateEventPayload } from "./api/calendar.api-model";
+import { mapCalendarEvent } from "./calendar.mapper";
+import { CalendarEventVM } from "./calendar.types";
+
+export const calendarRepository = {
+  getEvents: async (params: { month: number; year: number }): Promise<CalendarEventVM[]> => {
+    const raw = await getCalendarEvents(params);
+    return raw.map(mapCalendarEvent);
+  },
+  createEvent: (payload: CreateEventPayload): Promise<void> => createCalendarEvent(payload),
+};
+```
 
 ### `calendar.mapper.ts` — API response → ViewModel
 
@@ -211,7 +257,9 @@ export interface CalendarEventVM {
 
 ## 6. Pod hooks
 
-UI hooks are named functions in a separate `hooks` file or folder of the pod, called `use{Something}`.
+Pod hooks are named functions in a separate `hooks` file or folder of the pod, called `use{Something}`. The Container consumes them.
+
+A hook reaches the data through the repository: it calls `calendar.repository.ts`, never the API client or HTTP directly. A server-state hook wraps a repository call: one hook per query or mutation. A query declares its key and its fetch function. A mutation declares its function, and invalidates the affected query keys on success. The code lives in the stack reference.
 
 ### Naming
 
@@ -226,7 +274,7 @@ Every hook, pod or global, returns an object with named fields, also when it exp
 ### When to create a pod hook?
 
 - When a group of state values + handlers are cohesive (filters, tooltips, pagination)
-- When the component has more than ~5 state values: a sign that there are hooks to extract
+- When the component has more than ~5 state values: a sign that there are hooks to extract, for the Container to consume
 - When the logic can be named with a clear noun (`filters`, `tooltip`, `dates`)
 
 ---
@@ -247,7 +295,8 @@ Hooks reusable across pods live in `src/core/hooks/` or `src/common/hooks/`. Exa
 | Pod hooks        | `camelCase.ts`           | `useCalendarFilters.ts` |
 | Global hooks     | `camelCase.ts`           | `useClickOutside.ts`    |
 | API model        | `{pod-name}.api-model.ts` | `calendar.api-model.ts` |
-| API hooks        | `{pod-name}.api.ts`      | `calendar.api.ts`       |
+| HTTP calls       | `{pod-name}.api.ts`      | `calendar.api.ts`       |
+| Repository (pod root) | `{pod-name}.repository.ts` | `calendar.repository.ts` |
 | Mapper (pod root) | `{pod-name}.mapper.ts`  | `calendar.mapper.ts`    |
 | ViewModel types  | `{pod-name}.types.ts`    | `calendar.types.ts`     |
 | Styles           | `{pod-name}.styles.ts`   | `calendar.styles.ts`    |
@@ -284,7 +333,7 @@ Default post-login: `/home` (see `core/navigation/sessionNav.ts`).
 ## 11. Data flow
 
 ```
-API → api.ts (server-state library) → mapper → ViewModel → Container → Component
-                                                                ↑              ↓
-                                                         mutations/callbacks  Sub-components
+Container → hooks → repository → API client → HTTP request
+    ↓
+Component → Sub-components
 ```

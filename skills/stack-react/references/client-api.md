@@ -6,7 +6,7 @@ The concept skill `client-api` defines the rules. This file holds the detail of 
 
 ## Global API client
 
-The HTTP client lives in `core/` and is imported from any pod:
+The HTTP client lives in `core/`. Each pod imports it from `api/{pod-name}.api.ts`, the only place that calls it:
 
 ```ts
 // core/api/apiClient.ts

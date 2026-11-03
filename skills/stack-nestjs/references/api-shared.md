@@ -5,6 +5,8 @@ The concept skill `api-shared` defines the rules. This reference shows how to ap
 ## Rules
 
 - `SharedModule` is imported **only once** in `AppModule` — it is `@Global()`.
+- `SharedModule` imports **only the shared modules of the bounded contexts**, never a submodule directly.
+- A BC module never imports `SharedModule`: it is `@Global()`, and importing it back would create a cycle.
 - `ConfigModule.forRoot()` and `TypeOrmModule.forRootAsync()` are configured in **`AppModule`**, not in `SharedModule`.
 - `ConfigModule` is declared `isGlobal: true` so `ConfigService` is available in all modules.
 - `SharedModule` does not import or re-export `ConfigModule` or `TypeOrmModule`.
@@ -51,7 +53,7 @@ src/
         │   ├── env.validation.ts        ← Joi schema
         │   └── use-stub-adapters.ts
         ├── framework/
-        │   └── shared.module.ts         ← @Global() — imported ONCE in AppModule
+        │   └── shared.module.ts         ← @Global() — imported ONCE in AppModule; imports only BC shared modules
         ├── auth/
         │   └── auth.module.ts           ← JWT + Google + Guest strategies
         ├── event-bus/
@@ -78,9 +80,15 @@ import { PinoLogger } from '../logger/pino-logger';
 import { GlobalExceptionRegistry } from '../exceptions/global-exception-registry';
 import { HttpExceptionFilter } from '../exceptions/http-exception.filter';
 import { AmqpMessageBus } from '../event-bus/amqp-message-bus';
+import { AchievementSharedModule } from '@/achievement/shared/infrastructure/framework/achievement-shared.module';
+// ... the shared module of each bounded context
 
 @Global()
 @Module({
+  imports: [
+    AchievementSharedModule, // ← only BC shared modules, never a submodule
+    // IdentitySharedModule, CatalogSharedModule, SalesSharedModule, ...
+  ],
   controllers: [HealthGetController],
   providers: [
     {
@@ -126,7 +134,6 @@ import { APP_GUARD } from '@nestjs/core';
 import { SharedModule } from './shared/infrastructure/framework/shared.module';
 import { buildTypeOrmDataSourceOptions } from './shared/infrastructure/persistence/typeorm/typeorm-data-source-options';
 import { envValidationSchema } from './shared/infrastructure/config/env.validation';
-// ... BC modules
 
 @Module({
   imports: [
@@ -157,8 +164,7 @@ import { envValidationSchema } from './shared/infrastructure/config/env.validati
         skipIf: (): boolean => process.env.NODE_ENV === 'test',
       },
     ]),
-    SharedModule,
-    // IdentityModule, CatalogModule, SalesModule, ...
+    SharedModule, // ← the bounded contexts reach the application through it
   ],
   providers: [
     {
@@ -170,48 +176,37 @@ import { envValidationSchema } from './shared/infrastructure/config/env.validati
 export class AppModule {}
 ```
 
-## Complete Bounded Context Module
+## Bounded Context Modules
 
-BC modules are complete NestJS modules that wire the whole BC: repositories, use cases, controllers, subscribers and the exception registry. They live in `{bc}/shared/infrastructure/framework/`.
+A bounded context has several submodules, and works almost as a modular monolith.
+
+Each submodule is a complete NestJS module that wires its repositories, use cases, controllers, subscribers and exception registry, and exports the registry. It lives in `{bc}/{module}/infrastructure/framework/`.
 
 ```typescript
-// src/achievement/shared/infrastructure/framework/achievement.module.ts
+// src/achievement/user-achievement/infrastructure/framework/user-achievement.module.ts
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { SharedModule } from '@/shared/infrastructure/framework/shared.module';
 import { AuthModule } from '@/shared/infrastructure/auth/auth.module';
 import { SUBSCRIBERS, SubscribersBootstrapper } from '@/shared/infrastructure/event-bus/subscribers-bootstrapper';
 
 import { USER_ACHIEVEMENT_REPOSITORY } from '@/achievement/user-achievement/domain/user-achievement.repository';
-import { USER_ACHIEVEMENT_PROGRESS_REPOSITORY } from '@/achievement/progress/domain/user-achievement-progress.repository';
 import { UserAchievementEntity } from '@/achievement/user-achievement/infrastructure/persistence/user-achievement.entity';
-import { UserAchievementProgressEntity } from '@/achievement/progress/infrastructure/persistence/user-achievement-progress.entity';
 import { TypeOrmUserAchievementRepository } from '@/achievement/user-achievement/infrastructure/persistence/typeorm-user-achievement.repository';
-import { TypeOrmUserAchievementProgressRepository } from '@/achievement/progress/infrastructure/persistence/typeorm-user-achievement-progress.repository';
 
-import { AchievementCatalog } from '@/achievement/catalog/domain/achievement-catalog';
 import { AchievementsSearcher } from '@/achievement/user-achievement/application/search/achievements-searcher';
 import { SearchAchievementsGetController } from '@/achievement/user-achievement/infrastructure/controllers/search-achievements-get.controller';
-import { AchievementExceptionRegistry } from './achievement-exception-registry';
+import { UserAchievementExceptionRegistry } from './user-achievement-exception-registry';
 // ... more use cases and subscribers
 
 @Module({
   imports: [
-    SharedModule,
     AuthModule,
-    TypeOrmModule.forFeature([
-      UserAchievementEntity,
-      UserAchievementProgressEntity,
-    ]),
+    TypeOrmModule.forFeature([UserAchievementEntity]),
   ],
   controllers: [SearchAchievementsGetController],
   providers: [
     // Repositories — registered with a DI token
     { provide: USER_ACHIEVEMENT_REPOSITORY, useClass: TypeOrmUserAchievementRepository },
-    { provide: USER_ACHIEVEMENT_PROGRESS_REPOSITORY, useClass: TypeOrmUserAchievementProgressRepository },
-
-    // Domain services
-    AchievementCatalog,
 
     // Use cases
     AchievementsSearcher,
@@ -224,22 +219,38 @@ import { AchievementExceptionRegistry } from './achievement-exception-registry';
     },
     SubscribersBootstrapper,
 
-    // BC exception registry
-    AchievementExceptionRegistry,
+    // Submodule exception registry
+    UserAchievementExceptionRegistry,
   ],
   exports: [
-    AchievementCatalog,           // domain service — needed by other BCs
-    USER_ACHIEVEMENT_REPOSITORY,  // repository token — never the concrete implementation
+    UserAchievementExceptionRegistry, // the BC's shared module gathers it
+    USER_ACHIEVEMENT_REPOSITORY,      // repository token — never the concrete implementation
   ],
 })
-export class AchievementModule {}
+export class UserAchievementModule {}
 ```
 
-**Keys of the BC module pattern:**
-- Imports `SharedModule` and `AuthModule` (does not declare them global)
+The BC's shared module gathers its submodules and their registries. It is what `SharedModule` imports:
+
+```typescript
+// src/achievement/shared/infrastructure/framework/achievement-shared.module.ts
+import { Module } from '@nestjs/common';
+import { UserAchievementModule } from '@/achievement/user-achievement/infrastructure/framework/user-achievement.module';
+import { ProgressModule } from '@/achievement/progress/infrastructure/framework/progress.module';
+import { AchievementCatalogModule } from '@/achievement/catalog/infrastructure/framework/achievement-catalog.module';
+
+@Module({
+  imports: [UserAchievementModule, ProgressModule, AchievementCatalogModule],
+  exports: [UserAchievementModule, ProgressModule, AchievementCatalogModule],
+})
+export class AchievementSharedModule {}
+```
+
+**Keys of the module pattern:**
+- Imports `AuthModule` (does not declare it global). It never imports `SharedModule`: it is `@Global()`, and it imports the BC's shared module
 - Registers its entities with `TypeOrmModule.forFeature([...])`
 - Uses tokens (`PRODUCT_REPOSITORY`, `LOGGER_SERVICE`) — never concrete classes directly in `inject`
-- Exports only what other BCs need — DI tokens or domain services
+- Exports its exception registry, plus only what other BCs need — DI tokens or domain services
 
 ## Env Validation — Joi (essentials)
 

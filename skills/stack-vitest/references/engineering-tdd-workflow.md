@@ -7,6 +7,7 @@ Applies `tdd-workflow` to client tests with Vitest, Testing Library and MSW.
 | Layer | Tool |
 |---|---|
 | Pod hook (client) | Vitest + renderHook |
+| Pod repository (client) | Vitest |
 | Mapper (client) | Vitest (pure function) |
 | Component (client) | Vitest + RTL |
 | Container (client) | Vitest + RTL + MSW |

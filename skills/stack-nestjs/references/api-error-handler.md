@@ -8,17 +8,22 @@ The concept skill `api-error-handler` defines the rules. This reference shows ho
 - `HttpExceptionFilter` uses `@Catch()`, and applies the registry.
 - `message` is the response body if the exception is an `HttpException`, and `errorType` is `null` for `HttpException`.
 - The registry implements `OnModuleInit` — not the module.
-- The registry is declared as a provider in the BC's NestJS module.
+- The registry is declared as a provider of the submodule's NestJS module, and that module exports it.
+- The BC's shared NestJS module imports its submodules' modules and re-exports them. `SharedModule` imports only the BCs' shared modules, never a submodule directly.
 
 ## Architecture
 
 ```
 shared/infrastructure/exceptions/
-├── global-exception-registry.ts   ← global registry (Map<exceptionName, HttpStatus> + default response)
+├── global-exception-registry.ts   ← aggregator (Map<exceptionName, HttpStatus> + default response)
 └── http-exception.filter.ts       ← @Catch() — applies the registry
 
-{feature}/infrastructure/framework/
-└── {feature}-exception-registry.ts  ← registers the module's errors in onModuleInit()
+{bc}/{module}/infrastructure/framework/
+├── {module}.module.ts             ← provides and exports the registry
+└── {module}-exception-registry.ts ← registers the submodule's errors in onModuleInit()
+
+{bc}/shared/infrastructure/framework/
+└── {bc}-shared.module.ts          ← imports and re-exports the submodules' modules
 ```
 
 ## GlobalExceptionRegistry — shared
@@ -97,10 +102,10 @@ export class HttpExceptionFilter implements ExceptionFilter {
 }
 ```
 
-## Exception Registry per module
+## Exception Registry per submodule
 
 ```typescript
-// products/infrastructure/framework/product-exception-registry.ts
+// catalog/product/infrastructure/framework/product-exception-registry.ts
 @Injectable()
 export class ProductExceptionRegistry implements OnModuleInit {
   constructor(private readonly globalRegistry: GlobalExceptionRegistry) {}
@@ -117,10 +122,10 @@ export class ProductExceptionRegistry implements OnModuleInit {
 }
 ```
 
-Register it as a provider in the module:
+Register it as a provider of the submodule, and export it:
 
 ```typescript
-// products/infrastructure/framework/product.module.ts
+// catalog/product/infrastructure/framework/product.module.ts
 @Module({
   providers: [
     ProductCreator,
@@ -128,9 +133,33 @@ Register it as a provider in the module:
     ProductExceptionRegistry, // ← here
     { provide: PRODUCT_REPOSITORY, useClass: TypeOrmProductRepository },
   ],
+  exports: [ProductExceptionRegistry],
 })
 export class ProductModule {}
 ```
+
+The BC's shared module gathers its submodules, and it is the only piece that reaches `SharedModule`:
+
+```typescript
+// catalog/shared/infrastructure/framework/catalog-shared.module.ts
+@Module({
+  imports: [ProductModule, CategoryModule],
+  exports: [ProductModule, CategoryModule],
+})
+export class CatalogSharedModule {}
+```
+
+```typescript
+// shared/infrastructure/framework/shared.module.ts
+@Global()
+@Module({
+  imports: [CatalogSharedModule, IdentitySharedModule], // ← only BC shared modules, never a submodule
+  // ... providers and exports, see `api-shared`
+})
+export class SharedModule {}
+```
+
+`SharedModule` is `@Global()`, so `ProductExceptionRegistry` receives `GlobalExceptionRegistry` without importing `SharedModule`. A BC module never imports `SharedModule` back.
 
 ## Anti-patterns
 
@@ -140,7 +169,7 @@ export class ProductNotFound extends DomainException {
   readonly statusCode = 404; // the domain knows nothing about HTTP
 }
 
-// ❌ Global registry with all the errors of all modules
+// ❌ One registry with the errors of several submodules
 globalRegistry.register(new Map([
   [ProductNotFound.name, 404],
   [OrderNotFound.name, 404],   // this belongs in order-exception-registry.ts
@@ -156,17 +185,17 @@ try {
 
 ## Template
 
-File: `{context}/infrastructure/framework/{context}-exception-registry.ts`
+File: `{bc}/{module}/infrastructure/framework/{module}-exception-registry.ts`
 
 ```typescript
 import { HttpStatus, Injectable, OnModuleInit } from '@nestjs/common';
 import { GlobalExceptionRegistry } from '@/shared/infrastructure/exceptions/global-exception-registry';
 import { {Entity}NotFound } from '../../domain/exceptions/{entity}-not-found';
 import { {Entity}AlreadyExists } from '../../domain/exceptions/{entity}-already-exists';
-// Import all domain errors of this BC
+// Import all domain errors of this submodule
 
 @Injectable()
-export class {Context}ExceptionRegistry implements OnModuleInit {
+export class {Module}ExceptionRegistry implements OnModuleInit {
   constructor(private readonly globalRegistry: GlobalExceptionRegistry) {}
 
   onModuleInit(): void {
@@ -181,17 +210,18 @@ export class {Context}ExceptionRegistry implements OnModuleInit {
 }
 ```
 
-Register in the module:
+Register in the submodule:
 
 ```typescript
-// {context}/infrastructure/framework/{context}.module.ts
+// {bc}/{module}/infrastructure/framework/{module}.module.ts
 @Module({
   providers: [
-    {Context}ExceptionRegistry, // ← just add as provider; onModuleInit runs automatically
+    {Module}ExceptionRegistry, // ← add as provider; onModuleInit runs automatically
     // ... other providers
   ],
+  exports: [{Module}ExceptionRegistry],
 })
-export class {Context}Module {}
+export class {Module}Module {}
 ```
 
 > The registry itself implements `OnModuleInit` — NestJS calls `onModuleInit()` automatically after the module is initialized, before the first request arrives. The module class does **not** need to implement `OnModuleInit`.

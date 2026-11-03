@@ -4,8 +4,9 @@ The concept skill `client-query` defines the rules. This file holds its TanStack
 
 ## Rules mapped to TanStack Query
 
-- **`useQuery`** → in the Container (data fetching)
-- **`useMutation`** → in the Container (side effects)
+- **`useQuery`** → in a hook of the pod's hooks file, consumed by the Container (data fetching)
+- **`useMutation`** → in a hook of the pod's hooks file, consumed by the Container (side effects)
+- `queryFn` and `mutationFn` call `{pod-name}.repository.ts`, never `apiClient` directly. The repository already returns ViewModels
 - Use the TanStack Query states directly — do not duplicate them in `useState`
 - Configure the default `staleTime` in the global `QueryClient` (`core/`)
 
@@ -28,12 +29,14 @@ The concept skill `client-query` defines the rules. This file holds its TanStack
 ## useQuery — data fetching
 
 ```ts
-// products.api.ts
+// hooks.ts
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { productsRepository } from './products.repository';
+
 export const useProducts = (params: ProductListParams) => {
   return useQuery({
     queryKey: productKeys.list(params),
-    queryFn: () => apiClient.get<ProductApiModel[]>('/products', { params }),
-    select: (data) => data.map(mapProduct),  // mapper here if simple
+    queryFn: () => productsRepository.getAll(params),
     staleTime: 1000 * 60 * 5,                  // 5 min — adjust as needed
   });
 };
@@ -41,8 +44,7 @@ export const useProducts = (params: ProductListParams) => {
 export const useProduct = (id: string) => {
   return useQuery({
     queryKey: productKeys.detail(id),
-    queryFn: () => apiClient.get<ProductApiModel>(`/products/${id}`),
-    select: mapProduct,
+    queryFn: () => productsRepository.getById(id),
     enabled: !!id,  // do not run without an id
   });
 };
@@ -51,13 +53,12 @@ export const useProduct = (id: string) => {
 ## useMutation — side effects
 
 ```ts
-// products.api.ts
+// hooks.ts
 export const useCreateProduct = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: CreateProductPayload) =>
-      apiClient.post<ProductApiModel>('/products', data),
+    mutationFn: (data: CreateProductPayload) => productsRepository.create(data),
     onSuccess: () => {
       // Invalidates every list — the Container does not need to know how
       queryClient.invalidateQueries({ queryKey: productKeys.lists() });
@@ -69,7 +70,7 @@ export const useDeleteProduct = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => apiClient.delete(`/products/${id}`),
+    mutationFn: (id: string) => productsRepository.remove(id),
     onSuccess: (_, id) => {
       queryClient.invalidateQueries({ queryKey: productKeys.lists() });
       queryClient.removeQueries({ queryKey: productKeys.detail(id) });
@@ -82,7 +83,7 @@ export const useUpdateProduct = () => {
 
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: UpdateProductPayload }) =>
-      apiClient.patch<void>(`/products/${id}`, data),
+      productsRepository.update(id, data),
     onSuccess: (_, { id }) => {
       // A PATCH returns 204 with no body, so refetch instead of updating the cache
       queryClient.invalidateQueries({ queryKey: productKeys.detail(id) });
@@ -154,29 +155,23 @@ Override per query only when necessary (very dynamic data → `staleTime: 0`, st
 
 ## useQuery hook template
 
+File: `pods/{pod-name}/hooks.ts`.
+
 ```typescript
 import { useQuery } from '@tanstack/react-query';
-import { {podName}Keys } from './{pod-name}.query-keys';
-import { get{PodName}s } from './{pod-name}.api-client';
-import { map{PodName} } from '../{pod-name}.mapper';
+import { {podName}Repository } from './{pod-name}.repository';
 
 export function use{PodName}s(filters?: {PodName}Filters) {
   return useQuery({
     queryKey: {podName}Keys.list(filters),
-    queryFn: async () => {
-      const raw = await get{PodName}s(filters);
-      return raw.map(map{PodName});
-    },
+    queryFn: () => {podName}Repository.getAll(filters),
   });
 }
 
 export function use{PodName}(id: string) {
   return useQuery({
     queryKey: {podName}Keys.detail(id),
-    queryFn: async () => {
-      const raw = await get{PodName}(id);
-      return map{PodName}(raw);
-    },
+    queryFn: () => {podName}Repository.getById(id),
     enabled: !!id,
   });
 }
@@ -186,14 +181,13 @@ export function use{PodName}(id: string) {
 
 ```typescript
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { {podName}Keys } from './{pod-name}.query-keys';
-import { create{PodName} } from './{pod-name}.api-client';
+import { {podName}Repository } from './{pod-name}.repository';
 
 export function useCreate{PodName}() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: Create{PodName}Input) => create{PodName}(data),
+    mutationFn: (data: Create{PodName}Input) => {podName}Repository.create(data),
     onSuccess: () => {
       // Invalidate to trigger refetch of affected queries
       queryClient.invalidateQueries({ queryKey: {podName}Keys.lists() });
@@ -209,6 +203,8 @@ export function useCreate{PodName}() {
 ## Usage in Container
 
 ```typescript
+import { use{PodName}s, useCreate{PodName} } from './hooks';
+
 export function {PodName}Container() {
   const { data: {podName}s, isLoading, isError } = use{PodName}s();
   const create{PodName}Mutation = useCreate{PodName}();
@@ -235,4 +231,4 @@ export function {PodName}Container() {
 - [TanStack Query — Mutations](https://tanstack.com/query/latest/docs/framework/react/guides/mutations) — `useMutation`, `onSuccess`, `onError`
 - [TanStack Query — Invalidation](https://tanstack.com/query/latest/docs/framework/react/guides/query-invalidation) — when and how to invalidate
 
-The concept skill uses neutral names: `serverQuery` is `useQuery`, `serverMutation` is `useMutation`, `key` is `queryKey`, `onDone` is `onSuccess`, `onFailure` is `onError`, `fetch` is `queryFn`, `execute` is `mutationFn`, `mutate` or `mutateAsync`, `isSubmitting` is `isPending`, `freshnessMs` is `staleTime`, and `transform` is `select`.
+The concept skill uses neutral names: `serverQuery` is `useQuery`, `serverMutation` is `useMutation`, `key` is `queryKey`, `onDone` is `onSuccess`, `onFailure` is `onError`, `fetch` is `queryFn`, `execute` is `mutationFn`, `mutate` or `mutateAsync`, `isSubmitting` is `isPending`, and `freshnessMs` is `staleTime`.

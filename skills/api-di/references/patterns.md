@@ -61,7 +61,8 @@ The infrastructure module connects each token to its implementation. Registratio
 - Bind to a class — most common case (repositories, services).
 - Alias to an existing singleton — singleton shared under multiple tokens: one singleton, two distinct contracts.
 - Bind to a factory — providers that depend on multiple instances, such as a list of typed subscribers.
-- Export only the tokens that other modules need.
+- Export only the tokens that other modules need. A submodule also exports its exception registry.
+- A bounded context's shared module imports its submodules. The root shared module imports only those shared modules.
 
 ## Injection in Use Case
 

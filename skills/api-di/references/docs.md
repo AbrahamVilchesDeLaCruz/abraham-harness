@@ -5,7 +5,7 @@
 | Skill | Why read it |
 |---|---|
 | `api-shared` | Global shared module — how Logger, EventBus, DB are registered |
-| `api-infrastructure` | Module structure per bounded context |
+| `api-infrastructure` | Module structure of a bounded context |
 | `api-application` | How use cases inject ports with the token |
 | `api-events` | `EVENT_BUS` and `DOMAIN_EVENT_CONSUMER` tokens |
 

@@ -4,7 +4,7 @@ The stack reference for tests holds the original code.
 
 ## Integration test — Container with HTTP interception
 
-Framework-free shape: override the handler for `/products` inside each `it`, and render `ProductsContainer` inside the server-state provider.
+Framework-free shape: override the handler for `/products` inside each `it`, and render `ProductsContainer` inside the server-state provider. Nothing in the pod is mocked: the test crosses the hooks, the repository and the API client, down to the intercepted HTTP request.
 
 - Loads and shows products from the API: the handler returns a raw API list, and the test waits for `Desk lamp` to appear.
 - Shows the error state when the API fails: the handler returns status 500, and the test waits for an element with role `alert`.

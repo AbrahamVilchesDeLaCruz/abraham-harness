@@ -15,6 +15,11 @@ export interface ProductApiModel {
   createdAt: string;
 }
 
+export interface ProductListParams {
+  categoryId?: string;
+  page?: number;
+}
+
 export interface CreateProductPayload {
   name: string;
   description: string;
@@ -61,27 +66,79 @@ export const mapProduct = (raw: ProductApiModel): ProductVM => ({
 });
 ```
 
-## `{pod-name}.api.ts` — server-state hooks
+## `{pod-name}.api.ts` — HTTP calls
 
-See skill `client-query` for the full query and mutation pattern. `serverQuery` stands for the query primitive of the stack's server-state library; the stack reference shows the real hook.
+One function per endpoint. It calls the HTTP client and returns the raw API model. Hooks do not live here.
 
 ```ts
-// products.api.ts
-export const productKeys = {
-  all: ['products'] as const,
-  lists: () => [...productKeys.all, 'list'] as const,
-  list: (params: ProductListParams) => [...productKeys.lists(), params] as const,
-  detail: (id: string) => [...productKeys.all, 'detail', id] as const,
+// api/products.api.ts
+import { apiClient } from '@/core/api/apiClient';
+import type {
+  CreateProductPayload,
+  ProductApiModel,
+  ProductListParams,
+  UpdateProductPayload,
+} from './products.api-model';
+
+export const getProducts = async (params: ProductListParams): Promise<ProductApiModel[]> => {
+  const { data } = await apiClient.get<ProductApiModel[]>('/products', { params });
+  return data;
 };
 
-export const useProducts = (params: ProductListParams) => {
-  return serverQuery({
-    key: productKeys.list(params),
-    fetch: () => apiClient.get<ProductApiModel[]>('/products', { params }),
-    transform: (data) => data.map(mapProduct),
-  });
+export const getProduct = async (id: string): Promise<ProductApiModel> => {
+  const { data } = await apiClient.get<ProductApiModel>(`/products/${id}`);
+  return data;
+};
+
+export const createProduct = async (payload: CreateProductPayload): Promise<ProductApiModel> => {
+  const { data } = await apiClient.post<ProductApiModel>('/products', payload);
+  return data;
+};
+
+export const updateProduct = async (id: string, payload: UpdateProductPayload): Promise<void> => {
+  await apiClient.patch<void>(`/products/${id}`, payload);
+};
+
+export const deleteProduct = async (id: string): Promise<void> => {
+  await apiClient.delete(`/products/${id}`);
 };
 ```
+
+## `{pod-name}.repository.ts` — ViewModels through the mapper
+
+Lives at the pod root, next to the mapper. It calls the API client and returns ViewModels through the mapper. Only hooks call it; the Component and the Container never do.
+
+```ts
+// products.repository.ts
+import {
+  createProduct,
+  deleteProduct,
+  getProduct,
+  getProducts,
+  updateProduct,
+} from './api/products.api';
+import type {
+  CreateProductPayload,
+  ProductListParams,
+  UpdateProductPayload,
+} from './api/products.api-model';
+import { mapProduct } from './products.mapper';
+import type { ProductVM } from './products.types';
+
+export const productsRepository = {
+  getAll: async (params: ProductListParams): Promise<ProductVM[]> => {
+    const raw = await getProducts(params);
+    return raw.map(mapProduct);
+  },
+  getById: async (id: string): Promise<ProductVM> => mapProduct(await getProduct(id)),
+  create: async (payload: CreateProductPayload): Promise<ProductVM> =>
+    mapProduct(await createProduct(payload)),
+  update: (id: string, payload: UpdateProductPayload): Promise<void> => updateProduct(id, payload),
+  remove: (id: string): Promise<void> => deleteProduct(id),
+};
+```
+
+The server-state hooks that wrap these calls live in the pod's hooks file. See skill `client-query`.
 
 ## `api/index.ts` — barrel
 
@@ -104,7 +161,7 @@ export { ProductsContainer } from './ProductsContainer';
 
 ## Global API client
 
-The HTTP client lives in `core/` and is imported from any pod. It sets:
+The HTTP client lives in `core/`. A pod imports it only from `api/{pod-name}.api.ts`. It sets:
 
 - The base URL from the environment.
 - Credentials on every request, for httpOnly cookies (refresh token).

@@ -24,8 +24,11 @@ metadata:
 - The config module is declared global so the config service is available in all modules
 - Persistence is configured through a builder function that parses `DATABASE_URL`
 - The shared module does not import or re-export the config module or the persistence module
-- Bounded context modules **are not global** — they are imported explicitly in the application root module
-- BC modules export only what other BCs need (repository tokens or domain services)
+- A BC has several submodules, and works almost as a modular monolith
+- The root shared module receives **only the BCs' shared modules**, never a submodule directly
+- A BC's shared module **is not global**. It gathers its submodules and their exception registries, and it reaches the root
+- A BC's modules never import the root shared module: it is global, and it imports the BC
+- Submodules export their exception registry, plus only what other BCs need (repository tokens or domain services)
 - Automatic schema synchronization is off **always** — migrations are the source of truth of the schema
 
 ### Env
@@ -45,24 +48,26 @@ metadata:
 
 ### The shared module — what it exports
 
-The shared module provides cross-cutting infrastructure that all modules need without importing it explicitly:
+The shared module provides cross-cutting infrastructure that all modules use without importing it:
 
 | Token / class | Description |
 |---|---|
 | `LOGGER_SERVICE` | Structured logger |
 | `DOMAIN_EVENT_PUBLISHER` | Publishes events to the bus |
 | `DOMAIN_EVENT_CONSUMER` | Consumes events from the bus |
-| `GlobalExceptionRegistry` | Central exception registry |
+| `GlobalExceptionRegistry` | Aggregator of the exception registries |
 | `HttpExceptionFilter` | Global HTTP filter |
 
-### Internal shared per bounded context
+### Internal shared of a bounded context
 
-Bounded contexts with multiple submodules have their own `shared/` that contains:
+A BC's `shared/` contains:
 
 | Folder | Content |
 | --- | --- |
 | **`domain/`** | value objects, interfaces or constants that cross submodules within the BC |
-| **`infrastructure/framework/`** | the framework module of the whole BC (wiring), the BC's exception registry |
+| **`infrastructure/framework/`** | the BC's shared module, which gathers its submodules and their exception registries |
+
+Each submodule has its framework module and exception registry in `{bc}/{module}/infrastructure/framework/`.
 
 ## Execution Steps
 
@@ -72,7 +77,7 @@ Bounded contexts with multiple submodules have their own `shared/` that contains
 
 ## Output Contract
 
-Deliver the piece in its `shared/` folder and the wiring changes in the shared module, the application root module or the BC's module.
+Deliver the piece in its `shared/` folder and the wiring in the shared module, the application root module or the BC's shared module.
 
 ## References
 

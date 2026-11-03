@@ -11,9 +11,11 @@ Delivery: single-pr. Test runner: node --test.
 
 ## Tasks
 
-- [ ] T1 S1-S5 apply to the skills. Route: delegated, context backstop.
+- [x] T1 S1-S5 apply to the skills. Route: delegated, context backstop.
 
 ## Log
 
 - L1 (2026-11-03): The quotes in S1-S3.
 - L2: Engram mirror pending: no Engram tool is available in this session.
+- L3 (2026-11-03): docs answer: "Solo lo del proyecto". Shared conventions live only in skills, updated by `update`. A project's `docs/` holds its domain and decisions, and a new skill turns corrections into documents.
+- L4 (2026-11-03): "quiero poder instalar el harnees por proyecto no global". Nothing is installed globally. Removing the 26 links in `~/.config/opencode/skills/` to `tfm-big-school/skills` was denied by the permission check, so it stays with the user.

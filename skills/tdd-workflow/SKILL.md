@@ -35,9 +35,10 @@ What to test per layer:
 
 | Layer | What to test |
 |---|---|
-| Use Case (api) | Full flow: happy path + domain errors |
+| Use Case (api) | Unit test of the full flow: happy path + domain errors |
 | Domain Service (api) | Through the Use Case; only a larger one you want to test on its own gets its own test |
 | Pod hook (client) | State, handlers, side effects |
+| Pod repository (client) | Returns ViewModels through the mapper |
 | Mapper (api/client) | Input → output transformation (pure function) |
 | Component (client) | Rendering, UI interactions |
 | Container (client) | Full flow with mocked HTTP |

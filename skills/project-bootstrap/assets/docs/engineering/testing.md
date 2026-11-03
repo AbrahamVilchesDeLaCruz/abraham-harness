@@ -44,8 +44,9 @@ pnpm --filter @myapp/api test:watch
 
 ### Conventions
 
-- One `*.spec.ts` file per use case
-- Object Mother for fixtures: `*-mother.ts` next to the spec; shared Mothers go in `test/shared`
+- One `*.spec.ts` file per use case. Specs live under `test/`, never under `src/`
+- `src/{bc}/{module}/application/{action}/{use-case}.ts` is tested in `test/{bc}/{module}/application/{action}/`, which holds `request-{use-case}.mother.ts` and `{use-case}.spec.ts`
+- Object Mother for fixtures: next to the spec; shared Mothers go in `test/shared`
 - Mocks through the project's mocking library: no manual mock functions
 
 ---
@@ -175,7 +176,7 @@ apps/api/
     │   └── infrastructure/
     │       └── create-test-app.ts  ← helper: bootstraps the application for E2E
     └── identity/
-        ├── application/        ← unit specs + the Object Mothers next to them
+        ├── user/application/register/  ← request-user-registrar.mother.ts + user-registrar.spec.ts
         └── infrastructure/     ← E2E specs
             ├── guest-auth-post.e2e-spec.ts
             ├── register-login-auth.e2e-spec.ts

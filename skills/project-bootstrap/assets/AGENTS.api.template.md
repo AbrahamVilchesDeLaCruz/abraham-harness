@@ -54,7 +54,7 @@ apps/api/src/
 
 ### DDD modules inside a Bounded Context
 
-When a BC has **multiple aggregates**, it is organized into DDD modules (Vaughn Vernon, IDDD):
+When a BC has **multiple aggregates**, it is organized into DDD modules (Vaughn Vernon, IDDD). It works almost as a modular monolith:
 
 ```
 apps/api/src/{bc}/
@@ -63,25 +63,28 @@ apps/api/src/{bc}/
 │   ├── application/
 │   └── infrastructure/
 │       ├── controllers/
+│       ├── framework/    ← framework module of the module, its exception registry, wiring
 │       └── persistence/
 ├── {module-b}/           ← owner of aggregate B
 │   ├── domain/
 │   ├── application/
 │   └── infrastructure/
 │       ├── controllers/
+│       ├── framework/    ← framework module of the module, its exception registry, wiring
 │       └── persistence/
 └── shared/               ← what crosses modules inside the BC
     ├── domain/           ← VOs or interfaces shared between modules
     └── infrastructure/
-        ├── framework/    ← framework module of the BC, exception registry, wiring
+        ├── framework/    ← shared module of the BC: gathers the modules and their registries
         └── persistence/  ← shared stubs or repos
 ```
 
 **Rules:**
 - If a BC has submodules, **there cannot be loose layers (`domain/`, `application/`, `infrastructure/`) at the root of the BC**: everything goes in submodules or in `shared/`
 - One module = one aggregate or cohesive concept (not just any entity)
-- `shared/` inside the BC is only for what crosses modules; the framework module of the whole BC goes in `shared/infrastructure/framework/`
-- Tests mirror the same structure: `test/{bc}/{module}/`
+- `shared/` inside the BC is only for what crosses modules; the shared module of the BC goes in `shared/infrastructure/framework/`
+- Each module exports its own exception registry. The shared module of the BC gathers them, and it is what reaches the root shared module, which never receives a module directly
+- Tests mirror the same structure: `test/{bc}/{module}/`. A use case test is a unit test: `src/{bc}/{module}/application/{action}/{use-case}.ts` is tested in `test/{bc}/{module}/application/{action}/`, with `request-{use-case}.mother.ts` and `{use-case}.spec.ts`
 
 ---
 
@@ -139,7 +142,7 @@ pnpm test:debug       # Test runner with the Node inspector
 ```
 
 **Test runner configs:**
-- Unit tests (`src/**/*.spec.ts`)
+- Unit tests (`test/**/*.spec.ts`)
 - E2E tests (`test/**/*.e2e-spec.ts`)
 
 **Coverage thresholds (unit):** 90% branches / 100% functions / 100% lines / 100% statements

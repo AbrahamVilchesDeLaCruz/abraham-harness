@@ -13,17 +13,17 @@ Apply the rules of `api-testing`. This reference shows the Jest implementation.
 ## Canonical use case test
 
 ```typescript
-// apps/api/test/products/application/create/product-creator.spec.ts
+// apps/api/test/catalog/product/application/create/product-creator.spec.ts
 import { mock } from 'jest-mock-extended';
-import { type ProductRepository } from '@/products/domain/product.repository';
+import { type ProductRepository } from '@/catalog/product/domain/product.repository';
 import { type DomainEventPublisher } from '@/shared/domain/domain-event-publisher';
-import { ProductCreator } from '@/products/application/create/product-creator';
-import { ProductCreatedEvent } from '@/products/domain/events/product-created.event';
-import { ProductMother } from './product-mother';
-import { RequestProductCreatorMother } from './request-product-creator-mother';
+import { ProductCreator } from '@/catalog/product/application/create/product-creator';
+import { ProductCreatedEvent } from '@/catalog/product/domain/events/product-created.event';
+import { ProductMother } from '@test/shared/product/product-mother';
+import { RequestProductCreatorMother } from './request-product-creator.mother';
 import { JestTimers } from '@test/shared/jest-timers';
 
-describe('products/application/create ProductCreator', () => {
+describe('catalog/product/application/create ProductCreator', () => {
   const repository = mock<ProductRepository>();
   const publisher = mock<DomainEventPublisher>();
   let creator: ProductCreator;

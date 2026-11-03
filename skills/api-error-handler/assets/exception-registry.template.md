@@ -1,18 +1,20 @@
 # Exception Registry Template
 
-Use this when adding error handling to a new module. The registry code lives in the project's stack skill, in `references/api-error-handler.md`.
+Use this when adding error handling to a new submodule. The registry code lives in the project's stack skill, in `references/api-error-handler.md`.
 
-## File: `{context}/infrastructure/framework/{context}-exception-registry.ts`
+## File: `{bc}/{module}/infrastructure/framework/{module}-exception-registry.ts`
 
-The registry `{Context}ExceptionRegistry`:
+The registry `{Module}ExceptionRegistry`:
 
 - Receives `GlobalExceptionRegistry` in its constructor.
 - In the module-initialization hook, calls `globalRegistry.register()` with a `Map<string, number>` that maps each domain error's `.name` to its HTTP status, for example `{Entity}NotFound` to not found and `{Entity}AlreadyExists` to conflict.
-- Imports all the domain errors of this BC.
+- Imports all the domain errors of this submodule.
 
-## Register in the module
+## Register in the submodule
 
-Just add `{Context}ExceptionRegistry` as a provider of `{Context}Module`; its initialization hook runs automatically after the module is initialized, before the first request arrives. The registry itself implements the hook. The module class does **not** need to implement it.
+Add `{Module}ExceptionRegistry` as a provider of `{Module}Module`, and export it; its initialization hook runs automatically after the module is initialized, before the first request arrives. The registry itself implements the hook. The module class does **not** need to implement it.
+
+The bounded context's shared module imports `{Module}Module`. The root shared module imports only that shared module.
 
 ## HTTP Status mapping reference
 
@@ -29,8 +31,9 @@ Just add `{Context}ExceptionRegistry` as a provider of `{Context}Module`; its in
 
 ## Checklist
 
-- [ ] One registry per bounded context — do not mix errors from different BCs
-- [ ] All the BC's domain errors are registered before the first request
-- [ ] `GlobalExceptionRegistry` is the only place where DomainError → HTTP is mapped
+- [ ] One registry per submodule — do not mix errors from different submodules
+- [ ] All the submodule's domain errors are registered before the first request
+- [ ] `GlobalExceptionRegistry` is the only place where DomainError → HTTP is resolved
 - [ ] The registry implements the initialization hook — not the module
-- [ ] The registry is declared as a provider in the BC's module
+- [ ] The registry is declared as a provider of the submodule and exported by it
+- [ ] The bounded context's shared module imports the submodule; the root shared module does not

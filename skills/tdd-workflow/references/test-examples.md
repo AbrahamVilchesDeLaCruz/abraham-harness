@@ -2,7 +2,7 @@
 
 The code of these examples depends on the test runner, so it lives in the stack skill that matches the project's stack table: read its `references/engineering-tdd-workflow.md`.
 
-**In api, one test file per use case:**
+**In api, one unit test file per use case, in `test/{bc}/{module}/application/{action}/{use-case}.spec.ts`:**
 
 - A test named `should {expected behavior in business language}`:
   - Arrange: build the data with Object Mothers.

@@ -7,11 +7,13 @@ React details for the concepts in `docs/engineering/frontend-architecture.md`.
 ```
 pods/
 └── calendar/
-    ├── api/                              ← Data access layer
+    ├── api/                              ← Raw API model and HTTP calls only
     │   ├── index.ts                      ← Barrel: re-exports everything
     │   ├── calendar.api-model.ts         ← Types of the raw API response
-    │   └── calendar.api.ts               ← Fetch functions (TanStack Query)
-    ├── hooks/                            ← UI hooks of the pod
+    │   └── calendar.api.ts               ← HTTP calls
+    ├── hooks/                            ← Pod hooks, consumed by the Container
+    │   ├── useCalendarEvents.ts
+    │   ├── useCreateEvent.ts
     │   ├── useCalendarFilters.ts
     │   ├── useCalendarTooltip.ts
     │   ├── useCalendarDates.ts
@@ -21,8 +23,9 @@ pods/
     │   ├── CalendarToolbar.tsx
     │   ├── CalendarFilterChips.tsx
     │   └── AppointmentTooltip.tsx
-    ├── CalendarContainer.tsx             ← Data binding (TanStack Query, routing, context)
-    ├── CalendarComponent.tsx             ← UI state + composition
+    ├── CalendarContainer.tsx             ← Consumes the hooks, routing, context
+    ├── CalendarComponent.tsx             ← Renders what it receives + composition
+    ├── calendar.repository.ts            ← Calls the API client, returns ViewModels
     ├── calendar.mapper.ts                ← API response → ViewModel
     ├── calendar.types.ts                 ← ViewModel types (adapted to the UI)
     ├── calendar.styles.ts                ← Styles specific to the pod
@@ -31,8 +34,8 @@ pods/
 
 | File | Responsibility |
 |---|---|
-| `CalendarContainer.tsx` | Data binding + routing + global context |
-| `CalendarComponent.tsx` | UI state + composition of sub-components |
+| `CalendarContainer.tsx` | Consumes the pod hooks + routing + global context |
+| `CalendarComponent.tsx` | Renders what it receives + composition of sub-components |
 | `calendar.types.ts` | TypeScript types of the ViewModel (adapted to the UI) |
 | `calendar.styles.ts` | CSS-in-JS styles or classes specific to the pod |
 
@@ -40,7 +43,7 @@ pods/
 
 **Exclusive responsibilities:**
 
-- Data binding: connection to TanStack Query (queries and mutations)
+- Data binding: consumes the pod hooks, and passes data and callbacks to the Component
 - Routing: `useLocation`, `useParams`, `useNavigate`, `searchParams`
 - Global context: `useContext`, Zustand store
 - Side effects toward the outside: mutations, navigation, redirects
@@ -48,7 +51,8 @@ pods/
 
 **Prohibitions:**
 
-- ❌ It does NOT have UI `useState` (no modals, no tooltips, no visual filters)
+- ❌ It does NOT call the repository, `apiClient` or `fetch` directly
+- ❌ It does NOT have `useState` for purely visual state (no modals, no tooltips, no toggles)
 - ❌ It does NOT have complex JSX: it only renders `<CalendarComponent />` and passes it props
 - ❌ It does NOT have `useEffect` (except trivial sync toward the outside)
 - ❌ It does NOT do data transformations (that is the mapper)
@@ -60,19 +64,27 @@ export const CalendarContainer = () => {
   const [month, setMonth] = useState(new Date().getMonth() + 1);
   const [year, setYear] = useState(new Date().getFullYear());
 
-  // TanStack Query
+  // Pod hooks — each one reaches the data through the repository
   const { data: events, isLoading } = useCalendarEvents({ month, year });
   const { mutate: createEvent } = useCreateEvent();
+  const { typeFilter, showCompleted, setTypeFilter, resetFilters } = useCalendarFilters();
+  const { tooltip, closeTooltip } = useCalendarTooltip();
 
   return (
     <CalendarComponent
       events={events}
       isLoading={isLoading}
+      typeFilter={typeFilter}
+      showCompleted={showCompleted}
+      tooltip={tooltip}
       onDateChange={(m, y) => {
         setMonth(m);
         setYear(y);
       }}
       onCreateEvent={createEvent}
+      onFilter={setTypeFilter}
+      onResetFilters={resetFilters}
+      onCloseTooltip={closeTooltip}
     />
   );
 };
@@ -80,18 +92,18 @@ export const CalendarContainer = () => {
 
 ## Component (`*Component.tsx`)
 
-The component is the **owner of the UI**: visual state, React lifecycle, composition.
+The component **renders what it receives**: visual state, React lifecycle, composition.
 
 **Responsibilities:**
 
-- UI state: `useState` for modals, tooltips, filters, toggles
+- Purely visual local state: `useState` for modals, tooltips, toggles
 - Lifecycle: `useEffect` to synchronize UI state
 - Imperative refs: `useRef` for third-party components, scroll, etc.
 - Composition: renders presentational sub-components
-- Pod custom hooks: consumes hooks from `hooks/` that encapsulate UI logic
 
 **Prohibitions:**
 
+- ❌ It does NOT consume pod hooks: the Container does
 - ❌ It does NOT fetch data (no `useQuery`, no `fetch`)
 - ❌ It does NOT access routing (`useLocation`, `useNavigate`)
 - ❌ It does NOT access global context directly
@@ -101,26 +113,36 @@ The component is the **owner of the UI**: visual state, React lifecycle, composi
 interface CalendarComponentProps {
   events: CalendarEventVM[];
   isLoading: boolean;
+  typeFilter: string | null;
+  showCompleted: boolean;
+  tooltip: CalendarTooltipVM;
   onDateChange: (month: number, year: number) => void;
   onCreateEvent: (data: CreateEventPayload) => void;
+  onFilter: (typeFilter: string | null) => void;
+  onResetFilters: () => void;
+  onCloseTooltip: () => void;
 }
 
 export const CalendarComponent = ({
   events,
   isLoading,
+  typeFilter,
+  showCompleted,
+  tooltip,
   onDateChange,
   onCreateEvent,
+  onFilter,
+  onResetFilters,
+  onCloseTooltip,
 }: CalendarComponentProps) => {
   const calendarRef = useRef<FullCalendar>(null);
-  const { typeFilter, showCompleted, setTypeFilter, resetFilters } = useCalendarFilters();
-  const { tooltip, closeTooltip } = useCalendarTooltip();
 
   return (
     <div>
-      <CalendarToolbar typeFilter={typeFilter} onFilter={setTypeFilter} />
-      <CalendarFilterChips typeFilter={typeFilter} showCompleted={showCompleted} onReset={resetFilters} />
+      <CalendarToolbar typeFilter={typeFilter} onFilter={onFilter} />
+      <CalendarFilterChips typeFilter={typeFilter} showCompleted={showCompleted} onReset={onResetFilters} />
       <CalendarGrid ref={calendarRef} events={events} isLoading={isLoading} />
-      {tooltip.visible && <AppointmentTooltip {...tooltip} onClose={closeTooltip} />}
+      {tooltip.visible && <AppointmentTooltip {...tooltip} onClose={onCloseTooltip} />}
     </div>
   );
 };
@@ -131,11 +153,11 @@ export const CalendarComponent = ({
 ```
 ┌─────────────────────────────────────────────┐
 │               Container                      │
-│  (routing, TanStack Query, Zustand)         │
+│  (pod hooks, routing, Zustand)              │
 │                                              │
 │   ┌─────────────────────────────────────┐   │
 │   │           Component                  │   │
-│   │  (useState UI, useEffect, refs)     │   │
+│   │  (visual useState, useEffect, refs) │   │
 │   │                                      │   │
 │   │  ┌──────────┐  ┌──────────────────┐ │   │
 │   │  │ Toolbar  │  │  FilterChips     │ │   │
@@ -179,7 +201,7 @@ export function useCalendarFilters() {
 ### When to create a pod hook
 
 - When a group of `useState` + handlers are cohesive (filters, tooltips, pagination)
-- When the component has more than ~5 `useState`: a sign that there are hooks to extract
+- When the component has more than ~5 `useState`: a sign that there are hooks to extract, for the Container to consume
 
 ## Global hooks
 

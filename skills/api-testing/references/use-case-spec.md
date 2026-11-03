@@ -8,15 +8,15 @@ Imports from src use the `@/` alias; imports from test use `@test/`.
 This version omits the mock library import and the fake-timers helper. The original is in the testing stack skill, in `references/api-testing.md`. Freeze the clock in `beforeEach` and restore it in `afterEach` only when the aggregate or event depends on `new Date()`.
 
 ```typescript
-// apps/api/test/products/application/create/product-creator.spec.ts
-import { type ProductRepository } from '@/products/domain/product.repository';
+// apps/api/test/catalog/product/application/create/product-creator.spec.ts
+import { type ProductRepository } from '@/catalog/product/domain/product.repository';
 import { type DomainEventPublisher } from '@/shared/domain/domain-event-publisher';
-import { ProductCreator } from '@/products/application/create/product-creator';
-import { ProductCreatedEvent } from '@/products/domain/events/product-created.event';
-import { ProductMother } from './product-mother';
-import { RequestProductCreatorMother } from './request-product-creator-mother';
+import { ProductCreator } from '@/catalog/product/application/create/product-creator';
+import { ProductCreatedEvent } from '@/catalog/product/domain/events/product-created.event';
+import { ProductMother } from '@test/shared/product/product-mother';
+import { RequestProductCreatorMother } from './request-product-creator.mother';
 
-describe('products/application/create ProductCreator', () => {
+describe('catalog/product/application/create ProductCreator', () => {
   const repository = createMock<ProductRepository>();
   const publisher = createMock<DomainEventPublisher>();
   let creator: ProductCreator;
@@ -57,9 +57,9 @@ describe('products/application/create ProductCreator', () => {
 ### Value Object Mother
 
 ```typescript
-// apps/api/test/products/application/create/product-id-mother.ts
+// apps/api/test/shared/product/product-id-mother.ts
 import { UuidMother } from '@test/shared/domain/uuid-mother';
-import { ProductId } from '@/products/domain/product-id';
+import { ProductId } from '@/catalog/product/domain/product-id';
 
 export class ProductIdMother {
   static random(): ProductId {
@@ -75,8 +75,8 @@ export class ProductIdMother {
 ### Aggregate Mother
 
 ```typescript
-// apps/api/test/products/application/create/product-mother.ts
-import { Product } from '@/products/domain/product';
+// apps/api/test/shared/product/product-mother.ts
+import { Product } from '@/catalog/product/domain/product';
 import { ProductIdMother } from './product-id-mother';
 import { StringMother } from '@test/shared/domain/string-mother';
 
@@ -102,8 +102,8 @@ export class ProductMother {
 ### Request Mother
 
 ```typescript
-// apps/api/test/products/application/create/request-product-creator-mother.ts
-import { type RequestProductCreator } from '@/products/application/create/product-creator';
+// apps/api/test/catalog/product/application/create/request-product-creator.mother.ts
+import { type RequestProductCreator } from '@/catalog/product/application/create/product-creator';
 import { UuidMother } from '@test/shared/domain/uuid-mother';
 import { StringMother } from '@test/shared/domain/string-mother';
 
@@ -125,14 +125,14 @@ Use a typed mock of the port (`createMock<ProductRepository>()`). Do NOT use an 
 ## Describe naming
 
 ```typescript
-describe('{bc}/application/{verb} {ClassName}', () => {
+describe('{bc}/{module}/application/{action} {ClassName}', () => {
   describe('when {scenario}', () => {
     it('should {expected behavior}', async () => { ... });
   });
 });
 
 // Real example
-describe('sales/application/complete OrderCompleter', () => {
+describe('sales/order/application/complete OrderCompleter', () => {
   it('should complete an order', async () => { ... });
   it('should throw OrderNotFound when order does not exist', async () => { ... });
 });

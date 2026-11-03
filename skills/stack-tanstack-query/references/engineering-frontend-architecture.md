@@ -2,33 +2,45 @@
 
 TanStack Query details for the concepts in `docs/engineering/frontend-architecture.md`.
 
-## The pod's API layer
+## The pod's hooks
+
+`api/` holds only the raw API model and the HTTP calls. The TanStack Query hooks live in the pod's hooks folder, and each one wraps a repository call.
 
 ```
-api/
-├── index.ts               ← Barrel
-├── calendar.api-model.ts  ← Raw API types (what the server returns)
-└── calendar.api.ts        ← TanStack Query hooks (useQuery / useMutation)
+hooks/
+├── useCalendarEvents.ts  ← useQuery
+├── useCreateEvent.ts     ← useMutation
+└── index.ts              ← Barrel
 ```
 
 | File | Responsibility |
 |---|---|
-| `api/calendar.api.ts` | Fetch functions with TanStack Query |
+| `hooks/useCalendarEvents.ts` | TanStack Query hook that calls the repository |
 
-### `calendar.api.ts` — TanStack Query hooks
+### `hooks/` — TanStack Query hooks
 
 ```ts
+// hooks/useCalendarEvents.ts
+import { useQuery } from "@tanstack/react-query";
+import { calendarRepository } from "../calendar.repository";
+
 export const useCalendarEvents = (params: { month: number; year: number }) => {
   return useQuery({
     queryKey: ["calendar", "events", params],
-    queryFn: () => apiClient.get<CalendarEventApiModel[]>("/calendar/events", { params }),
+    queryFn: () => calendarRepository.getEvents(params),
   });
 };
+```
+
+```ts
+// hooks/useCreateEvent.ts
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { calendarRepository } from "../calendar.repository";
 
 export const useCreateEvent = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: CreateEventPayload) => apiClient.post("/calendar/events", data),
+    mutationFn: (data: CreateEventPayload) => calendarRepository.createEvent(data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["calendar", "events"] }),
   });
 };
@@ -37,7 +49,7 @@ export const useCreateEvent = () => {
 ## Data flow
 
 ```
-API → api.ts (TanStack Query) → mapper → ViewModel → Container → Component
-                                                          ↑              ↓
-                                                   mutations/callbacks  Sub-components
+Container → hooks (TanStack Query) → repository → API client → HTTP request
+    ↓
+Component → Sub-components
 ```

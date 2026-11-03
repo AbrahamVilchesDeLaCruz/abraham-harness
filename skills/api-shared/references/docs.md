@@ -5,7 +5,7 @@
 | Skill | Why read it |
 |---|---|
 | `api-di` | How to use the tokens the shared module exposes (`LOGGER_SERVICE`, `EVENT_BUS`, etc.) |
-| `api-infrastructure` | Each BC's modules — imported in the application root module together with the shared module |
+| `api-infrastructure` | Each BC's modules — gathered by the BC's shared module, which the root shared module imports |
 | `api-criteria` | `Criteria` lives in `shared/domain/` |
 | `api-observability` | The logger adapter is registered in the shared module |
 

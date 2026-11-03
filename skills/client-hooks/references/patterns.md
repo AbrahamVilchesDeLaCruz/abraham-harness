@@ -4,7 +4,7 @@
 
 ### Return pattern — object with named fields
 
-Every hook, pod or global, returns an object with named fields, also when it exposes state, to destructure cleanly in the Component. No tuples. Framework-free shape; the stack reference for views shows the original.
+Every hook, pod or global, returns an object with named fields, also when it exposes state, to destructure cleanly in the Container. No tuples. Framework-free shape; the stack reference for views shows the original.
 
 ```ts
 // hooks/useProductFilters.ts
@@ -29,31 +29,29 @@ export function useProductFilters() {
 }
 ```
 
-### Usage in the Component
+### Usage in the Container
+
+The Container consumes the pod's hooks, and passes data and callbacks to the Component. The Component renders what it receives.
 
 ```tsx
-// ProductsComponent.{view}
-export const ProductsComponent = ({ products, ... }: ProductsComponentProps) => {
+// ProductsContainer.{view}
+export const ProductsContainer = () => {
+  // categoryId comes from the stack's routing primitive; page from its local state primitive.
+  const { data: products = [] } = useProducts({ categoryId, page });
   const { size, showFeaturedOnly, setSize, resetFilters } = useProductFilters();
   const { tooltip, showTooltip, closeTooltip } = useProductTooltip();
 
   return (
-    <div>
-      <ProductToolbar
-        size={size}
-        showFeaturedOnly={showFeaturedOnly}
-        onFilter={setSize}
-        onReset={resetFilters}
-      />
-      {products.map(product => (
-        <ProductItem
-          key={product.id}
-          product={product}
-          onHover={showTooltip}
-        />
-      ))}
-      {tooltip.visible && <ProductTooltip {...tooltip} onClose={closeTooltip} />}
-    </div>
+    <ProductsComponent
+      products={products}
+      size={size}
+      showFeaturedOnly={showFeaturedOnly}
+      tooltip={tooltip}
+      onFilter={setSize}
+      onResetFilters={resetFilters}
+      onShowTooltip={showTooltip}
+      onCloseTooltip={closeTooltip}
+    />
   );
 };
 ```
@@ -62,6 +60,7 @@ export const ProductsComponent = ({ products, ... }: ProductsComponentProps) => 
 
 ```ts
 // hooks/index.ts
+export { useProducts } from './useProducts';
 export { useProductFilters } from './useProductFilters';
 export { useProductTooltip } from './useProductTooltip';
 export { useProductPagination } from './useProductPagination';

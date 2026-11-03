@@ -13,7 +13,7 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 | Create a new pod or add files to an existing one | `client-pods` |
 | Create or modify a Container or Component | `client-container-presentational` |
 | Add queries, mutations or query keys | `client-query` |
-| Create or modify `api/`, mapper, or types | `client-api` |
+| Create or modify `api/`, repository, mapper, or types | `client-api` |
 | Create or modify pod or global hooks | `client-hooks` |
 | Write tests (unit, integration, E2E) | `client-testing` |
 
@@ -52,12 +52,15 @@ pods/{pod-name}/
 │   └── {PodName}{Part}
 ├── {PodName}Container
 ├── {PodName}Component
+├── {pod-name}.repository.ts
 ├── {pod-name}.mapper.ts
 ├── {pod-name}.types.ts
 └── index.ts
 ```
 
-**Golden rule**: Container = outside world (queries, routing, client store). Component = UI world (UI state, lifecycle effects, sub-components).
+**Data flow**: Container -> hooks -> repository -> API client -> HTTP request, and then render in the Component.
+
+**Golden rule**: Container = outside world (pod hooks, routing, client store). Component = UI world (purely visual local state, lifecycle effects, sub-components).
 
 ---
 
@@ -125,7 +128,7 @@ pnpm test:e2e:ci      # E2E with the GitHub reporter (GitHub Actions)
 | `client-pods` | Pod structure, naming, when to create what |
 | `client-container-presentational` | Container/Component contract, responsibilities, prohibitions |
 | `client-query` | Server state: queries, mutations, query keys, invalidation |
-| `client-api` | api/ layer: api-model, api.ts; pod-root mapper and ViewModel types |
+| `client-api` | api/ layer: api-model, api.ts; pod-root repository, mapper and ViewModel types |
 | `client-hooks` | Pod hooks with named fields, global hooks, when to extract |
 | `client-testing` | Unit/integration tests, E2E, API mocks |
 | `stack-react` | Maps the concept skills to React |

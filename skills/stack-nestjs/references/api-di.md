@@ -44,10 +44,9 @@ import { TypeOrmOrderRepository } from '@/sales/infrastructure/persistence/typeo
 import { OrderEntity } from '@/sales/infrastructure/persistence/order.entity';
 import { OrderStarter } from '@/sales/application/start/order-starter';
 import { StartOrderPostController } from '@/sales/infrastructure/controllers/start-order-post.controller';
-import { SharedModule } from '@/shared/infrastructure/framework/shared.module';
 
 @Module({
-  imports: [SharedModule, TypeOrmModule.forFeature([OrderEntity])],
+  imports: [TypeOrmModule.forFeature([OrderEntity])],
   controllers: [StartOrderPostController],
   providers: [
     // Ports
@@ -67,6 +66,7 @@ export class SalesModule {}
 // src/shared/infrastructure/framework/shared.module.ts
 @Global()
 @Module({
+  imports: [/* only the shared modules of the bounded contexts */],
   providers: [
     AmqpMessageBus,
     // One singleton, two distinct contracts
@@ -145,10 +145,9 @@ import { TypeOrm{Entity}Repository } from '../persistence/typeorm-{entity}.repos
 import { {ENTITY}_REPOSITORY } from '../../domain/{entity}.repository';
 import { {Entity}{Verb}er } from '../../application/{verb}/{entity}-{verb}er';
 import { {Verb}{Entity}PostController } from '../controllers/{verb}-{entity}-post.controller';
-import { SharedModule } from '@/shared/infrastructure/framework/shared.module';
 
 @Module({
-  imports: [SharedModule, TypeOrmModule.forFeature([{Entity}Entity])],
+  imports: [TypeOrmModule.forFeature([{Entity}Entity])],
   controllers: [{Verb}{Entity}PostController],
   providers: [
     // Ports

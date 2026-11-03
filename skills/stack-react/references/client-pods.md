@@ -9,17 +9,18 @@ Internal structure of a pod:
 ```
 pods/
 └── {pod-name}/
-    ├── api/                          ← Data access layer
+    ├── api/                          ← Raw API model and HTTP calls only
     │   ├── index.ts                  ← Barrel
     │   ├── {pod-name}.api-model.ts  ← Raw API types
-    │   └── {pod-name}.api.ts        ← TanStack Query hooks
-    ├── hooks/                        ← Pod UI hooks
+    │   └── {pod-name}.api.ts        ← HTTP calls
+    ├── hooks/                        ← Pod hooks, consumed by the Container
     │   ├── use{Something}.ts
     │   └── index.ts                  ← Barrel
     ├── components/                   ← Presentational sub-components
     │   └── {PodName}{Part}.tsx
-    ├── {PodName}Container.tsx        ← Data binding + routing + context
-    ├── {PodName}Component.tsx        ← UI state + composition
+    ├── {PodName}Container.tsx        ← Consumes hooks, passes data and callbacks
+    ├── {PodName}Component.tsx        ← Renders what it receives
+    ├── {pod-name}.repository.ts      ← Calls the API client, returns ViewModels
     ├── {pod-name}.mapper.ts          ← API response → ViewModel
     ├── {pod-name}.types.ts           ← ViewModel types
     ├── {pod-name}.styles.ts          ← Pod styles (if applicable)
@@ -33,13 +34,15 @@ Minimal pod scaffold:
 ```
 pods/{pod-name}/
 ├── index.ts                          ← public API: re-exports only
-├── {PodName}Container.tsx            ← fetching, state, handlers
-├── {PodName}Component.tsx            ← pure presentational, no queries
+├── {PodName}Container.tsx            ← consumes the hooks, passes data and callbacks
+├── {PodName}Component.tsx            ← renders what it receives, no queries
+├── hooks.ts                          ← use{Something} functions, call the repository
+├── {pod-name}.repository.ts          ← calls the API client, returns ViewModels through the mapper
 ├── {pod-name}.types.ts               ← ViewModel types (ViewModels only)
 ├── {pod-name}.mapper.ts              ← ApiModel → ViewModel
 └── api/
     ├── {pod-name}.api-model.ts       ← raw API response types (camelCase)
-    └── {pod-name}.api.ts             ← fetch functions + TanStack Query hooks
+    └── {pod-name}.api.ts             ← HTTP calls only
 ```
 
 Full pod scaffold, with sub-components and hooks:
@@ -49,6 +52,7 @@ pods/{pod-name}/
 ├── index.ts
 ├── {PodName}Container.tsx
 ├── {PodName}Component.tsx
+├── {pod-name}.repository.ts
 ├── {pod-name}.types.ts
 ├── {pod-name}.mapper.ts
 ├── api/
@@ -63,6 +67,7 @@ pods/{pod-name}/
 └── __tests__/
     ├── {PodName}Component.test.tsx
     ├── {PodName}Container.test.tsx
+    ├── {pod-name}.repository.test.ts
     ├── {pod-name}.mapper.test.ts
     └── {PodName}Mother.ts
 ```
@@ -76,8 +81,11 @@ pods/
     │   ├── index.ts
     │   ├── profile.api-model.ts
     │   └── profile.api.ts
+    ├── hooks.ts
     ├── ProfileContainer.tsx
     ├── ProfileComponent.tsx
+    ├── profile.repository.ts
+    ├── profile.mapper.ts
     ├── profile.types.ts
     └── index.ts
 ```

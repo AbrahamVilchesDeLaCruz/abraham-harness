@@ -3,6 +3,7 @@
 The concept skill `client-hooks` defines the rules. This file names the tools.
 
 - Test hooks with `renderHook` and `act`.
+- A server-state hook mocks the repository with `vi.mock`, never `apiClient`.
 
 ## External Documentation
 

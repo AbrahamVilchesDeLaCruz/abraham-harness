@@ -210,7 +210,7 @@ shared/infrastructure/auth/
 ├── current-user.decorator.ts
 └── auth.module.ts
 
-identity/shared/infrastructure/framework/identity.module.ts
+identity/shared/infrastructure/framework/identity-shared.module.ts
 ```
 
 The concept skill uses neutral wording: the auth module is `AuthModule`, the current-user parameter is `@CurrentUser`, the public marker is `@Public` (`IS_PUBLIC_KEY`, `public.decorator.ts`), and the guest strategy's own name is the Passport strategy name `'guest'`.

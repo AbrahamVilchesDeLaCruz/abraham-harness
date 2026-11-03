@@ -4,8 +4,9 @@
 
 | Skill | Why read it |
 |---|---|
-| `client-container-presentational` | The Container is where the logic lives before it is extracted |
-| `client-query` | Server-state hooks used in handlers |
+| `client-container-presentational` | The Container consumes the pod's hooks |
+| `client-api` | The repository that the hooks call |
+| `client-query` | Server-state hooks that wrap a repository call |
 | `client-pods` | Pod structure — where the `hooks/` folder lives |
 | `client-testing` | How to test hooks |
 
@@ -13,8 +14,8 @@
 
 Every hook, pod or global, returns an object with named fields, also when it exposes state, instead of a tuple. The advantages:
 
-1. **Read what you need**: `const { size, setSize } = useProductFilters()` — the Component names the fields it uses, in any order
-2. **Rename on conflict**: `const { reset: resetFilters } = useProductFilters()` — no name conflicts when the Component uses several hooks
+1. **Read what you need**: `const { size, setSize } = useProductFilters()` — the Container names the fields it uses, in any order
+2. **Rename on conflict**: `const { reset: resetFilters } = useProductFilters()` — no name conflicts when the Container uses several hooks
 
 ## Internal Docs
 

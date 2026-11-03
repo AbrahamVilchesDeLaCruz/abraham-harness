@@ -45,7 +45,7 @@ Details of Phases 2, 3, 4, 6 and 7 are in `references/review-phases.md`.
 3. Phase 3: audit the per-layer alignment with its table.
 4. Phase 4: verify the allowed suffixes.
 5. Phase 5 — Recommended refactor order:
-   1. **Boundaries and submodules** — folder structure + the `{bc}` module in `shared/infrastructure/framework/`
+   1. **Boundaries and submodules** — folders, a registry per submodule, the `{bc}` shared module
    2. **Domain** — aggregates, VOs, events from the aggregate
    3. **Application** — use cases, extract logic from subscribers
    4. **Infrastructure** — repos, controllers with envelope, **entity + migration in the ORM data source options**

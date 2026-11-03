@@ -3,13 +3,12 @@
 ## Container — `{PodName}Container.{view}`
 
 ```tsx
-import { use{PodName}s } from './api/{pod-name}.api';
-import { useCreate{PodName} } from './api/{pod-name}.api';
+import { use{PodName}s, useCreate{PodName} } from './hooks';
 import { {PodName}Component } from './{PodName}Component';
 import type { Create{PodName}Input } from './{pod-name}.types';
 
 export function {PodName}Container() {
-  // 1. All data fetching here
+  // 1. Consume the pod hooks here — they reach the data through the repository
   const { data: {podName}s, isLoading, isError } = use{PodName}s();
   const create{PodName}Mutation = useCreate{PodName}();
 
@@ -77,8 +76,9 @@ export function {PodName}Component({
 
 | Rule | Container | Component |
 |---|---|---|
-| Server-state hooks | ✅ Yes | ❌ Never |
-| Local state for UI state | ❌ Avoid | ✅ Yes |
+| Pod hooks, server-state hooks included | ✅ Yes | ❌ Never |
+| Repository, API client, HTTP | ❌ Never | ❌ Never |
+| Purely visual local state | ❌ Avoid | ✅ Yes |
 | Event handlers (data ops) | ✅ Yes | ❌ Never |
 | Markup complexity | ❌ Minimal | ✅ Full UI |
 | Props | Receives none | Receives all data + callbacks |
@@ -87,7 +87,8 @@ export function {PodName}Component({
 ## Checklist
 
 - [ ] Container has zero styling / markup beyond the Component call
-- [ ] Component has zero server-state queries, mutations or `fetch` calls
+- [ ] Container consumes the pod hooks, and never calls the repository directly
+- [ ] Component has zero pod hooks, server-state queries, mutations or `fetch` calls
 - [ ] Every user interaction in Component calls a prop callback
 - [ ] Component props are fully typed with explicit `type Props = {...}`
 - [ ] Loading and error states handled in Component (not Container)

@@ -5,10 +5,7 @@ Extract this pattern from the Container when it grows beyond ~80 lines of logic.
 ## `use{PodName}State.ts` — UI state only
 
 ```typescript
-export type {PodName}Filters = {
-  search: string;
-  status: 'active' | 'inactive' | null;
-};
+import type { {PodName}Filters } from '../{pod-name}.types';
 
 const DEFAULT_FILTERS: {PodName}Filters = {
   search: '',
@@ -37,7 +34,8 @@ export function use{PodName}State() {
 ## `use{PodName}Handlers.ts` — async handlers with side effects
 
 ```typescript
-import { useCreate{PodName}, useDelete{PodName} } from '../api/{pod-name}.api';
+import { useCreate{PodName} } from './useCreate{PodName}';
+import { useDelete{PodName} } from './useDelete{PodName}';
 import type { Create{PodName}Input } from '../{pod-name}.types';
 
 export function use{PodName}Handlers() {
@@ -72,6 +70,8 @@ export function use{PodName}Handlers() {
 ## Usage in Container after extraction
 
 ```tsx
+import { use{PodName}s, use{PodName}State, use{PodName}Handlers } from './hooks';
+
 export function {PodName}Container() {
   const {
     selectedId,
@@ -126,4 +126,6 @@ Extract to `use{PodName}Handlers` when:
 - [ ] Handlers hook returns an object with named fields, also when it exposes state
 - [ ] No server-state queries or mutations in state hook — only local state
 - [ ] Async handlers in `use{PodName}Handlers` — state handlers in `use{PodName}State`
+- [ ] Hooks reach the data through `{pod-name}.repository.ts` — never the API client or HTTP directly
+- [ ] Hooks are consumed by the Container
 - [ ] Default values for all state fields defined as constants outside the hook

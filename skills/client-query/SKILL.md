@@ -11,12 +11,13 @@ metadata:
 
 Use this skill when running server-state queries or mutations, defining query keys, or invalidating queries after a mutation.
 
-How to handle server state in `apps/client/`. Queries and mutations live in `api/{pod-name}.api.ts` inside each pod.
+How to handle server state in `apps/client/`. Queries and mutations are named `use{Something}` functions in the pod's hooks file or folder, and each one wraps a repository call.
 
 ## Hard Rules
 
-- **Queries** → in the Container (data fetching)
-- **Mutations** → in the Container (side effects)
+- **Queries** → hooks in the pod's hooks file, consumed by the Container (data fetching)
+- **Mutations** → hooks in the pod's hooks file, consumed by the Container (side effects)
+- A query or mutation hook calls `{pod-name}.repository.ts`, never the API client or HTTP directly. The repository already returns ViewModels
 - The Component **never** calls queries or mutations directly
 - Query keys are arrays. They must be **consistent** within the pod. Pattern: `[domain, resource, params]`
 - Export the keys as constants to reuse them in invalidations
@@ -44,13 +45,13 @@ Freshness window: override per query only when necessary:
 ## Execution Steps
 
 1. Use the template in `assets/query-hook.template.md` when creating queries, mutations and query keys for a new pod.
-2. Define keys, queries and mutations in `api/{pod-name}.api.ts` following `references/patterns.md`.
+2. Define keys, queries and mutations in the pod's hooks file following `references/patterns.md`.
 3. Consume them from the Container and pass data and callbacks to the Component.
 4. Choose the invalidation of each mutation with the Decision Gates table.
 
 ## Output Contract
 
-Query and mutation hooks in `api/{pod-name}.api.ts`, with exported keys and invalidation according to the table, consumed only from the Container.
+Query and mutation hooks in the pod's hooks file, with exported keys and invalidation according to the table, each wrapping a repository call, consumed only from the Container.
 
 ## References
 

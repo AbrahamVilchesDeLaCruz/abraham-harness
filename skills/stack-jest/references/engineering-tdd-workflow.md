@@ -13,8 +13,8 @@ Applies `tdd-workflow` to API tests with Jest.
 ## The RED test
 
 ```typescript
-// test/contexts/{context}/application/{verb}/{use-case}.spec.ts
-describe('{context}/application/{verb} {ClassName}', () => {
+// test/{bc}/{module}/application/{action}/{use-case}.spec.ts
+describe('{bc}/{module}/application/{action} {ClassName}', () => {
   it('should {expected behavior in business language}', async () => {
     // Arrange — build the data with Object Mothers
     const request = RequestProductCreatorMother.random();

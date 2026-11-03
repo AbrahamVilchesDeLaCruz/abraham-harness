@@ -5,8 +5,10 @@ The concept skill `client-testing` defines the rules. This file maps its tools: 
 ## Rules mapped to the tools
 
 - Mappers and pure hooks → always unit tests (Vitest)
+- Repository → unit test (Vitest), with `vi.mock` on the pod's HTTP calls
+- Server-state hook → unit test (Vitest + `renderHook`), with `vi.mock` on the repository, never `apiClient`
 - Component (presentational) → RTL, mocked props, no queries
-- Container → RTL + MSW, intercepting real HTTP
+- Container → RTL + MSW, intercepting real HTTP: the test crosses the hooks, the repository and the API client
 - E2E → Playwright, only critical flows — happy path + main error
 - Never mock the whole TanStack Query module — use MSW
 - `server.use()` inside the `it` to override the handler per case
@@ -23,7 +25,8 @@ vi.mock('@tanstack/react-query', () => ({ useQuery: vi.fn() }));
 test('mapper formats the dates', () => { await page.goto(...) }); // unit test
 
 // ❌ Container without MSW — mocking the fetch function
-vi.mock('../products.api', () => ({ getProducts: vi.fn() }));
+vi.mock('./api/products.api', () => ({ getProducts: vi.fn() }));
+vi.mock('./products.repository');
 ```
 
 ## Tools per level
@@ -31,6 +34,7 @@ vi.mock('../products.api', () => ({ getProducts: vi.fn() }));
 | What | Level | Tool | Pattern in the concept skill |
 |---|---|---|---|
 | Mappers | Unit | Vitest | `component-patterns.md` |
+| Repository | Unit | Vitest | `component-patterns.md` |
 | Pod hooks | Unit | Vitest + `renderHook` | `component-patterns.md` |
 | Component (presentational) | Integration | RTL | `component-patterns.md` |
 | Container (with queries) | Integration | RTL + MSW | `container-integration.md`, named `references/container-msw.md` before the split |
@@ -44,7 +48,7 @@ Test pyramid:
        /──────\
       /Integr. \       ← RTL — Container + Component together with MSW
      /──────────\
-    /   Unit     \     ← Vitest — hooks, mappers, pure utils
+    /   Unit     \     ← Vitest — hooks, repositories, mappers, pure utils
    /______________\
 ```
 
@@ -86,6 +90,65 @@ describe('useProductFilters', () => {
 });
 ```
 
+## Unit test — Repository
+
+```typescript
+// __tests__/products.repository.test.ts
+import { getProducts } from '../api/products.api';
+import { productsRepository } from '../products.repository';
+
+vi.mock('../api/products.api');
+
+describe('productsRepository', () => {
+  it('returns ViewModels through the mapper', async () => {
+    vi.mocked(getProducts).mockResolvedValue([
+      {
+        id: '1',
+        name: 'Desk lamp',
+        description: 'Adjustable LED lamp',
+        size: 'small',
+        restockedAt: '2026-06-01T00:00:00Z',
+        createdAt: '2026-01-01T00:00:00Z',
+      },
+    ]);
+
+    const [product] = await productsRepository.getAll({ page: 1 });
+
+    expect(product.restockedAt).toBeInstanceOf(Date);
+  });
+});
+```
+
+## Unit test — Server-state hook
+
+```tsx
+// __tests__/hooks.test.tsx
+import { renderHook, waitFor } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useProducts } from '../hooks';
+import { productsRepository } from '../products.repository';
+import { ProductMother } from './ProductMother';
+
+vi.mock('../products.repository');
+
+const wrapper = ({ children }: { children: React.ReactNode }) => (
+  <QueryClientProvider client={new QueryClient()}>
+    {children}
+  </QueryClientProvider>
+);
+
+describe('useProducts', () => {
+  it('returns what the repository returns', async () => {
+    const products = ProductMother.list(2);
+    vi.mocked(productsRepository.getAll).mockResolvedValue(products);
+
+    const { result } = renderHook(() => useProducts({ page: 1 }), { wrapper });
+
+    await waitFor(() => expect(result.current.data).toEqual(products));
+  });
+});
+```
+
 ## Integration test — Component with RTL
 
 ```tsx
@@ -99,7 +162,9 @@ describe('ProductsComponent', () => {
     products: ProductMother.list(3),
     isLoading: false,
     isError: false,
+    size: null,
     onDelete: vi.fn(),
+    onFilter: vi.fn(),
     onPageChange: vi.fn(),
   };
 

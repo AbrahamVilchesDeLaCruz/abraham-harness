@@ -16,7 +16,9 @@ metadata:
 
 ## Hard Rules
 
-- The `/test` structure mirrors the `/src` structure exactly
+- The `/test` structure mirrors the `/src` structure exactly. Specs live under `test/`, never under `src/`
+- A use case test is a unit test. `src/{bc}/{module}/application/{action}/{use-case}.ts` is tested in `test/{bc}/{module}/application/{action}/`, which holds `request-{use-case}.mother.ts` and `{use-case}.spec.ts`
+- A test that uses a real repository or database is an integration test
 - Domain tests always go through a use case, using Object Mothers. Aggregates and value objects are never tested on their own. The only exception is a larger domain service you want to test on its own
 - A Mother lives next to the test that uses it. Shared Mothers go in `test/shared`
 - **Rule**: the test-data library lives only in `MotherCreator`. Never import it directly in a domain Mother.
@@ -35,8 +37,8 @@ metadata:
 
 | Level | What it tests |
 |---|---|
-| **Unit** | a larger domain service you want to test on its own — fast, no I/O |
-| **Integration** | use cases with mocked ports and Object Mothers, which exercise the domain — never concrete adapters |
+| **Unit** | use cases with mocked ports and Object Mothers, which exercise the domain — never concrete adapters; a larger domain service you want to test on its own — fast, no I/O |
+| **Integration** | a test that uses a real repository or database |
 | **E2E** | full HTTP flows — only the critical paths |
 
 | Port | Strategy |

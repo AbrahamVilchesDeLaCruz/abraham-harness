@@ -4,6 +4,7 @@ The concept skill `client-testing` defines the rules. This file holds its TanSta
 
 - Never mock the whole TanStack Query module.
 - Container tests render inside a `QueryClientProvider` with a new `QueryClient`. The stack reference for tests shows the full example.
+- A server-state hook test also renders inside a `QueryClientProvider`, with the repository mocked.
 
 ## External Documentation
 

@@ -7,7 +7,7 @@
 | `api-domain` | Domain Errors — how they are defined with the `DomainError` base class |
 | `api-infrastructure` | Where to register the `ExceptionRegistry` in the module |
 | `api-response` | Error response format vs successful response |
-| `api-shared` | `GlobalExceptionRegistry` lives in the shared module |
+| `api-shared` | `GlobalExceptionRegistry` lives in the shared module, and how a bounded context's shared module reaches it |
 
 ## External Documentation
 

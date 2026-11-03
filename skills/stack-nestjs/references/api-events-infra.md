@@ -53,7 +53,7 @@ import { SUBSCRIBERS, SubscribersBootstrapper } from '@/shared/infrastructure/ev
 import { type Subscriber } from '@/shared/application/subscriber';
 
 @Module({
-  imports: [SharedModule, /* ... */],
+  imports: [/* ... */], // never SharedModule: it is @Global()
   providers: [
     MigrateGuestOrdersOnGuestProgressMigrated,
     {

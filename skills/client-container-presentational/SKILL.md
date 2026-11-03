@@ -11,7 +11,7 @@ metadata:
 
 Use this skill when creating or changing Containers and Components in pods, defining the props contract, or separating logic from UI in `apps/client/`.
 
-The central pattern of the client. Each pod has two mandatory pieces: **Container** and **Component**.
+The central pattern of the client. Each pod has two mandatory pieces: **Container** and **Component**. The flow is: Container -> hooks -> repository -> API client -> HTTP request, and then render in the Component.
 
 ## Hard Rules
 
@@ -21,7 +21,7 @@ The pod's **gateway to the outside world**.
 
 Exclusive responsibilities:
 
-- Data binding: server-state queries and mutations
+- Data binding: consumes the pod's hooks (`hooks`), and passes data and callbacks to the Component
 - Routing: route params, location, navigation, search params
 - Global context: client state store, global context
 - Callbacks that trigger mutations or navigation
@@ -29,25 +29,26 @@ Exclusive responsibilities:
 
 Prohibitions:
 
-- ❌ UI local state (modals, tooltips, visual filters)
+- ❌ Calling the repository, the API client or HTTP directly
+- ❌ Purely visual local state (modals, tooltips, toggles) — it may stay in the Component
 - ❌ Complex markup — renders only `<{PodName}Component />` with props
 - ❌ Effects, except a trivial sync outward
 - ❌ Data transformations (that is the mapper's job)
 
 ### Component (`*Component.{view}`)
 
-The **owner of the UI**: visual state, lifecycle, composition.
+Renders what it receives: visual state, lifecycle, composition.
 
 Responsibilities:
 
-- UI state: local state for modals, tooltips, filters, toggles
+- Purely visual local state: modals, tooltips, toggles
 - Effects to sync local UI state
 - Refs for third-party components, scroll, focus
 - Composition: renders sub-components from `components/`
-- Consumes the pod's hooks (`hooks/`) to encapsulate complex UI logic
 
 Prohibitions:
 
+- ❌ Pod hooks, the repository, the API client — the Container consumes the hooks
 - ❌ Server-state queries and mutations — it does not fetch data
 - ❌ Route params, navigation, location — it does not access routing
 - ❌ Client state store or global context
@@ -63,7 +64,7 @@ Prohibitions:
 | File | Approx. lines | If it exceeds them |
 |---|---|---|
 | Container | ~40–80 lines | If the Container exceeds 80 lines, it probably has UI logic that does not belong to it. |
-| Component | ~80–150 lines | If the Component exceeds 150 lines, there are probably pod hooks to extract. |
+| Component | ~80–150 lines | If the Component exceeds 150 lines, there are probably sub-components to extract. |
 
 ## Execution Steps
 

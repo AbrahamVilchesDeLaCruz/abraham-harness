@@ -3,7 +3,8 @@
 The concept skill `client-hooks` defines the rules. This file maps them to React.
 
 - Create a pod hook when there is a cohesive group of `useState` + handlers.
-- When the Component has more than ~5 `useState` calls, that is a sign that there are hooks to extract.
+- When the Component has more than ~5 `useState` calls, that is a sign that there are hooks to extract, for the Container to consume.
+- A pod hook reaches the data through `{pod-name}.repository.ts`, never `apiClient` or HTTP directly.
 
 ## Return pattern — object with named fields
 
@@ -33,7 +34,7 @@ export function useProductFilters() {
 }
 ```
 
-The Component reads the fields it needs:
+The Container reads the fields it needs:
 
 ```ts
 const { size, setSize } = useProductFilters();
@@ -92,11 +93,7 @@ export const useLocalStorage = <T>(key: string, initialValue: T) => {
 
 ```typescript
 import { useState } from 'react';
-
-export type {PodName}Filters = {
-  search: string;
-  status: 'active' | 'inactive' | null;
-};
+import type { {PodName}Filters } from '../{pod-name}.types';
 
 const DEFAULT_FILTERS: {PodName}Filters = {
   search: '',
@@ -128,7 +125,8 @@ export function use{PodName}State() {
 
 ```typescript
 import { useCallback } from 'react';
-import { useCreate{PodName}, useDelete{PodName} } from '../api/{pod-name}.api';
+import { useCreate{PodName} } from './useCreate{PodName}';
+import { useDelete{PodName} } from './useDelete{PodName}';
 import type { Create{PodName}Input } from '../{pod-name}.types';
 
 export function use{PodName}Handlers() {

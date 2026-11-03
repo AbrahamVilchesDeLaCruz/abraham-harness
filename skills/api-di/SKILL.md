@@ -22,7 +22,9 @@ metadata:
 - Use cases inject by **interface** — never by concrete class
 - The parameter type is the **interface** — never the concrete implementation. The injection marker is the only trace of the framework in application/domain.
 - Modules are the only ones that know the concrete implementations (persistence, messaging, etc.)
-- A module exports the **token** — never the implementation class
+- A module exports the **token** — never the implementation class. The one exception is a submodule's exception registry, which the submodule exports
+- The root shared module receives only the shared modules of the bounded contexts, never a submodule directly. A bounded context's shared module gathers its submodules
+- A bounded context module never imports the root shared module: it is global, and what it provides is already available
 - Format always `SCREAMING_SNAKE_CASE`.
 
 ## Decision Gates

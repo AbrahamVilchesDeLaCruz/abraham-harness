@@ -4,9 +4,9 @@
 
 | Skill | Why read it |
 |---|---|
-| `client-api` | api/ layer: api-model; pod-root mapper — what the hooks consume |
+| `client-api` | api/ layer: api-model, api.ts; pod-root repository and mapper — the repository is what the hooks call |
 | `client-container-presentational` | How the Container uses the hooks |
-| `client-hooks` | When to extract logic from the Container's hooks |
+| `client-hooks` | Pod hooks: naming, named fields, and when to extract them |
 | `client-testing` | How to test Containers with queries using HTTP interception |
 
 ## Query Key Strategy

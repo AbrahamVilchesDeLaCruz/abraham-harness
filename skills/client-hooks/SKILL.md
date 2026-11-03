@@ -17,10 +17,11 @@ Pod hooks and global hooks in `apps/client/`. A hook here is a named unit of reu
 
 - A pod hook **is not imported from another pod** — if two pods need it, move it to `core/hooks/`
 - Pod hooks may use global hooks
-- Pod hooks **do not fetch** — that is the responsibility of `api.ts`
+- Pod hooks **are consumed by the Container**, which passes data and callbacks to the Component
+- A pod hook reaches the data through the repository: it calls `{pod-name}.repository.ts`, never the API client or HTTP directly
 - A global hook **has no domain logic** — if it has any, it is a pod hook
 - Pod hooks are named functions in a separate `hooks` file or folder of the pod, called `use{Something}`
-- Every hook, pod or global, returns an object with named fields, also when it exposes state, to destructure cleanly in the Component. No tuples.
+- Every hook, pod or global, returns an object with named fields, also when it exposes state, to destructure cleanly in the Container. No tuples.
 - Naming: file `camelCase.ts` → `useProductFilters.ts`; export `camelCase` → `useProductFilters`
 - Mandatory barrel for a `hooks/` folder: `hooks/index.ts` re-exports everything
 
@@ -34,14 +35,15 @@ Pod hooks and global hooks in `apps/client/`. A hook here is a named unit of reu
 Create a pod hook:
 
 - When there is a cohesive group of local state + handlers (filters, tooltips, pagination, selection)
-- When the Component has more than ~5 local state values → a sign that there are hooks to extract
+- When the pod needs data from the server: the server-state hook wraps a repository call (see `client-query`)
+- When the Component has more than ~5 local state values → a sign that there are hooks to extract, for the Container to consume
 - When the logic can be named with a clear noun: `filters`, `tooltip`, `pagination`
 
 ## Execution Steps
 
 1. Decide type and location with the Decision Gates table.
 2. Use the template in `assets/use-state-handlers.template.md` when extracting `use{Pod}State` and `use{Pod}Handlers`.
-3. Follow the shape in `references/patterns.md`: named fields, usage in the Component, barrel and example global hooks.
+3. Follow the shape in `references/patterns.md`: named fields, usage in the Container, barrel and example global hooks.
 4. Add the pod hook to the `hooks/index.ts` barrel.
 
 ## Output Contract
@@ -50,7 +52,7 @@ A pod hook that returns an object with named fields and is re-exported in `hooks
 
 ## References
 
-- [`references/patterns.md`](references/patterns.md) — return pattern, usage in the Component, pod barrel and global hooks.
+- [`references/patterns.md`](references/patterns.md) — return pattern, usage in the Container, pod barrel and global hooks.
 - [`assets/use-state-handlers.template.md`](assets/use-state-handlers.template.md) — template for extracting `use{Pod}State` and `use{Pod}Handlers`.
 - [`references/docs.md`](references/docs.md) — Read `references/docs.md` for the named fields rationale and external docs.
 - Load the project's stack skill for views (`stack-react`) and read its `references/client-hooks.md`.

@@ -49,7 +49,7 @@ Details of Phases 2, 3, 4, 6 and 7 are in `references/review-phases.md`.
    2. **Domain** — aggregates, VOs, events from the aggregate
    3. **Application** — use cases, extract logic from subscribers
    4. **Infrastructure** — repos, controllers with envelope, **entity + migration in the ORM data source options**
-   5. **Unit tests** — migrate paths, Object Mothers, domain policies/strategies
+   5. **Use case tests** — migrate paths, Object Mothers, domain policies/strategies through use cases
    6. **Operability and contract** — logger, API documentation, docs (see Phase 7)
    7. **API E2E** — at least one `*.e2e-spec.ts` per HTTP endpoint of the BC
    8. **Client** — `ApiEnvelope<T>` + i18n if the copy lives in the frontend

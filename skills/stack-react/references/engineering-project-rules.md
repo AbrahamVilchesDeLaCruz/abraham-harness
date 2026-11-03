@@ -10,19 +10,19 @@ Project rules from the `AGENTS.md` templates that name React or its client libra
 Internal structure of a pod with React file extensions:
 
 ```
-containers/{feature}/
+pods/{pod-name}/
 ├── api/
 │   ├── index.ts
-│   ├── {feature}.api-model.ts
-│   └── {feature}.api.ts
+│   ├── {pod-name}.api-model.ts
+│   └── {pod-name}.api.ts
 ├── hooks/
-│   ├── use{Feature}{Concern}.ts
+│   ├── use{Something}.ts
 │   └── index.ts
 ├── components/
-│   └── {Feature}{Part}.tsx
-├── {Feature}Container.tsx
-├── {Feature}Component.tsx
-├── {feature}.mapper.ts
-├── {feature}.types.ts
+│   └── {PodName}{Part}.tsx
+├── {PodName}Container.tsx
+├── {PodName}Component.tsx
+├── {pod-name}.mapper.ts
+├── {pod-name}.types.ts
 └── index.ts
 ```

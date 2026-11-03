@@ -76,14 +76,14 @@ async handler(
 ): Promise<PaginatedApiResponse<OrderPrimitives>> {
   const result = await this.searcher.execute({ userId: user.userId, ...query });
 
-  const limit = result.pageSize;
-  const totalPages = Math.ceil(result.total / limit);
+  const pageSize = result.pageSize;
+  const totalPages = Math.ceil(result.total / pageSize);
 
   return PaginatedApiResponse.of(
     result.data,
     {
       page: result.page,
-      limit,
+      pageSize,
       total_items: result.total,
       total_pages: totalPages,
       has_next_page: result.page < totalPages,
@@ -130,11 +130,21 @@ async handler(@Param('id') id: string): Promise<void> {
 }
 ```
 
+### DDD action (POST → 200, empty response body)
+
+```typescript
+@Post(':id/complete')
+@HttpCode(HttpStatus.OK)
+async handler(@Param('id') id: string, @CurrentUser() user: UserContext): Promise<void> {
+  await this.completer.execute({ orderId: id, userId: user.userId ?? null });
+}
+```
+
 ### Legitimate exception: auth endpoints (tokens + cookies)
 
 ```typescript
 @Post('login')
-@HttpCode(HttpStatus.OK)
+@HttpCode(HttpStatus.CREATED)
 async handler(
   @Body() body: LoginAuthPostPayload,
   @Res({ passthrough: true }) res: Response,

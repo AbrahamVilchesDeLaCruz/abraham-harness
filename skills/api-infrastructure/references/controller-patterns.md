@@ -51,7 +51,7 @@ export class StartOrderPostPayload {
 export class SearchOrdersGetQuery {
   page?: number = 1;
 
-  limit?: number = 20;
+  pageSize?: number = 20;
 
   mode?: string;
 }
@@ -72,17 +72,17 @@ export class SearchOrdersGetController {
       userId: user.userId!,
       mode: query.mode,
       page: query.page ?? 1,
-      limit: query.limit ?? 20,
+      pageSize: query.pageSize ?? 20,
     });
 
     return PaginatedApiResponse.of(
       result.items,
       {
         page: query.page ?? 1,
-        limit: query.limit ?? 20,
+        pageSize: query.pageSize ?? 20,
         total_items: result.total,
-        total_pages: Math.ceil(result.total / (query.limit ?? 20)),
-        has_next_page: (query.page ?? 1) * (query.limit ?? 20) < result.total,
+        total_pages: Math.ceil(result.total / (query.pageSize ?? 20)),
+        has_next_page: (query.page ?? 1) * (query.pageSize ?? 20) < result.total,
         has_prev_page: (query.page ?? 1) > 1,
       },
       resolveRequestId(req),

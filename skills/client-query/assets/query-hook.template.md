@@ -9,7 +9,7 @@ File: `pods/{pod-name}/api/{pod-name}.api.ts`
 ```typescript
 import { {podName}Keys } from './{pod-name}.query-keys';
 import { get{PodName}s } from './{pod-name}.api-client';
-import { map{PodName} } from './{pod-name}.mapper';
+import { map{PodName} } from '../{pod-name}.mapper';
 
 export function use{PodName}s(filters?: {PodName}Filters) {
   return serverQuery({

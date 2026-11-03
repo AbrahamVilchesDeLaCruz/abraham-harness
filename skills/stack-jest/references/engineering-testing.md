@@ -10,7 +10,7 @@ Jest details for the concepts in `docs/engineering/testing.md`.
          ├─────────────────┤
          │  Integration    │  ← (does not apply yet — E2E covers this level)
          ├─────────────────┤
-         │      Unit       │  ← use cases + domain with jest-mock-extended
+         │      Unit       │  ← use cases with jest-mock-extended, which exercise the domain
          └─────────────────┘
 ```
 
@@ -54,12 +54,11 @@ apps/api/
 └── test/
     ├── setup-env.ts            ← loads .env.test before the NestJS bootstrap
     ├── shared/
-    │   ├── domain/             ← base Object Mothers (MotherCreator, UuidMother…)
+    │   ├── domain/             ← base shared Object Mothers (MotherCreator, UuidMother…)
     │   └── infrastructure/
     │       └── create-test-app.ts  ← helper: bootstraps NestJS for E2E
     └── identity/
-        ├── domain/             ← Object Mothers of the identity BC
-        ├── application/        ← unit specs + use case mothers
+        ├── application/        ← unit specs + the Object Mothers next to them
         └── infrastructure/     ← E2E specs
             ├── guest-auth-post.e2e-spec.ts
             ├── register-login-auth.e2e-spec.ts

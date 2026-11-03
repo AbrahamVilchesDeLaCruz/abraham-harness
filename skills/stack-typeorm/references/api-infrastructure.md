@@ -47,8 +47,11 @@ export class TypeOrmOrderRepository implements OrderRepository {
       qb.orderBy(`g.${criteria.order.field}`, criteria.order.direction);
     }
 
-    if (criteria.limit !== null) qb.take(criteria.limit);
-    if (criteria.offset !== null) qb.skip(criteria.offset);
+    if (criteria.pageSize !== null) {
+      // TypeORM works with limit and offset: the translation stays in this adapter
+      qb.take(criteria.pageSize);
+      qb.skip(((criteria.page ?? 1) - 1) * criteria.pageSize);
+    }
 
     const entities = await qb.getMany();
     return entities.map((e) => this.toDomain(e));

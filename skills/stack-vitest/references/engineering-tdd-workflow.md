@@ -16,7 +16,7 @@ Applies `tdd-workflow` to client tests with Vitest, Testing Library and MSW.
 ## The RED test
 
 ```typescript
-// src/pods/{pod}/components/__tests__/{Component}.test.tsx
+// src/pods/{pod-name}/components/__tests__/{Component}.test.tsx
 describe('{Component}', () => {
   it('should {expected behavior}', () => {
     render(<Component {...props} />);

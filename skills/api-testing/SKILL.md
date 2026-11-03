@@ -17,6 +17,8 @@ metadata:
 ## Hard Rules
 
 - The `/test` structure mirrors the `/src` structure exactly
+- Domain tests always go through a use case, using Object Mothers. Aggregates and value objects are never tested on their own. The only exception is a larger domain service you want to test on its own
+- A Mother lives next to the test that uses it. Shared Mothers go in `test/shared`
 - **Rule**: the test-data library lives only in `MotherCreator`. Never import it directly in a domain Mother.
 - Use cases are instantiated directly with `new UseCase(dep1, dep2, ...)` in `beforeEach` — no DI container is used
 - Reset only the mock methods the test uses
@@ -33,8 +35,8 @@ metadata:
 
 | Level | What it tests |
 |---|---|
-| **Unit** | aggregates, value objects, domain services — fast, no I/O |
-| **Integration** | use cases with mocked ports — never concrete adapters |
+| **Unit** | a larger domain service you want to test on its own — fast, no I/O |
+| **Integration** | use cases with mocked ports and Object Mothers, which exercise the domain — never concrete adapters |
 | **E2E** | full HTTP flows — only the critical paths |
 
 | Port | Strategy |

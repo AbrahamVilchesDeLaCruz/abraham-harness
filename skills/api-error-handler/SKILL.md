@@ -18,6 +18,8 @@ metadata:
 
 - **Principle**: each module is responsible for registering its own errors. Maintenance goes where the code lives.
 - The domain error **never** knows the HTTP status — that is the responsibility of infrastructure
+- **The exception registry decides the HTTP status of an error**: it maps each domain exception to a status. An exception with no mapping gets the default response, also from the registry
+- A controller never decides the status of an error and never uses try/catch to map one
 - One `ExceptionRegistry` per module, one per feature, in `infrastructure/framework/` — never a global registry with all the errors
 - The registry is initialized in the module-initialization hook — this guarantees it is ready before requests arrive
 - Use `exception.constructor.name` as the key — it works even if the bundle minifies, because class names are explicit
@@ -31,10 +33,10 @@ metadata:
 | Entity not found (`NotFound`) | `404 NOT_FOUND` |
 | Invalid / empty field (`Empty`, `Invalid`) | `422 UNPROCESSABLE_ENTITY` |
 | State conflict (`AlreadyExists`, `InvalidStatus`) | `409 CONFLICT` |
-| Action not allowed (`CannotX`) | `400 BAD_REQUEST` |
-| No permissions | `403 FORBIDDEN` |
+| Action not allowed or no permissions (`CannotX`) | `403 FORBIDDEN` |
 | Invalid credentials / expired token | `401 UNAUTHORIZED` |
 | Usage limit exceeded (`LimitExceeded`) | `429 TOO_MANY_REQUESTS` |
+| Any exception with no mapping | Default response of the registry: `500 INTERNAL_SERVER_ERROR` |
 
 ## Execution Steps
 

@@ -10,10 +10,10 @@ pods/{pod-name}/
 ├── {PodName}Container.{view}            ← fetching, state, handlers
 ├── {PodName}Component.{view}            ← pure presentational, no queries
 ├── {pod-name}.types.ts               ← ViewModel types (ViewModels only)
+├── {pod-name}.mapper.ts              ← ApiModel → ViewModel
 └── api/
     ├── {pod-name}.api-model.ts       ← raw API response types (snake_case)
-    ├── {pod-name}.api.ts             ← fetch functions + server-state hooks
-    └── {pod-name}.mapper.ts          ← ApiModel → ViewModel
+    └── {pod-name}.api.ts             ← fetch functions + server-state hooks
 ```
 
 ## Full Pod (with sub-components and hooks)
@@ -24,10 +24,10 @@ pods/{pod-name}/
 ├── {PodName}Container.{view}
 ├── {PodName}Component.{view}
 ├── {pod-name}.types.ts
+├── {pod-name}.mapper.ts
 ├── api/
 │   ├── {pod-name}.api-model.ts
-│   ├── {pod-name}.api.ts
-│   └── {pod-name}.mapper.ts
+│   └── {pod-name}.api.ts
 ├── components/                        ← sub-components (only for this pod)
 │   ├── {PodName}Card.{view}
 │   └── {PodName}Form.{view}
@@ -69,13 +69,14 @@ export type {PodName}VM = {
 | Types | `{pod-name}.types.ts` | `products.types.ts` |
 | API model | `{pod-name}.api-model.ts` | `products.api-model.ts` |
 | API hooks | `{pod-name}.api.ts` | `products.api.ts` |
-| Mapper | `{pod-name}.mapper.ts` | `products.mapper.ts` |
-| Hook | `use{PodName}{Purpose}.ts` | `useProductsFilters.ts` |
+| Mapper (pod root) | `{pod-name}.mapper.ts` | `products.mapper.ts` |
+| Hook | `use{Something}.ts` | `useProductsFilters.ts` |
 
 ## Checklist
 
 - [ ] `index.ts` exports only what is needed — not the internal Container and Component at once if only the Container is used
 - [ ] `{pod-name}.types.ts` contains **only ViewModels** — no raw API types
-- [ ] `api/` has the 3 files: api-model, api.ts, mapper
+- [ ] `api/` has the 2 files: api-model, api.ts
+- [ ] `{pod-name}.mapper.ts` is at the pod root
 - [ ] Sub-components in `components/` only if this pod needs them — if shared, they go to `components/shared/`
-- [ ] Hooks extracted to `hooks/` when the Container exceeds ~80 lines of logic
+- [ ] Hooks extracted to a `hooks` file or folder when the Container exceeds ~80 lines of logic

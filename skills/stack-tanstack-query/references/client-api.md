@@ -5,14 +5,14 @@ The concept skill `client-api` defines the rules. This file holds its TanStack Q
 The server-state hooks of the `api/` layer are TanStack Query hooks:
 
 ```
-containers/{feature}/
+pods/{pod-name}/
 └── api/
     ├── index.ts                    ← Barrel: re-exports hooks and types
-    ├── {feature}.api-model.ts     ← Raw types of the server response
-    └── {feature}.api.ts           ← TanStack Query hooks (useQuery / useMutation)
+    ├── {pod-name}.api-model.ts    ← Raw types of the server response
+    └── {pod-name}.api.ts          ← TanStack Query hooks (useQuery / useMutation)
 ```
 
-## `{feature}.api.ts` — TanStack Query hooks
+## `{pod-name}.api.ts` — TanStack Query hooks
 
 See skill `client-query` for the full query and mutation pattern.
 

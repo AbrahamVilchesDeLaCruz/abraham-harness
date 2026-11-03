@@ -5,7 +5,7 @@ React details for the concepts in `docs/engineering/frontend-architecture.md`.
 ## Internal structure of a pod
 
 ```
-containers/
+pods/
 └── calendar/
     ├── api/                              ← Data access layer
     │   ├── index.ts                      ← Barrel: re-exports everything
@@ -154,8 +154,10 @@ export const CalendarComponent = ({
 
 ### Return pattern: `[State, Handlers]` tuple
 
+A pod hook that exposes state returns a tuple. A hook that only exposes functions may return named functions.
+
 ```ts
-export const useCalendarFilters = (): [CalendarFiltersState, CalendarFiltersHandlers] => {
+export function useCalendarFilters(): [CalendarFiltersState, CalendarFiltersHandlers] {
   const [typeFilter, setTypeFilter] = useState<string | null>(null);
   const [showCompleted, setShowCompleted] = useState(false);
 
@@ -168,7 +170,7 @@ export const useCalendarFilters = (): [CalendarFiltersState, CalendarFiltersHand
     { typeFilter, showCompleted },
     { setTypeFilter, toggleCompleted: () => setShowCompleted((v) => !v), resetFilters },
   ];
-};
+}
 ```
 
 ### When to create a pod hook

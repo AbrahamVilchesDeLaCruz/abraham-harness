@@ -5,12 +5,14 @@ Replace `__EntityName__` and `__module__` with the real values.
 The hierarchy is: `MotherCreator` → primitive Mothers → VO Mothers → aggregate Mother.
 **The test-data library lives only in `MotherCreator`** — never import it directly in a VO or aggregate Mother.
 
+A Mother lives next to the test that uses it; shared Mothers go in `test/shared`.
+
 `MotherCreator` is shared and already exists — do not recreate it. It is in the testing stack skill.
 
 ## VO Mother
 
 ```typescript
-// apps/api/test/__module__/domain/__entity-name__-id-mother.ts
+// apps/api/test/__module__/application/__verb__/__entity-name__-id-mother.ts
 import { UuidMother } from '@test/shared/domain/uuid-mother';
 import { __EntityName__Id } from '@/__module__/domain/__entity-name__-id';
 
@@ -28,7 +30,7 @@ export class __EntityName__IdMother {
 ## Aggregate Mother
 
 ```typescript
-// apps/api/test/__module__/domain/__entity-name__-mother.ts
+// apps/api/test/__module__/application/__verb__/__entity-name__-mother.ts
 import { __EntityName__ } from '@/__module__/domain/__entity-name__';
 import { __EntityName__IdMother } from './__entity-name__-id-mother';
 import { StringMother } from '@test/shared/domain/string-mother';

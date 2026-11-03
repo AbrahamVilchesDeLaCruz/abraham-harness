@@ -22,7 +22,7 @@ Delivery: single-pr. Test runner: node --test.
 ## Tasks
 
 - [x] T1 S1-S4 chain, agents, Brain. Route: inline, no writer reason.
-- [ ] T2 S5-S14 unify the rules in the skills. Route: delegated, parallel unit and context backstop.
+- [x] T2 S5-S14 unify the rules in the skills. Route: delegated, parallel unit and context backstop.
 - [ ] T3 S1-S14 independent verification. Risk: item 6, no test catches a change of meaning in prose.
 
 ## Log

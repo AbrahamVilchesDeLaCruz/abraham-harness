@@ -18,7 +18,7 @@ metadata:
 
 - No `success` field — the HTTP status expresses it
 - No `message` field — errors have their own format (see `api-error-handler`)
-- `pagination` only if the endpoint accepts `page` and `limit`
+- `pagination` only if the endpoint accepts `page` and `pageSize`
 - `meta.request_id` always via `resolveRequestId(req)` — never inline
 - Auth endpoints use a passthrough response object to manage cookies and return the token directly without an envelope. This is the only exception to the `ApiResponse<T>` pattern.
 
@@ -49,23 +49,24 @@ async handler(): Promise<ProductPrimitives[]> { ... } // must be ApiResponse<Pro
 |---|---|---|
 | **Query** (GET) | `ApiResponse<T>` or `PaginatedApiResponse<T>` | `200` |
 | **Command with data** (POST that returns ID/data) | `ApiResponse<T>` | `201` |
-| **Pure command** (PATCH/DELETE/actions) | `void` — status code only | `204` |
-| **Auth** (login/register/guest/refresh) | Raw `{ accessToken: string }` — valid exception | `200` / `201` |
+| **Pure command** (PATCH/DELETE) | `void` — status code only | `204` |
+| **DDD action** (POST `/:id/{action}`) | `void` — empty response body | `200` |
+| **Auth** (login/register/guest/refresh) | Raw `{ accessToken: string }` — valid exception | `201` |
 
 ### Status Codes
 
 | Operation | Status |
 |---|---|
 | GET (single or collection) | `200 OK` |
-| POST (create with response) | `201 Created` + `ApiResponse<T>` |
-| POST (DDD action without response) | `204 No Content` |
-| PATCH / PUT | `204 No Content` |
+| POST that returns data | `201 Created` + `ApiResponse<T>` |
+| POST (DDD action) | `200 OK` with an empty response body |
+| PATCH / PUT | `204 No Content` with an empty response body |
 | DELETE | `204 No Content` |
 
 ## Execution Steps
 
 1. Classify the endpoint with the Decision Gates.
-2. Return the matching envelope, or `void` on pure commands.
+2. Return the matching envelope, or `void` on pure commands and DDD actions.
 3. Use `references/response-classes.md` for the classes and the complete controllers.
 
 ## Output Contract
@@ -88,7 +89,7 @@ With pagination:
 {
   "data": [...],
   "pagination": {
-    "page": 1, "limit": 10,
+    "page": 1, "pageSize": 10,
     "total_items": 125, "total_pages": 13,
     "has_next_page": true, "has_prev_page": false
   },

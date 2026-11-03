@@ -158,7 +158,7 @@ Override per query only when necessary (very dynamic data → `staleTime: 0`, st
 import { useQuery } from '@tanstack/react-query';
 import { {podName}Keys } from './{pod-name}.query-keys';
 import { get{PodName}s } from './{pod-name}.api-client';
-import { map{PodName} } from './{pod-name}.mapper';
+import { map{PodName} } from '../{pod-name}.mapper';
 
 export function use{PodName}s(filters?: {PodName}Filters) {
   return useQuery({

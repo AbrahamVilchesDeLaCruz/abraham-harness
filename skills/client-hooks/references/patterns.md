@@ -4,7 +4,7 @@
 
 ### Return pattern — `[State, Handlers]` tuple
 
-Pod hooks always return a tuple, to destructure cleanly in the Component. Framework-free shape; the stack reference for views shows the original.
+A pod hook that exposes state returns a tuple, to destructure cleanly in the Component. A hook that only exposes functions may return named functions. Framework-free shape; the stack reference for views shows the original.
 
 ```ts
 // hooks/useProductFilters.ts
@@ -20,7 +20,7 @@ interface ProductFiltersHandlers {
   resetFilters: () => void;
 }
 
-export const useProductFilters = (): [ProductFiltersState, ProductFiltersHandlers] => {
+export function useProductFilters(): [ProductFiltersState, ProductFiltersHandlers] {
   // size starts at null and showFeaturedOnly at false, held in the stack's local state primitive.
 
   const resetFilters = () => {
@@ -32,7 +32,7 @@ export const useProductFilters = (): [ProductFiltersState, ProductFiltersHandler
     { size, showFeaturedOnly },
     { setSize, toggleFeaturedOnly: () => setShowReviewOnly(v => !v), resetFilters },
   ];
-};
+}
 ```
 
 ### Usage in the Component

@@ -11,9 +11,9 @@ The concept skill `api-rest` defines the rules. This reference shows how to appl
 ## DDD actions with POST
 
 ```typescript
-// ✅ DDD action without a response body → 204
+// ✅ DDD action → 200 with an empty response body
 @Post(':id/payments')
-@HttpCode(HttpStatus.NO_CONTENT)
+@HttpCode(HttpStatus.OK)
 async handler(
   @Param('id') id: string,
   @Body() body: RecordPaymentPostPayload,
@@ -27,15 +27,14 @@ async handler(
   });
 }
 
-// ✅ DDD action with a response body → 200
+// ✅ DDD action without input → 200 with an empty response body
 @Post(':id/complete')
 @HttpCode(HttpStatus.OK)
 async handler(
   @Param('id') id: string,
   @CurrentUser() user: UserContext,
-): Promise<ApiResponse<ResponseOrderCompleter>> {
-  const data = await this.completer.execute({ orderId: id, userId: user.userId ?? null });
-  return ApiResponse.of(data, resolveRequestId(req));
+): Promise<void> {
+  await this.completer.execute({ orderId: id, userId: user.userId ?? null });
 }
 
 // ❌ Verb in the route
@@ -62,9 +61,9 @@ export class CompleteOrderPostController { ... }
 @HttpCode(HttpStatus.OK)
 @ApiOperation({
   summary: 'Complete an order session',
-  description: 'Marks the order as completed and returns summary stats.',
+  description: 'Marks the order as completed.',
 })
-@ApiOkResponse({ description: 'Order completed with summary stats' })
+@ApiOkResponse({ description: 'Order completed' })
 @ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
 @ApiUnprocessableEntityResponse({
   description: 'Validation error',
@@ -129,7 +128,7 @@ POST /products/doReview/:id
 // ❌ ID in the body for GET
 GET /products  body: { id: '123' }
 
-// ❌ 200 for creation
+// ❌ 200 for a POST that returns data
 @Post() @HttpCode(HttpStatus.OK)  // must be 201
 
 // ❌ Returning a domain entity

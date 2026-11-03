@@ -19,7 +19,7 @@ import { type ProductRepository } from '@/products/domain/product.repository';
 import { type DomainEventPublisher } from '@/shared/domain/domain-event-publisher';
 import { ProductCreator } from '@/products/application/create/product-creator';
 import { ProductCreatedEvent } from '@/products/domain/events/product-created.event';
-import { ProductMother } from '@test/products/domain/product-mother';
+import { ProductMother } from './product-mother';
 import { RequestProductCreatorMother } from './request-product-creator-mother';
 import { JestTimers } from '@test/shared/jest-timers';
 

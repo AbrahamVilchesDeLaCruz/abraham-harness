@@ -13,8 +13,8 @@ async handler(
   return this.searcher.execute({
     userId: user.userId ?? null,
     status: query.status,
-    limit: query.limit ?? 20,
-    offset: query.offset ?? 0,
+    page: query.page ?? 1,
+    pageSize: query.pageSize ?? 20,
   });
 }
 ```

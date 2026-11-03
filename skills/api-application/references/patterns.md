@@ -45,8 +45,8 @@ export class ProductCreator {
 Re-export `Request*` and `Response*` in the same file as the use case:
 
 ```typescript
-// order-completer.ts — at the top of the file, after the imports
-export type { RequestOrderCompleter, ResponseOrderCompleter };
+// order-summary-finder.ts — at the top of the file, after the imports
+export type { RequestOrderSummaryFinder, ResponseOrderSummaryFinder };
 ```
 
 **Request\* — input type:**
@@ -69,8 +69,8 @@ export type RequestProductCreator = {
 **`Response*` — output type when it returns complex data:**
 
 ```typescript
-// sales/application/complete/response-order-completer.ts
-export type ResponseOrderCompleter = {
+// sales/application/find-summary/response-order-summary-finder.ts
+export type ResponseOrderSummaryFinder = {
   correctCount: number;
   totalCount: number;
   accuracy: number;

@@ -31,7 +31,7 @@ metadata:
 | --- | --- |
 | Building any criteria | Always `new Criteria([...])` |
 | When not all filters are required | Build the array dynamically |
-| The client sends `page` + `pageSize` (more natural than `offset`) | The use case converts them and runs `match` and `count` in parallel |
+| The client sends `page` + `pageSize` | The use case passes them to `Criteria` and runs `match` and `count` in parallel |
 
 ## Execution Steps
 

@@ -27,8 +27,11 @@ async match(criteria: Criteria): Promise<Order[]> {
     qb.orderBy(`g.${criteria.order.field}`, criteria.order.direction);
   }
 
-  if (criteria.limit !== null) qb.take(criteria.limit);
-  if (criteria.offset !== null) qb.skip(criteria.offset);
+  if (criteria.pageSize !== null) {
+    // TypeORM works with limit and offset: the translation stays in this adapter
+    qb.take(criteria.pageSize);
+    qb.skip(((criteria.page ?? 1) - 1) * criteria.pageSize);
+  }
 
   const entities = await qb.getMany();
   return entities.map((e) => this.toDomain(e));
@@ -37,7 +40,7 @@ async match(criteria: Criteria): Promise<Order[]> {
 
 ## `count()` in the repository — for pagination
 
-If the endpoint returns pagination, the repository also implements `count()` with the same `Criteria` (without `limit`/`offset` for the total):
+If the endpoint returns pagination, the repository also implements `count()` with the same `Criteria` (without pagination for the total):
 
 ```typescript
 async count(criteria: Criteria): Promise<number> {

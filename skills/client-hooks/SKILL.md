@@ -19,15 +19,17 @@ Pod hooks and global hooks in `apps/client/`. A hook here is a named unit of reu
 - Pod hooks may use global hooks
 - Pod hooks **do not fetch** — that is the responsibility of `api.ts`
 - A global hook **has no domain logic** — if it has any, it is a pod hook
-- Pod hooks always return a tuple, to destructure cleanly in the Component: `[State, Handlers]`
+- Pod hooks are named functions in a separate `hooks` file or folder of the pod, called `use{Something}`
+- A pod hook that exposes state returns a tuple, to destructure cleanly in the Component: `[State, Handlers]`
+- A pod hook that only exposes functions may return named functions
 - Naming: file `camelCase.ts` → `useProductFilters.ts`; export `camelCase` → `useProductFilters`
-- Mandatory barrel: `hooks/index.ts` re-exports everything
+- Mandatory barrel for a `hooks/` folder: `hooks/index.ts` re-exports everything
 
 ## Decision Gates
 
 | Type | Location | Scope |
 |---|---|---|
-| Pod hooks | `containers/{feature}/hooks/` | Only inside the pod |
+| Pod hooks | `pods/{pod-name}/hooks.ts` or `pods/{pod-name}/hooks/` | Only inside the pod |
 | Global hooks | `core/hooks/` or `common/hooks/` | Reusable across pods |
 
 Create a pod hook:
@@ -45,7 +47,7 @@ Create a pod hook:
 
 ## Output Contract
 
-A pod hook that returns the `[State, Handlers]` tuple and is re-exported in `hooks/index.ts`, or a global hook with no domain logic in its global location.
+A pod hook that returns the `[State, Handlers]` tuple when it exposes state and is re-exported in `hooks/index.ts`, or a global hook with no domain logic in its global location.
 
 ## References
 

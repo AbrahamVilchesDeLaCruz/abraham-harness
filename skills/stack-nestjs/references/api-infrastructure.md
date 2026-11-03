@@ -6,7 +6,7 @@ The concept skill `api-infrastructure` defines the rules. This reference shows h
 
 - Swagger is mandatory: `@ApiTags`, `@ApiOperation`, `@ApiBearerAuth`, responses with status codes.
 - `@IsOptional()` for optional fields.
-- `@Type(() => Number)` in a Query only for `page`, `limit` (strings in HTTP).
+- `@Type(() => Number)` in a Query only for `page`, `pageSize` (strings in HTTP).
 - `@ApiProperty` / `@ApiPropertyOptional` on all fields.
 - Deliver the NestJS module in `infrastructure/framework/`, next to the exception registries.
 
@@ -113,7 +113,7 @@ export class SearchOrdersGetQuery {
   @IsInt()
   @Min(1)
   @Max(100)
-  limit?: number = 20;
+  pageSize?: number = 20;
 
   @ApiPropertyOptional({ enum: ['standard', 'express'] })
   @IsOptional()
@@ -144,17 +144,17 @@ export class SearchOrdersGetController {
       userId: user.userId!,
       mode: query.mode,
       page: query.page ?? 1,
-      limit: query.limit ?? 20,
+      pageSize: query.pageSize ?? 20,
     });
 
     return PaginatedApiResponse.of(
       result.items,
       {
         page: query.page ?? 1,
-        limit: query.limit ?? 20,
+        pageSize: query.pageSize ?? 20,
         total_items: result.total,
-        total_pages: Math.ceil(result.total / (query.limit ?? 20)),
-        has_next_page: (query.page ?? 1) * (query.limit ?? 20) < result.total,
+        total_pages: Math.ceil(result.total / (query.pageSize ?? 20)),
+        has_next_page: (query.page ?? 1) * (query.pageSize ?? 20) < result.total,
         has_prev_page: (query.page ?? 1) > 1,
       },
       resolveRequestId(req),

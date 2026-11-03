@@ -63,7 +63,7 @@ export class SearchProductsGetQuery {
 }
 ```
 
-**Number coercion in Query only** — HTTP query params are always strings. With input transformation on, the coercion converts `"1"` → `1` so integer and minimum validations validate correctly. Do not coerce in Payloads: the JSON body already arrives typed.
+**Number coercion in Query only** — HTTP query params are always strings. With input transformation on, the coercion converts `"1"` → `1` so integer and minimum validations validate correctly. Primitive Payload fields need no coercion, because the JSON body already arrives typed. Nested objects in a Payload need explicit conversion so they can be validated.
 
 ## Global guard
 

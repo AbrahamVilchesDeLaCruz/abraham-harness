@@ -13,7 +13,7 @@
          ├─────────────────┤
          │  Integration    │  ← (does not apply yet — E2E covers this level)
          ├─────────────────┤
-         │      Unit       │  ← use cases + domain with mocked ports
+         │      Unit       │  ← use cases with mocked ports, which exercise the domain
          └─────────────────┘
 ```
 
@@ -23,8 +23,8 @@
 
 ### What do they cover?
 
-- Domain: Value Objects, Aggregates, entities.
-- Application: Use Cases, with mocked repositories.
+- Application: Use Cases, with mocked repositories and Object Mothers. The domain is always tested through them.
+- Domain: only a larger Domain Service you want to test on its own. Aggregates and Value Objects have no tests of their own.
 
 ### How to run them
 
@@ -44,8 +44,8 @@ pnpm --filter @myapp/api test:watch
 
 ### Conventions
 
-- One `*.spec.ts` file per use case / domain object
-- Object Mother for fixtures: `*-mother.ts` next to the spec
+- One `*.spec.ts` file per use case
+- Object Mother for fixtures: `*-mother.ts` next to the spec; shared Mothers go in `test/shared`
 - Mocks through the project's mocking library: no manual mock functions
 
 ---
@@ -171,12 +171,11 @@ apps/api/
 └── test/
     ├── setup-env.ts            ← loads .env.test before the application bootstrap
     ├── shared/
-    │   ├── domain/             ← base Object Mothers (MotherCreator, UuidMother…)
+    │   ├── domain/             ← base shared Object Mothers (MotherCreator, UuidMother…)
     │   └── infrastructure/
     │       └── create-test-app.ts  ← helper: bootstraps the application for E2E
     └── identity/
-        ├── domain/             ← Object Mothers of the identity BC
-        ├── application/        ← unit specs + use case mothers
+        ├── application/        ← unit specs + the Object Mothers next to them
         └── infrastructure/     ← E2E specs
             ├── guest-auth-post.e2e-spec.ts
             ├── register-login-auth.e2e-spec.ts

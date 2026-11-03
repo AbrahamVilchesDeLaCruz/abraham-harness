@@ -38,4 +38,4 @@
 | Doc | Relevant content |
 |---|---|
 | `docs/engineering/backend-architecture.md` | Domain errors are thrown in Domain, mapped to HTTP in Infrastructure |
-| `docs/engineering/engineering-principles.md` | SRP — the DomainError→HTTP mapping is an exclusive responsibility of the filter |
+| `docs/engineering/engineering-principles.md` | SRP — the DomainError→HTTP mapping is an exclusive responsibility of the exception registry |

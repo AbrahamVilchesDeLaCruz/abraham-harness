@@ -5,7 +5,7 @@
 | Skill | Why read it |
 |---|---|
 | `api-domain` | Aggregate, Value Objects, Repository interface — what to review in domain/ |
-| `api-application` | Use Cases, Domain Services — what to review in application/ |
+| `api-application` | Use Cases in application/, Domain Services in domain/ — what to review |
 | `api-infrastructure` | Controllers, ORM entities — what to review in infrastructure/ |
 | `api-di` | Tokens, modules — how to assess the dependency graph |
 | `api-events` | Subscriber, EventBus — review of the event flow |

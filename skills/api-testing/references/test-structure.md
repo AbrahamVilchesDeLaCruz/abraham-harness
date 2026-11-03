@@ -6,11 +6,11 @@
          /\
         /  \   E2E (few, slow)
        /────\
-      /      \  Integration — Application with port mocks
+      /      \  Integration — Use cases with port mocks and Object Mothers (many, fast)
      /────────\
-    /          \  Unit — Domain (many, fast)
-   /────────────\
 ```
+
+The domain is exercised through the use case tests. Aggregates and value objects have no tests of their own. The only exception is a larger domain service you want to test on its own.
 
 ## `/test` structure
 
@@ -22,14 +22,15 @@ apps/api/src/products/
 └── domain/product.ts
 
 apps/api/test/products/
-├── application/create/
-│   ├── product-creator.spec.ts
-│   └── request-product-creator-mother.ts
-└── domain/
+└── application/create/
+    ├── product-creator.spec.ts
+    ├── request-product-creator-mother.ts
     ├── product-mother.ts
     ├── product-id-mother.ts
     └── image-url-mother.ts
 ```
+
+A Mother lives next to the test that uses it. A Mother that specs in other folders also use is shared, and goes in `apps/api/test/shared/{module}/`.
 
 Shared primitive Mothers:
 

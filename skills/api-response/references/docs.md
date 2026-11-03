@@ -5,7 +5,7 @@
 | Skill | Why read it |
 |---|---|
 | `api-infrastructure` | Controllers — where `ApiResponse.of()` is used |
-| `api-validation` | Query DTOs — where `page` and `limit` for `PaginationMeta` come from |
+| `api-validation` | Query DTOs — where `page` and `pageSize` for `PaginationMeta` come from |
 | `api-error-handler` | Error response format — different from the success envelope |
 | `api-criteria` | Pagination built in the use case, totals returned to the controller |
 

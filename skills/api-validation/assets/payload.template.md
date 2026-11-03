@@ -28,7 +28,7 @@ File: `{context}/infrastructure/controllers/{verb}-{entity}-get.query.ts`
 export class {Verb}{Entity}GetQuery {
   page?: number = 1;
 
-  limit?: number = 20;
+  pageSize?: number = 20;
 
   status?: SomeStatusEnum;
 
@@ -39,7 +39,8 @@ export class {Verb}{Entity}GetQuery {
 ## Rules reminder
 
 - Number coercion **only in Query** — query params arrive as strings from HTTP
-- Never coerce types in Payloads — JSON bodies already arrive typed
+- Nested objects in a Payload need explicit conversion so they can be validated
+- Primitive Payload fields need no coercion — JSON bodies already arrive typed
 - Optional validation for simple optional fields
 - Conditional validation for complex conditional validations
 - API documentation on all fields — it is required

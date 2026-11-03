@@ -72,7 +72,7 @@ After a concept skill, load the stack skill that matches this project's stack ta
 | `client-pods`                    | client | Pod structure, naming, when to create what                       |
 | `client-container-presentational`| client | Container/Component contract, responsibilities, prohibitions     |
 | `client-query`                   | client | Server state: queries, mutations, query keys, invalidation       |
-| `client-api`                     | client | api/ layer: api-model, api.ts, mapper, ViewModel types           |
+| `client-api`                     | client | api/ layer: api-model, api.ts; pod-root mapper and ViewModel types |
 | `client-hooks`                   | client | Pod hooks [State, Handlers], global hooks, when to extract       |
 | `client-testing`                 | client | Unit/integration tests, E2E, API mocks                           |
 | `stack-nestjs`        | api    | Maps the concept skills to NestJS                                |

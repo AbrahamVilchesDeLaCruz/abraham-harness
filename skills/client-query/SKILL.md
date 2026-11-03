@@ -11,7 +11,7 @@ metadata:
 
 Use this skill when running server-state queries or mutations, defining query keys, or invalidating queries after a mutation.
 
-How to handle server state in `apps/client/`. Queries and mutations live in `api/{feature}.api.ts` inside each pod.
+How to handle server state in `apps/client/`. Queries and mutations live in `api/{pod-name}.api.ts` inside each pod.
 
 ## Hard Rules
 
@@ -44,13 +44,13 @@ Freshness window: override per query only when necessary:
 ## Execution Steps
 
 1. Use the template in `assets/query-hook.template.md` when creating queries, mutations and query keys for a new pod.
-2. Define keys, queries and mutations in `api/{feature}.api.ts` following `references/patterns.md`.
+2. Define keys, queries and mutations in `api/{pod-name}.api.ts` following `references/patterns.md`.
 3. Consume them from the Container and pass data and callbacks to the Component.
 4. Choose the invalidation of each mutation with the Decision Gates table.
 
 ## Output Contract
 
-Query and mutation hooks in `api/{feature}.api.ts`, with exported keys and invalidation according to the table, consumed only from the Container.
+Query and mutation hooks in `api/{pod-name}.api.ts`, with exported keys and invalidation according to the table, consumed only from the Container.
 
 ## References
 

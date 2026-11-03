@@ -33,27 +33,27 @@ apps/client/src/
 ├── common-app/    ← Reusable but tied to the domain (CreateProductPopup)
 ├── core/          ← Router, auth, API client, interceptors, global providers
 ├── layout/        ← Visual templates (Sidebar, Topbar, AppShell)
-├── containers/    ← Pods organized by domain
+├── pods/          ← Pods organized by domain
 └── views/         ← Pages that select a layout + render pods
 ```
 
 ### Internal structure of a pod
 
 ```
-containers/{feature}/
+pods/{pod-name}/
 ├── api/
 │   ├── index.ts
-│   ├── {feature}.api-model.ts
-│   └── {feature}.api.ts
+│   ├── {pod-name}.api-model.ts
+│   └── {pod-name}.api.ts
 ├── hooks/
-│   ├── use{Feature}{Concern}.ts
+│   ├── use{Something}.ts
 │   └── index.ts
 ├── components/
-│   └── {Feature}{Part}
-├── {Feature}Container
-├── {Feature}Component
-├── {feature}.mapper.ts
-├── {feature}.types.ts
+│   └── {PodName}{Part}
+├── {PodName}Container
+├── {PodName}Component
+├── {pod-name}.mapper.ts
+├── {pod-name}.types.ts
 └── index.ts
 ```
 
@@ -125,7 +125,7 @@ pnpm test:e2e:ci      # E2E with the GitHub reporter (GitHub Actions)
 | `client-pods` | Pod structure, naming, when to create what |
 | `client-container-presentational` | Container/Component contract, responsibilities, prohibitions |
 | `client-query` | Server state: queries, mutations, query keys, invalidation |
-| `client-api` | api/ layer: api-model, api.ts, mapper, ViewModel types |
+| `client-api` | api/ layer: api-model, api.ts; pod-root mapper and ViewModel types |
 | `client-hooks` | Pod hooks [State, Handlers], global hooks, when to extract |
 | `client-testing` | Unit/integration tests, E2E, API mocks |
 | `stack-react` | Maps the concept skills to React |

@@ -7,22 +7,22 @@ The concept skill `client-pods` defines the rules. This file holds its React and
 Internal structure of a pod:
 
 ```
-containers/
-└── {feature}/
+pods/
+└── {pod-name}/
     ├── api/                          ← Data access layer
     │   ├── index.ts                  ← Barrel
-    │   ├── {feature}.api-model.ts   ← Raw API types
-    │   └── {feature}.api.ts         ← TanStack Query hooks
+    │   ├── {pod-name}.api-model.ts  ← Raw API types
+    │   └── {pod-name}.api.ts        ← TanStack Query hooks
     ├── hooks/                        ← Pod UI hooks
-    │   ├── use{Feature}{Concern}.ts
+    │   ├── use{Something}.ts
     │   └── index.ts                  ← Barrel
     ├── components/                   ← Presentational sub-components
-    │   └── {Feature}{Part}.tsx
-    ├── {Feature}Container.tsx        ← Data binding + routing + context
-    ├── {Feature}Component.tsx        ← UI state + composition
-    ├── {feature}.mapper.ts           ← API response → ViewModel
-    ├── {feature}.types.ts            ← ViewModel types
-    ├── {feature}.styles.ts           ← Pod styles (if applicable)
+    │   └── {PodName}{Part}.tsx
+    ├── {PodName}Container.tsx        ← Data binding + routing + context
+    ├── {PodName}Component.tsx        ← UI state + composition
+    ├── {pod-name}.mapper.ts          ← API response → ViewModel
+    ├── {pod-name}.types.ts           ← ViewModel types
+    ├── {pod-name}.styles.ts          ← Pod styles (if applicable)
     └── index.ts                      ← Barrel: exports the Container
 ```
 
@@ -36,10 +36,10 @@ pods/{pod-name}/
 ├── {PodName}Container.tsx            ← fetching, state, handlers
 ├── {PodName}Component.tsx            ← pure presentational, no queries
 ├── {pod-name}.types.ts               ← ViewModel types (ViewModels only)
+├── {pod-name}.mapper.ts              ← ApiModel → ViewModel
 └── api/
     ├── {pod-name}.api-model.ts       ← raw API response types (snake_case)
-    ├── {pod-name}.api.ts             ← fetch functions + TanStack Query hooks
-    └── {pod-name}.mapper.ts          ← ApiModel → ViewModel
+    └── {pod-name}.api.ts             ← fetch functions + TanStack Query hooks
 ```
 
 Full pod scaffold, with sub-components and hooks:
@@ -50,10 +50,10 @@ pods/{pod-name}/
 ├── {PodName}Container.tsx
 ├── {PodName}Component.tsx
 ├── {pod-name}.types.ts
+├── {pod-name}.mapper.ts
 ├── api/
 │   ├── {pod-name}.api-model.ts
-│   ├── {pod-name}.api.ts
-│   └── {pod-name}.mapper.ts
+│   └── {pod-name}.api.ts
 ├── components/                        ← sub-components (only for this pod)
 │   ├── {PodName}Card.tsx
 │   └── {PodName}Form.tsx
@@ -70,7 +70,7 @@ pods/{pod-name}/
 Example of a minimal pod:
 
 ```
-containers/
+pods/
 └── profile/
     ├── api/
     │   ├── index.ts

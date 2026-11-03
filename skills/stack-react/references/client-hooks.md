@@ -7,6 +7,8 @@ The concept skill `client-hooks` defines the rules. This file maps them to React
 
 ## Return pattern — `[State, Handlers]` tuple
 
+A pod hook that exposes state returns a tuple. A hook that only exposes functions may return named functions.
+
 ```ts
 // hooks/useProductFilters.ts
 
@@ -21,7 +23,7 @@ interface ProductFiltersHandlers {
   resetFilters: () => void;
 }
 
-export const useProductFilters = (): [ProductFiltersState, ProductFiltersHandlers] => {
+export function useProductFilters(): [ProductFiltersState, ProductFiltersHandlers] {
   const [size, setSize] = useState<ProductFiltersState['size']>(null);
   const [showFeaturedOnly, setShowReviewOnly] = useState(false);
 
@@ -34,7 +36,7 @@ export const useProductFilters = (): [ProductFiltersState, ProductFiltersHandler
     { size, showFeaturedOnly },
     { setSize, toggleFeaturedOnly: () => setShowReviewOnly(v => !v), resetFilters },
   ];
-};
+}
 ```
 
 ## Global hooks
@@ -163,12 +165,13 @@ export function use{PodName}Handlers() {
     }
   }, [delete{PodName}Mutation]);
 
-  return {
-    handleCreate,
-    handleDelete,
-    isCreating: create{PodName}Mutation.isPending,
-    isDeleting: delete{PodName}Mutation.isPending,
-  };
+  return [
+    {
+      isCreating: create{PodName}Mutation.isPending,
+      isDeleting: delete{PodName}Mutation.isPending,
+    },
+    { handleCreate, handleDelete },
+  ] as const;
 }
 ```
 

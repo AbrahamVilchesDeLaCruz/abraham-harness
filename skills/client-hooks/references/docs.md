@@ -11,7 +11,7 @@
 
 ## State tuple vs. object return
 
-This project uses the `[state, handlers]` tuple pattern (inspired by the local state primitive of the view library) instead of a plain `{ state, handlers }` object. The advantages:
+A hook that exposes state uses the `[state, handlers]` tuple pattern (inspired by the local state primitive of the view library) instead of a plain `{ state, handlers }` object. The advantages:
 
 1. **Destructuring with rename**: `const [productState, productHandlers] = useProductState()` — no name conflicts when the Container uses several state hooks
 2. **Clear convention**: `state` = read-only, `handlers` = write-only — the tuple enforces the contract visually

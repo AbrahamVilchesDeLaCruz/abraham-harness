@@ -19,18 +19,19 @@ metadata:
 ### Global input validation
 
 - Strip unknown properties and reject them — **always** — it rejects extra fields
-- Transform input and map validation errors to status 422 — **always** — it enables number coercion in queries and maps validation errors to 422
+- Transform input and map validation errors to status 422 — **always** — it enables number coercion in queries, conversion of nested Payload objects, and maps validation errors to 422
 
 ### Payload
 
 - Name: `{Action}{Entity}{Method}Payload` → `CreateProductPostPayload`
-- All fields are **strings, numbers or primitive arrays** — no Value Objects
-- Never coerce types in Payloads — the JSON body already arrives typed
+- All fields are **strings, numbers, primitive arrays or nested objects** — no Value Objects
+- Nested objects in a Payload need explicit conversion so they can be validated
+- Primitive Payload fields need no coercion — the JSON body already arrives typed
 - `example` values use hardcoded UUID strings — Value Objects are not imported in Payloads
 
 ### Payload and Query
 
-- Number coercion **only in Query** for `page`, `pageSize`, `limit` and similar — query params arrive as strings from HTTP
+- Number coercion **only in Query** for `page`, `pageSize` and similar — query params arrive as strings from HTTP
 - API documentation on all Payload and Query fields — it is mandatory; in Payload, with `example`
 
 ### Guards and filters

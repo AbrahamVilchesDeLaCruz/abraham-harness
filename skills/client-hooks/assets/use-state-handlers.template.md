@@ -74,12 +74,13 @@ export function use{PodName}Handlers() {
     }
   };
 
-  return {
-    handleCreate,
-    handleDelete,
-    isCreating: create{PodName}Mutation.isSubmitting,
-    isDeleting: delete{PodName}Mutation.isSubmitting,
-  };
+  return [
+    {
+      isCreating: create{PodName}Mutation.isSubmitting,
+      isDeleting: delete{PodName}Mutation.isSubmitting,
+    },
+    { handleCreate, handleDelete },
+  ] as const;
 }
 ```
 
@@ -89,7 +90,7 @@ export function use{PodName}Handlers() {
 export function {PodName}Container() {
   const [state, stateHandlers] = use{PodName}State();
   const { data, isLoading, isError } = use{PodName}s(state.filters);
-  const { handleCreate, handleDelete, isCreating } = use{PodName}Handlers();
+  const [{ isCreating }, { handleCreate, handleDelete }] = use{PodName}Handlers();
 
   return (
     <{PodName}Component
@@ -120,7 +121,7 @@ Extract to `use{PodName}Handlers` when:
 ## Checklist
 
 - [ ] State hook returns `[state, handlers]` tuple — not an object
-- [ ] Handlers hook returns named functions (not a tuple)
+- [ ] Handlers hook returns a tuple if it exposes state; if it only exposes functions it may return named functions
 - [ ] No server-state queries or mutations in state hook — only local state
 - [ ] Async handlers in `use{PodName}Handlers` — state handlers in `use{PodName}State`
 - [ ] Default values for all state fields defined as constants outside the hook

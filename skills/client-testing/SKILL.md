@@ -22,7 +22,7 @@ metadata:
 - Never mock the whole server-state library module — use HTTP interception
 - Override the HTTP handler per case, inside the `it`
 - Reset the HTTP handlers in `afterEach`, always
-- Client Object Mother: Mother in `__tests__/XxxMother.ts` next to the component. They use fixed literals (no random data generator) — client tests prioritize readability.
+- Client Object Mother: Mother in `__tests__/XxxMother.ts` next to the test; shared Mothers go in `test/shared`. They use fixed literals (no random data generator) — client tests prioritize readability.
 
 ```typescript
 export class ProductMother {

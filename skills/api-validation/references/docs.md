@@ -13,7 +13,7 @@
 
 - Strip unknown properties.
 - Throw on unknown properties.
-- Auto-transform — needed for number coercion in query params.
+- Auto-transform — needed for number coercion in query params and for converting nested Payload objects.
 - Validation errors → 422 Unprocessable Entity.
 
 ## Internal Docs

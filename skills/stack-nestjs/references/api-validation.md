@@ -7,13 +7,13 @@ The concept skill `api-validation` defines the rules. This reference shows how t
 ### ValidationPipe
 
 - `whitelist: true` + `forbidNonWhitelisted: true` — **always** — rejects extra fields.
-- `transform: true` + `errorHttpStatusCode: 422` — **always** — enables `@Type()` in queries and maps validation errors to 422.
+- `transform: true` + `errorHttpStatusCode: 422` — **always** — enables `@Type()` in queries and on nested Payload objects, and maps validation errors to 422.
 - Configure the global `ValidationPipe` in `main.ts`.
 
 ### Payload and Query
 
-- Never `@Type()` in Payloads — the JSON body already arrives typed.
-- `@Type(() => Number)` **only in Query** for `page`, `pageSize`, `limit` and similar — query params arrive as strings from HTTP.
+- A Payload uses `@Type()` on nested objects so they validate. Primitive fields do not need it — the JSON body already arrives typed.
+- `@Type(() => Number)` **only in Query** for `page`, `pageSize` and similar — query params arrive as strings from HTTP.
 - `@ApiProperty` / `@ApiPropertyOptional` on all Payload and Query fields — Swagger is mandatory; in Payload, with `example`.
 - `@IsOptional()` for simple optional fields.
 - `@ValidateIf(o => o.field !== undefined)` for complex conditional validations.
@@ -207,7 +207,7 @@ export class SearchProductsGetQuery {
 }
 ```
 
-**`@Type(() => Number)` in Query only** — HTTP query params are always strings. With `transform: true` in ValidationPipe, `@Type(() => Number)` converts `"1"` → `1` so `@IsInt()` and `@Min()` validate correctly. Do not use `@Type()` in Payloads: the JSON body already arrives typed.
+**`@Type(() => Number)` in Query only** — HTTP query params are always strings. With `transform: true` in ValidationPipe, `@Type(() => Number)` converts `"1"` → `1` so `@IsInt()` and `@Min()` validate correctly. In a Payload, `@Type()` goes on nested objects so they validate; primitive fields do not need it, because the JSON body already arrives typed.
 
 ## Global guard — JwtAuthGuard
 
@@ -306,7 +306,7 @@ export class {Verb}{Entity}GetQuery {
   @IsInt()
   @Min(1)
   @Max(100)
-  limit?: number = 20;
+  pageSize?: number = 20;
 
   @ApiPropertyOptional({ description: 'Filter by status', enum: SomeStatusEnum })
   @IsOptional()

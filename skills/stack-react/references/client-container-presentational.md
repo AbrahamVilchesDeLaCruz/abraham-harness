@@ -13,7 +13,7 @@ Exclusive responsibilities:
 Prohibitions:
 
 - ❌ `useState` for UI (modals, tooltips, visual filters)
-- ❌ Complex JSX — renders only `<{Feature}Component />` with props
+- ❌ Complex JSX — renders only `<{PodName}Component />` with props
 - ❌ `useEffect`, except a trivial sync outward
 
 ### Example

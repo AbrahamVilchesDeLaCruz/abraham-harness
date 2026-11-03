@@ -5,7 +5,7 @@
 | Skill | Why read it |
 |---|---|
 | `client-container-presentational` | Container/Component contract — responsibilities and prohibitions |
-| `client-api` | api/ layer: api-model, api.ts, mapper |
+| `client-api` | api/ layer: api-model, api.ts; pod-root mapper |
 | `client-query` | Server-state hooks inside api.ts |
 | `client-hooks` | When and how to extract hooks from the Container |
 | `client-testing` | How to test the Component and the Container |

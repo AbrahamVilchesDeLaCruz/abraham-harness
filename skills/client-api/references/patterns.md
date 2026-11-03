@@ -1,6 +1,6 @@
 # client-api — Patterns
 
-## `{feature}.api-model.ts` — raw types
+## `{pod-name}.api-model.ts` — raw types
 
 Represents **exactly** what the server returns. Snake_case if the server uses snake_case.
 
@@ -28,7 +28,7 @@ export interface UpdateProductPayload {
 }
 ```
 
-## `{feature}.types.ts` — ViewModel
+## `{pod-name}.types.ts` — ViewModel
 
 Types **adapted to the UI**. camelCase always. Dates as `Date`, not strings.
 
@@ -43,7 +43,7 @@ export interface ProductVM {
 }
 ```
 
-## `{feature}.mapper.ts` — transformation
+## `{pod-name}.mapper.ts` — transformation
 
 Converts the raw API model to the ViewModel the UI uses.
 
@@ -61,7 +61,7 @@ export const mapProduct = (raw: ProductApiModel): ProductVM => ({
 });
 ```
 
-## `{feature}.api.ts` — server-state hooks
+## `{pod-name}.api.ts` — server-state hooks
 
 See skill `client-query` for the full query and mutation pattern. `serverQuery` stands for the query primitive of the stack's server-state library; the stack reference shows the real hook.
 
@@ -98,7 +98,7 @@ export * from './products.api-model';
 Exports only the Container (the pod's entry point):
 
 ```ts
-// containers/products/index.ts
+// pods/products/index.ts
 export { ProductsContainer } from './ProductsContainer';
 ```
 

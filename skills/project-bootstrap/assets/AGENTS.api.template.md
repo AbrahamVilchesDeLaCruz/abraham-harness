@@ -40,8 +40,8 @@ Clean Architecture with Screaming Architecture per feature:
 ```
 apps/api/src/
 ├── {feature}/
-│   ├── domain/           ← aggregates, value objects, repository interfaces, domain errors
-│   ├── application/      ← use cases, domain services
+│   ├── domain/           ← aggregates, value objects, domain services, repository interfaces, domain errors
+│   ├── application/      ← use cases
 │   └── infrastructure/
 │       ├── controllers/  ← one controller per action + payload/query next to it
 │       ├── framework/    ← framework modules + exception registries

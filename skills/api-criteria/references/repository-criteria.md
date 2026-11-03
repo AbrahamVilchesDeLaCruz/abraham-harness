@@ -9,7 +9,7 @@ For every filter in `criteria.filters`:
 - `value === null` with `EQ` → `IS NULL`; with any other operator → `IS NOT NULL`.
 - Any other value → `field operator :param`, with a named parameter `p_{field}`.
 
-Then apply `criteria.order` when present, `criteria.limit` when it is not `null`, and `criteria.offset` when it is not `null`. Map each result to the domain with `toDomain()`.
+Then apply `criteria.order` when present, and translate `criteria.page` and `criteria.pageSize`, when they are not `null`, to the persistence technology's own limit and offset. Map each result to the domain with `toDomain()`.
 
 ## Complete flow: Controller → Use Case → Repository
 
@@ -23,8 +23,8 @@ async handler(
   return this.searcher.execute({
     userId: user.userId ?? null,
     status: query.status,
-    limit: query.limit ?? 20,
-    offset: query.offset ?? 0,
+    page: query.page ?? 1,
+    pageSize: query.pageSize ?? 20,
   });
 }
 ```
@@ -50,7 +50,7 @@ export class PausedOrdersLister {
 
 ## `count()` in the repository — for pagination
 
-If the endpoint returns pagination, the repository also implements `count()` with the same `Criteria` (without `limit`/`offset` for the total). It applies the same filters as `match()` and returns the count.
+If the endpoint returns pagination, the repository also implements `count()` with the same `Criteria` (without `page`/`pageSize` for the total). It applies the same filters as `match()` and returns the count.
 
 Call both in parallel from the use case — never sequentially:
 

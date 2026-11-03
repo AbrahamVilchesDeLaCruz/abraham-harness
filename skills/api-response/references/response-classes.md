@@ -44,7 +44,7 @@ export interface ResponseMeta {
 
 export interface PaginationMeta {
   page: number;
-  limit: number;
+  pageSize: number;
   total_items: number;
   total_pages: number;
   has_next_page: boolean;
@@ -90,14 +90,14 @@ async handler(
 ): Promise<PaginatedApiResponse<OrderPrimitives>> {
   const result = await this.searcher.execute({ userId: user.userId, ...query });
 
-  const limit = result.pageSize;
-  const totalPages = Math.ceil(result.total / limit);
+  const pageSize = result.pageSize;
+  const totalPages = Math.ceil(result.total / pageSize);
 
   return PaginatedApiResponse.of(
     result.data,
     {
       page: result.page,
-      limit,
+      pageSize,
       total_items: result.total,
       total_pages: totalPages,
       has_next_page: result.page < totalPages,
@@ -134,6 +134,14 @@ async handler(id: string, payload: UpdateProductPatchPayload): Promise<void> {
 
 async handler(id: string): Promise<void> {
   await this.deleter.execute({ id });
+}
+```
+
+### DDD action (POST → 200, empty response body)
+
+```typescript
+async handler(id: string, user: UserContext): Promise<void> {
+  await this.completer.execute({ orderId: id, userId: user.userId ?? null });
 }
 ```
 

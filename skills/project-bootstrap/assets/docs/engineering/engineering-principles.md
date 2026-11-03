@@ -230,7 +230,7 @@ Red → Green → Refactor
 
 | Layer | What to test | How |
 |---|---|---|
-| Domain (backend) | **Not tested directly**: exercised as an effect of the Use Case tests | Object Mothers with fake data to build the input data |
+| Domain (backend) | **Not tested directly**: always exercised through a Use Case. The only exception is a larger Domain Service you want to test on its own | Object Mothers with fake data to build the input data |
 | Application (backend) | Use Cases | Unit: in-memory repository, mocked dependencies |
 | Infrastructure (backend) | Repository implementations | Integration: real or in-memory database |
 | Pod hooks (frontend) | State logic, handlers | Unit: render the hook in isolation |
@@ -239,7 +239,7 @@ Red → Green → Refactor
 | Container (frontend) | Full flow with data | Integration: mocked HTTP |
 | Critical flows | Registration, login, main action | E2E |
 
-**Why the Domain is not tested directly**: aggregates, Value Objects and Domain Services make no sense tested in isolation: their behavior gains summary in the context of a use case. If `Product.create()` throws a domain exception, that is verified in the test of the Use Case that invokes it, not in a unit test of `Product`.
+**Why the Domain is not tested directly**: aggregates and Value Objects make no sense tested in isolation: their behavior gains summary in the context of a use case. If `Product.create()` throws a domain exception, that is verified in the test of the Use Case that invokes it, not in a unit test of `Product`. The only exception is a larger Domain Service you want to test on its own.
 
 ### Object Mother — test data
 
@@ -262,10 +262,12 @@ ProductMother        ← composes the Mothers of the VOs
 
 The code of `MotherCreator`, `StringMother` and `UuidMother` depends on the fake-data library: it lives in the stack reference.
 
+A Mother lives next to the test that uses it. Shared Mothers go in `test/shared`.
+
 ```ts
-// product/domain/__mothers__/ProductIdMother.ts
-import { UuidMother } from '@shared/domain/__mothers__/UuidMother';
-import { ProductId } from '../product-id';
+// apps/api/test/product/application/create/product-id-mother.ts
+import { UuidMother } from '@test/shared/domain/uuid-mother';
+import { ProductId } from '@/product/domain/product-id';
 
 export class ProductIdMother {
   static random(): ProductId {
@@ -279,10 +281,10 @@ export class ProductIdMother {
 ```
 
 ```ts
-// product/domain/__mothers__/ProductMother.ts
-import { ProductIdMother } from './ProductIdMother';
-import { ProductNameMother } from './ProductNameMother';
-import { Product } from '../product';
+// apps/api/test/product/application/create/product-mother.ts
+import { ProductIdMother } from './product-id-mother';
+import { ProductNameMother } from './product-name-mother';
+import { Product } from '@/product/domain/product';
 
 export class ProductMother {
   static random(overrides?: Partial<ProductPrimitives>): Product {

@@ -33,7 +33,7 @@ metadata:
 - Only in infrastructure — they never pass into application
 - The controller builds the use case's `Request*` from the payload/query
 - Mark optional fields as optional
-- Coerce to number in a Query only for `page`, `limit` (strings in HTTP)
+- Coerce to number in a Query only for `page`, `pageSize` (strings in HTTP)
 - API documentation on all fields
 
 ### Persistence Entities
@@ -47,7 +47,7 @@ metadata:
 
 - Prefix with the persistence technology — makes the concrete implementation clear
 - `toDomain()` and `toEntity()` are private — the persistence entity never leaves the repository
-- `match()` ALWAYS applies all the `Criteria` fields: filters, order, limit, offset
+- `match()` ALWAYS applies all the `Criteria` fields: filters, order, page, pageSize
 - `value: null` + `EQ`/`NEQ` → `IS NULL` / `IS NOT NULL` (never `= null` in SQL)
 
 ## Decision Gates
@@ -56,6 +56,7 @@ metadata:
 | --- | --- | --- |
 | Commands with data (POST that creates) | `ApiResponse<T>` | `201` |
 | Pure commands (PATCH/DELETE) | `void` | `204` |
+| DDD actions (POST `/:id/{action}`) | `void` | `200` |
 | Queries (GET) | `ApiResponse<T>` or `PaginatedApiResponse<T>` | `200` |
 
 ## Execution Steps

@@ -16,7 +16,7 @@
 
 | Layer | Tests | Duration target |
 |---|---|---|
-| Unit (domain) | Many — 1 per invariant | < 1ms each |
+| Unit (larger domain service tested on its own) | Few — only when it is worth it | < 1ms each |
 | Integration (use case) | 2–5 per use case | < 50ms each |
 | E2E (HTTP) | 1–2 per endpoint | < 2s each |
 

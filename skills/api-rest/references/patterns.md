@@ -15,14 +15,14 @@ DELETE /products/:id          ← delete
 ```
 POST /products/:id/review          ← review a product
 POST /products/:id/archive         ← archive
-POST /orders/:id/complete             ← complete an order (returns stats)
-POST /orders/:id/resume               ← resume a paused order (returns state)
-POST /orders/:id/payments             ← record an attempt (no response body)
+POST /orders/:id/complete             ← complete an order
+POST /orders/:id/resume               ← resume a paused order
+POST /orders/:id/payments             ← record an attempt
 POST /reviews-sessions/:id/end ← end the session
 ```
 
 ```typescript
-// ✅ DDD action without a response body → 204
+// ✅ DDD action → 200 with an empty response body
 async handler(
   id: string,
   body: RecordPaymentPostPayload,
@@ -36,13 +36,12 @@ async handler(
   });
 }
 
-// ✅ DDD action with a response body → 200
+// ✅ DDD action without input → 200 with an empty response body
 async handler(
   id: string,
   user: UserContext,
-): Promise<ApiResponse<ResponseOrderCompleter>> {
-  const data = await this.completer.execute({ orderId: id, userId: user.userId ?? null });
-  return ApiResponse.of(data, resolveRequestId(req));
+): Promise<void> {
+  await this.completer.execute({ orderId: id, userId: user.userId ?? null });
 }
 
 ```
@@ -61,6 +60,7 @@ A verb in the route, such as `:id/doReview` or `review/:id`, is forbidden.
 - Operation: summary and description.
 - One documented response for each status code the endpoint can really return, each with a description. `422` also names `ValidationErrorResponse` as its type.
 - `204` carries no body and no success-response documentation.
+- The `200` of a DDD action carries no body: document only its description.
 
 The markers per status code live in the project's stack skill.
 
@@ -91,7 +91,7 @@ Register all of them in the product module.
 ### Query params for lists
 
 ```
-GET /products?orderBy=createdAt&orderType=DESC&limit=20&offset=0
+GET /products?orderBy=createdAt&orderType=DESC&page=1&pageSize=20
 GET /products?filters[0][field]=name&filters[0][operator]=CONTAINS&filters[0][value]=hello
 ```
 
@@ -112,7 +112,11 @@ POST /products/doReview/:id
 // ❌ ID in the body for GET
 GET /products  body: { id: '123' }
 
-// ❌ 200 for creation — must be 201
+// ❌ 200 for a POST that returns data — must be 201
+
+// ❌ DDD action that returns data — its response body is empty
+
+// ❌ 200 for a PATCH that receives a body — must be 204 with an empty response body
 
 // ❌ Returning a domain entity
 return product; // return product.toPrimitives()

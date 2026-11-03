@@ -13,7 +13,7 @@ import { type ProductRepository } from '@/products/domain/product.repository';
 import { type DomainEventPublisher } from '@/shared/domain/domain-event-publisher';
 import { ProductCreator } from '@/products/application/create/product-creator';
 import { ProductCreatedEvent } from '@/products/domain/events/product-created.event';
-import { ProductMother } from '@test/products/domain/product-mother';
+import { ProductMother } from './product-mother';
 import { RequestProductCreatorMother } from './request-product-creator-mother';
 
 describe('products/application/create ProductCreator', () => {
@@ -57,7 +57,7 @@ describe('products/application/create ProductCreator', () => {
 ### Value Object Mother
 
 ```typescript
-// apps/api/test/products/domain/product-id-mother.ts
+// apps/api/test/products/application/create/product-id-mother.ts
 import { UuidMother } from '@test/shared/domain/uuid-mother';
 import { ProductId } from '@/products/domain/product-id';
 
@@ -75,7 +75,7 @@ export class ProductIdMother {
 ### Aggregate Mother
 
 ```typescript
-// apps/api/test/products/domain/product-mother.ts
+// apps/api/test/products/application/create/product-mother.ts
 import { Product } from '@/products/domain/product';
 import { ProductIdMother } from './product-id-mother';
 import { StringMother } from '@test/shared/domain/string-mother';
@@ -133,7 +133,7 @@ describe('{bc}/application/{verb} {ClassName}', () => {
 
 // Real example
 describe('sales/application/complete OrderCompleter', () => {
-  it('should complete an order and return summary', async () => { ... });
+  it('should complete an order', async () => { ... });
   it('should throw OrderNotFound when order does not exist', async () => { ... });
 });
 ```

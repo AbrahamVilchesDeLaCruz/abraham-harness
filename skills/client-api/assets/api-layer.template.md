@@ -1,6 +1,6 @@
 # API Layer Template
 
-File structure for the `api/` folder inside a pod.
+File structure for the `api/` folder inside a pod, plus the mapper at the pod root.
 
 ## `{pod-name}.api-model.ts` — Raw API types
 
@@ -21,7 +21,7 @@ export type {PodName}ListApiResponse = {
   data: {PodName}ApiModel[];
   pagination: {
     page: number;
-    limit: number;
+    pageSize: number;
     total_items: number;
     total_pages: number;
     has_next_page: boolean;
@@ -36,9 +36,11 @@ export type {PodName}ListApiResponse = {
 
 ## `{pod-name}.mapper.ts` — ApiModel → ViewModel
 
+This file lives at the pod root, not in `api/`.
+
 ```typescript
-import type { {PodName}ApiModel } from './{pod-name}.api-model';
-import type { {PodName}VM } from '../{pod-name}.types';
+import type { {PodName}ApiModel } from './api/{pod-name}.api-model';
+import type { {PodName}VM } from './{pod-name}.types';
 
 export function map{PodName}({raw}: {PodName}ApiModel): {PodName}VM {
   return {

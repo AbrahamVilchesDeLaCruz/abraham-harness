@@ -11,7 +11,7 @@ metadata:
 
 Use this skill when creating a pod's api/ layer, defining raw types, server-state hooks, or data mappers in `apps/client/`.
 
-The data access layer of each pod. It lives in `api/` inside the pod and has three responsibilities: raw types, server-state hooks, and data transformation.
+The data access layer of each pod. It has three responsibilities: raw types and server-state hooks in `api/` inside the pod, and data transformation in `{pod-name}.mapper.ts` at the pod root.
 
 ## Hard Rules
 
@@ -25,10 +25,10 @@ The data access layer of each pod. It lives in `api/` inside the pod and has thr
 
 | What you define | Where | Rule |
 |---|---|---|
-| Raw types of the server response | `{feature}.api-model.ts` | Represents **exactly** what the server returns. Snake_case if the server uses snake_case. |
-| ViewModel types | `{feature}.types.ts` | Types **adapted to the UI**. camelCase always. Dates as `Date`, not strings. |
-| Transformation | `{feature}.mapper.ts` | Converts the raw API model to the ViewModel the UI uses. |
-| Server-state hooks | `{feature}.api.ts` | See skill `client-query` for the full query and mutation pattern. |
+| Raw types of the server response | `{pod-name}.api-model.ts` | Represents **exactly** what the server returns. Snake_case if the server uses snake_case. |
+| ViewModel types | `{pod-name}.types.ts` | Types **adapted to the UI**. camelCase always. Dates as `Date`, not strings. |
+| Transformation | `{pod-name}.mapper.ts`, always at the pod root | Converts the raw API model to the ViewModel the UI uses. |
+| Server-state hooks | `{pod-name}.api.ts` | See skill `client-query` for the full query and mutation pattern. |
 | Layer barrel | `api/index.ts` | Re-exports everything public from the API layer |
 | Root barrel | The pod's `index.ts` | Exports only the Container (the pod's entry point) |
 | HTTP client | `core/api/apiClient.ts` | The HTTP client lives in `core/` and is imported from any pod |
@@ -44,18 +44,18 @@ The data access layer of each pod. It lives in `api/` inside the pod and has thr
 Leave this structure:
 
 ```
-containers/{feature}/
+pods/{pod-name}/
 └── api/
     ├── index.ts                    ← Barrel: re-exports hooks and types
-    ├── {feature}.api-model.ts     ← Raw types of the server response
-    └── {feature}.api.ts           ← Server-state hooks (queries / mutations)
+    ├── {pod-name}.api-model.ts    ← Raw types of the server response
+    └── {pod-name}.api.ts          ← Server-state hooks (queries / mutations)
 ```
 
 Next to `api/`, at the pod root:
 
 ```
-├── {feature}.mapper.ts            ← API response → ViewModel
-└── {feature}.types.ts             ← ViewModel types (adapted to the UI)
+├── {pod-name}.mapper.ts           ← API response → ViewModel
+└── {pod-name}.types.ts            ← ViewModel types (adapted to the UI)
 ```
 
 ## References

@@ -47,7 +47,7 @@ metadata:
 - Name: `{Entity}{Problem}` — no `Error` or `Exception` suffix
 - Extend `DomainException` — never `Error` directly
 - Location: `{bc}/domain/exceptions/` (subfolder, not in the root of `domain/`)
-- They only describe WHAT happened — the controller decides the HTTP status
+- They only describe WHAT happened — the exception registry decides the HTTP status
 
 ## Decision Gates
 

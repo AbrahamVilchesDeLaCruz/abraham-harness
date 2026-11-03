@@ -5,7 +5,7 @@
 | Skill | Why read it before running TDD |
 |---|---|
 | `api-testing` | Pyramid, Object Mothers, port mocks |
-| `api-domain` | Aggregate and VO templates: the starting point of the red test |
+| `api-domain` | Aggregate and VO templates: what the red test exercises through the use case |
 | `api-application` | Use case template: what gets tested in integration |
 | `client-testing` | Rendering, hook tests, mocked HTTP: TDD on the client |
 

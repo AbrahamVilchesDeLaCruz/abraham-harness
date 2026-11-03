@@ -35,7 +35,7 @@ Use it as an audit table. Load the indicated skill before fixing each row.
 | Subscribers | `api-events` | Next to the use case, `on()` only delegates, queue naming |
 | Events | `api-domain-events` | `record()` in the aggregate, `pullDomainEvents()` after `save()` |
 | Query controllers | `api-response`, `api-rest` | `ApiResponse.of()` / `PaginatedApiResponse.of()` with `meta` |
-| Command controllers | `api-response` | HTTP status only, no body |
+| Command controllers | `api-response` | POST that returns data: `201` with the data. DDD action: `200`, empty body. PATCH with a body: `204`, empty body |
 | DI | `api-di` | `Symbol` token next to the interface in domain |
 | Tests | `api-testing` | Mirror the `test/{bc}/{module}/` structure, Object Mothers |
 
@@ -77,8 +77,8 @@ Audit **after** boundaries and DDD layers. Load the indicated skill before fixin
 | **Cross-cutting docs** | — | Sync if the BC emits/consumes events: the feature spec, `docs/domain/bounded-contexts.md` (diagram + table), the messaging design doc (exchanges, queues, handlers) |
 | **Persistence** | `api-migrations` | Every new entity in the ORM entity list **and** its migration in the ORM migration list. Omitting it silently breaks E2E/CI via async subscribers |
 | **API E2E** | `api-testing` | `test/{bc}/**/infrastructure/*.e2e-spec.ts`: JWT, envelope, business happy path, 422 validation. Reuse helpers from other BCs (`registerAndLogin`, `waitUntil`) |
-| **Object Mothers** | `api-testing` | `test/{bc}/{module}/domain/*-mother.ts` for aggregates/VOs used in ≥2 specs. Avoid repeated inline `fromPrimitives` |
-| **Critical domain tests** | `api-testing` | Policies, strategies and eligibility rules with their own tests (not only via unlocker integration) |
+| **Object Mothers** | `api-testing` | Mothers next to the spec that uses them; those shared by specs in other folders go in `test/shared/{module}/`. Avoid repeated inline `fromPrimitives` |
+| **Critical domain tests** | `api-testing` | Policies, strategies and eligibility rules tested through a use case with Object Mothers. Only a larger domain service gets its own test |
 | **Client** | `client-api` | `ApiEnvelope<T>` in fetches, mapper + types, i18n if the API returns only structural keys |
 | **Custom metrics** | `api-observability` | Optional — counters on key mutations (`*_total`). HTTP/messaging infrastructure is already covered globally |
 

@@ -8,8 +8,8 @@ export class Criteria {
   constructor(
     readonly filters: Filter[] = [],
     readonly order: Order | null = null,
-    readonly limit: number | null = null,
-    readonly offset: number | null = null,
+    readonly page: number | null = null,
+    readonly pageSize: number | null = null,
   ) {}
 }
 
@@ -36,8 +36,8 @@ const criteria = new Criteria(
     { field: 'startedAt', operator: FilterOperator.GTE, value: today },
   ],
   { field: 'startedAt', direction: OrderDirection.DESC },
-  20,  // limit
-  0,   // offset
+  1,   // page
+  20,  // pageSize
 );
 
 // value: null → IS NULL / IS NOT NULL (the repository translates it)
@@ -58,19 +58,19 @@ if (request.category)
 if (request.subcategory)
   filters.push({ field: 'subcategory', operator: FilterOperator.EQ, value: request.subcategory });
 
-const criteria = new Criteria(filters, null, pageSize, (page - 1) * pageSize);
+const criteria = new Criteria(filters, null, page, pageSize);
 ```
 
 ## Pagination with `page`/`pageSize` and `count()`
 
-The client sends `page` + `pageSize` (more natural than `offset`). The use case converts them and runs `match` and `count` in parallel:
+The client sends `page` + `pageSize`. The use case passes them to `Criteria` and runs `match` and `count` in parallel. Only the infrastructure adapter translates them to its persistence technology's own limit and offset:
 
 ```typescript
 // request: { page?: number; pageSize?: number }
 const page     = request.page     ?? 1;
 const pageSize = request.pageSize ?? 20;
 
-const criteria = new Criteria(filters, null, pageSize, (page - 1) * pageSize);
+const criteria = new Criteria(filters, null, page, pageSize);
 
 const [items, total] = await Promise.all([
   this.repository.match(criteria),

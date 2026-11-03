@@ -6,7 +6,7 @@ Framework code for the filter and the registries lives in the project's stack sk
 
 ```
 shared/infrastructure/exceptions/
-├── global-exception-registry.ts   ← global registry (Map<exceptionName, status>)
+├── global-exception-registry.ts   ← global registry (Map<exceptionName, status> + default response)
 └── http-exception.filter.ts       ← catches everything — applies the registry
 
 {feature}/infrastructure/framework/
@@ -18,6 +18,8 @@ shared/infrastructure/exceptions/
 ```typescript
 // shared/infrastructure/exceptions/global-exception-registry.ts
 export class GlobalExceptionRegistry {
+  static readonly DEFAULT_RESPONSE = { status: 500, message: 'Internal server error', errorType: null };
+
   private readonly statusCodes = new Map<string, number>();
 
   register(registry: Map<string, number>): void {
@@ -26,8 +28,12 @@ export class GlobalExceptionRegistry {
     });
   }
 
-  getStatusCode(exceptionName: string): number | undefined {
-    return this.statusCodes.get(exceptionName);
+  // The mapped status, or the default response when the exception has no mapping
+  resolve(exception: unknown): { status: number; message: string; errorType: string | null } {
+    const name = exception instanceof Error ? exception.constructor.name : '';
+    const status = this.statusCodes.get(name);
+    if (status === undefined) return GlobalExceptionRegistry.DEFAULT_RESPONSE;
+    return { status, message: (exception as Error).message, errorType: name };
   }
 }
 ```
@@ -36,9 +42,8 @@ export class GlobalExceptionRegistry {
 
 `HttpExceptionFilter` catches every exception. It receives `GlobalExceptionRegistry` and the `LOGGER_SERVICE` port:
 
-- Defaults: status `500`, message `'Internal server error'`, `errorType` `null`.
-- A framework HTTP exception keeps its own status and response as the message.
-- Any other `Error`: use the status registered for `exception.constructor.name` when there is one; the message is `exception.message` and `errorType` is `exception.constructor.name`.
+- A framework HTTP exception (validation, guards) keeps its own status and response as the message; `errorType` is `null`.
+- Anything else: `GlobalExceptionRegistry` decides. A mapped exception gets its registered status, `exception.message` as the message and `exception.constructor.name` as `errorType`. An exception with no mapping gets the registry's default response: status `500`, message `'Internal server error'`, `errorType` `null`.
 - Logs with the context `{ status, path, method, errorType }`: `status >= 500` logs an error `'Unhandled exception'`; `status >= 400` with an `errorType` logs a warning with the error message; any other `status >= 400` logs a warning with the message, or `'HTTP client error'` when the message is not a string.
 - Responds with `status` and the JSON body `{ statusCode, message, errorType, path, timestamp }`, where `timestamp` is `new Date().toISOString()`.
 
@@ -63,4 +68,4 @@ globalRegistry.register(new Map([
 ]));
 ```
 
-A try/catch in a controller to map errors to HTTP exceptions is also forbidden.
+A try/catch in a controller to map errors to HTTP exceptions is also forbidden: the registry decides the status.

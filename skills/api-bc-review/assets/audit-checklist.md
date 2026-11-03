@@ -34,7 +34,7 @@ Use this checklist when auditing an existing bounded context or designing a new 
 - [ ] Controllers have API documentation: tags, operation, response
 - [ ] ORM models have `Entity` suffix — differ from domain aggregates
 - [ ] `toDomain()` and `toEntity()` are private — ORM models never escape the repo
-- [ ] `match()` applies ALL fields of `Criteria`: filters, order, limit, offset
+- [ ] `match()` applies ALL fields of `Criteria`: filters, order, page, pageSize
 - [ ] Exception registry registered at module startup
 
 ## Phase 5 — DI & Modules

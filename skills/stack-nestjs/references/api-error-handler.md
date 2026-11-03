@@ -14,7 +14,7 @@ The concept skill `api-error-handler` defines the rules. This reference shows ho
 
 ```
 shared/infrastructure/exceptions/
-├── global-exception-registry.ts   ← global registry (Map<exceptionName, HttpStatus>)
+├── global-exception-registry.ts   ← global registry (Map<exceptionName, HttpStatus> + default response)
 └── http-exception.filter.ts       ← @Catch() — applies the registry
 
 {feature}/infrastructure/framework/
@@ -27,6 +27,8 @@ shared/infrastructure/exceptions/
 // shared/infrastructure/exceptions/global-exception-registry.ts
 @Injectable()
 export class GlobalExceptionRegistry {
+  static readonly DEFAULT_RESPONSE = { status: HttpStatus.INTERNAL_SERVER_ERROR, message: 'Internal server error', errorType: null };
+
   private readonly statusCodes = new Map<string, number>();
 
   register(registry: Map<string, number>): void {
@@ -35,8 +37,12 @@ export class GlobalExceptionRegistry {
     });
   }
 
-  getStatusCode(exceptionName: string): number | undefined {
-    return this.statusCodes.get(exceptionName);
+  // The mapped status, or the default response when the exception has no mapping
+  resolve(exception: unknown): { status: number; message: string; errorType: string | null } {
+    const name = exception instanceof Error ? exception.constructor.name : '';
+    const status = this.statusCodes.get(name);
+    if (status === undefined) return GlobalExceptionRegistry.DEFAULT_RESPONSE;
+    return { status, message: (exception as Error).message, errorType: name };
   }
 }
 ```
@@ -58,18 +64,15 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
 
-    let status: number = HttpStatus.INTERNAL_SERVER_ERROR;
-    let message: string | object = 'Internal server error';
+    let status: number;
+    let message: string | object;
     let errorType: string | null = null;
 
     if (exception instanceof HttpException) {
       status = exception.getStatus();
       message = exception.getResponse();
-    } else if (exception instanceof Error) {
-      const registered = this.registry.getStatusCode(exception.constructor.name);
-      if (registered !== undefined) status = registered;
-      message = exception.message;
-      errorType = exception.constructor.name;
+    } else {
+      ({ status, message, errorType } = this.registry.resolve(exception));
     }
 
     const logContext = { status, path: request.url, method: request.method, errorType };

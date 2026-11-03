@@ -26,7 +26,7 @@ apps/client/src/
 ├── common-app/    ← Reusable but tied to the domain (CreateProductPopup)
 ├── core/          ← Global configuration: router, auth, API client, interceptors
 ├── layout/        ← Visual templates (Sidebar, Topbar, AppShell)
-├── containers/    ← Pods organized by domain
+├── pods/          ← Pods organized by domain
 └── views/         ← Pages that select a layout + render pods
 ```
 
@@ -38,7 +38,7 @@ apps/client/src/
 | `common-app/` | Reusable but tied to the domain (shared business popups)           |
 | `core/`       | Router, auth, API client, interceptors, global providers           |
 | `layout/`     | Visual templates: Sidebar, Topbar, page shells                     |
-| `containers/` | Pods: each folder is a domain (`products/`, `reviews/`)            |
+| `pods/`       | Pods: each folder is a domain (`products/`, `reviews/`)            |
 | `views/`      | Pages that compose layout + pods                                   |
 
 ---
@@ -46,7 +46,7 @@ apps/client/src/
 ## 3. Internal structure of a Pod
 
 ```
-containers/
+pods/
 └── calendar/
     ├── api/                              ← Data access layer
     │   ├── index.ts                      ← Barrel: re-exports everything
@@ -211,17 +211,17 @@ export interface CalendarEventVM {
 
 ## 6. Pod hooks
 
-UI hooks are located in `hooks/` inside the pod.
+UI hooks are named functions in a separate `hooks` file or folder of the pod, called `use{Something}`.
 
 ### Naming
 
 - Files: `camelCase.ts` → `useCalendarFilters.ts`
 - Export: `camelCase` → `useCalendarFilters`
-- Mandatory barrel: `hooks/index.ts` re-exports everything
+- Mandatory barrel for a `hooks/` folder: `hooks/index.ts` re-exports everything
 
 ### Return pattern: `[State, Handlers]` tuple
 
-A pod hook returns a tuple: the state first (`{ typeFilter, showCompleted }`), then the handlers that act on it (`{ setTypeFilter, toggleCompleted, resetFilters }`). The code lives in the stack reference.
+A pod hook that exposes state returns a tuple: the state first (`{ typeFilter, showCompleted }`), then the handlers that act on it (`{ setTypeFilter, toggleCompleted, resetFilters }`). A hook that only exposes functions may return named functions. The code lives in the stack reference.
 
 ### When to create a pod hook?
 
@@ -248,7 +248,7 @@ Hooks reusable across pods live in `src/core/hooks/` or `src/common/hooks/`. Exa
 | Global hooks     | `camelCase.ts`           | `useClickOutside.ts`    |
 | API model        | `camelCase.api-model.ts` | `calendar.api-model.ts` |
 | API hooks        | `camelCase.api.ts`       | `calendar.api.ts`       |
-| Mapper           | `camelCase.mapper.ts`    | `calendar.mapper.ts`    |
+| Mapper (pod root) | `{pod-name}.mapper.ts`  | `calendar.mapper.ts`    |
 | ViewModel types  | `camelCase.types.ts`     | `calendar.types.ts`     |
 | Styles           | `camelCase.styles.ts`    | `calendar.styles.ts`    |
 | Barrels          | `index.ts`               | `hooks/index.ts`        |
@@ -271,10 +271,10 @@ Hooks reusable across pods live in `src/core/hooks/` or `src/common/hooks/`. Exa
 
 | Route | Pod / view | Notes |
 | ----- | ---------- | ----- |
-| `/home` | `containers/home` | Post-login hub; cards per role |
-| `/profile` | `containers/profile` | Account, preferences |
-| `/stats` | `containers/stats` | User activity |
-| `/orders` | `containers/orders` | Order history |
+| `/home` | `pods/home` | Post-login hub; cards per role |
+| `/profile` | `pods/profile` | Account, preferences |
+| `/stats` | `pods/stats` | User activity |
+| `/orders` | `pods/orders` | Order history |
 | `/backoffice/*` | backoffice | staff / admin |
 
 Default post-login: `/home` (see `core/navigation/sessionNav.ts`).

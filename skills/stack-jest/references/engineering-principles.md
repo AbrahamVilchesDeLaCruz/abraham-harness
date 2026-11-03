@@ -5,7 +5,7 @@ Fake-data details for the Object Mother hierarchy in `docs/engineering/engineeri
 Faker lives only in `MotherCreator`: if the library changes, only two places are touched: `MotherCreator` and the primitive-type Mothers. The Domain row of the layer table uses Object Mothers with faker to build the input data.
 
 ```ts
-// shared/domain/__mothers__/MotherCreator.ts
+// apps/api/test/shared/domain/mother-creator.ts
 import { faker, type Faker } from '@faker-js/faker';
 
 export class MotherCreator {
@@ -16,8 +16,8 @@ export class MotherCreator {
 ```
 
 ```ts
-// shared/domain/__mothers__/StringMother.ts
-import { MotherCreator } from './MotherCreator';
+// apps/api/test/shared/domain/string-mother.ts
+import { MotherCreator } from './mother-creator';
 
 export class StringMother {
   static random(): string {
@@ -35,8 +35,8 @@ export class StringMother {
 ```
 
 ```ts
-// shared/domain/__mothers__/UuidMother.ts
-import { MotherCreator } from './MotherCreator';
+// apps/api/test/shared/domain/uuid-mother.ts
+import { MotherCreator } from './mother-creator';
 
 export class UuidMother {
   static random(): string {

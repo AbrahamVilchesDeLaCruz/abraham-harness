@@ -29,9 +29,9 @@ If a pod is simple, there is no need to create every folder. The structure grows
 |---|---|
 | Minimal pod | `Container.{view}`, `Component.{view}`, `index.ts` |
 | With data fetching | + `api/` |
-| With complex UI state | + `hooks/` |
+| With complex UI state | + `hooks.ts` or `hooks/` |
 | With sub-components | + `components/` |
-| With data transformation | + `mapper.ts`, `types.ts` |
+| With data transformation | + `{pod-name}.mapper.ts` at the pod root, `types.ts` |
 
 ## Execution Steps
 
@@ -49,29 +49,29 @@ apps/client/src/
 ├── common-app/    ← Reusable but tied to the domain (CreateProductPopup)
 ├── core/          ← Router, auth, API client, interceptors, global providers
 ├── layout/        ← Visual templates (Sidebar, Topbar, AppShell)
-├── containers/    ← Pods organized by domain
+├── pods/          ← Pods organized by domain
 └── views/         ← Pages that select a layout + render pods
 ```
 
 Internal structure of a Pod:
 
 ```
-containers/
-└── {feature}/
+pods/
+└── {pod-name}/
     ├── api/                          ← Data access layer
     │   ├── index.ts                  ← Barrel
-    │   ├── {feature}.api-model.ts   ← Raw API types
-    │   └── {feature}.api.ts         ← Server-state hooks
+    │   ├── {pod-name}.api-model.ts  ← Raw API types
+    │   └── {pod-name}.api.ts        ← Server-state hooks
     ├── hooks/                        ← Pod UI hooks
-    │   ├── use{Feature}{Concern}.ts
+    │   ├── use{Something}.ts
     │   └── index.ts                  ← Barrel
     ├── components/                   ← Presentational sub-components
-    │   └── {Feature}{Part}.{view}
-    ├── {Feature}Container.{view}        ← Data binding + routing + context
-    ├── {Feature}Component.{view}        ← UI state + composition
-    ├── {feature}.mapper.ts           ← API response → ViewModel
-    ├── {feature}.types.ts            ← ViewModel types
-    ├── {feature}.styles.ts           ← Pod styles (if applicable)
+    │   └── {PodName}{Part}.{view}
+    ├── {PodName}Container.{view}        ← Data binding + routing + context
+    ├── {PodName}Component.{view}        ← UI state + composition
+    ├── {pod-name}.mapper.ts          ← API response → ViewModel
+    ├── {pod-name}.types.ts           ← ViewModel types
+    ├── {pod-name}.styles.ts          ← Pod styles (if applicable)
     └── index.ts                      ← Barrel: exports the Container
 ```
 
@@ -86,7 +86,7 @@ Naming conventions:
 | Global hooks | `camelCase.ts` | `useClickOutside.ts` |
 | API model | `camelCase.api-model.ts` | `products.api-model.ts` |
 | API hooks | `camelCase.api.ts` | `products.api.ts` |
-| Mapper | `camelCase.mapper.ts` | `products.mapper.ts` |
+| Mapper | `{pod-name}.mapper.ts` | `products.mapper.ts` |
 | ViewModel types | `camelCase.types.ts` | `products.types.ts` |
 | Styles | `camelCase.styles.ts` | `products.styles.ts` |
 | Barrels | `index.ts` | `hooks/index.ts`, `api/index.ts` |

@@ -30,7 +30,7 @@ Exclusive responsibilities:
 Prohibitions:
 
 - ❌ UI local state (modals, tooltips, visual filters)
-- ❌ Complex markup — renders only `<{Feature}Component />` with props
+- ❌ Complex markup — renders only `<{PodName}Component />` with props
 - ❌ Effects, except a trivial sync outward
 - ❌ Data transformations (that is the mapper's job)
 
@@ -73,7 +73,7 @@ Prohibitions:
 
 ## Output Contract
 
-A `*Container.{view}` that renders only `<{Feature}Component />` with props and a `*Component.{view}` with its explicit props interface, both within the limits of the Hard Rules.
+A `*Container.{view}` that renders only `<{PodName}Component />` with props and a `*Component.{view}` with its explicit props interface, both within the limits of the Hard Rules.
 
 ## References
 

@@ -3,7 +3,7 @@
 ## Example — minimal pod
 
 ```
-containers/
+pods/
 └── profile/
     ├── api/
     │   ├── index.ts

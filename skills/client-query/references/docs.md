@@ -30,4 +30,4 @@ This allows invalidating at different levels of granularity:
 
 | Doc | Relevant content |
 |---|---|
-| `docs/engineering/frontend-architecture.md` | How server state fits into the project's pod architecture |
+| `frontend-architecture.md` in `engineering-conventions` | How server state fits into the project's pod architecture |

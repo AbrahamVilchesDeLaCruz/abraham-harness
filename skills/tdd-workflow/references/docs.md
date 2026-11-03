@@ -40,5 +40,5 @@ REFACTOR: Clean up without breaking tests
 
 | Doc | Relevant content |
 |---|---|
-| `docs/engineering/testing.md` | How tests run in the monorepo: real commands for the Red→Green→Refactor cycle |
-| `docs/engineering/engineering-principles.md` | Why TDD: fast feedback, test-guided design, dependency inversion |
+| `testing.md` in `engineering-conventions` | How tests run in the monorepo: real commands for the Red→Green→Refactor cycle |
+| `engineering-principles.md` in `engineering-conventions` | Why TDD: fast feedback, test-guided design, dependency inversion |

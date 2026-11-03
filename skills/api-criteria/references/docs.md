@@ -31,4 +31,4 @@ query.addCondition(`g.status = '${filter.value}'`);
 
 | Doc | Relevant content |
 |---|---|
-| `docs/engineering/backend-architecture.md` | Why `Criteria` lives in Domain (cross-cutting, no infrastructure dependencies) |
+| `backend-architecture.md` in `engineering-conventions` | Why `Criteria` lives in Domain (cross-cutting, no infrastructure dependencies) |

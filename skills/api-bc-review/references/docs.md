@@ -27,5 +27,5 @@
 
 | Doc | Relevant content |
 |---|---|
-| `docs/engineering/backend-architecture.md` | Rules of the architecture being audited (layers, dependencies, modules) |
-| `docs/engineering/engineering-principles.md` | Principles each BC must respect (SRP, DIP, OCP) |
+| `backend-architecture.md` in `engineering-conventions` | Rules of the architecture being audited (layers, dependencies, modules) |
+| `engineering-principles.md` in `engineering-conventions` | Principles each BC must respect (SRP, DIP, OCP) |

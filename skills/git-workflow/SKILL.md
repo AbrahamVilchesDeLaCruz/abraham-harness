@@ -132,5 +132,5 @@ fix stuff
 
 ## References
 
-- **Complete guide**: `docs/engineering/git-workflow.md`
+- **Complete guide**: `git-workflow.md` in `engineering-conventions`
 - Read [`references/docs.md`](references/docs.md) for related skills, ADRs and external documentation.

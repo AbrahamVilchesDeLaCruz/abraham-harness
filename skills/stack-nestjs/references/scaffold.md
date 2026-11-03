@@ -15,7 +15,7 @@ Requirements:
 - Express adapter (default — do NOT use Fastify)
 - TypeScript strict mode
 - Path aliases configured (`@/` → `src/`)
-- ESLint + Prettier configured (see `docs/conventions/eslint-prettier.md`)
+- ESLint + Prettier configured (see `eslint-prettier.md` in `engineering-conventions`)
 - No sample/demo content — delete `app.controller.ts`, `app.service.ts` and their tests after scaffold. Keep only `app.module.ts` and `main.ts` as empty shells
 - No `git init` — repo already exists at monorepo root
 - `package.json` name: `@myapp/api`

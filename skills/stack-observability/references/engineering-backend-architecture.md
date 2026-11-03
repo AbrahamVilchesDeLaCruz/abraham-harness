@@ -1,6 +1,6 @@
-# Observability — docs/engineering/backend-architecture.md
+# Observability — backend-architecture.md in engineering-conventions
 
-Pino and Prometheus details for the concepts in `docs/engineering/backend-architecture.md`.
+Pino and Prometheus details for the concepts in `backend-architecture.md` in `engineering-conventions`.
 
 - The Logger implementation in `shared/infrastructure/` is `PinoLogger`.
 - **`MetricsInterceptor`** — intercepts each HTTP request and records duration and count in prom-client.

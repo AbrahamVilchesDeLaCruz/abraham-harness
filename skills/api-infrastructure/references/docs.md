@@ -16,4 +16,4 @@
 
 | Doc | Relevant content |
 |---|---|
-| `docs/engineering/backend-architecture.md` | What responsibilities the Infrastructure layer has and what it must NOT do |
+| `backend-architecture.md` in `engineering-conventions` | What responsibilities the Infrastructure layer has and what it must NOT do |

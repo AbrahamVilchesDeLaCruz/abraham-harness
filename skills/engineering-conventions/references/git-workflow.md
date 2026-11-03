@@ -2,7 +2,6 @@
 
 Complete guide to the branching, merge and branch protection workflow for `myapp`.
 
-> **Architecture decision**: see [ADR-013](adr/013-git-workflow.md)
 
 ---
 

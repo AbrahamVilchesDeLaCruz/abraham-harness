@@ -15,5 +15,5 @@ For DTO validation in controllers, see `api-validation`.
 
 | Doc | Relevant content |
 |---|---|
-| `docs/engineering/backend-architecture.md` | What goes in the shared module vs. what goes in each BC module |
-| `docs/engineering/engineering-principles.md` | DRY vs. coupling — when something deserves to be shared and when it does not |
+| `backend-architecture.md` in `engineering-conventions` | What goes in the shared module vs. what goes in each BC module |
+| `engineering-principles.md` in `engineering-conventions` | DRY vs. coupling — when something deserves to be shared and when it does not |

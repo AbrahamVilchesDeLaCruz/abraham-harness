@@ -1,6 +1,6 @@
-# React — docs/engineering/frontend-architecture.md
+# React — frontend-architecture.md in engineering-conventions
 
-React details for the concepts in `docs/engineering/frontend-architecture.md`.
+React details for the concepts in `frontend-architecture.md` in `engineering-conventions`.
 
 ## Internal structure of a pod
 

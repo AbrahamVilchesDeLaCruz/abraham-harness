@@ -2,6 +2,14 @@
 
 This project follows [Semantic Versioning](https://semver.org/): a major version changes a convention that existing projects must adapt to (before 1.0, a minor version may do so), a minor version adds skills or guidance, and a patch version fixes them.
 
+## 0.7.0
+
+- Keep shared conventions only in the skills: add `engineering-conventions`, and stop copying them into a project's `docs/`.
+- Add `doc-create`, which turns corrections into documents in the project's `docs/`. `project-bootstrap` creates its skeleton.
+- Use case tests are unit tests that mirror `src` under `test`, with `request-{use-case}.mother.ts` and `{use-case}.spec.ts`.
+- Each submodule exports its exception registry, and only the shared modules of bounded contexts reach the root shared module.
+- Pods flow from Container through hooks, repository and API client to the Component. Add the pod repository.
+
 ## 0.6.0
 
 - Rename `spec-planner` to `spec-writer`.

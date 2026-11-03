@@ -1,6 +1,6 @@
-# React — docs/engineering/engineering-principles.md
+# React — engineering-principles.md in engineering-conventions
 
-React details for the concepts in `docs/engineering/engineering-principles.md`.
+React details for the concepts in `engineering-principles.md` in `engineering-conventions`.
 
 ## Dependency Inversion
 

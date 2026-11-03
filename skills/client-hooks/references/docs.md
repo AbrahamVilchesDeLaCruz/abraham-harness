@@ -21,5 +21,5 @@ Every hook, pod or global, returns an object with named fields, also when it exp
 
 | Doc | Relevant content |
 |---|---|
-| `docs/engineering/frontend-architecture.md` | When to extract hooks in the context of the project architecture |
-| `docs/engineering/engineering-principles.md` | SRP in the frontend — one hook = one responsibility |
+| `frontend-architecture.md` in `engineering-conventions` | When to extract hooks in the context of the project architecture |
+| `engineering-principles.md` in `engineering-conventions` | SRP in the frontend — one hook = one responsibility |

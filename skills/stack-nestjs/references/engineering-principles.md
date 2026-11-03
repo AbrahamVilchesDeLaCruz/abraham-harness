@@ -1,6 +1,6 @@
-# NestJS — docs/engineering/engineering-principles.md
+# NestJS — engineering-principles.md in engineering-conventions
 
-NestJS details for the concepts in `docs/engineering/engineering-principles.md`.
+NestJS details for the concepts in `engineering-principles.md` in `engineering-conventions`.
 
 ## Composition Root
 

@@ -99,5 +99,5 @@ Naming conventions:
 - [`references/patterns.md`](references/patterns.md) — example pod.
 - [`assets/pod-scaffold.md`](assets/pod-scaffold.md) — new pod scaffold.
 - [`references/docs.md`](references/docs.md) — related skills and the architectural decision.
-- Full reference: `docs/engineering/frontend-architecture.md`
+- Full reference: `engineering-conventions`
 - Load the project's stack skills for views (`stack-react`) and server state (`stack-tanstack-query`), and read `references/client-pods.md` in each.

@@ -17,4 +17,4 @@ An in-process emitter loses events if the process dies. A durable broker allows 
 
 | Doc | Relevant content |
 |---|---|
-| `docs/engineering/backend-architecture.md` | Why `Subscriber` does not import the framework (dependency rule) |
+| `backend-architecture.md` in `engineering-conventions` | Why `Subscriber` does not import the framework (dependency rule) |

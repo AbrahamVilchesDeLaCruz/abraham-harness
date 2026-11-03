@@ -16,7 +16,7 @@ Requirements:
 - Vite as bundler
 - TailwindCSS
 - Path aliases configured (`@/` → `src/`)
-- ESLint + Prettier configured (see `docs/conventions/eslint-prettier.md`)
+- ESLint + Prettier configured (see `eslint-prettier.md` in `engineering-conventions`)
 - No sample/demo content — delete everything inside `src/` except `main.tsx` and `App.tsx` (both empty shells)
 - No `git init` — repo already exists at monorepo root
 - `package.json` name: `@myapp/client`

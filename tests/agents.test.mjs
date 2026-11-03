@@ -272,3 +272,12 @@ test('update removes generated agents of retired roles and keeps hand-written on
     assert.equal(read(dir, 'spec-planner.md'), 'mine\n');
   });
 });
+
+test('the Brain separates project docs from shared conventions in skills', () => {
+  withProject(({ project, run }) => {
+    run();
+    const builder = read(project, '.claude/agents/builder.md');
+    assert.match(builder, /domain and decisions/);
+    assert.match(builder, /Shared conventions live in the skills/);
+  });
+});

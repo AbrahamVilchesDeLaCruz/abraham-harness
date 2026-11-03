@@ -81,7 +81,7 @@ A `*Container.{view}` that renders only `<{PodName}Component />` with props and 
 - [`references/patterns.md`](references/patterns.md) — examples of Container and Component, Props interface, visual contract and callback flow.
 - [`assets/container.template.md`](assets/container.template.md) — template for creating a new Container + Component.
 - [`references/docs.md`](references/docs.md) — Read `references/docs.md` for the pattern rationale and external docs.
-- Full reference: `docs/engineering/frontend-architecture.md`
+- Full reference: `frontend-architecture.md` in `engineering-conventions`
 - Load the project's stack skill for views (`stack-react`) and read its `references/client-container-presentational.md`.
 - Load the project's stack skill for server state (`stack-tanstack-query`) and read its `references/client-container-presentational.md`.
 - Load the project's stack skill for tests (`stack-vitest`) and read its `references/client-container-presentational.md`.

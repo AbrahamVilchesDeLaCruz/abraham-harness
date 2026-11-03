@@ -1,6 +1,6 @@
-# Jest — docs/engineering/testing.md
+# Jest — testing.md in engineering-conventions
 
-Jest details for the concepts in `docs/engineering/testing.md`.
+Jest details for the concepts in `testing.md` in `engineering-conventions`.
 
 ## Test pyramid
 

@@ -24,5 +24,5 @@ With a server-state library it is tempting to run queries directly in any compon
 
 | Doc | Relevant content |
 |---|---|
-| `docs/engineering/frontend-architecture.md` | Container-Presentational pattern: contracts, examples, structure — source of truth |
-| `docs/engineering/engineering-principles.md` | SRP in the frontend — one Container = one data source, one Component = UI |
+| `frontend-architecture.md` in `engineering-conventions` | Container-Presentational pattern: contracts, examples, structure — source of truth |
+| `engineering-principles.md` in `engineering-conventions` | SRP in the frontend — one Container = one data source, one Component = UI |

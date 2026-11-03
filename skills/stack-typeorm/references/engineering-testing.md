@@ -1,6 +1,6 @@
-# TypeORM — docs/engineering/testing.md
+# TypeORM — testing.md in engineering-conventions
 
-TypeORM details for the concepts in `docs/engineering/testing.md`.
+TypeORM details for the concepts in `testing.md` in `engineering-conventions`.
 
 ## Migrations in E2E
 

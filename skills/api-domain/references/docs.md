@@ -39,5 +39,5 @@ export class ProductName extends StringValueObject {
 
 | Doc | Relevant content |
 |---|---|
-| `docs/engineering/engineering-principles.md` | SOLID, SRP, dependency inversion — the **why** of each domain rule |
-| `docs/engineering/backend-architecture.md` | Layers (Domain→Application→Infrastructure), dependency rule, what each layer can import |
+| `engineering-principles.md` in `engineering-conventions` | SOLID, SRP, dependency inversion — the **why** of each domain rule |
+| `backend-architecture.md` in `engineering-conventions` | Layers (Domain→Application→Infrastructure), dependency rule, what each layer can import |

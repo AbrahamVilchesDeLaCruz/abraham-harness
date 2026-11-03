@@ -1,6 +1,6 @@
-# Vitest — docs/engineering/engineering-principles.md
+# Vitest — engineering-principles.md in engineering-conventions
 
-Client tool details for the concepts in `docs/engineering/engineering-principles.md`.
+Client tool details for the concepts in `engineering-principles.md` in `engineering-conventions`.
 
 ## Integration tests
 

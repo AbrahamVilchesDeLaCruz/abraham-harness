@@ -1,6 +1,6 @@
-# NestJS — docs/engineering/testing.md
+# NestJS — testing.md in engineering-conventions
 
-NestJS details for the concepts in `docs/engineering/testing.md`.
+NestJS details for the concepts in `testing.md` in `engineering-conventions`.
 
 ## E2E tests
 

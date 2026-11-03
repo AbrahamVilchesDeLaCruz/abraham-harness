@@ -20,4 +20,4 @@
 
 | Doc | Relevant content |
 |---|---|
-| `docs/engineering/backend-architecture.md` | Payloads live in Infrastructure — they never pass into Application |
+| `backend-architecture.md` in `engineering-conventions` | Payloads live in Infrastructure — they never pass into Application |

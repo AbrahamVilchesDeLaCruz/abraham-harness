@@ -1,6 +1,6 @@
-# TypeORM — docs/engineering/engineering-principles.md
+# TypeORM — engineering-principles.md in engineering-conventions
 
-TypeORM details for the concepts in `docs/engineering/engineering-principles.md`.
+TypeORM details for the concepts in `engineering-principles.md` in `engineering-conventions`.
 
 ## Liskov Substitution
 

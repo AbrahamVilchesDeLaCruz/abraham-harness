@@ -42,4 +42,4 @@ revert   → revert a previous commit
 
 | Doc | Relevant content |
 |---|---|
-| `docs/engineering/git-workflow.md` | Complete guide to the project's branching, merge strategy and branch protection |
+| `git-workflow.md` in `engineering-conventions` | Complete guide to the project's branching, merge strategy and branch protection |

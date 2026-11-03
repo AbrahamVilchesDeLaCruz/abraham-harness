@@ -21,7 +21,7 @@ My meta-harness: one versioned set of agent skills and architecture conventions,
    /project-bootstrap
    ```
 
-   It adds the `AGENTS.md` files, the architecture docs and the scaffolding guides.
+   It adds the `AGENTS.md` files and the `docs/` skeleton, and scaffolds the apps.
 
 3. Commit the result, including `skills-lock.json`.
 
@@ -42,7 +42,7 @@ npx github:AbrahamVilchesDeLaCruz/abraham-harness update   # installs the latest
 | Codex | `.agents/skills/` |
 | OpenCode | `.agents/skills/` |
 
-Install per project, which is the default. The `--global` option replaces any skill with the same name in `~/.claude/skills/` and `~/.config/opencode/skills/`.
+Install per project, which is the default and the intended use. The `--global` option exists, and it replaces any skill with the same name in your home directory.
 
 ## Role agents
 
@@ -71,7 +71,7 @@ The `factory-workflow` skill gives every request one lane:
 The SDD chain:
 
 ```text
-                        Brain: docs/ conventions, and Engram when available
+                        Brain: the project docs/, and Engram when available
 
 Spec writer -> Builder -> Security, UX, UI, Code (in parallel) -> Approver
                   ^                                                  |
@@ -84,6 +84,10 @@ Edit limits are not a sandbox. Claude Code removes the edit tools and OpenCode d
 
 `install` adds the agents and `update` refreshes the generated ones that exist, in the project and in your home directory. Neither overwrites a file you wrote by hand.
 
+## Conventions and docs
+
+Shared conventions live only in the skills, so `update` keeps every project current. A project's `docs/` holds what belongs to that project: its domain and its decisions. The `doc-create` skill turns your corrections into documents there.
+
 ## Change a convention
 
 Edit shared skills here, never in the generated skills directory of a project. See [AGENTS.md](AGENTS.md).
@@ -92,7 +96,7 @@ Edit shared skills here, never in the generated skills directory of a project. S
 
 | Group | Skills |
 | --- | --- |
-| Project | `project-bootstrap`, `factory-workflow`, `plan-create`, `plan-phase-implement` |
+| Project | `project-bootstrap`, `factory-workflow`, `plan-create`, `plan-phase-implement`, `doc-create`, `engineering-conventions` |
 | Workflow | `tdd-workflow`, `git-workflow`, `skill-creator`, `skill-sync` |
 | API | `api-application`, `api-auth`, `api-bc-review`, `api-criteria`, `api-di`, `api-domain`, `api-domain-events`, `api-error-handler`, `api-events`, `api-events-infra`, `api-infrastructure`, `api-migrations`, `api-observability`, `api-response`, `api-rest`, `api-shared`, `api-testing`, `api-validation` |
 | Client | `client-api`, `client-container-presentational`, `client-hooks`, `client-pods`, `client-query`, `client-testing` |

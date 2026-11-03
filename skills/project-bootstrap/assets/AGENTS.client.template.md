@@ -25,7 +25,7 @@ After a concept skill, load the stack skill that matches this project's stack ta
 
 Pods + Container-Presentational pattern.
 
-> Complete reference: `docs/engineering/frontend-architecture.md`
+> Complete reference: `frontend-architecture.md` in `engineering-conventions`
 
 ```
 apps/client/src/

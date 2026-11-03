@@ -1,6 +1,6 @@
-# TanStack Query — docs/engineering/frontend-architecture.md
+# TanStack Query — frontend-architecture.md in engineering-conventions
 
-TanStack Query details for the concepts in `docs/engineering/frontend-architecture.md`.
+TanStack Query details for the concepts in `frontend-architecture.md` in `engineering-conventions`.
 
 ## The pod's hooks
 

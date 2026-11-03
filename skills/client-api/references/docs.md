@@ -28,4 +28,4 @@ This pattern allows:
 
 | Doc | Relevant content |
 |---|---|
-| `docs/engineering/frontend-architecture.md` | How the api/ layer and the repository fit into the pod architecture |
+| `frontend-architecture.md` in `engineering-conventions` | How the api/ layer and the repository fit into the pod architecture |

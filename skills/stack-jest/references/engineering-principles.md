@@ -1,6 +1,6 @@
-# Jest and Faker — docs/engineering/engineering-principles.md
+# Jest and Faker — engineering-principles.md in engineering-conventions
 
-Fake-data details for the Object Mother hierarchy in `docs/engineering/engineering-principles.md`.
+Fake-data details for the Object Mother hierarchy in `engineering-principles.md` in `engineering-conventions`.
 
 Faker lives only in `MotherCreator`: if the library changes, only two places are touched: `MotherCreator` and the primitive-type Mothers. The Domain row of the layer table uses Object Mothers with faker to build the input data.
 

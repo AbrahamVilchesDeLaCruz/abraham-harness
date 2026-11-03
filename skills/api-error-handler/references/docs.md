@@ -37,5 +37,5 @@
 
 | Doc | Relevant content |
 |---|---|
-| `docs/engineering/backend-architecture.md` | Domain errors are thrown in Domain, mapped to HTTP in Infrastructure |
-| `docs/engineering/engineering-principles.md` | SRP — the DomainError→HTTP mapping is an exclusive responsibility of the exception registry |
+| `backend-architecture.md` in `engineering-conventions` | Domain errors are thrown in Domain, mapped to HTTP in Infrastructure |
+| `engineering-principles.md` in `engineering-conventions` | SRP — the DomainError→HTTP mapping is an exclusive responsibility of the exception registry |

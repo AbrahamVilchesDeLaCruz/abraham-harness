@@ -33,6 +33,7 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 | Before implementing any new feature, use case, hook or component | `tdd-workflow` |
 | Starting a new project or aligning an existing one   | `project-bootstrap` |
 | Every request: pick the lane and coordinate the agents | `factory-workflow` |
+| The user corrects a project convention, or asks to document one | `doc-create` |
 | Planning a task, or implementing one plan phase      | `plan-create`, `plan-phase-implement` |
 
 After a concept skill, load the stack skill that matches this project's stack table, and read its `references/{concept-skill}.md`.
@@ -45,6 +46,8 @@ After a concept skill, load the stack skill that matches this project's stack ta
 | -------------------- | ------ | ---------------------------------------------------------------- |
 | `tdd-workflow`       | global | Mandatory TDD workflow: Red→Green→Refactor before any new code   |
 | `project-bootstrap`  | global | Installs AGENTS.md, architecture docs and scaffold guides        |
+| `doc-create`         | global | Records project conventions in the project's `docs/`              |
+| `engineering-conventions` | global | Index of the shared conventions                              |
 | `factory-workflow`   | global | Picks the lane (Answer, FTD or SDD) and coordinates the agents   |
 | `plan-create`        | global | Phased plan with agreed public contracts                         |
 | `plan-phase-implement` | global | Implements one single phase and stops, without committing      |

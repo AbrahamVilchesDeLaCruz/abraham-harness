@@ -20,5 +20,5 @@
 
 | Doc                                                                                  | Relevant content                                                      |
 | ------------------------------------------------------------------------------------ | --------------------------------------------------------------------- |
-| `docs/engineering/engineering-principles.md`                 | SRP — one use case = one reason to change; dependency inversion       |
-| `docs/engineering/backend-architecture.md`                     | What Application can import (Domain yes, Infrastructure no)           |
+| `engineering-principles.md` in `engineering-conventions`                 | SRP — one use case = one reason to change; dependency inversion       |
+| `backend-architecture.md` in `engineering-conventions`                     | What Application can import (Domain yes, Infrastructure no)           |

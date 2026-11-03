@@ -24,5 +24,5 @@
 
 | Doc | Relevant content |
 |---|---|
-| `docs/engineering/testing.md` | How to run tests in the monorepo, the project's real pyramid, commands |
-| `docs/engineering/engineering-principles.md` | Why test behavior, not implementation (TDD, dependency inversion) |
+| `testing.md` in `engineering-conventions` | How to run tests in the monorepo, the project's real pyramid, commands |
+| `engineering-principles.md` in `engineering-conventions` | Why test behavior, not implementation (TDD, dependency inversion) |

@@ -27,4 +27,4 @@ Never store access tokens in `localStorage` — XSS vectors can read them.
 
 | Doc | Relevant content |
 |---|---|
-| `docs/engineering/engineering-principles.md` | Why the backend generates the `deviceId` (SRP, security) |
+| `engineering-principles.md` in `engineering-conventions` | Why the backend generates the `deviceId` (SRP, security) |

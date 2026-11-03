@@ -23,5 +23,5 @@ export const ORDER_REPOSITORY = Symbol('OrderRepository');
 
 | Doc | Relevant content |
 |---|---|
-| `docs/engineering/backend-architecture.md` | Dependency inversion — why the use case depends on interfaces, not concrete classes |
-| `docs/engineering/engineering-principles.md` | DIP (Dependency Inversion Principle) — the foundation of Symbol tokens |
+| `backend-architecture.md` in `engineering-conventions` | Dependency inversion — why the use case depends on interfaces, not concrete classes |
+| `engineering-principles.md` in `engineering-conventions` | DIP (Dependency Inversion Principle) — the foundation of Symbol tokens |

@@ -43,4 +43,4 @@ metadata:
 
 | Doc | Relevant content |
 |---|---|
-| `docs/engineering/engineering-principles.md` | The principles that new skills must reflect: SRP, consistency, why it matters |
+| `engineering-principles.md` in `engineering-conventions` | The principles that new skills must reflect: SRP, consistency, why it matters |

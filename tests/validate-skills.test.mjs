@@ -186,3 +186,9 @@ for (const term of ['containers/{feature}', '__mothers__', 'criteria.limit', 'ge
     assert.match(r.stderr, /retired convention/);
   });
 }
+
+test('rejects a reference to convention docs copied into a project', () => {
+  const r = run({ 'demo/SKILL.md': GOOD, 'demo/references/guide.md': 'See docs/engineering/testing.md\n' });
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /retired convention "docs\/engineering"/);
+});

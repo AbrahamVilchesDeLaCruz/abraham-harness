@@ -32,4 +32,4 @@ Canonical project examples:
 
 | Doc | Relevant content |
 |---|---|
-| `docs/engineering/engineering-principles.md` | Why events have primitive attributes (immutability, serialization) |
+| `engineering-principles.md` in `engineering-conventions` | Why events have primitive attributes (immutability, serialization) |

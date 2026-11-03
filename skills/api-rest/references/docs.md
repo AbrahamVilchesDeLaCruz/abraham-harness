@@ -35,4 +35,4 @@ POST   /resources/:id/pause      → OrderPauser
 
 | Doc | Relevant content |
 |---|---|
-| `docs/engineering/backend-architecture.md` | Controllers in Infrastructure — no logic, they only orchestrate request→use case→response |
+| `backend-architecture.md` in `engineering-conventions` | Controllers in Infrastructure — no logic, they only orchestrate request→use case→response |

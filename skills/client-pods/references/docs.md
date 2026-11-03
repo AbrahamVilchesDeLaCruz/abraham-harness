@@ -20,4 +20,4 @@ The alternative (separating by type: `components/`, `hooks/`, `services/`) scatt
 
 | Doc | Relevant content |
 |---|---|
-| `docs/engineering/frontend-architecture.md` | Full pod architecture: structure, naming, rules — **mandatory reading before creating a pod** |
+| `frontend-architecture.md` in `engineering-conventions` | Full pod architecture: structure, naming, rules — **mandatory reading before creating a pod** |

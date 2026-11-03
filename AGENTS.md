@@ -10,7 +10,7 @@ This repository is the source of truth for the skills and conventions that my pr
 - Agents use the session's model. There is no assignment of a model per role.
 - Skills are in English.
 - Concept skills (`api-*`, `client-*`) name no framework, and framework details go to `skills/stack-*/references/{concept-skill}.md`. Stack skills pin no version.
-- Project templates and architecture docs live in `skills/project-bootstrap/assets/`.
+- Project templates live in `skills/project-bootstrap/assets/`, and shared conventions in `skills/engineering-conventions/`. Never make a project copy shared conventions.
 
 ## Change a skill
 

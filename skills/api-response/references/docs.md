@@ -26,7 +26,7 @@ This makes the API predictable: if the endpoint is GET, there is always a `data`
 
 | Doc | Relevant content |
 |---|---|
-| `docs/engineering/backend-architecture.md` | Envelopes in Infrastructure — use cases return primitives, controllers wrap them |
+| `backend-architecture.md` in `engineering-conventions` | Envelopes in Infrastructure — use cases return primitives, controllers wrap them |
 
 ## Relevant infrastructure files
 

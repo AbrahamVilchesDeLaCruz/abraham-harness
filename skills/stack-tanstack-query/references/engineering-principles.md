@@ -1,6 +1,6 @@
-# TanStack Query — docs/engineering/engineering-principles.md
+# TanStack Query — engineering-principles.md in engineering-conventions
 
-TanStack Query details for the concepts in `docs/engineering/engineering-principles.md`.
+TanStack Query details for the concepts in `engineering-principles.md` in `engineering-conventions`.
 
 ## Separation of Concerns
 

@@ -17,7 +17,8 @@ Delivery: single-pr. Test runner: node --test.
 - S11. Object Mothers: "Los object models se crean junto al test, salvo los shared o lo que sea, que entonces van en test/shared."
 - S12. Mapper: "El mapper lo dejaremos siempre en la raíz del pod."
 - S13. Pod root: "La raíz de los pods siempre va a ir por pod name. En caso de que fuera containers sería containers pod name, pero podemos poner pods pod name." Assumption: the root is `pods/{pod-name}`.
-- S14. Pod hooks: "Haremos las funciones con nombre en el sentido de un archivo aparte que sea hooks y con el use, lo que sea, use tal tal tal. Claro si tienen que devolver estados o lo que sea, pues devolver a tu plus, claro." Assumption: "a tu plus" means a tuple, so pod hooks live in a separate hooks file, are named `use{Something}`, and return a tuple when they expose state.
+- S14. Pod hooks: named functions in a separate hooks file, called `use{Something}`. Superseded on return shape by S15: "este ejemplo también se puede con estado? ... si se puede los prefiero así". Every pod hook returns an object with named fields, also when it exposes state, for example `const { size, setSize } = useProductFilters();`. No tuples.
+- S15. Casing: "pasamos todas las que estan en snake_case a camelCase. que me gusta más y siempre programo en ts." Assumption: this covers API fields and TypeScript. SQL tables and columns, environment variables, queue and event names, and Prometheus metrics keep their own convention.
 
 ## Tasks
 
@@ -31,3 +32,4 @@ Delivery: single-pr. Test runner: node --test.
 - L2: Engram mirror pending: no Engram tool is available in this session.
 - L3 (2026-11-03): "pon page_size sino" and "las demás estan bien". The response envelope uses `page_size`, and query parameters keep `pageSize`. The user approved: auth POSTs return 201, an unmapped exception returns 500 from the registry, framework HTTP exceptions keep their status, `CannotX` returns 403, and a pod hook that only exposes functions may return named functions.
 - L4: T3 found 11 blockers, including a client example that read a PATCH response body, and the lost 201 rule for creation. All corrected, and rechecked only for these blockers. The validator now rejects retired conventions.
+- L5 (2026-11-03): "pasamos todas las que estan en snake_case a camelCase. que me gusta más y siempre programo en ts. este ejemplo también se puede con estado? si se puede los prefiero así,"

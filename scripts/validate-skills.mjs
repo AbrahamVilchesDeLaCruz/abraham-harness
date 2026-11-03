@@ -17,7 +17,7 @@ const MAX_SPANISH_RATIO = 0.03;
 const MIN_SPANISH_WORDS = 5;
 const FENCE = /^[ \t]*```[\s\S]*?^[ \t]*```[ \t]*$/gm;
 // Conventions the project replaced. Keep these narrow, so they cannot match unrelated text.
-const RETIRED_CONVENTION = /(containers\/|__mothers__|criteria\.(limit|offset)|(query|request)\.(limit|offset)|getStatusCode|ResponseOrderCompleter|spec-planner|finding-verifier)/;
+const RETIRED_CONVENTION = /(containers\/|total_items|total_pages|page_size|has_next_page|has_prev_page|request_id|\[State, Handlers\]|__mothers__|criteria\.(limit|offset)|(query|request)\.(limit|offset)|getStatusCode|ResponseOrderCompleter|spec-planner|finding-verifier)/;
 const MOJIBAKE = /[\u00c3\u00c2][\u0080-\u00bf]|\u00e2\u20ac/;
 const LINK = /\]\(([^)\s]+)\)/g;
 const MAX_DESCRIPTION = 250;

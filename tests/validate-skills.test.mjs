@@ -179,7 +179,7 @@ test('allows a concept skill to name a stack skill', () => {
   assert.equal(r.status, 0, r.stderr);
 });
 
-for (const term of ['containers/{feature}', '__mothers__', 'criteria.limit', 'getStatusCode', 'spec-planner']) {
+for (const term of ['containers/{feature}', '__mothers__', 'criteria.limit', 'getStatusCode', 'spec-planner', 'total_items', 'page_size', 'has_next_page', 'request_id', '[State, Handlers]']) {
   test(`rejects the retired convention ${term} in any skill`, () => {
     const r = run({ 'demo/SKILL.md': GOOD, 'demo/references/guide.md': `Example: ${term}\n` });
     assert.equal(r.status, 1);

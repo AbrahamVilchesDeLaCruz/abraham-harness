@@ -21,7 +21,7 @@ The query builder uses named parameters (`:param`) — never string interpolatio
 
 ```typescript
 // ✅ Safe — parameterized
-query.addCondition(`g.${filter.field} = :p_status`, { p_status: filter.value });
+query.addCondition(`g.${filter.field} = :status`, { status: filter.value });
 
 // ❌ Vulnerable — direct interpolation
 query.addCondition(`g.status = '${filter.value}'`);

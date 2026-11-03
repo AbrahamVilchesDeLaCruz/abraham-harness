@@ -221,7 +221,7 @@ UI hooks are named functions in a separate `hooks` file or folder of the pod, ca
 
 ### Return pattern: object with named fields
 
-Every pod hook returns an object with named fields, also when it exposes state: `const { typeFilter, setTypeFilter } = useCalendarFilters();`. No tuples. The code lives in the stack reference.
+Every hook, pod or global, returns an object with named fields, also when it exposes state: `const { typeFilter, setTypeFilter } = useCalendarFilters();`. No tuples. The code lives in the stack reference.
 
 ### When to create a pod hook?
 

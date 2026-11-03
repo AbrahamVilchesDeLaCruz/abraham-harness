@@ -20,7 +20,7 @@ Pod hooks and global hooks in `apps/client/`. A hook here is a named unit of reu
 - Pod hooks **do not fetch** — that is the responsibility of `api.ts`
 - A global hook **has no domain logic** — if it has any, it is a pod hook
 - Pod hooks are named functions in a separate `hooks` file or folder of the pod, called `use{Something}`
-- Every pod hook returns an object with named fields, also when it exposes state, to destructure cleanly in the Component. No tuples.
+- Every hook, pod or global, returns an object with named fields, also when it exposes state, to destructure cleanly in the Component. No tuples.
 - Naming: file `camelCase.ts` → `useProductFilters.ts`; export `camelCase` → `useProductFilters`
 - Mandatory barrel for a `hooks/` folder: `hooks/index.ts` re-exports everything
 

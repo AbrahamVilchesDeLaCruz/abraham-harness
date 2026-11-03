@@ -4,7 +4,7 @@
 
 ### Return pattern — object with named fields
 
-Every pod hook returns an object with named fields, also when it exposes state, to destructure cleanly in the Component. No tuples. Framework-free shape; the stack reference for views shows the original.
+Every hook, pod or global, returns an object with named fields, also when it exposes state, to destructure cleanly in the Component. No tuples. Framework-free shape; the stack reference for views shows the original.
 
 ```ts
 // hooks/useProductFilters.ts
@@ -87,4 +87,4 @@ The stack reference for views holds the original code of each example.
 
 - `useClickOutside` takes a ref to an element and a handler. It listens for `mousedown` on `document`, calls the handler when the event target is outside the element, and removes the listener on cleanup.
 - `useDebounce` takes a value and a delay and returns the debounced value. A timer updates it after the delay, and cleanup clears the timer.
-- `useLocalStorage` takes a key and an initial value. It starts from the stored JSON if it exists, otherwise from the initial value, and returns `[value, set]`. `set` updates the value and writes it to `localStorage`.
+- `useLocalStorage` takes a key and an initial value. It starts from the stored JSON if it exists, otherwise from the initial value, and returns `{ value, set }`. `set` updates the value and writes it to `localStorage`.

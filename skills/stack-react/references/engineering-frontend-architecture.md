@@ -154,7 +154,7 @@ export const CalendarComponent = ({
 
 ### Return pattern: object with named fields
 
-Every pod hook returns an object with named fields, also when it exposes state. No tuples.
+Every hook, pod or global, returns an object with named fields, also when it exposes state. No tuples.
 
 ```ts
 export function useCalendarFilters() {

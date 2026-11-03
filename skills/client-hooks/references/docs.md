@@ -11,7 +11,7 @@
 
 ## Why named fields
 
-A pod hook returns an object with named fields, also when it exposes state, instead of a tuple. The advantages:
+Every hook, pod or global, returns an object with named fields, also when it exposes state, instead of a tuple. The advantages:
 
 1. **Read what you need**: `const { size, setSize } = useProductFilters()` — the Component names the fields it uses, in any order
 2. **Rename on conflict**: `const { reset: resetFilters } = useProductFilters()` — no name conflicts when the Component uses several hooks

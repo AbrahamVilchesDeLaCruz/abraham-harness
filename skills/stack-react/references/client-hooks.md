@@ -7,7 +7,7 @@ The concept skill `client-hooks` defines the rules. This file maps them to React
 
 ## Return pattern — object with named fields
 
-Every pod hook returns an object with named fields, also when it exposes state. No tuples. `useState` itself returns a tuple because it is a framework primitive: the rule is about pod hooks.
+Every hook, pod or global, returns an object with named fields, also when it exposes state. No tuples. `useState` itself returns a tuple because it is a framework primitive: the rule is about pod hooks.
 
 ```ts
 // hooks/useProductFilters.ts
@@ -84,7 +84,7 @@ export const useLocalStorage = <T>(key: string, initialValue: T) => {
     localStorage.setItem(key, JSON.stringify(newValue));
   };
 
-  return [value, set] as const;
+  return { value, set };
 };
 ```
 

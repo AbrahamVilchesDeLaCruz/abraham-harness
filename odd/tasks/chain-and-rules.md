@@ -17,14 +17,14 @@ Delivery: single-pr. Test runner: node --test.
 - S11. Object Mothers: "Los object models se crean junto al test, salvo los shared o lo que sea, que entonces van en test/shared."
 - S12. Mapper: "El mapper lo dejaremos siempre en la raíz del pod."
 - S13. Pod root: "La raíz de los pods siempre va a ir por pod name. En caso de que fuera containers sería containers pod name, pero podemos poner pods pod name." Assumption: the root is `pods/{pod-name}`.
-- S14. Pod hooks: named functions in a separate hooks file, called `use{Something}`. Superseded on return shape by S15: "este ejemplo también se puede con estado? ... si se puede los prefiero así". Every pod hook returns an object with named fields, also when it exposes state, for example `const { size, setSize } = useProductFilters();`. No tuples.
-- S15. Casing: "pasamos todas las que estan en snake_case a camelCase. que me gusta más y siempre programo en ts." Assumption: this covers API fields and TypeScript. SQL tables and columns, environment variables, queue and event names, and Prometheus metrics keep their own convention.
+- S14. Pod hooks: named functions in a separate hooks file, called `use{Something}`. Superseded on return shape by S15: "este ejemplo también se puede con estado? ... si se puede los prefiero así". Every hook, pod or global (L7), returns an object with named fields, also when it exposes state, for example `const { size, setSize } = useProductFilters();`. No tuples.
+- S15. Casing: "pasamos todas las que estan en snake_case a camelCase. que me gusta más y siempre programo en ts." Assumption: this covers API fields and TypeScript. SQL tables and columns, environment variables, queue and event routing names, and Prometheus metrics keep their own convention. Event payload fields use camelCase (L6).
 
 ## Tasks
 
 - [x] T1 S1-S4 chain, agents, Brain. Route: inline, no writer reason.
-- [x] T2 S5-S14 unify the rules in the skills. Route: delegated, parallel unit and context backstop.
-- [x] T3 S1-S14 independent verification. Risk: item 6, no test catches a change of meaning in prose.
+- [x] T2 S5-S15 unify the rules in the skills. Route: delegated, parallel unit and context backstop.
+- [x] T3 S1-S15 independent verification. Risk: item 6, no test catches a change of meaning in prose.
 
 ## Log
 
@@ -34,3 +34,4 @@ Delivery: single-pr. Test runner: node --test.
 - L4: T3 found 11 blockers, including a client example that read a PATCH response body, and the lost 201 rule for creation. All corrected, and rechecked only for these blockers. The validator now rejects retired conventions.
 - L5 (2026-11-03): "pasamos todas las que estan en snake_case a camelCase. que me gusta más y siempre programo en ts. este ejemplo también se puede con estado? si se puede los prefiero así,"
 - L6 (2026-11-03): "las colas si se almacenan con update_product_stats_on_payment_recorded solo que los payloads de dentro del evento iran en camelCase". S15 is refined: queue names keep snake_case, and event payload fields use camelCase.
+- L7 (2026-11-03): "todos los hooks iguales". S14 now covers every hook, pod or global. A framework primitive such as `useState` keeps its own shape.

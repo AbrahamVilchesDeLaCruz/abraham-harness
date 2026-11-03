@@ -123,7 +123,7 @@ Edit shared skills here, never in the generated skills directory of a project. S
 | Project | `project-bootstrap`, `factory-workflow`, `plan-create`, `plan-phase-implement`, `doc-create`, `engineering-conventions`, `makefile` |
 | Workflow | `tdd-workflow`, `git-workflow`, `skill-creator`, `skill-sync` |
 | API | `api-application`, `api-auth`, `api-bc-review`, `api-criteria`, `api-di`, `api-domain`, `api-domain-events`, `api-error-handler`, `api-events`, `api-events-infra`, `api-infrastructure`, `api-migrations`, `api-observability`, `api-response`, `api-rest`, `api-shared`, `api-testing`, `api-validation` |
-| Client | `client-api`, `client-container-presentational`, `client-hooks`, `client-pods`, `client-query`, `client-testing` |
+| Client | `client-api`, `client-branding`, `client-container-presentational`, `client-hooks`, `client-pods`, `client-query`, `client-testing`, `client-ui-design` |
 | Stack | `stack-nestjs`, `stack-typeorm`, `stack-rabbitmq`, `stack-observability`, `stack-react`, `stack-tanstack-query`, `stack-vitest` |
 
 ## Credits

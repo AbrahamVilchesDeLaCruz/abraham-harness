@@ -1,0 +1,65 @@
+/* Design tokens. The only place that holds the brand's values. */
+:root {
+  /* Color: brand */
+  --color-primary: ;
+  --color-on-primary: ;
+  --color-accent: ;
+  --color-on-accent: ;
+
+  /* Color: surfaces and text */
+  --color-background: ;
+  --color-surface: ;
+  --color-border: ;
+  --color-text: ;
+  --color-text-muted: ;
+
+  /* Color: feedback */
+  --color-success: ;
+  --color-warning: ;
+  --color-danger: ;
+  --color-info: ;
+  --color-focus-ring: ;
+
+  /* Typography */
+  --font-sans: ;
+  --font-heading: ;
+  --font-mono: ;
+  --text-xs: ;
+  --text-sm: ;
+  --text-base: ;
+  --text-lg: ;
+  --text-xl: ;
+  --text-2xl: ;
+  --text-3xl: ;
+  --font-weight-regular: 400;
+  --font-weight-bold: 700;
+  --line-height-body: 1.5;
+  --line-height-heading: 1.2;
+
+  /* Space, shape, depth and motion */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --radius-sm: ;
+  --radius-md: ;
+  --radius-lg: ;
+  --shadow-sm: ;
+  --shadow-md: ;
+  --duration-fast: 150ms;
+  --duration-base: 250ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* Dark theme: redefine every color token above. Remove this block if the brand has none. */
+:root[data-theme='dark'] {
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-base: 0ms;
+  }
+}

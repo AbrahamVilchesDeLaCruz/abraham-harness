@@ -2,6 +2,11 @@
 
 This project follows [Semantic Versioning](https://semver.org/): a major version changes a convention that existing projects must adapt to (before 1.0, a minor version may do so), a minor version adds skills or guidance, and a patch version fixes them.
 
+## 0.10.0
+
+- Add `client-ui-design`: rules for modern interfaces (hierarchy, responsive layout, states, motion, accessibility) built from the brand tokens.
+- Add `client-branding`: it creates the brand brief in `docs/brand.md` and the design tokens in `apps/client/src/styles/brand.css`, so that all UI is built from them. The `ui` reviewer checks that the candidate uses the tokens.
+
 ## 0.9.0
 
 - Save every objection to Engram when it is available: reviewer findings, approver rejections and user corrections.

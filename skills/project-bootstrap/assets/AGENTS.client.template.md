@@ -17,6 +17,9 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 | Create or modify `api/`, repository, mapper, or types | `client-api` |
 | Create or modify pod or global hooks | `client-hooks` |
 | Write tests (unit, integration, E2E) | `client-testing` |
+| Build or change a screen, layout, state, animation or responsive behavior | `client-ui-design` |
+| Create or change the brand, the colors, the typography or the design tokens, or build UI in a client with no `brand.css` | `client-ui-design` | Modern, accessible, responsive interfaces built from the tokens |
+| `client-branding` |
 
 After a concept skill, load the stack skill that matches this project's stack table, and read its `references/{concept-skill}.md`.
 <!-- abraham-harness:auto-invoke:end -->
@@ -134,6 +137,7 @@ pnpm test:e2e:ci      # E2E with the GitHub reporter (GitHub Actions)
 | `client-api` | api/ layer: api-model, api.ts; pod-root repository, mapper and ViewModel types |
 | `client-hooks` | Pod hooks with named fields, global hooks, when to extract |
 | `client-testing` | Unit/integration tests, E2E, API mocks |
+| `client-branding` | Brand brief in `docs/brand.md` and design tokens in `brand.css` |
 | `stack-react` | Maps the concept skills to React |
 | `stack-tanstack-query` | Maps the concept skills to TanStack Query |
 | `stack-vitest` | Maps the concept skills to Vitest, Testing Library, MSW and Playwright |

@@ -30,7 +30,8 @@ export class ProductNotFound extends DomainError {} // DomainError does not exis
 
 // ❌ Ad-hoc repository methods that can be solved with criteria
 interface ProductRepository {
-  findByExpression(expr: string): Promise<Product[]>; // use match(criteria)
+  searchByCategoryAndStatus(category: string, status: string): Promise<Product[]>;
+  // Build a Criteria in the use case/domain service and call match(criteria).
 }
 
 // ❌ Business logic outside the aggregate

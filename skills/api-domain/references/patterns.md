@@ -153,11 +153,9 @@ import { type Product } from './product.js';
 import { type ProductId } from '@/shared/domain/product-id.js';
 
 export interface ProductRepository {
-  match(criteria: Criteria): Promise<Product[]>;
-  count(criteria: Criteria): Promise<number>;
-  search(id: ProductId): Promise<Product | null>;
   save(product: Product): Promise<void>;
-  saveAll(products: Product[]): Promise<void>;
+  search(id: ProductId): Promise<Product | null>;
+  match(criteria: Criteria): Promise<Product[]>;
   remove(id: ProductId): Promise<void>;
 }
 
@@ -208,9 +206,12 @@ export class ProductId extends UuidValueObject {
 // ❌ DomainError instead of DomainException
 export class ProductNotFound extends DomainError {} // DomainError does not exist
 
-// ❌ Ad-hoc repository methods that can be solved with criteria
+// ❌ Finder methods that turn a repository into a query catalog
 interface ProductRepository {
-  findByExpression(expr: string): Promise<Product[]>; // use match(criteria)
+  searchByCategory(category: string): Promise<Product[]>;
+  searchByStatus(status: string): Promise<Product[]>;
+  searchByCategoryAndStatus(category: string, status: string): Promise<Product[]>;
+  // Build a Criteria in the use case/domain service and call match(criteria).
 }
 
 // ❌ Business logic outside the aggregate

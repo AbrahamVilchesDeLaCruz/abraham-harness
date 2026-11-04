@@ -61,6 +61,27 @@ if (request.subcategory)
 const criteria = new Criteria(filters, null, page, pageSize);
 ```
 
+## Search by fields — use `match(criteria)`
+
+Compose the required filters in the use case or domain service. Keep the repository contract general instead of adding a method for each search combination:
+
+```typescript
+// ❌ Do not grow the repository with field-combination finders
+interface OrderRepository {
+  searchByUserId(userId: string): Promise<Order[]>;
+  searchByStatus(status: string): Promise<Order[]>;
+  searchByUserIdAndStatus(userId: string, status: string): Promise<Order[]>;
+}
+
+// ✅ Compose the query at the call site and use the general repository contract
+const pausedCriteria = new Criteria([
+  { field: 'userId', operator: FilterOperator.EQ, value: userId },
+  { field: 'status', operator: FilterOperator.EQ, value: 'paused' },
+]);
+const pausedOrders = await this.orderRepository.match(pausedCriteria);
+PausedOrderPolicy.assertCanPauseAnother(pausedOrders);
+```
+
 ## Pagination with `page`/`pageSize` and `count()`
 
 The client sends `page` + `pageSize`. The use case passes them to `Criteria` and runs `match` and `count` in parallel. Only the infrastructure adapter translates them to its persistence technology's own limit and offset:

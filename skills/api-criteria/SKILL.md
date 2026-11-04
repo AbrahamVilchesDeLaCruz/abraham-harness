@@ -4,7 +4,7 @@ description: "Trigger: When building queries with filters, order or pagination i
 license: Apache-2.0
 metadata:
   author: AbrahamVilchesDeLaCruz
-  version: "2.0"
+  version: "2.1"
 ---
 
 
@@ -20,7 +20,7 @@ metadata:
 - `Criteria` is built by the **use case or domain services** — never by the controller or the repository
 - The controller passes primitives as part of the `Request*` — it never passes a `Criteria` object
 - The repository only consumes `Criteria` — it never receives loose filters as parameters
-- The repository must expose `count(criteria: Criteria): Promise<number>` next to `match()`.
+- When a paginated result needs a total, the repository exposes `count(criteria: Criteria): Promise<number>` next to `match()`; do not add named finder methods for individual filter combinations.
 - `value: null` with `EQ`/`NEQ` → `IS NULL` / `IS NOT NULL` (never `= null` in SQL)
 - Use the `OrderDirection` enum — not string literals `'ASC'` / `'DESC'`
 - `Criteria.fromPrimitives()` does not exist — use the constructor directly

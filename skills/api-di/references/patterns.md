@@ -26,6 +26,7 @@ export interface OrderRepository {
   save(order: Order): Promise<void>;
   search(id: OrderId): Promise<Order | null>;
   match(criteria: Criteria): Promise<Order[]>;
+  remove(id: OrderId): Promise<void>;
 }
 
 // The token lives next to the interface — in domain

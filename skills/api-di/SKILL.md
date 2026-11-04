@@ -4,7 +4,7 @@ description: "Trigger: When defining injection tokens, registering providers in 
 license: Apache-2.0
 metadata:
   author: AbrahamVilchesDeLaCruz
-  version: "1.0"
+  version: "1.1"
 ---
 
 

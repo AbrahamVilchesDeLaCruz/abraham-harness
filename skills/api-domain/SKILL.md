@@ -4,7 +4,7 @@ description: "Trigger: When creating or modifying aggregates, value objects, rep
 license: Apache-2.0
 metadata:
   author: AbrahamVilchesDeLaCruz
-  version: "1.0"
+  version: "1.1"
 ---
 
 
@@ -39,7 +39,10 @@ metadata:
 
 ### Repository Interface
 
-- The base contract includes `match`, `search`, `save`, `remove`. Each aggregate may add further methods as needed (e.g. `count`, `saveAll`). The DI Symbol is also exported next to the interface.
+- Core contract: `save`, `search` by aggregate ID, `match(criteria)` and `remove` by aggregate ID.
+- Never add field finders (`searchByUserId`, `searchByStatus`, `searchByUserIdAndStatus`). Build filters in a use case or domain service and call `match(criteria)`. Add `count(criteria)` when totals or pagination need it.
+- Add other operations only for distinct capabilities, not as query shortcuts. `saveAll` requires a real batch-write need.
+- Export the DI Symbol next to the interface.
 
 ### Domain Errors
 
@@ -54,11 +57,11 @@ metadata:
 | Method | Semantics |
 | --- | --- |
 | `match(criteria)` | Search with filters, order, pagination |
-| `count(criteria)` | Counts without fetching entities |
 | `search(id)` | By id — returns `null` if it does not exist |
 | `save(aggregate)` | Creates or updates (upsert) |
-| `saveAll(list)` | Batch upsert (when applicable) |
 | `remove(id)` | Deletes by id |
+| `count(criteria)` | Counts without fetching entities; add when the application needs paginated totals |
+| `saveAll(list)` | Batch upsert; add only for a real batch-write requirement |
 
 ## Execution Steps
 

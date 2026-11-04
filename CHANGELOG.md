@@ -2,6 +2,10 @@
 
 This project follows [Semantic Versioning](https://semver.org/): a major version changes a convention that existing projects must adapt to (before 1.0, a minor version may do so), a minor version adds skills or guidance, and a patch version fixes them.
 
+## 0.11.0
+
+- Keep domain repositories small: use `match(criteria)` for field-based searches instead of adding a finder method for each filter combination. The core contract includes `save`, `search`, `match` and `remove`.
+
 ## 0.10.0
 
 - Add `client-ui-design`: rules for modern interfaces (hierarchy, responsive layout, states, motion, accessibility) built from the brand tokens.

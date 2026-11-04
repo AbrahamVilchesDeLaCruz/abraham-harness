@@ -10,7 +10,7 @@ export interface {Entity}Repository {
   save({entity}: {Entity}): Promise<void>;
   search(id: {Entity}Id): Promise<{Entity} | null>;
   match(criteria: Criteria): Promise<{Entity}[]>;
-  // remove() is optional — add it only if the domain requires it
+  remove(id: {Entity}Id): Promise<void>;
 }
 
 export const {ENTITY}_REPOSITORY = Symbol('{Entity}Repository');

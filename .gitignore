@@ -3,3 +3,5 @@ node_modules/
 .agents/
 .claude/
 skills-lock.json
+# Local AI runtime state
+.atl/

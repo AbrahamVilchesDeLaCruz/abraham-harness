@@ -20,6 +20,6 @@ Use this skill together with a concept skill (`api-*`, `client-*`) when the proj
 ## Execution Steps
 
 1. Apply the concept skill.
-2. Read `references/{concept-skill}.md` in this skill, when it exists. For example, `api-infrastructure` maps to `references/api-infrastructure.md`.
+2. Read `references/{concept-skill}.md` in this skill, when it exists. For example, `api-infrastructure` and `api-repository` map to their matching references.
 3. Follow its patterns, and verify them against the installed version.
 4. Read `references/engineering-*.md` for how `engineering-conventions` applies to this stack.

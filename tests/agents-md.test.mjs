@@ -67,6 +67,16 @@ test('client bootstrap routes brand, visual design, UX and accessibility to dist
   assert.match(root, /\| `client-accessibility`[\s|]+client/);
 });
 
+test('API bootstrap routes repository ports and adapters through api-repository', () => {
+  const api = template('api');
+  const root = template('root');
+
+  assert.match(api, /repository port or persistence adapter \| `api-repository`/);
+  assert.match(api, /controllers, persistence entities or framework modules \| `api-infrastructure`/);
+  assert.match(api, /\| `api-repository`\s+\| api\s+\|/);
+  assert.match(root, /\| `api-repository`\s+\| api\s+\|/);
+});
+
 for (const [path, name] of [['AGENTS.md', 'root'], ['apps/api/AGENTS.md', 'api'], ['apps/client/AGENTS.md', 'client']]) {
   test(`update refreshes the blocks of ${path} and keeps everything else`, () => {
     withProject(({ project, run }) => {
@@ -111,7 +121,8 @@ test('no AGENTS.md is created in a project without one', () => {
     const r = run('update');
     assert.equal(r.status, 0);
     assert.ok(!existsSync(join(project, 'AGENTS.md')));
-    assert.equal(r.stdout, '');
+    assert.match(r.stdout, /Installing \d+ new harness skill\(s\)/);
+    assert.doesNotMatch(r.stdout, /Refreshed the skills tables/);
     assert.equal(r.stderr, '');
   });
 });

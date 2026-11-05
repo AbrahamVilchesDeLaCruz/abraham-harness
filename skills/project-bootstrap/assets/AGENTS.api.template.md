@@ -11,12 +11,13 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 
 | Action | Skill |
 |---|---|
-| Create or modify aggregates, value objects, repositories, domain errors | `api-domain` |
+| Create or modify aggregates, value objects or domain errors | `api-domain` |
+| Define or modify a repository port or persistence adapter | `api-repository` |
 | Create or modify use cases or domain services | `api-application` |
-| Create or modify controllers, persistence entities, repositories, modules | `api-infrastructure` |
+| Create or modify controllers, persistence entities or framework modules | `api-infrastructure` |
 | Create or modify domain events, record events in aggregates | `api-domain-events` |
 | Create or modify tests, Object Mothers, port mocks | `api-testing` |
-| Build queries with filters, ordering or pagination | `api-criteria` |
+| Build queries with filters, ordering or pagination | `api-criteria`; also `api-repository` for the port or adapter |
 | Create domain errors or register exceptions in a module | `api-error-handler` |
 | Design or implement REST endpoints or DDD actions | `api-rest` |
 | Audit or refactor a bounded context (boundaries, submodules, debt) | `api-bc-review` |
@@ -149,12 +150,13 @@ Any other script is the project's own.
 
 | Skill | Scope | Description |
 |---|---|---|
-| `api-domain`           | api    | AggregateRoot, Value Objects, Repository interface, DomainErrors |
+| `api-domain`           | api    | AggregateRoot, Value Objects and DomainErrors |
+| `api-repository`       | api    | Repository port contract, query semantics and persistence adapter boundary |
 | `api-application`      | api    | Use Cases, Domain Services, injection conventions                |
-| `api-infrastructure`   | api    | Controllers, persistence entities, repositories, framework modules |
+| `api-infrastructure`   | api    | Controllers, persistence entities and framework modules |
 | `api-domain-events`    | api    | Domain Events: definition, naming, recording in aggregates       |
 | `api-testing`          | api    | Test pyramid, Object Mother, port mocks                          |
-| `api-criteria`         | api    | Criteria: filters, ordering, pagination, controller→uc→repo flow |
+| `api-criteria`         | api    | Criteria: filters, ordering, pagination and query flow |
 | `api-error-handler`    | api    | GlobalExceptionRegistry, per-module filters, HttpExceptionFilter |
 | `api-rest`             | api    | RESTful conventions + DDD actions with POST                      |
 | `api-bc-review`        | api    | DDD audit of bounded contexts: boundaries, submodules, checklist |

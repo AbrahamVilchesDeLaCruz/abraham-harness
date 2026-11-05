@@ -144,23 +144,7 @@ export class ProductName extends StringValueObject {
 }
 ```
 
-### Repository Interface
-
-```typescript
-// catalog/product/domain/product.repository.ts
-import { type Criteria } from '@/shared/domain/criteria.js';
-import { type Product } from './product.js';
-import { type ProductId } from '@/shared/domain/product-id.js';
-
-export interface ProductRepository {
-  save(product: Product): Promise<void>;
-  search(id: ProductId): Promise<Product | null>;
-  match(criteria: Criteria): Promise<Product[]>;
-  remove(id: ProductId): Promise<void>;
-}
-
-export const PRODUCT_REPOSITORY = Symbol('ProductRepository');
-```
+Repository ports and persistence adapters are covered by the `api-repository` skill.
 
 ### Domain Errors
 

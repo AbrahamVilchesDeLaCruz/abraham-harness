@@ -4,7 +4,8 @@
 
 | Skill | Why read it |
 |---|---|
-| `api-infrastructure` | `match()` in persistence repositories — implementation with a query builder |
+| `api-repository` | Repository contract, `match()`/`count()` semantics and adapter boundary |
+| `api-infrastructure` | Persistence entities and framework module wiring |
 | `api-application` | Use cases — where `Criteria` is built |
 | `api-shared` | `Criteria` lives in `shared/domain/` |
 | `api-validation` | Query DTOs — where filters and pagination come from |

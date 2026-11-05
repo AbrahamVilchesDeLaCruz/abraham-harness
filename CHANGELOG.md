@@ -2,6 +2,11 @@
 
 This project follows [Semantic Versioning](https://semver.org/): a major version changes a convention that existing projects must adapt to (before 1.0, a minor version may do so), a minor version adds skills or guidance, and a patch version fixes them.
 
+## 0.14.0
+
+- Make `update` add newly published harness skills that are not present in the selected project/global scope; `check` now reports these additions as available updates.
+- Add `api-repository` as the home for repository port, query-contract and persistence-adapter conventions; route bootstrap, domain, infrastructure and TypeORM guidance through it.
+
 ## 0.13.0
 
 - Strengthen `client-ui-design` with design craft guidance for hierarchy, spacing rhythm, density, composition and visual inspection; document optional Taste, Impeccable, Emil, Figma and browser integrations.

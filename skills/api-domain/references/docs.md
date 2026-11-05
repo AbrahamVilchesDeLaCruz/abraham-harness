@@ -5,6 +5,7 @@
 | Skill | Why read it |
 |---|---|
 | `api-domain-events` | How to define and record Domain Events in aggregates |
+| `api-repository` | Repository port contract and persistence adapter boundary |
 | `api-application` | Use Cases — they consume aggregates and Value Objects |
 | `api-infrastructure` | Persistence entity vs. Aggregate — how to keep persistence separate |
 | `api-testing` | Object Mothers for aggregates and Value Objects |

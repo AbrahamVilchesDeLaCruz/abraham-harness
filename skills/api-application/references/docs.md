@@ -5,6 +5,7 @@
 | Skill                | Why read it                                                      |
 | -------------------- | ---------------------------------------------------------------- |
 | `api-domain`         | Aggregate, Value Objects and Domain Errors the use case consumes |
+| `api-repository`     | Domain ports consumed by use cases and their stable method semantics |
 | `api-di`             | How to define tokens and register the use case as a provider     |
 | `api-infrastructure` | How the controller builds the `Request*` and calls the use case  |
 | `api-events`         | `EventBus` interface and how to publish domain events            |

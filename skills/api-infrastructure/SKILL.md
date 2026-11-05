@@ -1,18 +1,19 @@
 ---
 name: api-infrastructure
-description: "Trigger: When creating or modifying controllers, persistence entities, repositories or modules in apps/api/. Infrastructure layer conventions in the API: controllers, persistence entities, repositories and framework modules."
+description: "Trigger: When creating or modifying controllers, persistence entities or framework modules in apps/api/. Infrastructure conventions for HTTP and persistence wiring; use api-repository for repository ports and adapters."
 license: Apache-2.0
 metadata:
   author: AbrahamVilchesDeLaCruz
-  version: "2.0"
+  version: "3.0"
 ---
 
 
 ## Activation Contract
 
 - When creating or modifying a controller
-- When creating a persistence entity or repository
+- When creating a persistence entity
 - When creating or modifying a framework module
+- When implementing a repository adapter, load `api-repository` instead.
 
 ## Hard Rules
 
@@ -43,13 +44,6 @@ metadata:
 - Columns: `snake_case` in the DB, `camelCase` in code — name the column explicitly in its mapping
 - Only in `infrastructure/persistence/` — never in domain or application
 
-### Persistence Repositories
-
-- Prefix with the persistence technology — makes the concrete implementation clear
-- `toDomain()` and `toEntity()` are private — the persistence entity never leaves the repository
-- `match()` ALWAYS applies all the `Criteria` fields: filters, order, page, pageSize
-- `value: null` + `EQ`/`NEQ` → `IS NULL` / `IS NOT NULL` (never `= null` in SQL)
-
 ## Decision Gates
 
 | Endpoint type | Response | Status |
@@ -67,12 +61,12 @@ metadata:
 
 ## Output Contract
 
-Deliver the controller, payload or query, persistence entity, repository or framework module in its `infrastructure/` folder.
+Deliver the controller, payload or query, persistence entity or framework module in its `infrastructure/` folder. Repository adapters follow `api-repository`.
 
 ## References
 
 - [`references/patterns.md`](references/patterns.md): folder structure and anti-patterns.
 - Read [`references/controller-patterns.md`](references/controller-patterns.md) when you need the complete controller, Payload or GET Query pattern.
-- Read [`references/repository-patterns.md`](references/repository-patterns.md) when you need the repository mapping and the persistence entity.
+- Read [`references/repository-patterns.md`](references/repository-patterns.md) for persistence entity placement and module registration; repository ports and mapping rules belong to `api-repository`.
 - Read [`references/docs.md`](references/docs.md) for related skills, ADRs and external documentation.
 - Load the project's stack skills for HTTP (`stack-nestjs`) and persistence (the matching `stack-*`), and read `references/api-infrastructure.md` in each.

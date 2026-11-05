@@ -37,6 +37,7 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 | The user corrects a project convention, or asks to document one | `doc-create` |
 | Creating or changing a Makefile, or a command to start the stack | `makefile` |
 | Building or changing client UI, user flows or accessibility | Load the corresponding client concept skill in `apps/client/AGENTS.md` |
+| Defining or implementing an API repository port or adapter | Load `api-repository` from `apps/api/AGENTS.md` |
 | Planning a task, or implementing one plan phase      | `plan-create`, `plan-phase-implement` |
 
 After a concept skill, load the stack skill that matches this project's stack table, and read its `references/{concept-skill}.md`.
@@ -60,9 +61,10 @@ After a concept skill, load the stack skill that matches this project's stack ta
 | `skill-creator`      | global | Creates new skills following the repo spec                       |
 | `skill-sync`         | global | Syncs skills to the AGENTS.md tables                             |
 | `git-workflow`       | global | Branching, naming, merge strategy and PRs for this repo          |
-| `api-domain`         | api    | AggregateRoot, Value Objects, Repository interface, DomainErrors |
+| `api-domain`         | api    | AggregateRoot, Value Objects and DomainErrors |
+| `api-repository`     | api    | Repository contract, Criteria semantics and persistence boundary |
 | `api-application`    | api    | Use Cases, Domain Services, injection conventions                |
-| `api-infrastructure` | api    | Controllers, persistence entities, repositories, framework modules |
+| `api-infrastructure` | api    | Controllers, persistence entities and framework modules |
 | `api-domain-events`  | api    | Domain Events: definition, naming, recording in aggregates       |
 | `api-testing`        | api    | Test pyramid, Object Mother, port mocks                          |
 | `api-criteria`       | api    | Criteria: filters, ordering, pagination, controller→uc→repo flow |

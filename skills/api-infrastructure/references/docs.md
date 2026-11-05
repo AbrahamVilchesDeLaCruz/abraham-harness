@@ -5,7 +5,8 @@
 | Skill | Why read it |
 |---|---|
 | `api-domain` | Aggregates and Value Objects that repositories map |
-| `api-criteria` | How to apply `Criteria` in the repository's `match()` |
+| `api-repository` | The port/adapter contract and persistence mapping boundary |
+| `api-criteria` | How use cases build the query model consumed by repositories |
 | `api-di` | How to register the repository and the controllers in the module |
 | `api-validation` | Payloads and Queries — input DTOs in the controllers |
 | `api-response` | `ApiResponse`, `PaginatedApiResponse`, `resolveRequestId` |

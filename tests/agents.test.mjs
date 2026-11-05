@@ -1,13 +1,23 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { delimiter, join } from 'node:path';
 
 const BIN = new URL('../bin/abraham-harness.mjs', import.meta.url).pathname;
+const SHARED_SKILLS = new URL('../skills/', import.meta.url).pathname;
 const ROLES = ['spec-writer', 'builder', 'security', 'ux', 'ui', 'code-reviewer', 'approver'];
 const REVIEWERS = ['security', 'ux', 'ui', 'code-reviewer'];
+
+function markInstalledSkills(base) {
+  for (const entry of readdirSync(SHARED_SKILLS, { withFileTypes: true })) {
+    if (!entry.isDirectory() || !existsSync(join(SHARED_SKILLS, entry.name, 'SKILL.md'))) continue;
+    const path = join(base, '.agents/skills', entry.name, 'SKILL.md');
+    mkdirSync(join(path, '..'), { recursive: true });
+    writeFileSync(path, `name: ${entry.name}\n`);
+  }
+}
 
 function withProject(fn, exitCode = 0) {
   const root = mkdtempSync(join(tmpdir(), 'harness-agents-'));
@@ -16,6 +26,8 @@ function withProject(fn, exitCode = 0) {
     const home = join(root, 'home');
     const bin = join(root, 'bin');
     for (const dir of [project, home, bin]) mkdirSync(dir);
+    markInstalledSkills(project);
+    markInstalledSkills(home);
     writeFileSync(join(bin, 'npx'), `#!/bin/sh\nexit ${exitCode}\n`);
     chmodSync(join(bin, 'npx'), 0o755);
     const run = (...args) =>

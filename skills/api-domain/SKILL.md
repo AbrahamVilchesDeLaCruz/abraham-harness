@@ -1,10 +1,10 @@
 ---
 name: api-domain
-description: "Trigger: When creating or modifying aggregates, value objects, repository interfaces or domain errors in apps/api/. Domain layer conventions in the API: AggregateRoot, Value Objects, Repository interface and Domain Errors."
+description: "Trigger: When creating or modifying aggregates, value objects or domain errors in apps/api/. Domain layer conventions in the API: AggregateRoot, Value Objects and Domain Errors."
 license: Apache-2.0
 metadata:
   author: AbrahamVilchesDeLaCruz
-  version: "1.1"
+  version: "1.2"
 ---
 
 
@@ -12,7 +12,6 @@ metadata:
 
 - When creating a new aggregate root
 - When creating or modifying a value object
-- When defining a repository interface
 - When creating a domain error
 
 ## Hard Rules
@@ -37,13 +36,6 @@ metadata:
 - Validation in the constructor — throws `DomainException` if invalid
 - `equals()` is inherited — do not reimplement it
 
-### Repository Interface
-
-- Core contract: `save`, `search` by aggregate ID, `match(criteria)` and `remove` by aggregate ID.
-- Never add field finders (`searchByUserId`, `searchByStatus`, `searchByUserIdAndStatus`). Build filters in a use case or domain service and call `match(criteria)`. Add `count(criteria)` when totals or pagination need it.
-- Add other operations only for distinct capabilities, not as query shortcuts. `saveAll` requires a real batch-write need.
-- Export the DI Symbol next to the interface.
-
 ### Domain Errors
 
 - The base class is `DomainException`, located in `shared/domain/exceptions/domain-exception.ts`.
@@ -54,28 +46,27 @@ metadata:
 
 ## Decision Gates
 
-| Method | Semantics |
-| --- | --- |
-| `match(criteria)` | Search with filters, order, pagination |
-| `search(id)` | By id — returns `null` if it does not exist |
-| `save(aggregate)` | Creates or updates (upsert) |
-| `remove(id)` | Deletes by id |
-| `count(criteria)` | Counts without fetching entities; add when the application needs paginated totals |
-| `saveAll(list)` | Batch upsert; add only for a real batch-write requirement |
+| Situation | Action |
+|---|---|
+| New aggregate root | Use the aggregate template and define its invariants before persistence |
+| New value object | Validate at construction and keep it immutable |
+| Repository port or adapter | Load `api-repository` for its contract and boundary |
+| Domain failure | Model the domain problem as a typed domain error |
 
 ## Execution Steps
 
 1. Start from the aggregate or value object template when applicable.
-2. Apply the Hard Rules of the piece you are creating or modifying.
-3. Check against the anti-patterns in `references/patterns.md`.
+2. Apply the Hard Rules of the domain type you are creating or modifying.
+3. Check aggregate, value object and domain error patterns in `references/patterns.md`.
 
 ## Output Contract
 
-Deliver the aggregate, value object, repository interface or domain error in the location the Hard Rules indicate.
+Deliver the aggregate, value object or domain error in the location the Hard Rules indicate. For persistence ports, use `api-repository`.
 
 ## References
 
-- [`references/patterns.md`](references/patterns.md): code for aggregate root, value objects, repository, domain errors and anti-patterns.
+- [`references/patterns.md`](references/patterns.md): code for aggregate root, value objects, domain errors and anti-patterns.
 - Use the templates in [`assets/aggregate-root.template.md`](assets/aggregate-root.template.md) and [`assets/value-object.template.md`](assets/value-object.template.md).
 - Read [`references/docs.md`](references/docs.md) for invariants vs. domain errors and DDD references.
+- Load `api-repository` when creating or changing a repository port or adapter.
 - The domain carries no framework code. The project's stack skills (`stack-nestjs` and the persistence `stack-*`) repeat this boundary in `references/api-domain.md`.

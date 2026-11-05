@@ -1,15 +1,25 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { chmodSync, cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { delimiter, join } from 'node:path';
 import { createHash } from 'node:crypto';
 
 const BIN = new URL('../bin/abraham-harness.mjs', import.meta.url).pathname;
 const ASSETS = new URL('../skills/makefile/assets/', import.meta.url).pathname;
+const SHARED_SKILLS = new URL('../skills/', import.meta.url).pathname;
 const MODULES = ['local.mk', 'dev.mk', 'prod.mk', 'code.mk'];
 const asset = (name) => readFileSync(join(ASSETS, 'make', name), 'utf8');
+
+function markInstalledSkills(project) {
+  for (const entry of readdirSync(SHARED_SKILLS, { withFileTypes: true })) {
+    if (!entry.isDirectory() || !existsSync(join(SHARED_SKILLS, entry.name, 'SKILL.md'))) continue;
+    const path = join(project, '.agents/skills', entry.name, 'SKILL.md');
+    mkdirSync(join(path, '..'), { recursive: true });
+    writeFileSync(path, `name: ${entry.name}\n`);
+  }
+}
 
 function stamped(body) {
   const hash = createHash('sha256').update(body).digest('hex');
@@ -23,6 +33,7 @@ function withProject(fn, exitCode = 0) {
     const bin = join(root, 'bin');
     mkdirSync(project);
     mkdirSync(bin);
+    markInstalledSkills(project);
     writeFileSync(join(bin, 'npx'), `#!/bin/sh\nexit ${exitCode}\n`);
     chmodSync(join(bin, 'npx'), 0o755);
     const run = (...args) =>

@@ -96,6 +96,18 @@ test('the approver synthesizes only the selected required reviewers', () => {
   });
 });
 
+test('UI and UX reviewers load the matching design and accessibility concepts', () => {
+  withProject(({ project, run }) => {
+    run();
+    const ui = read(project, '.claude/agents/ui.md');
+    const ux = read(project, '.claude/agents/ux.md');
+    assert.match(ui, /client-ui-design/);
+    assert.match(ui, /client-accessibility/);
+    assert.match(ux, /client-ux/);
+    assert.match(ux, /client-accessibility/);
+  });
+});
+
 test('a hand-written agent is kept and reported', () => {
   withProject(({ project, run }) => {
     mkdirSync(join(project, '.claude/agents'), { recursive: true });

@@ -36,6 +36,7 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 | Every request: pick the lane and coordinate the agents | `factory-workflow` |
 | The user corrects a project convention, or asks to document one | `doc-create` |
 | Creating or changing a Makefile, or a command to start the stack | `makefile` |
+| Building or changing client UI, user flows or accessibility | Load the corresponding client concept skill in `apps/client/AGENTS.md` |
 | Planning a task, or implementing one plan phase      | `plan-create`, `plan-phase-implement` |
 
 After a concept skill, load the stack skill that matches this project's stack table, and read its `references/{concept-skill}.md`.
@@ -83,6 +84,10 @@ After a concept skill, load the stack skill that matches this project's stack ta
 | `client-api`                     | client | api/ layer: api-model, api.ts; pod-root repository, mapper and ViewModel types |
 | `client-hooks`                   | client | Pod hooks with named fields, global hooks, when to extract       |
 | `client-testing`                 | client | Unit/integration tests, E2E, API mocks                           |
+| `client-branding`                | client | Brand brief and semantic design tokens                            |
+| `client-ui-design`               | client | Visual direction, hierarchy, spacing, density and responsive UI  |
+| `client-ux`                      | client | User jobs, journeys, navigation, interactions and recovery        |
+| `client-accessibility`           | client | Semantics, keyboard, focus, contrast and accessibility checks     |
 | `stack-nestjs`        | api    | Maps the concept skills to NestJS                                |
 | `stack-typeorm`       | api    | Maps the concept skills to TypeORM                               |
 | `stack-rabbitmq`      | api    | Maps the concept skills to RabbitMQ                              |

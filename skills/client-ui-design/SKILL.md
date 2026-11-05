@@ -1,52 +1,55 @@
 ---
 name: client-ui-design
-description: "Trigger: When building or changing a screen, layout, component's look, state, animation or responsive behavior. Rules for modern, accessible interfaces built from the brand tokens."
+description: "Trigger: Whenever creating, restyling or reviewing a client screen, layout, component appearance, responsive behavior or motion. Builds a distinctive, polished interface from the product's existing brand and design system."
 license: Apache-2.0
 metadata:
   author: AbrahamVilchesDeLaCruz
-  version: "1.0"
+  version: "2.0"
 ---
 
 ## Activation Contract
 
-Use this skill when you build or change how an interface looks, lays out, responds or moves. It builds on `client-branding`: the tokens in `brand.css` give the values, and this skill gives the rules to use them.
+Use this skill for visual direction and implementation. Use `client-ux` for tasks, journeys and interaction behavior, and `client-accessibility` for a conformance review. Load both when a change spans those concerns.
 
-If the client has no `brand.css`, run `client-branding` first.
+If `brand.css` or an established design system is missing, run `client-branding` first. Read the project's `docs/brand.md`, relevant existing screens and shared components before proposing a visual direction.
 
 ## Hard Rules
 
-- Every view has one primary action, and its visual weight is clearly higher than any other. Order the rest by importance with size, weight, color and space, not decoration.
-- Build mobile first. A layout works from 320px to wide screens without horizontal scroll, with fluid sizes and flexible tracks. No fixed widths on containers.
-- Components that live in different slots adapt to their container, not to the viewport. Use container queries for them.
-- Every interactive element has these states, drawn from tokens: default, hover, focus-visible, active, disabled and, when it waits, loading. The focus ring is always visible and meets 3:1.
-- Every view that loads data has a skeleton or a loading state, an empty state with a next action, and an error state with a retry. None of them shifts the layout.
-- Touch targets are at least 44 by 44 CSS pixels, with space between them.
-- Use semantic elements first: `button` for actions, `a` for navigation, `label` for each field, headings in order. Add ARIA only when no element fits.
-- Animate only `transform` and `opacity`, with the duration and easing tokens. Motion explains a change, and never blocks input. Honor reduced motion.
-- Respect the user's color scheme and text size. Size text in relative units, and leave 60 to 75 characters per line for reading text.
-- Reserve space for images and embeds with an aspect ratio, so the page does not jump while it loads.
-- Do not add shadows, gradients, blurs or animations that carry no meaning. Never put text on an image without a guaranteed contrast.
+- Preserve the project's identity, tokens and useful patterns. Do not replace a coherent brand with a generic trend or a third-party skill's default palette.
+- Design from the content and job. Establish a visual idea, one clear focal point, and an intentional hierarchy before styling details. Do not make every section a card or every element equally prominent.
+- Use the brand's spacing scale as a rhythm: distinguish page, section, group and control spacing. Choose density for the task; do not use one gap everywhere or invent raw values.
+- Give headings, body, labels and metadata distinct roles. Keep reading widths comfortable and long content, localization and zoom in mind.
+- Make surfaces, borders, radius, shadows, color and motion purposeful and token-based. Avoid decoration that competes with content.
+- Cover default, hover, focus-visible, active, disabled, loading, empty, error and success states when applicable. Keep state changes understandable without color or motion alone.
+- Design mobile first without sacrificing the wider composition. Prevent overflow and reserve image/media space. Make touch targets comfortable; use 44 by 44 CSS pixels when the component can support it.
+- Use semantic elements, visible focus and reduced-motion preferences. Load `client-accessibility` for the full keyboard, screen-reader, zoom and WCAG review.
+- Do not claim visual verification unless you inspected the running interface or screenshots. If browser tooling is unavailable, report the limitation and use the strongest available source evidence.
 
 ## Decision Gates
 
-| Situation | Choose |
-| --- | --- |
-| Two-dimensional layout | Grid |
-| One row or column of items | Flex |
-| A component shown in sidebars and in main areas | Container query |
-| A page-wide change | Media query |
-| Size or space that must scale smoothly | Fluid value with a minimum and a maximum |
-| A change the user must notice | Motion, with a non-motion cue as well |
+| Situation | Action |
+|---|---|
+| Existing brand or design system | Keep its palette and type; improve layout, spacing and hierarchy within it |
+| Brand is absent or incomplete | Run `client-branding` before implementation |
+| Flow, information architecture or state behavior is unclear | Run `client-ux` before visual polish |
+| External design skill or Figma/browser tool is available | Use it as optional evidence; follow `references/design-sources.md` |
+| Small component in an established screen | Inherit its composition and tokens; do not invent a new visual system |
 
 ## Execution Steps
 
-1. Confirm that `brand.css` exists, and read `docs/brand.md`.
-2. Sketch the hierarchy in words: the primary action, the content order, and what collapses on a phone.
-3. Build the smallest layout first, then widen it, and verify at 320px, 768px and 1280px.
-4. Add every state in the Hard Rules, and check the keyboard path.
-5. Load the stack skill and read its `references/client-ui-design.md` for the tools.
-6. Check contrast, focus and reduced motion before you hand the work over.
+1. Read `docs/brand.md`, `brand.css`, the relevant existing screens and common components.
+2. Identify the screen's job, primary emphasis, content order, density and responsive changes. Load `client-ux` if the flow or states need design.
+3. Apply the visual craft checklist in `references/visual-craft.md`; implement from the smallest layout up using the existing tokens.
+4. Verify all relevant states and keyboard focus. Load `client-accessibility` for a full accessibility check.
+5. Inspect the real screen at narrow, medium and wide widths when a browser or screenshot tool is available. Use the project's stack skill for implementation details.
 
 ## Output Contract
 
-Return the views or components changed, the widths you verified, and any state or rule you could not meet.
+Report the visual decisions, screens/components and states changed, token or component reuse, viewports and tools actually inspected, and any unverified checks.
+
+## References
+
+- `references/visual-craft.md` — hierarchy, spacing, density, composition and finish checklist.
+- `references/design-sources.md` — optional Taste, Impeccable, Emil, Figma and browser-tool handoffs.
+- `client-ux` — user jobs, flows, navigation and screen states.
+- `client-accessibility` — keyboard, assistive technology and WCAG review.

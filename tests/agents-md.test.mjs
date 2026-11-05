@@ -51,6 +51,22 @@ test('every template has the managed blocks and a project skills section outside
   }
 });
 
+test('client bootstrap routes brand, visual design, UX and accessibility to distinct skills', () => {
+  const client = template('client');
+  const root = template('root');
+
+  assert.match(client, /brand identity, visual tokens[^\n]+`client-branding`/);
+  assert.match(client, /visual hierarchy, spacing, density[^\n]+`client-ui-design`/);
+  assert.match(client, /user journeys, navigation, forms[^\n]+`client-ux`/);
+  assert.match(client, /keyboard, screen-reader, contrast[^\n]+`client-accessibility`/);
+  assert.match(client, /\| `client-ui-design` \|/);
+  assert.match(client, /\| `client-ux` \|/);
+  assert.match(client, /\| `client-accessibility` \|/);
+  assert.match(root, /\| `client-ui-design`[\s|]+client/);
+  assert.match(root, /\| `client-ux`[\s|]+client/);
+  assert.match(root, /\| `client-accessibility`[\s|]+client/);
+});
+
 for (const [path, name] of [['AGENTS.md', 'root'], ['apps/api/AGENTS.md', 'api'], ['apps/client/AGENTS.md', 'client']]) {
   test(`update refreshes the blocks of ${path} and keeps everything else`, () => {
     withProject(({ project, run }) => {

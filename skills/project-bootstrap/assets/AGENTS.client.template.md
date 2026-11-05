@@ -17,9 +17,10 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 | Create or modify `api/`, repository, mapper, or types | `client-api` |
 | Create or modify pod or global hooks | `client-hooks` |
 | Write tests (unit, integration, E2E) | `client-testing` |
-| Build or change a screen, layout, state, animation or responsive behavior | `client-ui-design` |
-| Create or change the brand, the colors, the typography or the design tokens, or build UI in a client with no `brand.css` | `client-ui-design` | Modern, accessible, responsive interfaces built from the tokens |
-| `client-branding` |
+| Create or change brand identity, visual tokens, or UI when no brand system exists | `client-branding` |
+| Create or change visual hierarchy, spacing, density, layout, component appearance or motion | `client-ui-design` |
+| Design or change user journeys, navigation, forms, interactions or screen states | `client-ux` |
+| Implement or review keyboard, screen-reader, contrast, focus, zoom or WCAG accessibility | `client-accessibility` |
 
 After a concept skill, load the stack skill that matches this project's stack table, and read its `references/{concept-skill}.md`.
 <!-- abraham-harness:auto-invoke:end -->
@@ -138,6 +139,9 @@ pnpm test:e2e:ci      # E2E with the GitHub reporter (GitHub Actions)
 | `client-hooks` | Pod hooks with named fields, global hooks, when to extract |
 | `client-testing` | Unit/integration tests, E2E, API mocks |
 | `client-branding` | Brand brief in `docs/brand.md` and design tokens in `brand.css` |
+| `client-ui-design` | Visual direction, hierarchy, spacing, density, responsive composition and polish |
+| `client-ux` | User jobs, journeys, navigation, interactions, states and recovery paths |
+| `client-accessibility` | WCAG-informed semantics, keyboard, focus, contrast and manual/automated checks |
 | `stack-react` | Maps the concept skills to React |
 | `stack-tanstack-query` | Maps the concept skills to TanStack Query |
 | `stack-vitest` | Maps the concept skills to Vitest, Testing Library, MSW and Playwright |

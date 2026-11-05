@@ -2,6 +2,7 @@
 :root {
   /* Color: brand */
   --color-primary: ;
+  --color-primary-hover: ;
   --color-on-primary: ;
   --color-accent: ;
   --color-on-accent: ;
@@ -10,6 +11,7 @@
   --color-background: ;
   --color-surface: ;
   --color-border: ;
+  --color-border-subtle: ;
   --color-text: ;
   --color-text-muted: ;
 
@@ -32,9 +34,11 @@
   --text-2xl: ;
   --text-3xl: ;
   --font-weight-regular: 400;
+  --font-weight-medium: 500;
   --font-weight-bold: 700;
   --line-height-body: 1.5;
   --line-height-heading: 1.2;
+  --line-length-reading: 65ch;
 
   /* Space, shape, depth and motion */
   --space-1: 0.25rem;

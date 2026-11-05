@@ -26,7 +26,9 @@ Check at least these pairs, in light and in dark:
 | `on-primary` | `primary` | 4.5 |
 | `on-accent` | `accent` | 4.5 |
 | `primary` as a link | `background` | 4.5 |
-| `border`, `focus-ring` | `background` | 3 |
+| `border`, `focus-ring` | `background`, `surface` | 3 |
+
+Use `border-subtle` only for decoration or grouping, never as the only boundary of an essential control. When primary is also used for links, check it as text against each surface; choose a role-specific accessible link token if needed rather than assuming an action color is readable at text size.
 
 Run the formula in a script outside the project, and report the ratios. If a pair fails, change the lighter or darker color, not the threshold.
 

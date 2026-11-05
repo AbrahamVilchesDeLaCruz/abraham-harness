@@ -9,3 +9,6 @@ The concept skill `client-ui-design` defines the rules. This file maps them to t
 - A loading state lives in the Component as a skeleton sized like the final content. The Container passes `isLoading`, `isError` and `retry` as named fields.
 - Use `<img>` with `width`, `height` and `loading="lazy"` for images below the fold, or an `aspect-ratio` wrapper.
 - Set `color-scheme` on the root element from the theme, so native controls follow the theme.
+- Use spacing and type classes backed by the project's token scale; do not add arbitrary utility values for one screen. Group related content with smaller scale steps and separate sections with larger steps.
+- Prefer layouts that adapt to content and available space. Inspect long labels, dense data, empty states and populated states in the rendered app.
+- For visual review, use the project's existing browser workflow or an available browser tool; do not add a new screenshot-test dependency solely to inspect a design.

@@ -266,6 +266,12 @@ test('user can create and review a product', async ({ page }) => {
 });
 ```
 
+## Visual and accessibility inspection
+
+For a visual change, a short browser inspection is separate from adding an E2E test. When Playwright and the app's browser setup already exist, open the affected route at narrow, medium and wide viewports, inspect representative states and capture screenshots for review. Do not create brittle pixel snapshots by default; add them only when the project deliberately maintains visual baselines.
+
+When an accessibility scanner is already installed, run it against rendered normal and error states. A passing scan is not a replacement for the keyboard and focus walkthrough in `client-accessibility`. If the browser, route or scanner cannot run, report that check as unavailable rather than passed.
+
 ## MSW setup in Vitest
 
 ```typescript

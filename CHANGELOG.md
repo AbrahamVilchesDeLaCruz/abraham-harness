@@ -2,6 +2,12 @@
 
 This project follows [Semantic Versioning](https://semver.org/): a major version changes a convention that existing projects must adapt to (before 1.0, a minor version may do so), a minor version adds skills or guidance, and a patch version fixes them.
 
+## 0.13.0
+
+- Strengthen `client-ui-design` with design craft guidance for hierarchy, spacing rhythm, density, composition and visual inspection; document optional Taste, Impeccable, Emil, Figma and browser integrations.
+- Add `client-ux` for user journeys and screen states, and `client-accessibility` for practical WCAG-informed automated and manual review.
+- Align branding guidance and token templates, fix client bootstrap skill routing, and wire design/UX/accessibility skills into client reviewers and React stack references.
+
 ## 0.12.0
 
 - Split phases into contracted tasks that can run in parallel on isolated branches and Git worktrees. Builders create local task commits; the coordinator integrates, resolves conflicts, runs seam checks and freezes the review candidate. The user controls publication and final merge.

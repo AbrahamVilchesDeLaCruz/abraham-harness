@@ -45,3 +45,20 @@ test('runtime-specific capability and model details stay outside common workflow
   }
   assert.match(workflow, /roles responsibility-neutral/);
 });
+
+test('visual, UX and accessibility concepts delegate to the relevant optional tools', () => {
+  const visual = read('skills/client-ui-design/SKILL.md');
+  const sources = read('skills/client-ui-design/references/design-sources.md');
+  const ux = read('skills/client-ux/SKILL.md');
+  const accessibility = read('skills/client-accessibility/SKILL.md');
+  const browser = read('skills/stack-vitest/references/client-testing.md');
+
+  assert.match(visual, /spacing scale/);
+  assert.match(sources, /Taste/);
+  assert.match(sources, /Impeccable/);
+  assert.match(sources, /Figma MCP/);
+  assert.match(ux, /flow-state-matrix\.md/);
+  assert.match(accessibility, /Automated scans are necessary evidence/);
+  assert.match(browser, /Visual and accessibility inspection/);
+  assert.match(browser, /Do not create brittle pixel snapshots by default/);
+});

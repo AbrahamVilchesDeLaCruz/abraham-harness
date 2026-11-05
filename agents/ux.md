@@ -1,6 +1,6 @@
 ---
 name: ux
-description: "Reviews a candidate commit for user experience defects: flows, states, messages and accessibility. Required positive verdict for approval."
+description: "Reviews an assigned integrated candidate for user experience defects when its surface is affected."
 access: read-only
 skills: client-container-presentational
 ---

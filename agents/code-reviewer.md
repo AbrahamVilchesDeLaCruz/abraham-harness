@@ -1,6 +1,6 @@
 ---
 name: code-reviewer
-description: "Reviews a candidate commit for correctness, architecture and tests against the project's skills. Required positive verdict for approval."
+description: "Reviews an integrated code candidate for correctness, architecture and tests against project skills."
 access: read-only
 skills: tdd-workflow
 ---

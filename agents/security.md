@@ -1,6 +1,6 @@
 ---
 name: security
-description: "Reviews a candidate commit for security defects. Required positive verdict for approval."
+description: "Reviews an assigned integrated candidate for security defects when selected by the risk matrix."
 access: read-only
 skills: api-auth, api-validation
 ---

@@ -54,17 +54,18 @@ Install per project, which is the default and the intended use. The `--global` o
 
 ## Role agents
 
-The installer also adds these agents to `.claude/agents/`, `.codex/agents/` and `.opencode/agents/`.
+The installer adds the specialist agents to `.claude/agents/`, `.codex/agents/` and `.opencode/agents/`. The coordinator is the primary/orchestrating session, not a generated subagent.
 
 | Agent | Role | Can edit |
 | --- | --- | --- |
 | `spec-writer` | Writes the spec and the phased plan | Only `.agents/plans/` |
-| `builder` | Implements one phase with tests first, stages it and never commits | Yes |
+| `coordinator` (orchestrating session) | Decomposes work, dispatches builders, integrates commits and runs seam checks | Integration workspace |
+| `builder` | Implements one contracted task, runs its checks and commits locally on its assigned task branch | Yes |
 | `security` | Reviews security | No |
 | `ux` | Reviews flows, states, messages and accessibility | No |
 | `ui` | Reviews visual consistency and layout | No |
 | `code-reviewer` | Reviews correctness, architecture and tests | No |
-| `approver` | Approves only when the four reviewers are positive on the same staged tree | No |
+| `approver` | Synthesizes the selected reviewers' verdicts for the same frozen integration commit | No |
 
 ## Workflow
 
@@ -73,22 +74,26 @@ The `factory-workflow` skill gives every request one lane:
 | Lane | Use | What happens |
 | --- | --- | --- |
 | Answer | Questions, audits and proposals | Nothing is written |
-| FTD | Ordinary change, the default | One feature document, the builder, then the gate |
-| SDD | Several decisions that affect each other, or work too large to resume from the request and `git diff` | Spec, plan and one builder phase at a time, each with the gate |
+| FTD | Ordinary change, the default | Feature document, contracted task(s), integration and applicable gate |
+| SDD | Several decisions that affect each other, or work too large to resume from the request and `git diff` | Spec and plan; one phase at a time, with independent tasks parallelized when isolated, then integrated and gated |
 
-The SDD chain:
+The SDD flow:
 
 ```text
                         Brain: the project docs/, and Engram when available
 
-Spec writer -> Builder -> Security, UX, UI, Code (in parallel) -> Approver
-                  ^                                                  |
-                  +------------------ on rejection ------------------+
+Spec writer -> Coordinator decomposes phase into task contracts
+                           |
+             Builders in isolated branches/worktrees (parallel when independent)
+                           |
+             Coordinator integrates, resolves conflicts, runs seam checks
+                           |
+             Relevant reviewers (in parallel) -> Approver -> User delivers
 ```
 
-Every code change passes this gate: one negative reviewer rejects the candidate, and it returns to the builder. After approval, the agent stops after each phase, and you commit.
+Every code candidate is integrated and passes explicit seam checks before review. The coordinator chooses reviewers from the change surfaces and risk matrix; one missing, blocked or negative required verdict rejects the candidate and sends findings to the affected task(s). Any change creates a new candidate and invalidates prior verdicts. The coordinator may create local task and integration commits; you control publication or final merge. The flow stops after each phase.
 
-Edit limits are not a sandbox. Claude Code removes the edit tools and OpenCode denies edits, but read-only roles keep shell access to run `git` and tests. Claude Code can't limit `spec-writer` to `.agents/plans/`, and Codex has no per-agent sandbox, so there these limits are only instructions.
+Parallel builders require separate writable worktrees and branches. Runtime-specific capability notes live in `skills/factory-workflow/references/adapters/`; edit limits and path instructions are not a sandbox. If the runtime cannot provide verifiable isolation, tasks run serially in one workspace. Agent responsibilities are runtime-neutral; optional model assignments belong in project/runtime configuration, not the common workflow.
 
 `install` adds the agents and `update` refreshes the generated ones that exist, in the project and in your home directory. Neither overwrites a file you wrote by hand.
 

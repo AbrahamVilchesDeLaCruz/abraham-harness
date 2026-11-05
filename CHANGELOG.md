@@ -2,6 +2,12 @@
 
 This project follows [Semantic Versioning](https://semver.org/): a major version changes a convention that existing projects must adapt to (before 1.0, a minor version may do so), a minor version adds skills or guidance, and a patch version fixes them.
 
+## 0.12.0
+
+- Split phases into contracted tasks that can run in parallel on isolated branches and Git worktrees. Builders create local task commits; the coordinator integrates, resolves conflicts, runs seam checks and freezes the review candidate. The user controls publication and final merge.
+- Select required reviewers by change surface and risk; the approver synthesizes only the selected verdicts for the same frozen integration commit.
+- Keep runtime capability notes and optional model mappings outside the runtime-neutral workflow; use serial execution when isolated workspaces are unavailable.
+
 ## 0.11.0
 
 - Keep domain repositories small: use `match(criteria)` for field-based searches instead of adding a finder method for each filter combination. The core contract includes `save`, `search`, `match` and `remove`.

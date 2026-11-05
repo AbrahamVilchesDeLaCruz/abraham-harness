@@ -82,11 +82,12 @@ test('Codex and OpenCode agents are told to load the skills that Claude Code pre
   });
 });
 
-test('the approver only approves when the four reviewers are positive', () => {
+test('the approver synthesizes only the selected required reviewers', () => {
   withProject(({ project, run }) => {
     run();
     const approver = read(project, '.claude/agents/approver.md');
-    for (const role of REVIEWERS) assert.match(approver, new RegExp(`\`${role}\``));
+    assert.match(approver, /review-matrix\.md/);
+    assert.match(approver, /every reviewer required/);
     assert.match(approver, /Return `APPROVER: APPROVED` only when/);
     for (const role of REVIEWERS) {
       assert.match(read(project, `.claude/agents/${role}.md`), new RegExp(`ROLE: ${role}\\n`), role);
@@ -226,16 +227,16 @@ test('a write failure reports one clear line, without a stack trace or a success
   });
 });
 
-test('the builder never commits, and reviewers and the approver bind to the staged tree', () => {
+test('builders commit only on task branches and reviewers bind to the integrated candidate', () => {
   withProject(({ project, run }) => {
     run();
     const builder = read(project, '.claude/agents/builder.md');
-    assert.match(builder, /Never commit, push or merge/);
-    assert.match(builder, /git write-tree/);
-    assert.match(read(project, '.claude/agents/approver.md'), /git write-tree/);
+    assert.match(builder, /Commit completed work locally on the assigned task branch/);
+    assert.match(builder, /never push, merge/);
+    assert.match(read(project, '.claude/agents/approver.md'), /git rev-parse HEAD/);
     for (const role of REVIEWERS) {
-      assert.match(read(project, `.claude/agents/${role}.md`), /CANDIDATE: <`git write-tree` SHA>/, role);
-      assert.match(read(project, `.claude/agents/${role}.md`), /git diff --cached/, role);
+      assert.match(read(project, `.claude/agents/${role}.md`), /CANDIDATE: <integrated commit SHA>/, role);
+      assert.match(read(project, `.claude/agents/${role}.md`), /git diff <base>\.\.\.<candidate>/, role);
     }
   });
 });

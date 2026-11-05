@@ -7,7 +7,7 @@ This repository is the source of truth for the skills and conventions that my pr
 - Every skill lives in `skills/{name}/`, and `name` in its frontmatter matches the directory.
 - A skill is self-contained: installers copy one skill directory, so links must not leave it.
 - Skills contain no details from a real project. Examples use the neutral `product`, `order` and `payment` domain and the `myapp` namespace.
-- Agents use the session's model. There is no assignment of a model per role.
+- Agents use the session's model by default. Optional model assignments belong in project/runtime-specific configuration, never in shared workflow rules.
 - Skills are in English.
 - Concept skills (`api-*`, `client-*`) name no framework, and framework details go to `skills/stack-*/references/{concept-skill}.md`. Stack skills pin no version.
 - Project templates live in `skills/project-bootstrap/assets/`, and shared conventions in `skills/engineering-conventions/`. Never make a project copy shared conventions.

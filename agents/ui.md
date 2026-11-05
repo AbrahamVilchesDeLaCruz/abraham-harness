@@ -1,6 +1,6 @@
 ---
 name: ui
-description: "Reviews a candidate commit for visual and interface defects: consistency, components and responsive layout. Required positive verdict for approval."
+description: "Reviews an assigned integrated candidate for visual and interface defects when its surface is affected."
 access: read-only
 skills: client-container-presentational, client-pods, client-branding, client-ui-design
 ---

@@ -1,15 +1,17 @@
 ---
 name: factory-workflow
-description: "Trigger: On every request in a project that uses this harness. Picks one lane (Answer, FTD or SDD), runs the role agents, and gates code changes on four reviewers and the approver."
+description: "Trigger: On every request in a project that uses this harness. Routes work, coordinates isolated tasks and gates candidates with relevant reviews."
 license: Apache-2.0
 metadata:
   author: AbrahamVilchesDeLaCruz
-  version: "2.3"
+  version: "3.0"
 ---
 
 ## Activation Contract
 
 Use this skill to route every request and to coordinate the role agents.
+
+The current session or primary agent is the coordinator; this is a responsibility, not a runtime-specific agent implementation.
 
 ## Hard Rules
 
@@ -21,8 +23,12 @@ Use this skill to route every request and to coordinate the role agents.
 - When the user corrects a project convention, record it with `doc-create`.
 - Check a task off only with observed proof. Record a check that failed, was skipped or could not run.
 - Every code change passes the gate in `references/gate.md`. Only changes limited to documentation or configuration skip it.
+- The coordinator may split a phase into independent contracted tasks. Parallel builders require separate branches and worktrees; never simulate isolation with instructions in a shared checkout.
+- Builders may commit only to their assigned local task branch. They never push or integrate branches. The coordinator integrates task commits, resolves conflicts, runs seam checks and freezes the candidate before review.
+- Keep roles responsibility-neutral. Runtime invocation details and optional model assignments belong in adapter or project/runtime configuration, not in this common workflow.
+- Select reviewers using `references/review-matrix.md`; record the risk and rationale. The approver synthesizes required verdicts and cannot replace a missing or negative verdict.
 - Stop after each phase, and wait for the user. There is no autopilot.
-- Only the user commits, pushes and merges, even after approval.
+- The coordinator may create local integration commits. Only the user publishes or merges the approved candidate into its destination branch.
 
 ## Decision Gates
 
@@ -36,15 +42,19 @@ Use this skill to route every request and to coordinate the role agents.
 ## Execution Steps
 
 - **Answer:** Answer from evidence, and change nothing.
-- **FTD:** Follow `references/ftd.md`: one feature document, then `builder`, then the gate.
-- **SDD:** Follow `references/sdd.md`: `spec-writer`, then one `builder` phase at a time, each with the gate.
+- **FTD:** Follow `references/ftd.md`: one feature document, then a contracted builder task or task set, then integration and the gate.
+- **SDD:** Follow `references/sdd.md`: `spec-writer`, then one phase at a time; split independent tasks within a phase only when isolation is available, then integrate and gate the candidate.
 
 ## Output Contract
 
-Report the lane, the final approver block, each check with its observed result, and suggested commit messages.
+Report the lane, task branches and commits, integration candidate, each check with its observed result, selected reviewers and rationale, final approver block, and suggested final-delivery commit messages.
 
 ## References
 
 - `references/ftd.md`: the default lane for change.
 - `references/sdd.md`: the phase chain for interacting decisions or large work.
 - `references/gate.md`: reviewers and approval.
+- `references/task-contract.md`: task boundaries and builder handoff.
+- `references/integration.md`: worktree setup, integration, seam checks and candidate freeze.
+- `references/review-matrix.md`: reviewer selection by change surface and risk.
+- `references/adapters/`: runtime capabilities and invocation details, separate from common workflow rules.

@@ -24,8 +24,10 @@ The single next step, so an interruption costs nothing.
 ```
 
 1. Write the document. Keep it short, even for a small change, because it is what survives an interruption.
-2. Delegate to `builder` with the document path.
-3. Run the gate in `gate.md` when the change touches code.
-4. Report to the user and stop.
+2. Create one or more task contracts from the document. Split only work with independent dependencies and authorized paths.
+3. Delegate tasks under `task-contract.md`; use parallel builders only with isolated workspaces.
+4. Integrate task commits and run seam checks in `integration.md`.
+5. Run the gate in `gate.md` when the change touches code.
+6. Report to the user and stop.
 
 Do not create a spec or a plan in this lane. If decisions start to affect each other, or the work turns out to be large, promote it to SDD with this document as its input.

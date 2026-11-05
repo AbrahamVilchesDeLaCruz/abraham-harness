@@ -1,0 +1,47 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const root = fileURLToPath(new URL('..', import.meta.url));
+const read = (path) => readFileSync(join(root, path), 'utf8');
+
+test('workflow contracts require isolated task branches and a serial fallback', () => {
+  const workflow = read('skills/factory-workflow/SKILL.md');
+  const tasks = read('skills/factory-workflow/references/task-contract.md');
+  const integration = read('skills/factory-workflow/references/integration.md');
+
+  assert.match(workflow, /separate branches and worktrees/);
+  assert.match(workflow, /Only the user publishes or merges/);
+  for (const field of ['Dependencies', 'Base commit', 'Branch', 'Worktree', 'Authorized paths', 'Checks']) {
+    assert.match(tasks, new RegExp(`- ${field}:`));
+  }
+  assert.match(integration, /Builders commit completed work locally/);
+  assert.match(integration, /do not launch concurrent builders in the same checkout/);
+  assert.match(integration, /seam checks/);
+});
+
+test('review selection is contextual and approval binds all selected verdicts to one commit', () => {
+  const matrix = read('skills/factory-workflow/references/review-matrix.md');
+  const gate = read('skills/factory-workflow/references/gate.md');
+  const approver = read('agents/approver.md');
+
+  assert.match(matrix, /`code-reviewer` is required for every code change/);
+  assert.match(matrix, /take the union/);
+  assert.match(gate, /same base and candidate commit SHAs/);
+  assert.match(approver, /every required reviewer in the selected set/);
+  assert.match(approver, /git rev-parse HEAD/);
+});
+
+test('runtime-specific capability and model details stay outside common workflow rules', () => {
+  const adapters = read('skills/factory-workflow/references/adapters/README.md');
+  const workflow = read('skills/factory-workflow/SKILL.md');
+
+  assert.match(adapters, /Do not put model assignments in common workflow rules/);
+  for (const runtime of ['claude-code.md', 'codex.md', 'opencode.md']) {
+    assert.match(adapters, new RegExp(runtime.replace('.', '\\.')));
+    assert.match(read(`skills/factory-workflow/references/adapters/${runtime}`), /serial fallback/);
+  }
+  assert.match(workflow, /roles responsibility-neutral/);
+});

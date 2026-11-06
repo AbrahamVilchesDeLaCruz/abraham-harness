@@ -13,13 +13,29 @@ test('workflow contracts require isolated task branches and a serial fallback', 
   const integration = read('skills/factory-workflow/references/integration.md');
 
   assert.match(workflow, /separate branches and worktrees/);
-  assert.match(workflow, /Only the user publishes or merges/);
+  assert.match(workflow, /Push, PR creation, parent-branch integration and PR merge are not authorized by default/);
+  assert.match(workflow, /specifically authorized by the user/);
   for (const field of ['Dependencies', 'Base commit', 'Branch', 'Worktree', 'Authorized paths', 'Checks']) {
     assert.match(tasks, new RegExp(`- ${field}:`));
   }
   assert.match(integration, /Builders commit completed work locally/);
   assert.match(integration, /do not launch concurrent builders in the same checkout/);
   assert.match(integration, /seam checks/);
+});
+
+test('project policy and scoped user authorization govern worktree integration and publication', () => {
+  const authorization = read('skills/factory-workflow/references/publication-authorization.md');
+  const gitWorkflow = read('skills/git-workflow/SKILL.md');
+  const rootTemplate = read('skills/project-bootstrap/assets/AGENTS.root.template.md');
+  const integration = read('skills/factory-workflow/references/integration.md');
+
+  assert.match(rootTemplate, /Project-specific `AGENTS\.md`, `docs\/`, CI and branch\/PR policy take precedence/);
+  assert.match(authorization, /authorizes only the operations it names/);
+  assert.match(authorization, /Integrate a task worktree into a feature\/fix parent only when/);
+  assert.match(authorization, /Do not invent an issue link or size exception/);
+  assert.match(authorization, /Merge only when the specific merge operation is authorized/);
+  assert.match(integration, /Remote writes are opt-in/);
+  assert.match(gitWorkflow, /A task\/worktree branch may target a feature\/fix parent/);
 });
 
 test('review selection is contextual and approval binds all selected verdicts to one commit', () => {

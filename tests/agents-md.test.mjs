@@ -77,6 +77,11 @@ test('API bootstrap routes repository ports and adapters through api-repository'
   assert.match(root, /\| `api-repository`\s+\| api\s+\|/);
 });
 
+test('root bootstrap makes project policy outrank global skill defaults', () => {
+  assert.match(template('root'), /Project-specific `AGENTS\.md`, `docs\/`, CI and branch\/PR policy take precedence/);
+  assert.match(template('root'), /current user's explicit, target-scoped authorization/);
+});
+
 for (const [path, name] of [['AGENTS.md', 'root'], ['apps/api/AGENTS.md', 'api'], ['apps/client/AGENTS.md', 'client']]) {
   test(`update refreshes the blocks of ${path} and keeps everything else`, () => {
     withProject(({ project, run }) => {

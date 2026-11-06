@@ -28,6 +28,6 @@ The single next step, so an interruption costs nothing.
 3. Delegate tasks under `task-contract.md`; use parallel builders only with isolated workspaces.
 4. Integrate task commits and run seam checks in `integration.md`.
 5. Run the gate in `gate.md` when the change touches code.
-6. Report to the user and stop.
+6. If delivery is explicitly authorized, follow `publication-authorization.md`. Otherwise report the frozen candidate to the user and stop.
 
 Do not create a spec or a plan in this lane. If decisions start to affect each other, or the work turns out to be large, promote it to SDD with this document as its input.

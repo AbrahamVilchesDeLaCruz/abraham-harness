@@ -2,6 +2,12 @@
 
 This project follows [Semantic Versioning](https://semver.org/): a major version changes a convention that existing projects must adapt to (before 1.0, a minor version may do so), a minor version adds skills or guidance, and a patch version fixes them.
 
+## 0.15.0
+
+- Allow the coordinator to integrate worktree tasks into an explicitly authorized parent feature/fix branch and perform specifically authorized push/PR/merge operations; publication remains opt-in and bounded to named refs and conditions.
+- Make target-project policy and direct user authorization outrank generic/global skill defaults. Apply issue, label, size and CI gates only from the target repository's actual policy.
+- Document child-PR/worktree integration and add the scoped publication-authorization contract.
+
 ## 0.14.0
 
 - Make `update` add newly published harness skills that are not present in the selected project/global scope; `check` now reports these additions as available updates.

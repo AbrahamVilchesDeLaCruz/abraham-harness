@@ -41,6 +41,8 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 | Planning a task, or implementing one plan phase      | `plan-create`, `plan-phase-implement` |
 
 After a concept skill, load the stack skill that matches this project's stack table, and read its `references/{concept-skill}.md`.
+
+Project-specific `AGENTS.md`, `docs/`, CI and branch/PR policy take precedence over generic or user-global skill defaults. Follow the current user's explicit, target-scoped authorization for repository operations; do not import another repository's issue, size or publication rules.
 <!-- abraham-harness:auto-invoke:end -->
 
 ---

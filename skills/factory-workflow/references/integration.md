@@ -8,9 +8,17 @@ Use one integration branch and worktree per phase, based on the task contracts' 
 4. Integrate completed task commits into the integration branch in dependency order. Resolve conflicts there, never by changing the task contract silently. If a resolution changes task behavior or acceptance criteria, return it to the affected builder.
 5. Run the phase's seam checks: all task checks on the combined tree, project build/typecheck and relevant suite, plus cross-task contracts and phase acceptance criteria. Record commands and observed results. A skipped or unavailable check is not a pass.
 6. Freeze only when integration and seam checks pass and the integration worktree is clean. Record the integration candidate commit SHA and base SHA. Do not modify that candidate while reviews run.
-7. After approval, report task branches/commits, integration candidate and checks. The user controls final publication or merge into the destination branch.
+7. After approval, report task branches/commits, integration candidate and checks. If the user authorized integration into a parent feature/fix branch or remote delivery, follow `publication-authorization.md`; otherwise hand off the frozen candidate.
 
 If integration or review requires a change, create a new candidate SHA and repeat all checks invalidated by that change. Preserve task commits and conflict-resolution notes for traceability.
+
+## Integrating into a parent branch
+
+Treat a feature, fix or other task branch as a possible parent for phase worktrees. Do not assume a task worktree is a throwaway branch or that its commit may be integrated anywhere. Before integration, require authorization naming the source worktree/branch, target parent branch, integration strategy and allowed task scope. Confirm the target is the expected branch and that integration preserves unrelated local changes. If the strategy or target is unspecified, prepare the handoff and ask; never infer a merge or squash strategy.
+
+## Publication and PRs
+
+Remote writes are opt-in. A direct user instruction may authorize a bounded set of actions, such as pushing one named branch and opening one PR to one named base. Follow `publication-authorization.md` for preflight and postflight checks. Use the target repository's own PR template, labels, required checks and branch rules; do not import a global skill's repo-specific issue or line-budget requirements.
 
 ## Runtime without isolated workspaces
 

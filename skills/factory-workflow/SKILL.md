@@ -4,57 +4,49 @@ description: "Trigger: On every request in a project that uses this harness. Rou
 license: Apache-2.0
 metadata:
   author: AbrahamVilchesDeLaCruz
-  version: "3.0"
+  version: "4.0"
 ---
 
 ## Activation Contract
 
-Use this skill to route every request and to coordinate the role agents.
-
-The current session or primary agent is the coordinator; this is a responsibility, not a runtime-specific agent implementation.
+Use this skill to route every request and coordinate the role agents. The current session or primary agent is the coordinator; this is a responsibility, not a runtime-specific agent implementation.
 
 ## Hard Rules
 
-- Every turn takes exactly one lane. Name it in one line, in the user's language.
-- Answer is read-only: write nothing and create no artifact. When intent is unclear, ask one question and stay in Answer.
-- SDD applies when several open decisions affect each other, or when the work is large. Work is large when it could not be resumed from the request and `git diff` alone. Counts of files or lines never decide it.
-- Promote FTD to SDD by using its document as input. Never restart or discard completed work.
-- Every role reads the project's `docs/`, its Brain, before it acts. Shared conventions live in the skills. Use Engram too when it is available, and save every objection there. Read the project with CodeGraph when it is available, before shell commands.
-- When the user corrects a project convention, record it with `doc-create`.
-- Check a task off only with observed proof. Record a check that failed, was skipped or could not run.
-- Every code change passes the gate in `references/gate.md`. Only changes limited to documentation or configuration skip it.
-- The coordinator may split a phase into independent contracted tasks. Parallel builders require separate branches and worktrees; never simulate isolation with instructions in a shared checkout.
-- Builders may commit only to their assigned local task branch. They never push or integrate branches. The coordinator integrates task commits, resolves conflicts, runs seam checks and freezes the candidate before review.
-- Keep roles responsibility-neutral. Runtime invocation details and optional model assignments belong in adapter or project/runtime configuration, not in this common workflow.
-- Select reviewers using `references/review-matrix.md`; record the risk and rationale. The approver synthesizes required verdicts and cannot replace a missing or negative verdict.
-- Stop after each phase, and wait for the user. There is no autopilot.
-- The coordinator may create local integration commits. Only the user publishes or merges the approved candidate into its destination branch.
+- Every turn takes exactly one lane. Answer is read-only; ask one question when intent is unclear.
+- SDD applies when decisions interact or work cannot be resumed from the request and `git diff` alone. Promote FTD to SDD using its document as input.
+- Follow project `AGENTS.md`, `docs/` and target-repository policy. These, plus the current user's explicit instruction, outrank generic/user-global skill defaults; do not import another repository's issue, label, size or publication rules.
+- Every role reads the project Brain, uses shared skills for shared conventions, and records observed evidence for checks. Read with CodeGraph when available before shell exploration.
+- Every code change passes `references/gate.md`; only documentation/configuration-only changes skip it. Select reviewers with `references/review-matrix.md`.
+- The coordinator may split a phase into contracted tasks. Parallel builders require separate branches and worktrees; otherwise run serially. Builders commit only to assigned local task branches and never push or integrate.
+- The coordinator integrates authorized task commits, resolves conflicts, runs seam checks and freezes the candidate before review.
+- Push, PR creation, parent-branch integration and PR merge are not authorized by default. Perform only operations specifically authorized by the user for named refs and conditions, as defined in `references/publication-authorization.md`.
+- Stop after each phase unless its next integration/delivery actions were authorized in advance; then perform only those actions and report evidence.
+- Keep roles responsibility-neutral. Runtime invocation details and optional model assignments belong in adapter or project/runtime configuration.
 
 ## Decision Gates
 
-| The request | Lane |
-| --- | --- |
-| Asks to explain, compare, investigate, audit, review or propose | Answer |
-| Authorizes a change that could be resumed from the request and `git diff`, with no interacting open decisions | FTD (the default for change) |
-| Authorizes a change with several decisions that affect each other, or large work | SDD |
-| Asks for a specific lane | That lane |
+| Request | Lane |
+|---|---|
+| Explain, compare, investigate, audit, review or propose | Answer |
+| Authorized change resumable from request + `git diff`, no interacting decisions | FTD |
+| Interacting decisions or work too large to resume from request + `git diff` | SDD |
+| User names a lane | That lane |
 
 ## Execution Steps
 
-- **Answer:** Answer from evidence, and change nothing.
-- **FTD:** Follow `references/ftd.md`: one feature document, then a contracted builder task or task set, then integration and the gate.
-- **SDD:** Follow `references/sdd.md`: `spec-writer`, then one phase at a time; split independent tasks within a phase only when isolation is available, then integrate and gate the candidate.
+- **Answer:** Use evidence; write nothing.
+- **FTD:** Follow `references/ftd.md`, contract task(s), integrate and run the applicable gate.
+- **SDD:** Follow `references/sdd.md`: specify and plan, then implement one phase at a time; parallelize only independent isolated tasks.
 
 ## Output Contract
 
-Report the lane, task branches and commits, integration candidate, each check with its observed result, selected reviewers and rationale, final approver block, and suggested final-delivery commit messages.
+Report the lane, task branches/commits, frozen integration candidate, checks, reviewer selection/verdicts, and any authorized delivery actions with their observed results.
 
 ## References
 
-- `references/ftd.md`: the default lane for change.
-- `references/sdd.md`: the phase chain for interacting decisions or large work.
-- `references/gate.md`: reviewers and approval.
-- `references/task-contract.md`: task boundaries and builder handoff.
-- `references/integration.md`: worktree setup, integration, seam checks and candidate freeze.
-- `references/review-matrix.md`: reviewer selection by change surface and risk.
-- `references/adapters/`: runtime capabilities and invocation details, separate from common workflow rules.
+- `references/ftd.md`, `references/sdd.md` — lanes and phases.
+- `references/task-contract.md`, `references/integration.md` — task isolation, integration and seam checks.
+- `references/publication-authorization.md` — scoped branch integration and remote authorization.
+- `references/gate.md`, `references/review-matrix.md` — review and approval.
+- `references/adapters/` — runtime capabilities, separate from common rules.

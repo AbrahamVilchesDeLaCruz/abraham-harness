@@ -5,8 +5,8 @@ The harness's own brand and UI rules remain the shared contract. Upstream skills
 | Source | Useful for | Handoff rule |
 |---|---|---|
 | Taste (`design-taste-frontend`) | Exploring distinct art directions, sourcing credited imagery and inspecting responsive screenshots | Keep the project's existing palette/type unless a redesign was requested. Treat its direction as an input, then apply project tokens and accessibility requirements. |
-| Impeccable | Critiquing and refining hierarchy, layout, typography and visual quality | Use its critique/refinement capability when installed. Preserve the project's product brief, design record and tokens. |
-| Emil Kowalski skills | Motion decisions, animation review/performance and finding justified animation opportunities | Use only for interaction/motion work; honor the project's reduced-motion and token rules. |
+| Impeccable | Critiquing and refining hierarchy, layout, typography and visual quality | Use its critique/refinement capability for the critique step of `critique-loop.md` when installed. Preserve the project's product brief, design record and tokens. |
+| Emil Kowalski skills | Motion decisions, animation review/performance and finding justified animation opportunities | Use only for interaction/motion work, alongside `motion.md`; honor the project's reduced-motion and token rules. |
 | Figma MCP | Reading the relevant frame, component, variable or design annotation | Use as design evidence when a connected Figma tool is available. Do not claim access when it is absent; reconcile the source with the implemented brand tokens. |
 | Browser or screenshot tool | Inspecting rendered layout, responsive behavior and visible states | Use the available browser capability. When none is available, report that visual inspection was not run. |
 

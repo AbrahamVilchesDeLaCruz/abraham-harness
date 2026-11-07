@@ -70,6 +70,9 @@ test('visual, UX and accessibility concepts delegate to the relevant optional to
   const browser = read('skills/stack-vitest/references/client-testing.md');
 
   assert.match(visual, /spacing scale/);
+  assert.match(visual, /critique-loop\.md/);
+  assert.match(read('skills/client-ui-design/references/critique-loop.md'), /At most three rounds/);
+  assert.match(read('skills/client-ui-design/references/motion.md'), /prefers-reduced-motion/);
   assert.match(sources, /Taste/);
   assert.match(sources, /Impeccable/);
   assert.match(sources, /Figma MCP/);

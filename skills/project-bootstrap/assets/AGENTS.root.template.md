@@ -168,6 +168,8 @@ Configured in `.husky/` at the monorepo root.
 
 commitlint config: `commitlint.config.ts` at the root.
 
+**Task commits.** Task contracts may skip `pre-commit` on intermediate task commits, because the builder already ran the same lint through its checks; `commit-msg` always runs. The full lint and format check runs once on the integrated candidate.
+
 ---
 
 ## Root scripts (monorepo)

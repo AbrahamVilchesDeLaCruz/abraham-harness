@@ -15,7 +15,7 @@ test('workflow contracts require isolated task branches and a serial fallback', 
   assert.match(workflow, /separate branches and worktrees/);
   assert.match(workflow, /Push, PR creation, parent-branch integration and PR merge are not authorized by default/);
   assert.match(workflow, /specifically authorized by the user/);
-  for (const field of ['Dependencies', 'Base commit', 'Branch', 'Worktree', 'Authorized paths', 'Checks']) {
+  for (const field of ['Dependencies', 'Base commit', 'Branch', 'Worktree', 'Authorized paths', 'Closing checks']) {
     assert.match(tasks, new RegExp(`- ${field}:`));
   }
   assert.match(integration, /Builders commit completed work locally/);
@@ -80,4 +80,18 @@ test('visual, UX and accessibility concepts delegate to the relevant optional to
   assert.match(accessibility, /Automated scans are necessary evidence/);
   assert.match(browser, /Visual and accessibility inspection/);
   assert.match(browser, /Do not create brittle pixel snapshots by default/);
+});
+
+test('task contract stages verification and builders close their processes', () => {
+  const tasks = read('skills/factory-workflow/references/task-contract.md');
+  const builder = read('agents/builder.md');
+  const integration = read('skills/factory-workflow/references/integration.md');
+
+  for (const field of ['Skills', 'Environment', 'Iteration checks', 'Early checks', 'Closing checks', 'Commit hooks']) {
+    assert.match(tasks, new RegExp(`- ${field}:`));
+  }
+  assert.match(builder, /Stop every process you started/);
+  assert.match(builder, /iteration checks/);
+  assert.match(integration, /full slow suite exactly once/);
+  assert.match(integration, /Prepare each worktree once/);
 });

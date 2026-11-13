@@ -2,6 +2,12 @@
 
 This project follows [Semantic Versioning](https://semver.org/): a major version changes a convention that existing projects must adapt to (before 1.0, a minor version may do so), a minor version adds skills or guidance, and a patch version fixes them.
 
+## 0.17.0
+
+- Stage verification in the task contract: iteration, early (risk-covering) and closing checks per builder, with the full slow suite run once by the coordinator in the seam checks.
+- Pass resolved skills and a rule summary in the contract, prepare each worktree environment once, and allow cheaper task commits (`commit-msg` always, full lint once at integration).
+- Require builders to stop their background processes before reporting, and the Claude Code adapter to cancel leftovers.
+
 ## 0.16.0
 
 - Make visual critique mandatory in `client-ui-design`: a capture, critique and fix loop (at most three rounds) on real screenshots, with an explicit `visual inspection not run` report when no tool exists.

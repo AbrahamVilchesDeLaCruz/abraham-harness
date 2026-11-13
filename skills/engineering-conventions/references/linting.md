@@ -91,7 +91,7 @@ pnpm exec prettier --check "src/**/*.ts" # check formatting
 pnpm exec prettier --write "src/**/*.ts" # format
 ```
 
-Pre-commit runs `lint-staged`, which runs oxlint and Prettier on the staged files only.
+Pre-commit runs `lint-staged`, which runs oxlint and Prettier on the staged files only. Intermediate task commits in a task contract may skip it when the builder's checks already ran the same lint; the full lint then runs once on the integrated candidate.
 
 ---
 

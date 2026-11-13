@@ -7,7 +7,7 @@
 | `client-pods` | Pod structure — where the api/ layer lives |
 | `client-query` | Server-state hooks that wrap the repository |
 | `client-container-presentational` | Container that consumes the hooks and passes ViewModels to the Component |
-| `client-testing` | How to test mappers (unit) and Containers with HTTP interception (integration) |
+| `client-testing` | How to test mappers (unit) and critical flows through a Container with HTTP interception |
 
 ## External Documentation
 

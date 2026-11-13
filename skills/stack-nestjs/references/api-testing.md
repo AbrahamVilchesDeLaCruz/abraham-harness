@@ -1,8 +1,8 @@
 # api-testing with NestJS
 
-Apply the rules of `api-testing`. This reference shows E2E tests with NestJS and supertest.
+Apply the rules of `api-testing`. This reference shows controller E2E tests with NestJS and supertest. Subscribers are not E2E subjects: test them as application units.
 
-E2E tests live in `test/{bc}/infrastructure/` and use `supertest` with `createTestApp()`.
+E2E tests live in `test/{bc}/infrastructure/` and use `supertest` with `createTestApp()`. Every test in a file shares one app: create it in `beforeAll` and close it in `afterAll`, never per test. Isolate tests with data cleanup in `afterEach`, not by restarting the app.
 
 ```typescript
 // apps/api/test/sales/infrastructure/start-order-post.e2e-spec.ts
@@ -13,13 +13,16 @@ import { createTestApp } from '../../shared/infrastructure/create-test-app.js';
 describe('sales/order StartOrderPostController (e2e)', () => {
   let app: INestApplication;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     app = await createTestApp();
-    // DB seed / cleanup if needed
+  });
+
+  afterAll(async () => {
+    await app.close().catch(() => undefined);
   });
 
   afterEach(async () => {
-    await app.close().catch(() => undefined);
+    // Delete only the records this suite created
   });
 
   it('should return 201 with orderId when valid payload is sent', async () => {

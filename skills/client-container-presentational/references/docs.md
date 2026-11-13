@@ -7,7 +7,7 @@
 | `client-pods` | Where the Container and the Component live inside the pod |
 | `client-query` | Server-state hooks the Container consumes |
 | `client-hooks` | Pod hooks, which the Container consumes |
-| `client-testing` | Component is tested with a view renderer + props; Container with a view renderer + HTTP interception |
+| `client-testing` | Presentational Components have no tests of their own; critical flows run through the Container with HTTP interception |
 
 ## External Documentation
 

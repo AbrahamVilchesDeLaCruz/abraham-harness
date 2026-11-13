@@ -36,12 +36,16 @@ What to test per layer:
 | Layer | What to test |
 |---|---|
 | Use Case (api) | Unit test of the full flow: happy path + domain errors |
+| Subscriber (api) | Unit test with a domain event built by a Mother; the bus is never started |
+| Controller (api) | E2E test of the HTTP contract only, through the project's compose test environment |
 | Domain Service (api) | Through the Use Case; only a larger one you want to test on its own gets its own test |
 | Pod hook (client) | State, handlers, side effects |
 | Pod repository (client) | Returns ViewModels through the mapper |
 | Mapper (api/client) | Input → output transformation (pure function) |
-| Component (client) | Rendering, UI interactions |
-| Container (client) | Full flow with mocked HTTP |
+| Frontend business logic (client) | Unit tests of the hook, mapper or helper that holds the rule |
+| Critical flow (client) | One complete flow with HTTP interception, or a browser test for the main journey |
+
+The client has no per-component rendering tests: a rule inside a Component moves to a hook or mapper and is tested there.
 
 **The Domain (aggregates, VOs) is never tested in isolation**: it is always exercised through the tests of the Use Case that invokes it, using Object Mothers.
 

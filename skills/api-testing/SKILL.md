@@ -1,6 +1,6 @@
 ---
 name: api-testing
-description: "Trigger: When creating or modifying tests in apps/api/, creating Object Mothers, or mocking ports. API testing conventions: test pyramid, Object Mother, /test structure, typed port mocks."
+description: "Trigger: When creating or modifying tests in apps/api/, creating Object Mothers, or mocking ports. API testing conventions: unit tests from application, controller E2E, Object Mother, /test structure, typed port mocks."
 license: Apache-2.0
 metadata:
   author: AbrahamVilchesDeLaCruz
@@ -9,7 +9,7 @@ metadata:
 
 ## Activation Contract
 
-- When creating a use case or domain service test
+- When creating a use case, subscriber or domain service test
 - When creating an Object Mother for an aggregate, value object or request
 - When mocking a repository, publisher or other port
 - When structuring the `/test` folder
@@ -18,7 +18,9 @@ metadata:
 
 - The `/test` structure mirrors the `/src` structure exactly. Specs live under `test/`, never under `src/`
 - A use case test is a unit test. `src/{bc}/{module}/application/{action}/{use-case}.ts` is tested in `test/{bc}/{module}/application/{action}/`, which holds `request-{use-case}.mother.ts` and `{use-case}.spec.ts`
-- A test that uses a real repository or database is an integration test
+- There are no integration tests. A real repository or database is exercised only through a controller E2E test
+- A subscriber lives in application, so it is a unit test: build the domain event with an Object Mother and call the subscriber. Never start the message bus in a test
+- E2E tests cover controllers only. Business rules and error cases are unit tests; the E2E asserts the HTTP contract (status, body, guards, validation)
 - Domain tests always go through a use case, using Object Mothers. Aggregates and value objects are never tested on their own. The only exception is a larger domain service you want to test on its own
 - A Mother lives next to the test that uses it. Shared Mothers go in `test/shared`
 - **Rule**: the test-data library lives only in `MotherCreator`. Never import it directly in a domain Mother.
@@ -37,9 +39,8 @@ metadata:
 
 | Level | What it tests |
 |---|---|
-| **Unit** | use cases with mocked ports and Object Mothers, which exercise the domain — never concrete adapters; a larger domain service you want to test on its own — fast, no I/O |
-| **Integration** | a test that uses a real repository or database |
-| **E2E** | full HTTP flows — only the critical paths |
+| **Unit** | use cases and subscribers with mocked ports and Object Mothers, which exercise the domain — never concrete adapters; a larger domain service you want to test on its own — fast, no I/O. This is the large layer |
+| **E2E** | controllers only: real HTTP against the test database, run through the project's compose test environment |
 
 | Port | Strategy |
 |---|---|

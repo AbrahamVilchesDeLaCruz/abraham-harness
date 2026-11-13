@@ -68,7 +68,7 @@ Project-specific `AGENTS.md`, `docs/`, CI and branch/PR policy take precedence o
 | `api-application`    | api    | Use Cases, Domain Services, injection conventions                |
 | `api-infrastructure` | api    | Controllers, persistence entities and framework modules |
 | `api-domain-events`  | api    | Domain Events: definition, naming, recording in aggregates       |
-| `api-testing`        | api    | Test pyramid, Object Mother, port mocks                          |
+| `api-testing`        | api    | Unit tests from application, controller E2E, Object Mother, port mocks |
 | `api-criteria`       | api    | Criteria: filters, ordering, pagination, controller→uc→repo flow |
 | `api-error-handler`  | api    | GlobalExceptionRegistry, per-module filters, HttpExceptionFilter |
 | `api-rest`           | api    | RESTful conventions + DDD actions with POST                      |
@@ -87,7 +87,7 @@ Project-specific `AGENTS.md`, `docs/`, CI and branch/PR policy take precedence o
 | `client-query`                   | client | Server state: queries, mutations, query keys, invalidation       |
 | `client-api`                     | client | api/ layer: api-model, api.ts; pod-root repository, mapper and ViewModel types |
 | `client-hooks`                   | client | Pod hooks with named fields, global hooks, when to extract       |
-| `client-testing`                 | client | Unit/integration tests, E2E, API mocks                           |
+| `client-testing`                 | client | Business logic units, critical flows, API mocks                  |
 | `client-branding`                | client | Brand brief and semantic design tokens                            |
 | `client-ui-design`               | client | Visual direction, hierarchy, spacing, density and responsive UI  |
 | `client-ux`                      | client | User jobs, journeys, navigation, interactions and recovery        |

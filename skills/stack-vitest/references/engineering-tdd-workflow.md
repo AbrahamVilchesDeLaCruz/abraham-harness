@@ -7,15 +7,16 @@ Applies `tdd-workflow` to API and client tests with Vitest, and to client tests 
 | Layer | Tool |
 |---|---|
 | Use Case (api) | Vitest + vitest-mock-extended |
+| Subscriber (api) | Vitest + vitest-mock-extended, with a domain event from a Mother |
+| Controller (api) | Vitest + supertest, E2E through the compose test environment |
 | Domain Service (api) | Vitest |
 | Mapper (api) | Vitest (pure function) |
 | Pod hook (client) | Vitest + renderHook |
 | Pod repository (client) | Vitest |
 | Mapper (client) | Vitest (pure function) |
-| Component (client) | Vitest + RTL |
-| Container (client) | Vitest + RTL + MSW |
+| Critical flow (client) | Vitest + RTL + MSW through the Container |
 
-`api-testing` covers Object Mothers and typed mocks. `client-testing` covers RTL, `renderHook` and MSW.
+`api-testing` covers Object Mothers and typed mocks. `client-testing` covers `renderHook` and MSW for critical flows.
 
 ## The RED test
 
@@ -45,11 +46,11 @@ describe('{bc}/{module}/application/{action} {ClassName}', () => {
 ### Client
 
 ```typescript
-// src/pods/{pod-name}/components/__tests__/{Component}.test.tsx
-describe('{Component}', () => {
-  it('should {expected behavior}', () => {
-    render(<Component {...props} />);
-    expect(screen.getByRole('button', { name: /submit/i })).toBeInTheDocument();
+// src/pods/{pod-name}/__tests__/{hook-or-mapper}.test.ts
+describe('{hook or mapper}', () => {
+  it('should {expected behavior of the business rule}', () => {
+    const { result } = renderHook(() => useRule(input));
+    expect(result.current.value).toEqual(expected);
   });
 });
 ```

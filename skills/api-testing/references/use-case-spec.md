@@ -143,10 +143,10 @@ describe('sales/order/application/complete OrderCompleter', () => {
 
 ## E2E tests
 
-E2E tests live in `test/{bc}/infrastructure/` and drive the real HTTP server with `createTestApp()`.
+E2E tests cover controllers only. They live in `test/{bc}/infrastructure/` and drive the real HTTP server with `createTestApp()`. A subscriber is not an E2E subject: it lives in application, so test it like a use case, passing a domain event built with an Object Mother.
 
 `createTestApp()` lives in `test/shared/infrastructure/create-test-app.ts` and:
-- Starts the real application module
+- Starts the real application module, once per test file (`beforeAll`), shared by every test in it
 - Replaces external services (AI, image) with stubs
 - Replaces `DomainEventPublisher` with `E2eDomainEventPublisher`
 - Applies the validation pipeline, cookie parsing and the global `v1` prefix

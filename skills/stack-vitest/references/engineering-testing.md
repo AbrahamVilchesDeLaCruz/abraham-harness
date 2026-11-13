@@ -10,17 +10,17 @@ The NestJS template brings Vitest: keep its scripts and configuration. Tests res
 
 ```
          ┌─────────────────┐
-         │      E2E        │  ← supertest against the real NestJS app + Docker Postgres
+         │      E2E        │  ← controllers only: supertest against the real NestJS app + the compose test Postgres
          ├─────────────────┤
-         │  Integration    │  ← (does not apply yet — E2E covers this level)
-         ├─────────────────┤
-         │      Unit       │  ← use cases with vitest-mock-extended, which exercise the domain
+         │      Unit       │  ← use cases and subscribers with vitest-mock-extended, which exercise the domain
          └─────────────────┘
+
+There are no integration tests.
 ```
 
 ### Unit tests
 
-Application tests are Use Cases, with repository mocks from `vitest-mock-extended`. `src/{bc}/{module}/application/{action}/{use-case}.ts` is tested in `test/{bc}/{module}/application/{action}/`, with `request-{use-case}.mother.ts` and `{use-case}.spec.ts`.
+Application tests are Use Cases and Subscribers, with repository mocks from `vitest-mock-extended`. `src/{bc}/{module}/application/{action}/{use-case}.ts` is tested in `test/{bc}/{module}/application/{action}/`, with `request-{use-case}.mother.ts` and `{use-case}.spec.ts`.
 
 - Config: `apps/api/vitest.config.ts`, from the template.
 - Pattern: the template's `include` is `**/*.spec.ts`. It matches a spec in any folder, so placing specs under `test/` is the project's rule, not something the configuration enforces. It does not match `*.e2e-spec.ts`.
@@ -32,7 +32,8 @@ Application tests are Use Cases, with repository mocks from `vitest-mock-extende
 
 - Config: `apps/api/vitest.config.e2e.ts`, from the template.
 - Pattern: `**/*.e2e-spec.ts`.
-- E2E tests run **in series**, not in parallel, because they share the same DB. Add `fileParallelism: false` to the `test` block of this config.
+- E2E tests cover controllers only. They run **in series**, not in parallel, because every suite shares the one test DB. Add `fileParallelism: false` to the `test` block of this config.
+- They run inside the compose test environment (`Dockerfile` test target + `docker-compose.test.yml`): once the database is healthy, the runner service executes `pnpm test` and then `pnpm test:e2e`, so CI runs both levels in one iteration. Unit tests also run directly on the host while developing.
 - The vars are loaded automatically from `apps/api/.env.test` via `test/setup-env.ts`: add `setupFiles: ['./test/setup-env.ts']` to the same block.
 
 ### Test file structure
@@ -63,7 +64,7 @@ apps/api/
 - `pnpm test:watch` runs Vitest in watch mode.
 - `pnpm test:cov` runs Vitest + coverage.
 - `pnpm test:debug` runs Vitest with the Node inspector.
-- `pnpm test:e2e` runs `vitest run --config ./vitest.config.e2e.ts`.
+- `pnpm test:e2e` runs `vitest run --config ./vitest.config.e2e.ts`. The compose runner calls it; locally, `make test-e2e` starts the whole environment.
 
 ## Client
 
@@ -77,9 +78,9 @@ Project commands with these tools:
 - `pnpm test` runs Vitest once.
 - `pnpm test:cov` runs Vitest + coverage.
 - `pnpm test:ui` opens the Vitest UI in the browser (interactive visualization).
-- `pnpm test:e2e` runs Playwright (requires prior installation).
+- `pnpm test:e2e` runs Playwright (requires prior installation), for the critical journeys only.
 - `pnpm test:e2e:ui` runs Playwright with its interactive UI.
 - `pnpm test:ci` runs Vitest + coverage + verbose (GitHub Actions).
 - `pnpm test:e2e:ci` runs Playwright `--reporter=github` (GitHub Actions).
 
-`client-testing` covers Vitest + RTL (unit/integration), Playwright E2E and MSW.
+`client-testing` covers Vitest unit tests of business logic, RTL + MSW critical flows and Playwright journeys.

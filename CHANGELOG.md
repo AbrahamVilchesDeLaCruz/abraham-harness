@@ -2,6 +2,12 @@
 
 This project follows [Semantic Versioning](https://semver.org/): a major version changes a convention that existing projects must adapt to (before 1.0, a minor version may do so), a minor version adds skills or guidance, and a patch version fixes them.
 
+## 0.18.0
+
+- Define a two-level test policy for the api: a large unit layer tested only from `application` (use cases and event subscribers, with a faked event) and E2E tests for controllers only. There are no integration tests; persistence is exercised through controller E2E.
+- Run E2E through a `Dockerfile` test target and `docker-compose.test.yml` with one test database for all suites, started before the first test. Unit tests run on the host while iterating, and in CI they run in the same compose run as the E2E. E2E files boot the app once (`beforeAll`) and share it across their tests.
+- Narrow the client policy to unit tests of business logic and complete critical flows; presentational Components no longer get rendering tests.
+
 ## 0.17.0
 
 - Stage verification in the task contract: iteration, early (risk-covering) and closing checks per builder, with the full slow suite run once by the coordinator in the seam checks.

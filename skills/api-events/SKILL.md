@@ -21,6 +21,7 @@ metadata:
 - `on()` **always delegates to a use case** — no business logic of its own
 - The subscriber lives **next to the use case it triggers** — never in a separate `subscribers/` folder
 - `domainEventPublisher.publish()` is called **after** `repository.save()` — never before
+- Test a subscriber as an application unit: pass it a domain event built with an Object Mother and assert the use case effect. Never start the message bus. Load `api-testing`
 - For the infrastructure implementation, see skill `api-events-infra`
 
 ## Decision Gates

@@ -18,7 +18,7 @@ Use this skill whenever work changes a repository interface, its use-case contra
 - Do not add field-specific or filter-combination finder methods. The use case or domain service builds `Criteria`; the repository consumes it. Load `api-criteria` for filter, ordering and pagination rules.
 - Return domain aggregates from aggregate repositories, never persistence entities. Keep entity-to-domain and domain-to-entity mapping inside the adapter.
 - Keep ORM, query-builder, SQL and transport concepts out of the port and application layer. Name concrete adapters for their persistence technology.
-- Mock the port in application tests; exercise a real adapter/database only in an integration test. Load `api-testing` for test placement and doubles.
+- Mock the port in application tests; the real adapter and database are exercised only through controller E2E tests, never in an integration test. Load `api-testing` for test placement and doubles.
 - Add a repository method only for a distinct domain capability or retrieval requirement, not as a shortcut around the agreed query model. Record an unclear boundary as a question rather than silently changing it.
 
 ## Decision Gates
@@ -35,7 +35,7 @@ Use this skill whenever work changes a repository interface, its use-case contra
 1. Identify the aggregate root, caller needs and bounded context; inspect existing ports and adapter behavior.
 2. State the contract and absent/empty semantics before changing the interface.
 3. Keep query intent in the application/domain caller and translate it only inside the persistence adapter.
-4. Add or update a port mock test and an adapter integration test when persistence behavior changes.
+4. Add or update a port mock test and the controller E2E test that reaches the adapter when persistence behavior changes.
 5. Load the project's persistence stack skill and read `references/api-repository.md` when available.
 
 ## Output Contract
@@ -48,4 +48,4 @@ Report the port and adapter paths, contract/method semantics, query behavior, te
 - `api-domain` — aggregates, identifiers and domain invariants.
 - `api-criteria` — filter, ordering and pagination query model.
 - `api-infrastructure` — persistence entities and framework modules.
-- `api-testing` — repository port doubles and integration-test placement.
+- `api-testing` — repository port doubles and test placement.

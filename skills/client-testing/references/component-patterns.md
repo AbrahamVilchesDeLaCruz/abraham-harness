@@ -1,6 +1,6 @@
 # Client Component Test Patterns — Reference
 
-The stack reference for tests holds the original code of the hook and Component tests.
+The stack reference for tests holds the original code of the hook tests.
 
 ## Unit test — Mapper (pure function)
 
@@ -43,14 +43,6 @@ Framework-free shape: run the hook through the stack's hook harness, and apply s
 - `useProductFilters` initializes with default values: `size` is null and `showFeaturedOnly` is false.
 - `setSize` updates the state: after `setSize('large')`, `size` is `'large'`.
 - `resetFilters` returns to the default values: after `setSize('small')` and `resetFilters()`, `size` is null.
-
-## Integration test — Component with a view renderer
-
-Framework-free shape: render `ProductsComponent` with default props `products: ProductMother.list(3)`, `isLoading: false`, `isError: false`, `size: null`, and mocked `onDelete`, `onFilter` and `onPageChange`.
-
-- Renders the list of products: 3 elements with role `article`.
-- Shows a spinner when `isLoading` is true: an element with role `progressbar` is present.
-- Calls `onDelete` when the deletion is confirmed: click the first `delete` button and then the `confirm` button, and `onDelete` receives `defaultProps.products[0].id`.
 
 ## Object Mother for client tests
 

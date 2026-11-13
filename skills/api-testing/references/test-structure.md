@@ -4,12 +4,10 @@
 
 ```
          /\
-        /  \   E2E (few, slow)
+        /  \   E2E — controllers only, real HTTP + test database (few, slow)
        /────\
-      /      \  Integration — a real repository or database
+      /      \  Unit — use cases and subscribers with port mocks and Object Mothers (many, fast)
      /────────\
-    /          \  Unit — Use cases with port mocks and Object Mothers (many, fast)
-   /────────────\
 ```
 
 The domain is exercised through the use case tests. Aggregates and value objects have no tests of their own. The only exception is a larger domain service you want to test on its own.

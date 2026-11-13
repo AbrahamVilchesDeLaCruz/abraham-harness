@@ -16,7 +16,7 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 | Add queries, mutations or query keys | `client-query` |
 | Create or modify `api/`, repository, mapper, or types | `client-api` |
 | Create or modify pod or global hooks | `client-hooks` |
-| Write tests (unit, integration, E2E) | `client-testing` |
+| Write tests (business logic units, critical flows) | `client-testing` |
 | Create or change brand identity, visual tokens, or UI when no brand system exists | `client-branding` |
 | Create or change visual hierarchy, spacing, density, layout, component appearance or motion | `client-ui-design` |
 | Design or change user journeys, navigation, forms, interactions or screen states | `client-ux` |
@@ -79,8 +79,8 @@ Fill in this list with this project's stack. The values shown are the default su
 - Utility styles: TailwindCSS
 - Server state and cache: TanStack Query (`stack-tanstack-query`)
 - Client state (UI, session): Zustand (`stack-react`)
-- Unit and integration testing: Vitest + RTL (`stack-vitest`)
-- E2E testing: Playwright (`stack-vitest`)
+- Unit tests of business logic and critical flows: Vitest + RTL (`stack-vitest`)
+- Critical journeys: Playwright (`stack-vitest`)
 - API mocking in tests: MSW (`stack-vitest`)
 
 ---
@@ -137,7 +137,7 @@ pnpm test:e2e:ci      # E2E with the GitHub reporter (GitHub Actions)
 | `client-query` | Server state: queries, mutations, query keys, invalidation |
 | `client-api` | api/ layer: api-model, api.ts; pod-root repository, mapper and ViewModel types |
 | `client-hooks` | Pod hooks with named fields, global hooks, when to extract |
-| `client-testing` | Unit/integration tests, E2E, API mocks |
+| `client-testing` | Business logic units, critical flows, API mocks |
 | `client-branding` | Brand brief in `docs/brand.md` and design tokens in `brand.css` |
 | `client-ui-design` | Visual direction, hierarchy, spacing, density, responsive composition and polish |
 | `client-ux` | User jobs, journeys, navigation, interactions, states and recovery paths |

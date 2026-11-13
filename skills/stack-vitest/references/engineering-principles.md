@@ -53,9 +53,9 @@ Benefit: Faker appears only in `MotherCreator`: changing library = a single file
 
 ## Client
 
-### Integration tests
+### Critical flows
 
-In the frontend: Container + Component + MSW.
+In the frontend, a critical flow runs through the Container with MSW. Presentational Components have no tests of their own.
 
 ### What to test in each layer
 
@@ -63,4 +63,4 @@ In the frontend: Container + Component + MSW.
 |---|---|---|
 | Pod hooks (frontend) | State logic, handlers | Unit: `renderHook` |
 | Pod repository (frontend) | ViewModels through the mapper | Unit: `vi.mock` on the HTTP calls |
-| Container (frontend) | Full flow with data | Integration: HTTP mocked with MSW |
+| Critical flow (frontend) | Full flow with data through the Container | HTTP mocked with MSW |

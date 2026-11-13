@@ -7,9 +7,10 @@ The concept skill `client-testing` defines the rules. This file maps its tools: 
 - Mappers and pure hooks → always unit tests (Vitest)
 - Repository → unit test (Vitest), with `vi.mock` on the pod's HTTP calls
 - Server-state hook → unit test (Vitest + `renderHook`), with `vi.mock` on the repository, never `apiClient`
-- Component (presentational) → RTL, mocked props, no queries
-- Container → RTL + MSW, intercepting real HTTP: the test crosses the hooks, the repository and the API client
-- E2E → Playwright, only critical flows — happy path + main error
+- Unit tests cover only business logic: mappers, repositories, hooks, pure utils. A rule inside a Component moves to a hook or mapper
+- No rendering tests per presentational Component
+- Critical flow → RTL + MSW through the Container, intercepting real HTTP: the test crosses the hooks, the repository and the API client
+- Critical journey → Playwright, happy path + main error only
 - Never mock the whole TanStack Query module — use MSW
 - `server.use()` inside the `it` to override the handler per case
 - `server.resetHandlers()` in `afterEach`, always
@@ -36,20 +37,17 @@ vi.mock('./products.repository');
 | Mappers | Unit | Vitest | `component-patterns.md` |
 | Repository | Unit | Vitest | `component-patterns.md` |
 | Pod hooks | Unit | Vitest + `renderHook` | `component-patterns.md` |
-| Component (presentational) | Integration | RTL | `component-patterns.md` |
-| Container (with queries) | Integration | RTL + MSW | `container-integration.md`, named `references/container-msw.md` before the split |
-| Critical end-to-end flow | E2E | Playwright | `container-integration.md` |
+| Critical flow through a Container | Flow | RTL + MSW | `container-integration.md`, named `references/container-msw.md` before the split |
+| Critical journey in the browser | Flow | Playwright | `container-integration.md` |
 
 Test pyramid:
 
 ```
          /\
-        /E2E\          ← Playwright — critical user flows
+        /Flows\        ← RTL + MSW through the Container, or Playwright — critical flows only
        /──────\
-      /Integr. \       ← RTL — Container + Component together with MSW
-     /──────────\
-    /   Unit     \     ← Vitest — hooks, repositories, mappers, pure utils
-   /______________\
+      /  Unit  \       ← Vitest — business logic: hooks, repositories, mappers, pure utils
+     /__________\
 ```
 
 ## Unit test — Pod hook
@@ -149,48 +147,7 @@ describe('useProducts', () => {
 });
 ```
 
-## Integration test — Component with RTL
-
-```tsx
-// __tests__/ProductsComponent.test.tsx
-import { render, screen, fireEvent } from '@testing-library/react';
-import { ProductsComponent } from '../ProductsComponent';
-import { ProductMother } from './ProductMother';
-
-describe('ProductsComponent', () => {
-  const defaultProps = {
-    products: ProductMother.list(3),
-    isLoading: false,
-    isError: false,
-    size: null,
-    onDelete: vi.fn(),
-    onFilter: vi.fn(),
-    onPageChange: vi.fn(),
-  };
-
-  it('renders the list of products', () => {
-    render(<ProductsComponent {...defaultProps} />);
-    expect(screen.getAllByRole('article')).toHaveLength(3);
-  });
-
-  it('shows a spinner when isLoading is true', () => {
-    render(<ProductsComponent {...defaultProps} isLoading={true} />);
-    expect(screen.getByRole('progressbar')).toBeInTheDocument();
-  });
-
-  it('calls onDelete when the deletion is confirmed', async () => {
-    const onDelete = vi.fn();
-    render(<ProductsComponent {...defaultProps} onDelete={onDelete} />);
-
-    fireEvent.click(screen.getAllByRole('button', { name: /delete/i })[0]);
-    fireEvent.click(screen.getByRole('button', { name: /confirm/i }));
-
-    expect(onDelete).toHaveBeenCalledWith(defaultProps.products[0].id);
-  });
-});
-```
-
-## Integration test — Container with MSW
+## Critical flow — Container with MSW
 
 ```tsx
 // ProductsContainer.test.tsx
@@ -246,7 +203,7 @@ describe('ProductsContainer', () => {
 });
 ```
 
-## E2E — Playwright
+## Critical journey — Playwright
 
 Only for critical user flows (happy path + main error case):
 
@@ -307,7 +264,7 @@ export const server = setupServer();
 ## Commands
 
 ```bash
-pnpm test           # Vitest — unit + integration
+pnpm test           # Vitest — unit tests and critical flows
 pnpm test:e2e       # Playwright — E2E
 pnpm test:coverage  # Coverage
 ```

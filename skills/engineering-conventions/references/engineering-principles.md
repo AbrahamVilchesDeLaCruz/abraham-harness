@@ -212,33 +212,29 @@ Red → Green → Refactor
 
 ```
          /\
-        /E2E\          ← few, slow, complete critical flows
+        /E2E\          ← few, slow: backend controllers; frontend critical flows
        /──────\
-      / Integr \       ← medium, validate that the pieces fit together
-     /──────────\
-    /    Unit    \     ← many, fast, a single responsibility
-   /______________\
+      /  Unit  \       ← many, fast: business logic, tested from application in the backend
+     /__________\
 ```
 
 **Unit**: a single class or function in isolation. Mocked dependencies. Fast. They are the base.
 
-**Integration**: several pieces together. In the backend: use case + real repository (in-memory or test database). In the frontend: Container + Component + mocked HTTP.
+**No integration level.** The backend has no test that pairs a use case with a real repository; persistence is exercised only through controller E2E tests.
 
-**E2E**: the complete system from the user's perspective. Only for critical flows. Slow and costly to maintain.
+**E2E**: in the backend, the real HTTP contract of the controllers against one shared test database. In the frontend, complete critical flows only. Slow and costly to maintain.
 
 ### What to test in each layer
 
 | Layer | What to test | How |
 |---|---|---|
 | Domain (backend) | **Not tested directly**: always exercised through a Use Case. The only exception is a larger Domain Service you want to test on its own | Object Mothers with fake data to build the input data |
-| Application (backend) | Use Cases | Unit: mocked ports and Object Mothers, in `test/{bc}/{module}/application/{action}/` |
-| Infrastructure (backend) | Repository implementations | Integration: real or in-memory database |
+| Application (backend) | Use Cases and Subscribers | Unit: mocked ports and Object Mothers (a subscriber receives a faked event), in `test/{bc}/{module}/application/{action}/` |
+| Controllers (backend) | HTTP contract, guards, validation, persistence | E2E: real HTTP + the test database |
 | Pod hooks (frontend) | State logic, handlers | Unit: render the hook in isolation |
 | Pod repository (frontend) | ViewModels through the mapper | Unit: mocked HTTP calls |
 | Mappers (frontend/backend) | Data transformation | Unit: pure function |
-| Component (frontend) | Rendering, UI interactions | Integration: no real queries |
-| Container (frontend) | Full flow with data | Integration: mocked HTTP |
-| Critical flows | Registration, login, main action | E2E |
+| Critical flows (frontend) | Registration, login, main action | Container with mocked HTTP, or a browser test for the main journey |
 
 **Why the Domain is not tested directly**: aggregates and Value Objects make no sense tested in isolation: their behavior gains meaning in the context of a use case. If `Product.create()` throws a domain exception, that is verified in the test of the Use Case that invokes it, not in a unit test of `Product`. The only exception is a larger Domain Service you want to test on its own.
 

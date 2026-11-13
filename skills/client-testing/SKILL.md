@@ -1,6 +1,6 @@
 ---
 name: client-testing
-description: "Trigger: When creating component tests, E2E tests, or API mocks that intercept HTTP. Test pyramid: unit and integration tests, E2E of critical flows, HTTP interception and Object Mothers in apps/client/."
+description: "Trigger: When creating frontend tests, critical flow tests, or API mocks that intercept HTTP. Unit tests of business logic, complete critical flows, HTTP interception and Object Mothers in apps/client/."
 license: Apache-2.0
 metadata:
   author: AbrahamVilchesDeLaCruz
@@ -9,7 +9,7 @@ metadata:
 
 ## Activation Contract
 
-- When creating tests of mappers, hooks, Components or Containers
+- When creating tests of mappers, hooks, repositories or critical flows
 - When configuring HTTP interception of calls in tests
 - When writing E2E tests
 
@@ -18,9 +18,9 @@ metadata:
 - Mappers and pure hooks → always unit tests
 - Repository → unit test: mock the pod's HTTP calls, and assert the ViewModels it returns
 - Server-state hook → unit test: mock the repository, never the API client
-- Component (presentational) → view renderer, mocked props, no queries
-- Container → view renderer + HTTP interception, intercepting real HTTP: the test crosses the hooks, the repository and the API client
-- E2E → browser runner, only critical flows — happy path + main error
+- Unit tests cover only the frontend's business logic: mappers, repositories, hooks and pure utils. A rule written inside a Component moves to a hook or mapper and is tested there
+- Presentational Components have no tests of their own; the critical flows exercise them
+- Critical flow → one complete flow per critical journey, through the Container with HTTP interception (the test crosses the hooks, the repository and the API client), or a browser test for the main journey. Happy path + main error only
 - Never mock the whole server-state library module — use HTTP interception
 - Override the HTTP handler per case, inside the `it`
 - Reset the HTTP handlers in `afterEach`, always
@@ -36,7 +36,8 @@ export class ProductMother {
 Anti-patterns:
 
 - ❌ Mocking the server-state library directly.
-- ❌ E2E test for everything — the browser runner is slow and fragile. A test such as `mapper formats the dates` that opens a page belongs in a unit test.
+- ❌ Browser or flow test for everything — they are slow and fragile. A test such as `mapper formats the dates` that opens a page belongs in a unit test.
+- ❌ Rendering tests per presentational Component, or snapshot tests of markup.
 - ❌ Container without HTTP interception — mocking the repository, the fetch function or the hooks.
 
 ## Decision Gates
@@ -46,20 +47,17 @@ Anti-patterns:
 | Mappers | Unit | Test runner | `component-patterns.md` |
 | Repository | Unit | Test runner | `component-patterns.md` |
 | Pod hooks | Unit | Test runner + hook harness | `component-patterns.md` |
-| Component (presentational) | Integration | View renderer | `component-patterns.md` |
-| Container (with queries) | Integration | View renderer + HTTP interception | `container-integration.md` |
-| Critical end-to-end flow | E2E | Browser runner | `container-integration.md` |
+| Critical flow through a Container | Flow | View renderer + HTTP interception | `container-integration.md` |
+| Critical journey in the browser | Flow | Browser runner | `container-integration.md` |
 
 Test pyramid:
 
 ```
          /\
-        /E2E\          ← Browser runner — critical user flows
+        /Flows\        ← Container + HTTP interception, or browser runner — critical flows only
        /──────\
-      /Integr. \       ← View renderer — Container + Component together with HTTP interception
-     /──────────\
-    /   Unit     \     ← Test runner — hooks, repositories, mappers, pure utils
-   /______________\
+      /  Unit  \       ← Test runner — business logic: hooks, repositories, mappers, pure utils
+     /__________\
 ```
 
 ## Execution Steps
@@ -74,8 +72,8 @@ Tests at the level and with the tool the Decision Gates table sets, with none of
 
 ## References
 
-- [`references/component-patterns.md`](references/component-patterns.md) — Read `references/component-patterns.md` for the patterns of unit tests (mappers, hooks) and Component integration tests.
-- [`references/container-integration.md`](references/container-integration.md) — Read `references/container-integration.md` for Container integration tests with HTTP interception and E2E tests.
+- [`references/component-patterns.md`](references/component-patterns.md) — Read `references/component-patterns.md` for the patterns of unit tests (mappers, hooks).
+- [`references/container-integration.md`](references/container-integration.md) — Read `references/container-integration.md` for critical flow tests with HTTP interception and browser tests.
 - [`references/docs.md`](references/docs.md) — Read `references/docs.md` for related skills, ADRs and internal documentation.
 - Load the project's stack skill for tests (`stack-vitest`) and read its `references/client-testing.md`.
 - Load the project's stack skill for server state (`stack-tanstack-query`) and read its `references/client-testing.md`.

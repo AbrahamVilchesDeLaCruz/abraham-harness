@@ -5,8 +5,8 @@ Use it when several decisions affect each other, or when the work is too large t
 | Phase | Owner | Result |
 | --- | --- | --- |
 | Specify | `spec-writer` | `{name}-spec.md`: what and why, with no how |
-| Clarify | `spec-writer` and the user | Open questions answered and written into the spec |
-| Plan | `spec-writer` with `plan-create` | `{name}-plan.md`, with contracts and phases the user approved |
+| Clarify | `spec-writer` | Assumptions recorded; ask the user only about consequential blockers |
+| Plan | `spec-writer` with `plan-create` | `{name}-plan.md`, with contracts and phases derived from the request |
 | Analyze | `spec-writer` | A report of gaps between spec and plan, with no changes |
 | Decompose | Coordinator | Independent task contracts, dependencies and authorized paths |
 | Implement | One or more `builder` roles | A local commit on a dedicated task branch and worktree |

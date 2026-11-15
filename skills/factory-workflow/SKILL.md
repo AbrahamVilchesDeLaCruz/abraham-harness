@@ -13,7 +13,7 @@ Use this skill to route every request and coordinate the role agents. The curren
 
 ## Hard Rules
 
-- Every turn takes exactly one lane. Answer is read-only; ask one question when intent is unclear.
+- Every turn takes exactly one lane. Answer is read-only. Infer intent and make reasonable assumptions; ask only when missing information materially blocks progress.
 - SDD applies when decisions interact or work cannot be resumed from the request and `git diff` alone. Promote FTD to SDD using its document as input.
 - Follow project `AGENTS.md`, `docs/` and target-repository policy. These, plus the current user's explicit instruction, outrank generic/user-global skill defaults; do not import another repository's issue, label, size or publication rules.
 - Every role reads the project Brain, uses shared skills for shared conventions, and records observed evidence for checks. Read with CodeGraph when available before shell exploration.
@@ -37,7 +37,7 @@ Use this skill to route every request and coordinate the role agents. The curren
 
 - **Answer:** Use evidence; write nothing.
 - **FTD:** Follow `references/ftd.md`, contract task(s), integrate and run the applicable gate.
-- **SDD:** Follow `references/sdd.md`: specify and plan, then implement one phase at a time; parallelize only independent isolated tasks.
+- **SDD:** Follow `references/sdd.md`: specify and plan, then implement within the requested scope; parallelize only independent isolated tasks.
 
 ## Output Contract
 

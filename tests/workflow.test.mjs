@@ -7,6 +7,16 @@ import { fileURLToPath } from 'node:url';
 const root = fileURLToPath(new URL('..', import.meta.url));
 const read = (path) => readFileSync(join(root, path), 'utf8');
 
+test('planning proceeds with documented assumptions and only asks about consequential blockers', () => {
+  const plan = read('skills/plan-create/SKILL.md');
+  const writer = read('agents/spec-writer.md');
+  const workflow = read('skills/factory-workflow/references/sdd.md');
+  assert.match(plan, /without asking for a separate plan approval/);
+  assert.match(plan, /consequential decision cannot be inferred/);
+  assert.match(writer, /Do not require separate approval/);
+  assert.match(workflow, /Assumptions recorded/);
+});
+
 test('workflow contracts require isolated task branches and a serial fallback', () => {
   const workflow = read('skills/factory-workflow/SKILL.md');
   const tasks = read('skills/factory-workflow/references/task-contract.md');

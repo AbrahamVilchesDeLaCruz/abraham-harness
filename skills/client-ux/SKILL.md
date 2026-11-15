@@ -13,7 +13,7 @@ Use this skill for the user's job, end-to-end flow and interaction behavior. Use
 
 ## Hard Rules
 
-- Begin with the user, their goal, what completion looks like and the cost of failure. Ask only when an unknown changes the flow or risk.
+- Begin with the user, their goal, what completion looks like and the cost of failure. Make reasonable, reversible choices from existing context; ask only when a consequential unknown cannot be resolved and blocks progress.
 - Map the journey before polishing screens. Include entry, completion, return visits, cancellation, failure and recovery where they apply.
 - Every screen makes clear where the user is, what matters, what actions are available and what happens next.
 - Give each screen one primary job. Choose controls and navigation that fit that job; do not add steps, choices or confirmation dialogs without a reason.
@@ -26,7 +26,7 @@ Use this skill for the user's job, end-to-end flow and interaction behavior. Use
 
 | Situation | Action |
 |---|---|
-| User job or success condition unclear | Ask one focused question before locking the flow |
+| User job or success condition unclear | Infer from context; ask one focused question only when a consequential ambiguity blocks progress |
 | Existing flow is being changed | Preserve working routes and identify affected states before editing |
 | Flow includes irreversible or destructive action | Make consequence clear and provide safe recovery where possible |
 | Screen pattern is unclear | Choose from the job: list, detail, form, search, dashboard, settings or focused overlay |

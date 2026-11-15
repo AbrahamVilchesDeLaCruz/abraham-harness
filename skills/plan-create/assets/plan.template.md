@@ -28,8 +28,12 @@ createdAt: "{YYYY-MM-DDTHH:MM:SSZ}"
 
 - [ ] {Action}
 - [ ] Verify typechecking, linting and tests with the project's verification command. Fix any issue.
-- [ ] STOP. Present the changes for review and suggest commit messages. Do not start the next phase until the user asks.
+- [ ] Update progress and next step after integration; observe any stop specified in the approved plan.
+
+## Progress
+
+{Current phase, verified completed work, checks and blockers. Update after integration and before a pause or handoff.}
 
 ## Next step
 
-{The next phase to complete.}
+{The next actionable step and its owner.}

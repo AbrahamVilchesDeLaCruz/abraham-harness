@@ -89,7 +89,7 @@ run().catch((error: unknown) => {
 
 Replace `__TIMESTAMP__` and `__table_name__` with the real values.
 
-The timestamp is generated automatically with `typeorm migration:generate`.
+Create the migration by hand using the timestamp convention in `api-migrations`.
 
 ```typescript
 import { type MigrationInterface, type QueryRunner } from 'typeorm';

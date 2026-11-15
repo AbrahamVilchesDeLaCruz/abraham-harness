@@ -91,7 +91,7 @@ Spec writer -> Coordinator decomposes phase into task contracts
              Relevant reviewers (in parallel) -> Approver -> User delivers
 ```
 
-Every code candidate is integrated and passes explicit seam checks before review. The coordinator chooses reviewers from the change surfaces and risk matrix; one missing, blocked or negative required verdict rejects the candidate and sends findings to the affected task(s). Any change creates a new candidate and invalidates prior verdicts. The coordinator may integrate worktrees into a named feature/fix parent, push or open a PR only when you explicitly authorize those exact operations. Merge authorization is separate unless you explicitly grant a conditional merge. Project-specific rules outrank generic/global skill defaults. The flow stops after each phase unless its next authorized actions were scoped in advance.
+Every code candidate is integrated and passes explicit seam checks before review. The coordinator chooses reviewers from the change surfaces and risk matrix; one missing, blocked or negative required verdict rejects the candidate and sends findings to the affected task(s). Any change creates a new candidate and invalidates prior verdicts. The coordinator may integrate task worktrees into the existing working branch as part of the requested implementation. Push and PR creation require authorization. Merge authorization is separate unless you explicitly grant a conditional merge. Project-specific rules outrank generic/global skill defaults. The flow continues within the requested scope unless the user or approved plan specifies a stop.
 
 Parallel builders require separate writable worktrees and branches. Runtime-specific capability notes live in `skills/factory-workflow/references/adapters/`; edit limits and path instructions are not a sandbox. If the runtime cannot provide verifiable isolation, tasks run serially in one workspace. Agent responsibilities are runtime-neutral; optional model assignments belong in project/runtime configuration, not the common workflow.
 
@@ -127,7 +127,7 @@ Edit shared skills here, never in the generated skills directory of a project. S
 | --- | --- |
 | Project | `project-bootstrap`, `factory-workflow`, `plan-create`, `plan-phase-implement`, `doc-create`, `engineering-conventions`, `makefile` |
 | Workflow | `tdd-workflow`, `git-workflow`, `skill-creator`, `skill-sync` |
-| API | `api-application`, `api-auth`, `api-bc-review`, `api-criteria`, `api-di`, `api-domain`, `api-domain-events`, `api-error-handler`, `api-events`, `api-events-infra`, `api-infrastructure`, `api-migrations`, `api-observability`, `api-repository`, `api-response`, `api-rest`, `api-shared`, `api-testing`, `api-validation` |
+| API | `api-application`, `api-auth`, `api-bc-review`, `api-criteria`, `api-database-design`, `api-di`, `api-domain`, `api-domain-events`, `api-error-handler`, `api-events`, `api-events-infra`, `api-infrastructure`, `api-migrations`, `api-observability`, `api-repository`, `api-response`, `api-rest`, `api-shared`, `api-testing`, `api-validation` |
 | Client | `client-accessibility`, `client-api`, `client-branding`, `client-container-presentational`, `client-hooks`, `client-pods`, `client-query`, `client-testing`, `client-ui-design`, `client-ux` |
 | Stack | `stack-nestjs`, `stack-typeorm`, `stack-rabbitmq`, `stack-observability`, `stack-react`, `stack-tanstack-query`, `stack-vitest` |
 

@@ -15,7 +15,7 @@ A user may authorize a bounded operation set. Record the exact:
 - merge strategy and conditions (review, CI, approval);
 - PR title and labels when relevant.
 
-Exact user-provided commands or an equivalent natural-language instruction are authorization for the named operation and arguments. Do not ask again for an already authorized action. Do not infer authority for an operation the user did not name. A conditional instruction may authorize a later merge, for example: “squash-merge this PR to the named parent after approval and required checks pass.”
+Exact user-provided commands or an equivalent natural-language instruction are authorization for the named operation and arguments. Do not ask again for an already authorized action. A requested implementation also authorizes necessary local task commits and integration into its existing working branch, subject to project policy. Do not infer remote publication authority. A conditional instruction may authorize a later merge, for example: “squash-merge this PR to the named parent after approval and required checks pass.”
 
 ## Preflight and safe handling
 
@@ -27,4 +27,4 @@ Exact user-provided commands or an equivalent natural-language instruction are a
 
 ## Worktree and child-PR integration
 
-Task worktrees start from their declared base. The coordinator integrates their commits into the parent feature/fix branch only when that parent and method are named in the authorization. A child PR such as `refactor/*` → `feat/*` is a separate edge from the eventual `feat/*` → integration-branch PR. Its title/label and squash/merge method come from the user's plan and target policy; do not require an unrelated issue or size exception by default.
+Task worktrees start from their declared base. The coordinator integrates their commits into the parent feature/fix branch when it is the existing working branch for the requested task, using project policy or a non-destructive method. A child PR such as `refactor/*` → `feat/*` is a separate edge from the eventual `feat/*` → integration-branch PR. Its title/label and squash/merge method come from the user's plan and target policy; do not require an unrelated issue or size exception by default.

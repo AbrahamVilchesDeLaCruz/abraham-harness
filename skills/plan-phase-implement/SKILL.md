@@ -33,7 +33,7 @@ Use this skill to implement one task contract from the current phase of a plan i
 2. Load the concept and stack skills that the project `AGENTS.md` names for each layer you touch.
 3. Implement only the task's acceptance criteria with `tdd-workflow`.
 4. Run every check in the task contract and fix any issue within its authorized paths.
-5. Record observed results and report task completion and the next eligible task to the coordinator. The coordinator updates shared plan progress after integration.
+5. Record observed results and report task completion and the next eligible task to the coordinator. The coordinator updates shared plan progress after integration and before stopping or handing off: mark only verified items, record checks and blockers, and set the next step.
 6. Stage and commit the task changes on the assigned local branch. Record the commit SHA and ensure the working tree is clean.
 
 ## Output Contract

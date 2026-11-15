@@ -9,13 +9,13 @@ Use one integration branch and worktree per phase, based on the task contracts' 
 5. Integrate completed task commits into the integration branch in dependency order. Resolve conflicts there, never by changing the task contract silently. If a resolution changes task behavior or acceptance criteria, return it to the affected builder.
 6. Run the phase's seam checks: all task checks on the combined tree, project build/typecheck, the full lint and format check, and the full slow suite exactly once, plus cross-task contracts and phase acceptance criteria. Record commands and observed results. A skipped or unavailable check is not a pass.
 7. Freeze only when integration and seam checks pass and the integration worktree is clean. Record the integration candidate commit SHA and base SHA. Do not modify that candidate while reviews run.
-8. After approval, report task branches/commits, integration candidate and checks. If the user authorized integration into a parent feature/fix branch or remote delivery, follow `publication-authorization.md`; otherwise hand off the frozen candidate.
+8. After approval, report task branches/commits, integration candidate and checks. Integrate into the existing working branch within the requested scope. Follow `publication-authorization.md` for local integration and any authorized remote delivery.
 
 If integration or review requires a change, create a new candidate SHA and repeat all checks invalidated by that change. Preserve task commits and conflict-resolution notes for traceability.
 
 ## Integrating into a parent branch
 
-Treat a feature, fix or other task branch as a possible parent for phase worktrees. Do not assume a task worktree is a throwaway branch or that its commit may be integrated anywhere. Before integration, require authorization naming the source worktree/branch, target parent branch, integration strategy and allowed task scope. Confirm the target is the expected branch and that integration preserves unrelated local changes. If the strategy or target is unspecified, prepare the handoff and ask; never infer a merge or squash strategy.
+Treat a feature, fix or other task branch as a possible parent for phase worktrees. Do not assume a task worktree is a throwaway branch or that its commit may be integrated anywhere. The requested implementation authorizes integration into its existing working branch. Record source, target, method and task scope; use project policy or a non-destructive method. Confirm the target and preserve unrelated changes. Ask if the target is genuinely ambiguous or a different branch is requested without authorization.
 
 ## Publication and PRs
 

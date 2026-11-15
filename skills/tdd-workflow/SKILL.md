@@ -66,14 +66,10 @@ Always in this order:
    2. In which layer does it live? (domain, application, infrastructure, client-hook, client-component)
    3. What are the happy path scenarios and the error cases?
 2. **RED: write the failing test**, before the implementation. Shape of the test in [`references/test-examples.md`](references/test-examples.md). **Verify that the test fails**: run the test and confirm that the error is the expected one (not found, not implemented), not a syntax or import error.
-3. **GREEN: the minimum code to pass the test.** Write **only what is necessary** for the test to pass. No optimizing. No anticipating future cases.
-   - If the implementation file has to be created, create it now.
-   - If the test asks for a `ProductMother` that does not exist, create it too.
-   - Do not add logic that the test does not demand yet.
+3. **GREEN: write only the code needed to pass.**
+   - Create missing implementation files and Mothers.
 4. **Refactor: clean up while staying green.** With the test green:
-   - Remove duplication
-   - Rename for clarity
-   - Extract methods if the method does more than one thing
+   - Remove duplication, clarify names and extract methods as needed.
    - **The tests must stay green** after each change
 5. **Repeat for each scenario.** Go back to step 2 for the next scenario. One Red → Green → Refactor cycle per behavior.
 

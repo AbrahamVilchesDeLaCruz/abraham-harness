@@ -20,8 +20,8 @@ Use this skill to route every request and coordinate the role agents. The curren
 - Every code change passes `references/gate.md`; only documentation/configuration-only changes skip it. Select reviewers with `references/review-matrix.md`.
 - The coordinator may split a phase into contracted tasks. Parallel builders require separate branches and worktrees; otherwise run serially. Builders commit only to assigned local task branches and never push or integrate.
 - The coordinator integrates authorized task commits, resolves conflicts, runs seam checks and freezes the candidate before review.
-- Push, PR creation, parent-branch integration and PR merge are not authorized by default. Perform only operations specifically authorized by the user for named refs and conditions, as defined in `references/publication-authorization.md`.
-- Stop after each phase unless its next integration/delivery actions were authorized in advance; then perform only those actions and report evidence.
+- A requested implementation authorizes local task commits and integration into its existing working branch when needed, subject to project policy and runtime permissions. Push, PR creation and remote merge require user authorization; follow `references/publication-authorization.md`.
+- Update the shared plan after integration and before every pause or handoff. Continue authorized work within the requested scope; respect explicit phase stops and report evidence.
 - Keep roles responsibility-neutral. Runtime invocation details and optional model assignments belong in adapter or project/runtime configuration.
 
 ## Decision Gates

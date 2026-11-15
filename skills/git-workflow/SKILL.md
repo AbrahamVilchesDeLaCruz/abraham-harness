@@ -14,17 +14,17 @@ Use this skill when naming branches, integrating task/worktree branches, prepari
 ## Hard Rules
 
 - The target project's `AGENTS.md`, branch protection, CI and PR template define the applicable policy. Treat examples in shared skills as defaults, not remote policy.
-- Do not push, open a PR, integrate into a parent branch or merge without explicit user authorization for the target, refs and operation. Authorization for one operation does not authorize another.
-- A task/worktree branch may target a feature/fix parent only when the user or approved plan names that parent and the integration method.
+- An implementation request authorizes necessary local task commits and integration into its current working branch, unless the user or project policy says otherwise. Do not push, open a PR or merge remotely without authorization for that operation.
+- Identify the task parent and use the project policy or a non-destructive integration method; preserve unrelated changes. Do not infer permission to integrate into a different branch.
 - Apply issue, label, line-budget and required-check rules only when the target project or current user requires them.
-- Use Conventional Commits for commit messages and PR titles when they become squash commits.
+- Use Conventional Commits for commit messages and PR titles when they become squash commits. Do not add agent Co-authored-by trailers to commits.
 - Never force-push or bypass target branch protection.
 
 ## Decision Gates
 
 | Change | Default route |
 |---|---|
-| Independent task worktree | Integrate into the named phase/feature parent only when authorized |
+| Independent task worktree | Integrate into the existing working branch for the requested task |
 | `feat/*` or `fix/*` to the target integration branch | Use the target repository's merge policy |
 | Child `refactor/*` PR to a feature/fix branch | Use the chain method authorized for that parent; do not infer final-release policy |
 | Release/integration branch to production | Follow the target repository's protected release policy |

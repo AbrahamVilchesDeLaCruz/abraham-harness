@@ -2,6 +2,12 @@
 
 This project follows [Semantic Versioning](https://semver.org/): a major version changes a convention that existing projects must adapt to (before 1.0, a minor version may do so), a minor version adds skills or guidance, and a patch version fixes them.
 
+## 0.19.0
+
+- Permit necessary local task commits and worktree integration into the existing working branch as part of an implementation request; keep remote publication separately authorized.
+- Add relational database design guidance and clarify manual migration creation.
+- Require plan progress updates at integration and handoff, and omit agent co-author trailers from commits.
+
 ## 0.18.0
 
 - Define a two-level test policy for the api: a large unit layer tested only from `application` (use cases and event subscribers, with a faked event) and E2E tests for controllers only. There are no integration tests; persistence is exercised through controller E2E.

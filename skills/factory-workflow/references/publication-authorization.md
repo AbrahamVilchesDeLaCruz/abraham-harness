@@ -4,7 +4,7 @@ Use this contract whenever a worktree is integrated into a parent branch or a re
 
 ## Authorization scope
 
-A direct user instruction authorizes only the operations it names. Record:
+An implementation request authorizes necessary local task commits and integration into its existing working branch, subject to project policy. Remote operations require user authorization. Record:
 
 | Field | Required evidence |
 |---|---|
@@ -29,7 +29,7 @@ Before each authorized operation:
 
 ## Execution boundaries
 
-- Integrate a task worktree into a feature/fix parent only when that exact target branch and method are authorized. Keep the task commit and resulting parent SHA in the report.
+- Integrate task worktrees into the existing working branch within the requested scope; record the method, task commit and resulting parent SHA. A different target requires authorization.
 - Push only the authorized source branch to the authorized remote. Never infer permission to push a parent or protected branch.
 - Create only the authorized PR with the authorized head/base, title and labels. Do not invent an issue link or size exception; apply such requirements only when the target repository actually requires them or the user requests them.
 - Merge only when the specific merge operation is authorized, directly or through an explicit condition, and all stated review/CI gates pass. Never treat the approver's candidate verdict as implicit merge permission.

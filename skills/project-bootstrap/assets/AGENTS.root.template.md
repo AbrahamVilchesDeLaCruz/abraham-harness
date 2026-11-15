@@ -37,6 +37,7 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 | The user corrects a project convention, or asks to document one | `doc-create` |
 | Creating or changing a Makefile, or a command to start the stack | `makefile` |
 | Building or changing client UI, user flows or accessibility | Load the corresponding client concept skill in `apps/client/AGENTS.md` |
+| Designing a relational database schema or constraints | Load `api-database-design` from `apps/api/AGENTS.md` |
 | Defining or implementing an API repository port or adapter | Load `api-repository` from `apps/api/AGENTS.md` |
 | Planning a task, or implementing one plan phase      | `plan-create`, `plan-phase-implement` |
 
@@ -78,6 +79,7 @@ Project-specific `AGENTS.md`, `docs/`, CI and branch/PR policy take precedence o
 | `api-events`         | api    | EventBus interface, DomainEventConsumer, abstract Handler        |
 | `api-events-infra`   | api    | Message bus, HandlersBootstrapper, retry, DLQ, idempotency       |
 | `api-di`             | api    | Symbol tokens, provider registration, injection without coupling |
+| `api-database-design` | api | Relational schema design, integrity and evolution |
 | `api-migrations`     | api    | Migration format, idempotent seeds                               |
 | `api-response`       | api    | Response envelope, pagination, commands with no body             |
 | `api-validation`     | api    | Global request validation, Payload/Query                         |

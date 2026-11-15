@@ -26,6 +26,8 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 | Define or implement EventBus, DomainEventConsumer, abstract Handler | `api-events` |
 | Implement the message bus, HandlersBootstrapper, retry, DLQ | `api-events-infra` |
 | Define DI tokens, register providers, inject interfaces | `api-di` |
+| `api-database-design` | api | Relational schema design, integrity and evolution |
+| Design or change relational schema, constraints or indexes | `api-database-design` |
 | Create database migrations or seeds | `api-migrations` |
 | Define the HTTP response format, envelope, pagination | `api-response` |
 | Configure request validation, Payload, Query | `api-validation` |

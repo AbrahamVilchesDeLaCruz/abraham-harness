@@ -31,7 +31,7 @@ A new project needs both steps. The `npx` command installs the tools, and `/proj
 
 ## Keep projects up to date
 
-`update` updates installed skills and adds newly published harness skills that are not already present, without passing existing skill names to the add command. It also refreshes generated agents. In `AGENTS.md`, it refreshes only the skills tables between the `abraham-harness` markers, so your stack, your rules and your `## Project Skills` table stay yours. A project created before these markers existed is reported and left unchanged: run `/project-bootstrap` to add them. `check` reports both installed-skill updates and skills newly added to the harness catalog.
+`update` updates installed skills and adds newly published harness skills that are not already present, without passing existing skill names to the add command. It refreshes generated agents and adds missing roles in runtimes where harness agents are already installed. In `AGENTS.md`, it refreshes only the skills tables between the `abraham-harness` markers, so your stack, your rules and your `## Project Skills` table stay yours. A project created before these markers existed is reported and left unchanged until its managed blocks are reconciled. `check` reports both installed-skill updates and skills newly added to the harness catalog.
 
 It also refreshes `make/local.mk`, `dev.mk`, `prod.mk` and `code.mk`, so every project has the same commands. It never touches the root `Makefile` or `make/project.mk`, and it keeps and reports a module you edited by hand.
 
@@ -41,6 +41,8 @@ Run these commands in each project:
 npx github:AbrahamVilchesDeLaCruz/abraham-harness check    # exits with code 1 when an update is available
 npx github:AbrahamVilchesDeLaCruz/abraham-harness update   # installs the latest version of the skills
 ```
+
+Run `update` once to receive the new `harness-update` skill. For later upgrades, ask your agent to use `harness-update` from the project root; it checks the installation, runs the updater, reconciles reported legacy files without replacing project-owned content, and verifies the result. Commit the resulting `skills-lock.json` and generated files after review.
 
 ## Where the skills go
 
@@ -101,7 +103,7 @@ There are no personal/professional profiles. Exploration depth follows the task;
 
 Parallel builders require separate writable worktrees and branches. Runtime-specific capability notes live in `skills/factory-workflow/references/adapters/`; edit limits and path instructions are not a sandbox. If the runtime cannot provide verifiable isolation, tasks run serially in one workspace. Agent responsibilities are runtime-neutral; optional model assignments belong in project/runtime configuration, not the common workflow.
 
-`install` adds the agents and `update` refreshes the generated ones that exist, in the project and in your home directory. Neither overwrites a file you wrote by hand.
+`install` adds the agents and `update` refreshes generated agents and adds missing roles in runtimes already installed, in the project and in your home directory. Neither overwrites an agent file you wrote by hand.
 
 ## Conventions and docs
 
@@ -132,7 +134,7 @@ Edit shared skills here, never in the generated skills directory of a project. S
 | Group | Skills |
 | --- | --- |
 | Project | `project-bootstrap`, `factory-workflow`, `plan-create`, `plan-phase-implement`, `doc-create`, `engineering-conventions`, `makefile` |
-| Workflow | `tdd-workflow`, `git-workflow`, `skill-creator`, `skill-sync` |
+| Workflow | `tdd-workflow`, `git-workflow`, `harness-update`, `skill-creator`, `skill-sync` |
 | API | `api-application`, `api-auth`, `api-bc-review`, `api-criteria`, `api-database-design`, `api-di`, `api-domain`, `api-domain-events`, `api-error-handler`, `api-events`, `api-events-infra`, `api-infrastructure`, `api-migrations`, `api-observability`, `api-repository`, `api-response`, `api-rest`, `api-shared`, `api-testing`, `api-validation` |
 | Client | `client-accessibility`, `client-api`, `client-branding`, `client-container-presentational`, `client-hooks`, `client-pods`, `client-query`, `client-testing`, `client-ui-design`, `client-ux` |
 | Stack | `stack-nestjs`, `stack-typeorm`, `stack-rabbitmq`, `stack-observability`, `stack-react`, `stack-tanstack-query`, `stack-vitest` |

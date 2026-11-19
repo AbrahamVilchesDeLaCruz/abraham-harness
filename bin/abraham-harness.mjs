@@ -125,7 +125,7 @@ try {
     const scopes = [{ base: homedir(), isGlobal: true }];
     if (!isGlobal) scopes.push({ base, isGlobal: false });
     const refreshed = refreshAgents(roles, scopes);
-    if (refreshed > 0) process.stdout.write(`Refreshed ${refreshed} agent files\n`);
+    if (refreshed > 0) process.stdout.write(`Refreshed or installed ${refreshed} agent files\n`);
   }
   if (command === 'update' && !isGlobal) {
     const templatesDir = fileURLToPath(new URL('../skills/project-bootstrap/assets', import.meta.url));

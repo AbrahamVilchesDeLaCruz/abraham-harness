@@ -202,7 +202,7 @@ test('update creates no agent in a project that has none', () => {
   });
 });
 
-test('update refreshes generated agents in the project and the home, and creates no missing one', () => {
+test('update refreshes generated agents and restores missing roles only in installed runtimes', () => {
   withProject(({ project, home, run }) => {
     run('install');
     run('install', '--global');
@@ -215,7 +215,18 @@ test('update refreshes generated agents in the project and the home, and creates
     assert.equal(run('update').status, 0);
     assert.equal(read(projectFile), original);
     assert.equal(read(homeFile), original);
-    assert.ok(!existsSync(join(project, '.claude/agents/ui.md')));
+    assert.ok(existsSync(join(project, '.claude/agents/ui.md')));
+  });
+});
+
+test('update does not create roles beside only hand-written agents', () => {
+  withProject(({ project, run }) => {
+    const dir = join(project, '.claude/agents');
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(join(dir, 'custom.md'), 'mine\n');
+    assert.equal(run('update').status, 0);
+    assert.deepEqual(readdirSync(dir), ['custom.md']);
+    assert.ok(!existsSync(join(project, '.codex/agents')));
   });
 });
 

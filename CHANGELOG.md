@@ -2,6 +2,12 @@
 
 This project follows [Semantic Versioning](https://semver.org/): a major version changes a convention that existing projects must adapt to (before 1.0, a minor version may do so), a minor version adds skills or guidance, and a patch version fixes them.
 
+## 0.21.0
+
+- Add `harness-update` to refresh and verify existing project installations while preserving project-owned files and reconciling legacy managed files.
+- Make `update` install missing generated agent roles in runtimes that already use harness agents; leave hand-written agents and uninstalled runtimes untouched.
+- Align the bootstrap TDD description with the existing behavior-focused test policy.
+
 ## 0.20.0
 
 - Add task-proportional discovery, an opt-in A/B/C interview and a separate choice between a navigable HTML prototype and creative freedom before frontend specification.

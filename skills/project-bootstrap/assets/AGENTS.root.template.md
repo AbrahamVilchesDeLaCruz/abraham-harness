@@ -33,6 +33,7 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 | Creating a branch, opening a PR, or merging code      | `git-workflow`  |
 | Before implementing new observable behavior | `tdd-workflow` |
 | Starting a new project or aligning an existing one   | `project-bootstrap` |
+| Updating an existing abraham-harness installation | `harness-update` |
 | Every request: pick the lane and coordinate the agents | `factory-workflow` |
 | The user corrects a project convention, or asks to document one | `doc-create` |
 | Creating or changing a Makefile, or a command to start the stack | `makefile` |
@@ -53,8 +54,9 @@ Project-specific `AGENTS.md`, `docs/`, CI and branch/PR policy take precedence o
 
 | Skill                | Scope  | Description                                                      |
 | -------------------- | ------ | ---------------------------------------------------------------- |
-| `tdd-workflow`       | global | Mandatory TDD workflow: Red→Green→Refactor before any new code   |
+| `tdd-workflow`       | global | Test-first Red→Green→Refactor for new observable behavior   |
 | `project-bootstrap`  | global | Installs AGENTS.md and the docs/ skeleton, and scaffolds the apps |
+| `harness-update`    | global | Refreshes shared skills, generated agents and managed project files |
 | `makefile`           | global | The same make commands in every project: help, local, dev, prod |
 | `doc-create`         | global | Records project conventions in the project's `docs/`              |
 | `engineering-conventions` | global | Index of the shared conventions                              |

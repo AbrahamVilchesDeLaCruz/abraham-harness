@@ -25,7 +25,7 @@ Use this skill from an existing project's root when the user asks to update its 
 | --- | --- |
 | Existing project installation | Run `check`, then `update`; `check` alone does not verify generated agents or managed project files |
 | No installed harness skills | Use `project-bootstrap` to align the project; do not treat it as an in-place update |
-| An `AGENTS.md` lacks harness markers | Reconcile only the managed blocks from the current template, preserving project sections; rerun `update` |
+| An `AGENTS.md` lacks harness markers | Migrate old shared skill tables into the managed blocks; preserve project-owned rows and rules outside them, then rerun `update` |
 | A Makefile module is reported as hand edited | Move custom targets to `make/project.mk` with `makefile` guidance before replacing the managed module; report ambiguity |
 | A generated role is missing in an installed runtime | `update` adds it; confirm hand-written roles remain untouched |
 
@@ -33,7 +33,7 @@ Use this skill from an existing project's root when the user asks to update its 
 
 1. Confirm the project root, requested scope, Git status, installed harness directories and `skills-lock.json`. Inspect modified generated files before any command that could replace them. Record the starting state.
 2. From that root run `npx github:AbrahamVilchesDeLaCruz/abraham-harness check`, then `npx github:AbrahamVilchesDeLaCruz/abraham-harness update`. The latter also refreshes managed files that `check` does not inspect. Add `--global` only for an explicitly global request.
-3. Read the updater's skipped-file reports. For legacy `AGENTS.md` files, insert only the missing harness-managed blocks from the installed `project-bootstrap` templates after reviewing the surrounding project rules; do not scaffold apps. For edited Makefile modules, preserve custom targets in `make/project.mk` before replacing the managed file. If a safe reconciliation is unclear, leave that file unchanged and report the exact blocker.
+3. Read the updater's skipped-file reports. For legacy `AGENTS.md`, identify old shared Auto-invoke and Available Skills rows, migrate them into the managed blocks from the installed `project-bootstrap` templates, and keep project-specific rows and rules outside those blocks. Do not leave duplicate stale tables or scaffold apps. For edited Makefile modules, preserve custom targets in `make/project.mk` before replacing the managed file. If a safe reconciliation is unclear, leave that file unchanged and report the exact blocker.
 4. Rerun `check`; inspect `git diff --check`, changed paths, `skills-lock.json`, generated roles for Claude Code, Codex and OpenCode, managed `AGENTS.md` tables and Makefile modules that exist. Run focused project checks if the update changed executable configuration. Report remaining skipped files and checks not run.
 
 ## Output Contract

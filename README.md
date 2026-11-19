@@ -103,7 +103,7 @@ There are no personal/professional profiles. Exploration depth follows the task;
 
 Parallel builders require separate writable worktrees and branches. Runtime-specific capability notes live in `skills/factory-workflow/references/adapters/`; edit limits and path instructions are not a sandbox. If the runtime cannot provide verifiable isolation, tasks run serially in one workspace. Agent responsibilities are runtime-neutral; optional model assignments belong in project/runtime configuration, not the common workflow.
 
-`install` adds the agents and `update` refreshes generated agents and adds missing roles in runtimes already installed, in the project and in your home directory. Neither overwrites an agent file you wrote by hand.
+`install` adds the agents and `update` refreshes generated agents and adds missing roles in runtimes already installed, within the selected project or global scope. Neither overwrites an agent file you wrote by hand.
 
 ## Conventions and docs
 

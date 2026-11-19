@@ -6,6 +6,7 @@ This project follows [Semantic Versioning](https://semver.org/): a major version
 
 - Add `harness-update` to refresh and verify existing project installations while preserving project-owned files and reconciling legacy managed files.
 - Make `update` install missing generated agent roles in runtimes that already use harness agents; leave hand-written agents and uninstalled runtimes untouched.
+- Keep project updates within the project scope; global agent files change only with `--global`.
 - Align the bootstrap TDD description with the existing behavior-focused test policy.
 
 ## 0.20.0

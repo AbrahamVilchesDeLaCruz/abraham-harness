@@ -8,10 +8,10 @@ Use one integration branch and worktree per phase, based on the task contracts' 
 4. Collect each task's commit SHA, changed paths, command results and blockers. Reject a handoff with a wrong base, dirty worktree, unauthorized path or missing check evidence.
 5. Integrate completed task commits into the integration branch in dependency order. Resolve conflicts there, never by changing the task contract silently. If a resolution changes task behavior or acceptance criteria, return it to the affected builder.
 6. Run the phase's seam checks on the combined tree: tests for changed modules and their connections, cross-task contracts, phase acceptance criteria, project build/typecheck, and applicable lint/format checks. Do not replay every builder iteration and early check merely because it appears in a task contract. Deduplicate commands that cover the same scope.
-7. Run the full unit and slow E2E suites once before freezing the final feature candidate. Run them in an independently published phase or a high-risk phase too, including authentication, migrations or global wiring. An intermediate phase without those triggers records the full suite as deferred to the final candidate, not as passed. Deduplicate by scope: if the E2E orchestrator already runs all unit suites, do not rerun them; otherwise run each missing unit scope once.
-8. Write a phase check ledger with the exact command, tested scope, reason, observed result and elapsed time; note whether the full suite ran or was deferred, and why. A failed or unavailable required check is not a pass. Compare ledgers across phases to find repeated work.
+7. Run the full unit suite locally once before freezing the final feature candidate. Run it for an independently published phase or a high-risk phase too, including authentication, migrations or global wiring. An ordinary intermediate phase records the full unit suite as deferred to the final candidate. Routine E2E runs in CI, not in the local candidate gate. Require passing full unit and E2E CI on the exact high-risk or independently published phase candidate before integrating that phase into its parent or publishing it. For the ordinary final candidate, require passing CI before merging into a release/main branch or deploying. If CI needs an authorized push or PR that is unavailable, freeze the candidate pending CI; never record CI as passed.
+8. Write a phase check ledger with the exact command, tested scope, reason, observed result and elapsed time. Record the local unit-suite status and the CI unit/E2E status with its candidate SHA separately; state why a check was deferred or is pending. A failed or unavailable required check is not a pass. Compare ledgers across phases to find repeated work.
 9. Freeze only when the phase's required checks pass and the integration worktree is clean. Record the integration candidate commit SHA and base SHA. Do not modify that candidate while reviews run.
-10. After approval, report task branches/commits, integration candidate and check ledger. Integrate into the existing working branch within the requested scope. Follow `publication-authorization.md` for local integration and any authorized remote delivery.
+10. After approval, report task branches/commits, integration candidate and check ledger. Integrate into the existing working branch within the requested scope only after any CI gate in step 7 passes. Follow `publication-authorization.md` for local integration and any authorized remote delivery.
 
 If integration or review requires a change, create a new candidate SHA and repeat all checks invalidated by that change. Preserve task commits and conflict-resolution notes for traceability.
 
@@ -19,9 +19,9 @@ If integration or review requires a change, create a new candidate SHA and repea
 
 Keep this table in the shared plan or FTD evidence. It is the handoff to reviewers and the basis for comparing runtime cost; do not paste full test logs into every role prompt.
 
-| Phase/candidate | Command | Scope and reason | Result | Elapsed | Full suite status |
+| Phase/candidate | Command or CI run | Scope and reason | Result | Elapsed | Local units / CI E2E status |
 |---|---|---|---|---|---|
-| <phase and SHA> | <exact command> | <changed module, seam or final gate> | <observed result> | <wall time> | ran / deferred to final / not applicable |
+| <phase and SHA> | <exact command or CI run URL and SHA> | <changed module, seam or final gate> | <observed result> | <wall time> | passed / deferred / pending / not applicable |
 
 ## Integrating into a parent branch
 

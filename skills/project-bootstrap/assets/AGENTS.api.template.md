@@ -132,7 +132,7 @@ pnpm test:cov         # Unit tests + coverage
 
 # ─── E2E tests ────────────────────────────────────────────────────────────────
 pnpm test:e2e         # E2E tests of controllers (the compose runner calls it)
-make test-e2e         # From the monorepo root: root script starts Compose and runs unit + E2E
+make test-e2e         # From the monorepo root: CI full run or local diagnostic
 
 # ─── Debug ────────────────────────────────────────────────────────────────────
 pnpm test:debug       # Test runner with the Node inspector

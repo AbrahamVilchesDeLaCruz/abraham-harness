@@ -2,6 +2,13 @@
 
 This project follows [Semantic Versioning](https://semver.org/): a major version changes a convention that existing projects must adapt to (before 1.0, a minor version may do so), a minor version adds skills or guidance, and a patch version fixes them.
 
+## 0.23.0
+
+- Keep focused unit tests during implementation and run the full unit suite locally at final or high-risk candidates; reserve routine E2E for candidate-branch/PR CI.
+- Require passing full unit and E2E CI on the exact candidate before release/main merge or deployment, and before parent integration for independently published or high-risk phases.
+- Keep `make test-e2e` available as the CI entry point and for targeted local diagnosis; record local and CI evidence separately in phase ledgers.
+- Existing projects must configure their project-owned CI to run the root full-test command on candidate branches or PRs; `update` does not rewrite CI workflows or package scripts.
+
 ## 0.22.0
 
 - Run affected-module and seam checks at intermediate integration, and reserve the full unit and E2E suite for the final feature candidate, independently published phases and high-risk phases.

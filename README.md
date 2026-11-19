@@ -44,6 +44,8 @@ npx github:AbrahamVilchesDeLaCruz/abraham-harness update   # installs the latest
 
 Run `update` once to receive the new `harness-update` skill. For later upgrades, ask your agent to use `harness-update` from the project root; it checks the installation, runs the updater, reconciles reported legacy files without replacing project-owned content, and verifies the result. Commit the resulting `skills-lock.json` and generated files after review.
 
+For the CI E2E gate introduced in 0.23.0, existing projects must check their project-owned root `test:e2e` script and CI workflow: CI should run the complete unit and E2E command on the candidate branch or PR before merge or deployment. The harness updater refreshes shared skills and managed files; it does not rewrite project-owned CI or package scripts.
+
 ## Where the skills go
 
 | Agent | Project directory |
@@ -99,7 +101,7 @@ Spec writer -> Coordinator decomposes phase into task contracts
 
 Every code candidate is integrated and passes explicit seam checks before review. The coordinator chooses reviewers from the change surfaces and risk matrix; one missing, blocked or negative required verdict rejects the candidate and sends findings to the affected task(s). Any change creates a new candidate and invalidates prior verdicts. The coordinator may integrate task worktrees into the existing working branch as part of the requested implementation. Push and PR creation require authorization. Merge authorization is separate unless you explicitly grant a conditional merge. Project-specific rules outrank generic/global skill defaults. The flow continues within the requested scope unless the user or approved plan specifies a stop.
 
-Builders run focused behavior and module checks. Intermediate integrations run affected-module and seam checks; the final feature candidate runs the complete unit and E2E suite. An independently published or high-risk phase also runs it. Reviewers inspect the phase check ledger and run focused tests when a risk needs verification. Target-project CI runs the complete suite for publication. The shared `make test-e2e` target delegates to the root package script, which orchestrates all unit and E2E scopes through API Compose and client tests when present.
+Builders run focused behavior and module checks. Intermediate integrations run affected-module and seam checks; the final feature candidate and independently published or high-risk phases run the complete unit suite locally. Reviewers inspect the phase check ledger and run focused tests when a risk needs verification. Target-project CI runs the complete unit and E2E suite on the exact candidate before merge or deployment; high-risk phases pass CI before parent integration. The shared `make test-e2e` target delegates to the root package script for CI or a local diagnostic, orchestrating API Compose and client tests when present.
 
 There are no personal/professional profiles. Exploration depth follows the task; worktrees, coordination and mandatory `code-reviewer` stay in the default flow. Builders receive the task-relevant decisions and readable handoff snapshots in their worktrees, while reviewers inspect the integrated candidate independently. Tests are written first for new observable behavior; presentation-only UI is verified through rendered, responsive and accessibility checks.
 

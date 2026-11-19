@@ -18,7 +18,7 @@ Use this skill when a project needs a Makefile, when you add a command to one, o
 - The root `Makefile` is only a dispatcher. Targets live in `make/*.mk`.
 - A command only this project needs goes in `make/project.mk`. Never edit `make/local.mk`, `dev.mk`, `prod.mk` or `code.mk`: `update` refreshes them, and it keeps and reports a module that was edited by hand, so that module stops receiving updates.
 - `update` never touches the root `Makefile` or `make/project.mk`.
-- Every Docker target goes through `ensure-docker`, and through its environment's compose variable.
+- Every Make target that directly invokes Docker goes through `ensure-docker` and its environment's compose variable. `make test-e2e` delegates to the root package script, which owns test-environment startup.
 - A target that destroys data needs `CONFIRM=yes`.
 - Secrets come from `SECRETS_LOCAL`, `SECRETS_DEV` and `SECRETS_PROD`. Never write a secret or a provider's command in a shared module.
 
@@ -41,7 +41,7 @@ Use this skill when a project needs a Makefile, when you add a command to one, o
 1. Copy `assets/Makefile` and `assets/make/` to the project's root.
 2. Replace `{{PROJECT_NAME}}` in the `Makefile`.
 3. Create the compose files: `infra/docker-compose.local.yml`, `infra/docker-compose.dev.yml` and `infra/docker-compose.prod.yml`. Give each service a health check, because `up --wait` relies on it.
-4. Set `PM` if the project does not use pnpm, and `APP_DIRS` if its apps live elsewhere. Add the scripts that `make/code.mk` calls to the root `package.json`.
+4. Set `PM` if the project does not use pnpm, and `APP_DIRS` if its apps live elsewhere. Add the scripts that `make/code.mk` calls to the root `package.json`. The root `test:e2e` script orchestrates the applicable test environments; an API package's `test:e2e` script runs only its test runner inside Compose. Never make the root script call `make test-e2e` recursively.
 5. Run `make`. Once the compose files exist, run `make local`, and confirm that the stack starts.
 
 ## Output Contract

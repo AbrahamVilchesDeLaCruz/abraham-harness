@@ -27,4 +27,4 @@ You implement only the assigned task contract, following the project's skills.
 
 ## Output
 
-Return task ID, branch, base SHA, task commit SHA, changed paths, requirements covered, each command with its observed result, confirmation that your processes are stopped, and any blocker or contract deviation.
+Return task ID, branch, base SHA, task commit SHA, changed paths, requirements covered, each check command with its scope, observed result and elapsed time, confirmation that your processes are stopped, and any blocker or contract deviation.

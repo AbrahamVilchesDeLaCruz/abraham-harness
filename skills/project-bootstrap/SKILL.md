@@ -34,8 +34,8 @@ metadata:
 2. **Scaffold the apps that do not exist yet**, before adding files there: the CLIs refuse a non-empty directory. Follow `references/scaffold.md` in `stack-nestjs` and `stack-react`, then apply `linting.md` in `engineering-conventions`. For another stack, use its stack skill. Replace the `myapp` example namespace with the project name. Add the root `package.json` and workspace the project needs.
 3. **Copy the `AGENTS.md` templates** from `assets/` to the target layout, applying the gates above. Replace `{{PROJECT_NAME}}` and `{{PROJECT_DESCRIPTION}}`, and write the stack in each `Stack table`. When a CLI generated an `AGENTS.md`, replace it with the template. Do not carry over promotion or third-party install instructions: keep only build or test notes that the project needs, under `## Framework Notes`, outside the markers.
 4. **Create `CLAUDE.md` and the `docs/` skeleton.** `CLAUDE.md` has the single line `@AGENTS.md`. Copy `assets/docs-template/README.md` to `docs/`, replace `{{PROJECT_NAME}}` in it, and add the two `.gitkeep` folders.
-5. **Add the Makefile**, following the `makefile` skill, and the root scripts `make/code.mk` calls.
-6. **Check the result.** Confirm that no `{{` placeholder remains and that every skill listed in `AGENTS.md` exists in the project's skills directory (`.agents/skills/` or `.claude/skills/`).
+5. Add the Makefile with `makefile`. Set the root `test:e2e` script using [`references/test-runtime.md`](references/test-runtime.md).
+6. Confirm placeholders are gone, listed skills are installed, and `make test-e2e` reaches the root script once.
 
 ## Output Contract
 
@@ -61,5 +61,6 @@ The project matches this target layout:
 
 - `assets/AGENTS.{root,api,client}.template.md`: `AGENTS.md` templates.
 - `assets/docs-template/README.md`: the map of the project's `docs/`.
+- `references/test-runtime.md`: root E2E script and disposable API test environment.
 - `engineering-conventions`: the shared conventions, which stay in the skills.
 - `references/scaffold.md` in `stack-nestjs` and `stack-react`: scaffolding guides.

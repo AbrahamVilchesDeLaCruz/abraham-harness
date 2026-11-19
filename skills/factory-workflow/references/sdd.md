@@ -13,7 +13,7 @@ Use it when several decisions affect each other, or when the work is too large t
 | Analyze | `spec-writer` | A report of gaps between spec and plan, with no changes |
 | Decompose | Coordinator | Independent task contracts, dependencies and authorized paths |
 | Implement | One or more `builder` roles | A local commit on a dedicated task branch and worktree |
-| Integrate | Coordinator | Integrated candidate, conflict resolutions and seam-check evidence |
+| Integrate | Coordinator | Integrated candidate and phase check ledger; full suite at the final or independently published/high-risk candidate |
 | Review | The gate in `gate.md` | Relevant reviewer verdicts and approver synthesis |
 | Deliver | Coordinator | Integrate into the existing working branch; publish only when authorized |
 

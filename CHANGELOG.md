@@ -2,6 +2,12 @@
 
 This project follows [Semantic Versioning](https://semver.org/): a major version changes a convention that existing projects must adapt to (before 1.0, a minor version may do so), a minor version adds skills or guidance, and a patch version fixes them.
 
+## 0.22.0
+
+- Run affected-module and seam checks at intermediate integration, and reserve the full unit and E2E suite for the final feature candidate, independently published phases and high-risk phases.
+- Add a per-phase command and elapsed-time ledger; let code reviewers inspect evidence and run focused tests instead of repeating the entire suite by default.
+- Define `make test-e2e` as a delegate to the root E2E orchestrator, with API Compose and client journeys configured by project bootstrap; keep the API package script runner-only.
+
 ## 0.21.0
 
 - Add `harness-update` to refresh and verify existing project installations while preserving project-owned files and reconciling legacy managed files.

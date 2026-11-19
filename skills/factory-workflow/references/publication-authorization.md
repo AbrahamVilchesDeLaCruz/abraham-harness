@@ -33,4 +33,5 @@ Before each authorized operation:
 - Push only the authorized source branch to the authorized remote. Never infer permission to push a parent or protected branch.
 - Create only the authorized PR with the authorized head/base, title and labels. Do not invent an issue link or size exception; apply such requirements only when the target repository actually requires them or the user requests them.
 - Merge only when the specific merge operation is authorized, directly or through an explicit condition, and all stated review/CI gates pass. Never treat the approver's candidate verdict as implicit merge permission.
+- Treat the target project's CI as the publication check for the complete unit and E2E suite. Observe its actual result after push or PR creation; a pending or missing full-suite run is not a pass. If the target has no such CI gate, report that gap rather than inventing a green result.
 - Afterward, verify the resulting refs/PR state and report the exact observed result. If an operation fails, stop without trying a broader or destructive workaround.

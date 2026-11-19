@@ -33,7 +33,7 @@ Two levels in the api, and no integration level:
 
 ### How to run them
 
-Unit tests have no I/O. While developing they run directly on the host, which is the fast loop. In CI they run inside the same compose run as the E2E tests (see below).
+Unit tests have no I/O. While developing they run directly on the host, which is the fast loop. Run affected modules and their seams at intermediate phase integration; run the complete suite before the final feature candidate, an independently published phase, or a high-risk phase. In CI, API unit tests run inside the same compose run as the E2E tests (see below).
 
 ```bash
 # From the monorepo root
@@ -66,7 +66,7 @@ The real HTTP contract of the controllers: starts the complete application again
 
 ### How they run: Dockerfile + `docker-compose.test.yml`
 
-E2E tests always run inside containers, so every machine and CI run uses the same environment. In CI the same compose run also executes the unit tests, in one iteration.
+API E2E tests always run inside containers, so every machine and CI run uses the same environment. In CI the same compose run also executes the API unit tests, in one iteration.
 
 - `Dockerfile` has a test target that installs dependencies. Its runner executes the unit command and then the E2E command.
 - `docker-compose.test.yml` at the monorepo root defines two services: the test database and the test runner built from that Dockerfile target. The runner waits for the database healthcheck.
@@ -75,14 +75,14 @@ E2E tests always run inside containers, so every machine and CI run uses the sam
 ```bash
 # The target belongs in make/project.mk
 make test-e2e
-# which runs: docker compose -f docker-compose.test.yml up --build --abort-on-container-exit --exit-code-from api-test
+# delegates to the root package.json test:e2e script
 ```
 
-The shared Makefile has no target for the test database. A target for it belongs in `make/project.mk`.
+The shared Makefile calls the root `test:e2e` script; that script orchestrates `docker compose -f docker-compose.test.yml up --build --abort-on-container-exit --exit-code-from api-test` for the API, plus complete client unit and browser suites when present. Provide the browser suite's own test services for its run: the API test Compose services stop when `api-test` exits. The API package `test:e2e` script only runs its E2E test runner inside Compose. Do not call the root script from that runner, and do not add a second `test-e2e` Make target. The shared Makefile has no separate target for the test database; a project-specific database target belongs in `make/project.mk`.
 
 #### In CI
 
-CI runs the same compose file, so unit and E2E tests run in one iteration and there is no separate database service to keep in sync. Locally, run unit tests on the host while iterating and use `make test-e2e` for the E2E.
+CI must run the complete unit and E2E suite as a publication check. For the API, use the same compose file, so unit and E2E tests run in one iteration and there is no separate database service to keep in sync. Include client E2E when the project has a client. Locally, run unit tests on the host while iterating and use `make test-e2e` for the final or risk-triggered E2E gate.
 
 **The secrets manager is not used in the E2E step**: the vars come from the committed `.env.test` (it contains only test values, no real secrets).
 
@@ -137,7 +137,7 @@ Migrations run **only once** when the test database starts. The database is ephe
 | `pnpm --filter @myapp/api test`       | Unit tests API only                   |
 | `pnpm --filter @myapp/api test:cov`   | Unit tests + coverage                 |
 | `pnpm --filter @myapp/api test:watch` | Unit tests in watch mode              |
-| `make test-e2e`                       | E2E through `docker-compose.test.yml` (starts the DB, runs, stops) |
+| `make test-e2e`                       | Root E2E orchestrator: API Compose and client journeys when present |
 | `pnpm --filter @myapp/api test:e2e`   | E2E command that the compose runner executes after the unit command |
 | `make local` / `make local-down`      | Local development stack, not used by the tests |
 

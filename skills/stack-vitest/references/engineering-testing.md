@@ -33,7 +33,7 @@ Application tests are Use Cases and Subscribers, with repository mocks from `vit
 - Config: `apps/api/vitest.config.e2e.ts`, from the template.
 - Pattern: `**/*.e2e-spec.ts`.
 - E2E tests cover controllers only. They run **in series**, not in parallel, because every suite shares the one test DB. Add `fileParallelism: false` to the `test` block of this config.
-- They run inside the compose test environment (`Dockerfile` test target + `docker-compose.test.yml`): once the database is healthy, the runner service executes `pnpm test` and then `pnpm test:e2e`, so CI runs both levels in one iteration. Unit tests also run directly on the host while developing.
+- They run inside the compose test environment (`Dockerfile` test target + `docker-compose.test.yml`): once the database is healthy, the runner service executes the API package's unit and E2E scripts, so CI runs both levels in one iteration. Unit tests also run directly on the host while developing. The root `test:e2e` script starts Compose; do not invoke it from the runner.
 - The vars are loaded automatically from `apps/api/.env.test` via `test/setup-env.ts`: add `setupFiles: ['./test/setup-env.ts']` to the same block.
 
 ### Test file structure
@@ -65,6 +65,8 @@ apps/api/
 - `pnpm test:cov` runs Vitest + coverage.
 - `pnpm test:debug` runs Vitest with the Node inspector.
 - `pnpm test:e2e` runs `vitest run --config ./vitest.config.e2e.ts`. The compose runner calls it; locally, `make test-e2e` starts the whole environment.
+
+At the monorepo root, `make test-e2e` delegates to the root `test:e2e` script. For the default API and client stack, that root script starts API test Compose with `--exit-code-from api-test` and runs the complete client unit and browser E2E suites in their required test environment. Do not assume the API test Compose services remain available after `api-test` exits. Omit client commands when no client exists. The API package's `test:e2e` stays a runner-only command; this separation prevents recursion and keeps API E2E inside its disposable database environment.
 
 ## Client
 

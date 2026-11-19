@@ -102,8 +102,24 @@ test('task contract stages verification and builders close their processes', () 
   }
   assert.match(builder, /Stop every process you started/);
   assert.match(builder, /iteration checks/);
-  assert.match(integration, /full slow suite exactly once/);
+  assert.match(integration, /final feature candidate/);
+  assert.match(integration, /independently published phase/);
+  assert.match(integration, /high-risk phase/);
+  assert.match(integration, /phase check ledger/);
+  assert.doesNotMatch(integration, /all task checks on the combined tree/);
+  assert.match(read('agents/code-reviewer.md'), /focused tests/);
   assert.match(integration, /Prepare each worktree once/);
+});
+
+test('root E2E script orchestrates the run reached by the shared Makefile', () => {
+  const make = read('skills/makefile/assets/make/code.mk');
+  const bootstrap = read('skills/project-bootstrap/SKILL.md');
+  const testing = read('skills/engineering-conventions/references/testing.md');
+
+  assert.match(make, /\$\(PM\) run test:e2e/);
+  assert.match(bootstrap, /root `test:e2e` script/);
+  assert.match(testing, /root `test:e2e` script/);
+  assert.match(testing, /API package `test:e2e`/);
 });
 
 test('pre-spec discovery preserves the default engineering gate and an explicit frontend choice', () => {

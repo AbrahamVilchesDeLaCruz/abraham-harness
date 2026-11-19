@@ -19,7 +19,7 @@ The coordinator creates one contract for each builder. Keep tasks independently 
 - Early checks: <existing suites for risks the task touches, such as concurrency, idempotency or state transitions; run before the first commit>
 - Closing checks: <exact commands run once before the final commit; never the full slow suite>
 - Commit hooks: <which hooks run on task commits, for example `commit-msg` only>
-- Handoff: <commit SHA, changed paths, check results, blockers, background processes stopped>
+- Handoff: <commit SHA, changed paths, exact check commands, scopes, observed results and elapsed time, blockers, background processes stopped>
 ```
 
 Before launch, ensure each acceptance criterion has evidence, dependencies form an acyclic graph, and concurrent tasks do not write the same paths. If overlap is unavoidable, serialize those tasks or assign the shared files to one owner. Do not treat path instructions as an OS-level sandbox.
@@ -33,7 +33,7 @@ Verification gets more expensive as it widens, so the contract orders it:
 1. **Iteration checks** run on every cycle and cover only the affected files or module, such as one spec file.
 2. **Early checks** run once, soon after the first working change. Name the existing tests that already cover the risks the task touches (concurrency, double operations, parent/child state), so failures show up before the task closes, not at seam checks.
 3. **Closing checks** run once before the final commit: focused lint, typecheck and the task's own tests.
-4. The full slow suite (for example e2e) runs once, by the coordinator, as part of the seam checks in `integration.md`. A builder runs it only when its contract says so.
+4. The coordinator runs the full slow suite at the final feature candidate and in independently published or high-risk phases, as defined in `integration.md`. A builder runs it only when its contract explicitly requires it.
 
 ## Context and environment
 

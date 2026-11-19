@@ -178,12 +178,12 @@ commitlint config: `commitlint.config.ts` at the root.
 
 ## Root scripts (monorepo)
 
-From the monorepo root, these scripts propagate the command to all workspaces:
+From the monorepo root, unit scripts cover the relevant workspaces and the E2E script orchestrates their test environments:
 
 ```bash
 pnpm lint          # oxlint in api + client
 pnpm test          # Unit tests in api + client
-pnpm test:e2e      # E2E tests in api + client
+pnpm test:e2e      # Full unit + E2E run: API Compose and client when present
 ```
 
 > To run in only one workspace: `pnpm --filter @{{PROJECT_NAME}}/api test`

@@ -2,6 +2,12 @@
 
 This project follows [Semantic Versioning](https://semver.org/): a major version changes a convention that existing projects must adapt to (before 1.0, a minor version may do so), a minor version adds skills or guidance, and a patch version fixes them.
 
+## 0.24.0
+
+- Make each project's verification policy authoritative over shared local full-suite defaults, including in plans, task contracts, builder checks and reviews.
+- Define the final feature candidate as the last candidate of the whole feature, not the end of each SDD phase; avoid automatic full local suites or early CI for intermediate phases when the project does not require them.
+- Expand the README into a map of installation, discovery, FTD/SDD, worktrees, verification, review, publication and convention ownership.
+
 ## 0.23.0
 
 - Keep focused unit tests during implementation and run the full unit suite locally at final or high-risk candidates; reserve routine E2E for candidate-branch/PR CI.

@@ -108,6 +108,13 @@ test('task contract stages verification and builders close their processes', () 
   assert.match(integration, /phase check ledger/);
   assert.match(integration, /full unit suite locally/);
   assert.match(integration, /E2E.*CI/);
+  assert.match(integration, /project.*verification policy/i);
+  assert.match(integration, /whole requested feature/);
+  assert.match(integration, /reserves full suites for CI/);
+  assert.match(read('skills/factory-workflow/references/gate.md'), /project.*verification policy/i);
+  assert.match(read('skills/plan-create/SKILL.md'), /project's verification policy/);
+  assert.match(read('skills/plan-phase-implement/SKILL.md'), /project's verification policy/);
+  assert.match(builder, /project's verification policy/);
   assert.doesNotMatch(integration, /full unit and slow E2E suites once before freezing/);
   assert.doesNotMatch(integration, /all task checks on the combined tree/);
   assert.match(read('agents/code-reviewer.md'), /focused tests/);

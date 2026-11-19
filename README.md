@@ -7,6 +7,12 @@ My meta-harness: one versioned set of agent skills and architecture conventions,
 - **Agents:** Claude Code, Codex and OpenCode. The installer wraps the [`skills` CLI](https://github.com/vercel-labs/skills), which you can also call directly to target other agents.
 - **Distribution:** This GitHub repository. There is no npm package to publish.
 
+## Contents
+
+- [Start a project](#start-a-project) · [Update an existing project](#keep-projects-up-to-date)
+- [How the workflow runs](#workflow) · [Verification and CI](#verification-and-ci) · [Reviews and publication](#reviews-and-publication)
+- [Where instructions live](#conventions-and-docs) · [Commands](#commands) · [Skills](#skills)
+
 ## Start a project
 
 A new project needs both steps. The `npx` command installs the tools, and `/project-bootstrap` sets up the project.
@@ -44,7 +50,7 @@ npx github:AbrahamVilchesDeLaCruz/abraham-harness update   # installs the latest
 
 Run `update` once to receive the new `harness-update` skill. For later upgrades, ask your agent to use `harness-update` from the project root; it checks the installation, runs the updater, reconciles reported legacy files without replacing project-owned content, and verifies the result. Commit the resulting `skills-lock.json` and generated files after review.
 
-For the CI E2E gate introduced in 0.23.0, existing projects must check their project-owned root `test:e2e` script and CI workflow: CI should run the complete unit and E2E command on the candidate branch or PR before merge or deployment. The harness updater refreshes shared skills and managed files; it does not rewrite project-owned CI or package scripts.
+After updating, check the project's own verification policy, root `test:e2e` script and CI workflow. CI should run the complete unit and E2E command on the candidate branch or PR before merge or deployment. The harness updater refreshes shared skills and managed files; it does not rewrite project-owned `docs/`, CI or package scripts. If a project reserves complete suites for CI, that project rule overrides the harness's optional local full-unit default. Do not copy shared conventions into project docs to make an exception: record the project's actual policy there.
 
 ## Where the skills go
 
@@ -73,45 +79,72 @@ The installer adds the specialist agents to `.claude/agents/`, `.codex/agents/` 
 
 ## Workflow
 
-The `factory-workflow` skill gives every request one lane:
+The [factory workflow](skills/factory-workflow/SKILL.md) routes every request into one lane. The current primary session is the coordinator; it is not an installed role agent.
 
 | Lane | Use | What happens |
 | --- | --- | --- |
-| Answer | Questions, audits and proposals | Nothing is written |
-| FTD | Ordinary change, the default | Feature document, contracted task(s), integration and applicable gate |
-| SDD | Several decisions that affect each other, or work too large to resume from the request and `git diff` | Spec and plan; one phase at a time, with independent tasks parallelized when isolated, then integrated and gated |
+| Answer | Questions, audits and proposals | Read-only evidence and an answer |
+| FTD | Change resumable from the request and diff | One feature document, task contracts, integration and applicable review gate |
+| SDD | Interacting decisions or a longer change | Discovery, spec, phased plan, contracted tasks, phase integration and review |
 
-For change requests, the coordinator first explores the relevant project evidence, then asks whether you want an optional interview. An accepted interview uses A/B/C questions in batches of ten, or fewer when fewer useful decisions exist; A is recommended but never silently submitted. For frontend changes with a material design decision, you separately choose a navigable HTML prototype to review or give creative freedom. The resulting discovery and design decisions pass to the spec writer and builders as one concise handoff.
+### Before specification
 
-The SDD flow:
+For FTD and SDD, the coordinator follows [discovery](skills/factory-workflow/references/discovery.md) before specification or task contracts. Exploration depth follows the uncertainty, affected surfaces and risk of the request. One short, source-linked handoff records the current behavior, constraints and decisions.
+
+The coordinator asks once whether you want an interview. If accepted, it presents one logical batch of up to ten useful A/B/C questions, with A recommended and preselected; it never silently submits A. You can accept the recommendations, change answers, skip questions or request another batch. For frontend work with a material visual or interaction decision, it separately asks whether you want to review a [navigable HTML prototype](skills/factory-workflow/references/prototype.md) or grant creative freedom. The prototype is a local design artifact, not production code. Its accepted composition and behavior enter the handoff before the spec writer starts. These are coordinator stages, not separate installed `interviewer` or `designer` agents.
+
+### From task to candidate
 
 ```text
-                        Brain: the project docs/, and Engram when available
-
-Coordinator explores / optional interview / optional HTML prototype
-                           |
-Spec writer -> Coordinator decomposes phase into task contracts
-                           |
-             Builders in isolated branches/worktrees (parallel when independent)
-                           |
-             Coordinator integrates, resolves conflicts, runs seam checks
-                           |
-             Relevant reviewers (in parallel) -> Approver -> User delivers
+Request → Answer | FTD | SDD
+FTD/SDD → Explore → optional interview → optional HTML prototype
+SDD → Spec writer → phased plan → analyze gaps
+Current phase → task contracts → isolated builders → phase integration
+Frozen candidate → relevant reviewers → approver → authorized delivery
 ```
 
-Every code candidate is integrated and passes explicit seam checks before review. The coordinator chooses reviewers from the change surfaces and risk matrix; one missing, blocked or negative required verdict rejects the candidate and sends findings to the affected task(s). Any change creates a new candidate and invalidates prior verdicts. The coordinator may integrate task worktrees into the existing working branch as part of the requested implementation. Push and PR creation require authorization. Merge authorization is separate unless you explicitly grant a conditional merge. Project-specific rules outrank generic/global skill defaults. The flow continues within the requested scope unless the user or approved plan specifies a stop.
+The [FTD lane](skills/factory-workflow/references/ftd.md) holds a compact discovery, checklist, evidence and next step. The [SDD lane](skills/factory-workflow/references/sdd.md) uses a spec and [plan](skills/plan-create/SKILL.md) of usable vertical slices. Each phase gets its own integrated, frozen **phase candidate**. Only the last integrated candidate of the whole requested feature is the **final feature candidate**; ending an intermediate SDD phase does not turn it into the feature final.
 
-Builders run focused behavior and module checks. Intermediate integrations run affected-module and seam checks; the final feature candidate and independently published or high-risk phases run the complete unit suite locally. Reviewers inspect the phase check ledger and run focused tests when a risk needs verification. Target-project CI runs the complete unit and E2E suite on the exact candidate before merge or deployment; high-risk phases pass CI before parent integration. The shared `make test-e2e` target delegates to the root package script for CI or a local diagnostic, orchestrating API Compose and client tests when present.
+The coordinator writes a [task contract](skills/factory-workflow/references/task-contract.md) with an immutable base, authorized paths, dependencies and exact checks. Builders commit only on their assigned branches and worktrees. Independent tasks may run in parallel only with verified workspace isolation; otherwise they run serially. The coordinator integrates task commits in dependency order, resolves conflicts, checks affected modules and their connections, and records a [phase check ledger](skills/factory-workflow/references/integration.md) with commands, scope, results and elapsed time. It does not replay every builder check on the combined tree.
 
-There are no personal/professional profiles. Exploration depth follows the task; worktrees, coordination and mandatory `code-reviewer` stay in the default flow. Builders receive the task-relevant decisions and readable handoff snapshots in their worktrees, while reviewers inspect the integrated candidate independently. Tests are written first for new observable behavior; presentation-only UI is verified through rendered, responsive and accessibility checks.
+There are no personal/professional profiles or hard-coded model assignments. The same flow scales exploration, test scope and reviewer selection to the task. Builders receive only task-relevant decisions and readable handoff/prototype snapshots in their worktrees. Runtime-specific worktree capabilities live in the [Claude Code](skills/factory-workflow/references/adapters/claude-code.md), [Codex](skills/factory-workflow/references/adapters/codex.md) and [OpenCode](skills/factory-workflow/references/adapters/opencode.md) adapters.
 
-Parallel builders require separate writable worktrees and branches. Runtime-specific capability notes live in `skills/factory-workflow/references/adapters/`; edit limits and path instructions are not a sandbox. If the runtime cannot provide verifiable isolation, tasks run serially in one workspace. Agent responsibilities are runtime-neutral; optional model assignments belong in project/runtime configuration, not the common workflow.
+## Verification and CI
 
-`install` adds the agents and `update` refreshes generated agents and adds missing roles in runtimes already installed, within the selected project or global scope. Neither overwrites an agent file you wrote by hand.
+**The target project's `AGENTS.md`, `docs/engineering/` verification policy and CI rules take precedence over shared defaults.** Read them before assigning tests. A project that reserves complete suites for CI must not run them locally just because a shared skill mentions a full local gate. The plan, task contract, builder and reviewer all preserve that choice.
+
+| Point in the flow | Shared default | If the project reserves full suites for CI |
+| --- | --- | --- |
+| Builder iteration | Test the changed behavior or module; apply [test-first](skills/tdd-workflow/SKILL.md) to new observable behavior | Same focused loop |
+| Intermediate SDD phase | Test affected modules and their connections; build/typecheck and relevant lint/format | Same; a phase candidate is not the final feature candidate |
+| Final feature candidate | Run the complete local unit suite once; also gate a separately published or high-risk phase as required | Keep local checks focused; record the complete suite as pending CI |
+| Reviewer | Inspect the ledger independently and run focused tests for a concrete finding or risk | Same; do not repeat a full suite by default |
+| Candidate branch or PR CI | Run the complete unit and E2E suites before release/main merge or deployment | CI owns the complete suites |
+
+The shared [test conventions](skills/engineering-conventions/references/testing.md) exercise API domain behavior through application unit tests; API E2E checks HTTP, guards, persistence and wiring. Client tests cover logic and flows, with browser E2E for journeys. Routine E2E belongs in CI; a focused local E2E is a diagnostic only when the project policy allows it. A required CI check remains **pending** until it actually passes on the candidate. An independently published phase needs its own CI gate; a high-risk intermediate phase needs early CI when the project requires it. Review approval does not substitute for CI.
+
+The shared `make test-e2e` target delegates to the project's root `test:e2e` script. The [bootstrap test runtime](skills/project-bootstrap/references/test-runtime.md) explains how that script orchestrates API Compose and client tests without recursion. Existing projects own their package scripts and CI workflows, so `update` does not change those files. CI triggered only after pushing to `main` cannot serve as a pre-merge gate.
+
+## Reviews and publication
+
+The coordinator chooses reviewers from the [review matrix](skills/factory-workflow/references/review-matrix.md). `code-reviewer` is mandatory for code changes; security, UX and UI join only when the actual diff touches their surfaces. Documentation/configuration-only changes skip the code gate. Reviewers inspect the same frozen candidate SHA; a missing or negative required verdict rejects it. A correction creates a new candidate and invalidates old verdicts. The `approver` verifies the selected verdict set; it does not replace a reviewer.
+
+[Publication authorization](skills/factory-workflow/references/publication-authorization.md) separates local task integration from remote push, PR creation and merge. An implementation request permits local task commits and integration within its existing working branch, subject to project policy. Remote operations need user authorization for their target and action. Before a release/main merge or deployment, observe the required CI result on the candidate branch or PR. Report a pending or missing check as pending, never as passed.
 
 ## Conventions and docs
 
-Shared conventions live only in the skills, so `update` keeps every project current. A project's `docs/` holds what belongs to that project: its domain and its decisions. The `doc-create` skill turns your corrections into documents there.
+Shared conventions live only in the skills, so `update` keeps every project current. A project's `docs/` holds what belongs to that project: its domain, decisions and verification policy. The [doc-create skill](skills/doc-create/SKILL.md) records project-specific corrections there. Do not edit a generated `.agents/skills/` or `.claude/skills/` directory to change a shared rule.
+
+| Need | Source of truth |
+| --- | --- |
+| Agent routing, scoped stack and project exceptions | The project's root and app `AGENTS.md`, followed by its `docs/` |
+| Discovery, FTD/SDD, task isolation, integration, review and delivery | [`factory-workflow`](skills/factory-workflow/SKILL.md) and its `references/` |
+| API/client architecture, testing, lint and Git conventions | [`engineering-conventions`](skills/engineering-conventions/SKILL.md) and the matching concept skills |
+| Framework and tool details | The relevant `stack-*` skill's `references/{concept-skill}.md` |
+| New project layout and managed `AGENTS.md` blocks | [`project-bootstrap`](skills/project-bootstrap/SKILL.md) and its `assets/` |
+| Existing project update and legacy reconciliation | [`harness-update`](skills/harness-update/SKILL.md) |
+| Role responsibilities and review contracts | [`agents/`](agents/) |
+| Install/update implementation and regression checks | [`bin/`](bin/), [`scripts/`](scripts/) and [`tests/`](tests/) |
 
 ## Skills for one project
 
@@ -119,19 +152,21 @@ A skill that only one project needs lives in that project, in `skills/{name}/`. 
 
 ## Commands
 
-Every project has the same commands. Run `make` to see them.
+The shared Makefile modules give projects common commands; a project's root scripts and `make/project.mk` define its environment-specific behavior. Run `make` to see the installed targets.
 
 ```bash
 make local      # start the whole stack in Docker. Also: make dev, make prod
 make local-down # stop it. Also: -logs and -status
-make test       # also: test-e2e, lint, format and typecheck
+make test       # run the project's unit-test script
+make test-e2e   # delegate to the root full-test orchestrator, mainly for CI
+make lint       # also: format and typecheck
 ```
 
 Add a project's own commands to `make/project.mk`.
 
 ## Change a convention
 
-Edit shared skills here, never in the generated skills directory of a project. See [AGENTS.md](AGENTS.md).
+Edit shared skills here, never in the generated skills directory of a project. Each skill is self-contained and in English; concept skills stay framework-neutral, while stack references hold framework details. After editing a skill, run `npm test`, update `CHANGELOG.md` and `package.json`, then tag a release. After changing `skills/makefile/assets/make/`, also run `node scripts/stamp-make.mjs`. See [AGENTS.md](AGENTS.md) for the repository rules.
 
 ## Skills
 

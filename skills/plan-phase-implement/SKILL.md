@@ -29,10 +29,10 @@ Use this skill to implement one task contract from an FTD document or current pl
 
 ## Execution Steps
 
-1. Read the task contract and identify its phase, dependencies, allowed paths and checks.
+1. Read the task contract and identify its phase, dependencies, allowed paths and checks. Compare checks with the project's verification policy; report a conflict to the coordinator instead of running a forbidden full local suite.
 2. Load the concept and stack skills that the project `AGENTS.md` names for each layer you touch.
 3. Implement only the task's acceptance criteria. Apply `tdd-workflow` to new observable behavior; apply the client visual and accessibility checks to presentation-only UI.
-4. Run every check in the task contract and fix any issue within its authorized paths.
+4. Run every policy-compliant check in the task contract and fix any issue within its authorized paths.
 5. Record observed results and report task completion and the next eligible task to the coordinator. The coordinator updates shared plan progress after integration and before stopping or handing off: mark only verified items, record checks and blockers, and set the next step.
 6. Stage and commit the task changes on the assigned local branch. Record the commit SHA and ensure the working tree is clean.
 

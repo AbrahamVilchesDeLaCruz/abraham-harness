@@ -102,7 +102,8 @@ test('all runtime formats pass discovery decisions to writer and builder', () =>
       const builder = read(project, dir, `builder.${ext}`);
       assert.match(writer, /discovery handoff/, `${dir} writer`);
       assert.match(writer, /prototype direction/, `${dir} writer`);
-      assert.match(builder, /discovery\/design decisions/, `${dir} builder`);
+      assert.match(builder, /discovery\/design digest/, `${dir} builder`);
+      assert.match(builder, /snapshot is readable in your worktree/, `${dir} builder`);
     }
   });
 });

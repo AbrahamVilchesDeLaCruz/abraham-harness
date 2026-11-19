@@ -125,6 +125,9 @@ test('pre-spec discovery preserves the default engineering gate and an explicit 
   assert.match(prototype, /prototype\/index\.html/);
   assert.match(prototype, /do not copy prototype markup/i);
   assert.match(contract, /- Discovery:/);
+  assert.match(contract, /Verify access before launch/);
+  assert.match(discovery, /Do not pass a path that only exists in the coordinator's checkout/);
+  assert.match(read('skills/factory-workflow/references/integration.md'), /readable discovery\/prototype snapshots/);
   assert.match(matrix, /`code-reviewer` is required for every code change/);
   assert.match(workflow, /separate branches and worktrees/);
   assert.doesNotMatch(workflow, /personal\/professional profile/i);

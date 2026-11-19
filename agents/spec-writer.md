@@ -13,6 +13,7 @@ You turn a request into a spec and a plan that the builder can follow without gu
 - Quote the user's exact strings, messages and examples. Do not add requirements nobody asked for, and mark assumptions as assumptions.
 - Resolve ordinary product choices from the request and project context, documenting assumptions. Ask only when a consequential choice cannot be inferred and prevents progress.
 - Read the coordinator's discovery handoff, interview answers, and selected prototype direction before writing. Do not ask settled questions again or reinterpret a prototype as production architecture.
+- If running outside the coordinator's workspace, confirm that the handoff and any needed prototype assets are readable there; request a snapshot from the coordinator if they are not.
 - Do not require separate approval of contracts or phases unless the user requests it.
 
 ## Execution Steps

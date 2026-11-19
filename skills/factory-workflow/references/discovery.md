@@ -11,7 +11,7 @@ Inspect the project Brain, relevant code and tests, current behavior, and existi
 - Decisions already supported by the request and project; assumptions and consequential unknowns.
 - Likely task boundaries and checks. Link to sources instead of copying large excerpts.
 
-Pass the handoff path to the spec writer and task contracts. Update it when evidence changes; do not create competing summaries. Recipients inspect the relevant sources for their own work. Reviewers still verify the frozen candidate independently.
+Keep this handoff authoritative in the coordinator's plan directory. Before dispatching a role in another worktree or sandbox, give it a bounded digest of confirmed decisions and an accessible snapshot of any detailed handoff it needs. Copy the prototype directory with local assets when that role needs to inspect it, or verify that a shared path is readable from its workspace. Do not pass a path that only exists in the coordinator's checkout. Snapshots are task context, not competing sources to edit; update the authoritative handoff when evidence changes and refresh affected snapshots before dispatch. Recipients inspect relevant source files for their own work. Reviewers still verify the frozen candidate independently.
 
 ## Invite an interview
 

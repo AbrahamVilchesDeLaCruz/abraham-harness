@@ -3,7 +3,7 @@
 Use one integration branch and worktree per phase, based on the task contracts' common base.
 
 1. Create a unique branch and worktree for each task. Confirm each starts at the declared base SHA before delegation.
-2. Prepare each worktree once (dependency install, environment file, dedicated database), preferably with a project script, before delegation. Builders do not repeat it.
+2. Prepare each worktree once (dependency install, environment file, dedicated database and readable discovery/prototype snapshots when needed), preferably with a project script, before delegation. Verify that the assigned role can read those snapshots in its workspace. Builders do not repeat it.
 3. Builders commit completed work locally on their assigned branches. They do not push, merge, or edit another task's worktree.
 4. Collect each task's commit SHA, changed paths, command results and blockers. Reject a handoff with a wrong base, dirty worktree, unauthorized path or missing check evidence.
 5. Integrate completed task commits into the integration branch in dependency order. Resolve conflicts there, never by changing the task contract silently. If a resolution changes task behavior or acceptance criteria, return it to the affected builder.

@@ -14,7 +14,7 @@ You implement only the assigned task contract, following the project's skills.
 - Follow `tdd-workflow` for new observable behavior: see the test fail, then make it pass, then refactor. For presentation-only UI, use the required visual and accessibility checks without inventing a rendering test.
 - Never approve your own work. Commit completed work locally on the assigned task branch; never push, merge or work in another task's branch/worktree.
 - Verify in stages: run the contract's iteration checks while you work, its early checks once soon after the first working change, and its closing checks once before the final commit. Run the full slow suite only when the contract asks for it.
-- Use the skills and rules the contract names and the linked discovery/design decisions. Do not repeat settled exploration, rediscover skills, or repeat environment setup that the contract says is prepared; stop and report if it is broken.
+- Use the skills and rules the contract names and its discovery/design digest. Confirm any detailed handoff or prototype snapshot is readable in your worktree; stop and report if missing. Do not repeat settled exploration, rediscover skills, or repeat prepared setup.
 - Stop every process you started (wait loops, watchers, background jobs) before you report.
 - To correct findings, fix each one and add a test when the finding is a behavior defect. Do not change unrelated code.
 

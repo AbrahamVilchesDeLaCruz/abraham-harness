@@ -1,6 +1,6 @@
 # Optional design sources and tools
 
-The harness's own brand and UI rules remain the shared contract. Upstream skills and tools are optional collaborators, not required runtime dependencies. Discover them through the current agent's available-skill/tool inventory; do not assume a slash command, MCP server, path or browser exists.
+The harness's own brand and UI rules remain the shared contract. Start with the project's approved screenshots, existing screens, brand brief, product imagery and references. Record what each source contributes to composition or interaction, and what must not be copied. Do not use an external moodboard as a substitute for product evidence. Upstream skills and tools are optional collaborators, not required runtime dependencies. Discover them through the current agent's available-skill/tool inventory; do not assume a slash command, MCP server, path or browser exists.
 
 | Source | Useful for | Handoff rule |
 |---|---|---|

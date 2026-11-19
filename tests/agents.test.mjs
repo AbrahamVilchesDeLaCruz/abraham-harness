@@ -94,6 +94,19 @@ test('Codex and OpenCode agents are told to load the skills that Claude Code pre
   });
 });
 
+test('all runtime formats pass discovery decisions to writer and builder', () => {
+  withProject(({ project, run }) => {
+    assert.equal(run().status, 0);
+    for (const [dir, ext] of [['.claude/agents', 'md'], ['.codex/agents', 'toml'], ['.opencode/agents', 'md']]) {
+      const writer = read(project, dir, `spec-writer.${ext}`);
+      const builder = read(project, dir, `builder.${ext}`);
+      assert.match(writer, /discovery handoff/, `${dir} writer`);
+      assert.match(writer, /prototype direction/, `${dir} writer`);
+      assert.match(builder, /discovery\/design decisions/, `${dir} builder`);
+    }
+  });
+});
+
 test('the approver synthesizes only the selected required reviewers', () => {
   withProject(({ project, run }) => {
     run();
@@ -280,7 +293,7 @@ test('every role reads the Brain before it acts', () => {
     run();
     for (const role of ROLES) {
       assert.match(read(project, `.claude/agents/${role}.md`), /Brain/, role);
-      assert.match(read(project, `.claude/agents/${role}.md`), /`docs\/`/, role);
+      assert.match(read(project, `.claude/agents/${role}.md`), /`docs\/README\.md`/, role);
       assert.match(read(project, `.codex/agents/${role}.toml`), /Engram/, role);
     }
   });
@@ -302,7 +315,8 @@ test('the Brain separates project docs from shared conventions in skills', () =>
   withProject(({ project, run }) => {
     run();
     const builder = read(project, '.claude/agents/builder.md');
-    assert.match(builder, /domain and decisions/);
+    assert.match(builder, /project documents relevant to your task/);
+    assert.match(builder, /discovery handoff points to known sources and decisions/);
     assert.match(builder, /Shared conventions live in the skills/);
   });
 });

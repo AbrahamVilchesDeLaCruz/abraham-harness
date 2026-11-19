@@ -20,6 +20,7 @@ Use this skill to plan a task before any code changes. Use `plan-phase-implement
 - Phase 1 produces something the user can see, run or interact with.
 - Write the plan in English, whatever language the conversation uses.
 - Quote the user's exact strings and examples, and mark assumptions as assumptions.
+- Reuse the coordinator's discovery handoff, interview answers and selected frontend direction when present; do not restart exploration or reopen settled choices.
 
 ## Decision Gates
 

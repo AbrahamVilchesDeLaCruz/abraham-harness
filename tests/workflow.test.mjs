@@ -105,3 +105,38 @@ test('task contract stages verification and builders close their processes', () 
   assert.match(integration, /full slow suite exactly once/);
   assert.match(integration, /Prepare each worktree once/);
 });
+
+test('pre-spec discovery preserves the default engineering gate and an explicit frontend choice', () => {
+  const workflow = read('skills/factory-workflow/SKILL.md');
+  const discovery = read('skills/factory-workflow/references/discovery.md');
+  const prototype = read('skills/factory-workflow/references/prototype.md');
+  const sdd = read('skills/factory-workflow/references/sdd.md');
+  const ftd = read('skills/factory-workflow/references/ftd.md');
+  const contract = read('skills/factory-workflow/references/task-contract.md');
+  const matrix = read('skills/factory-workflow/references/review-matrix.md');
+
+  assert.match(workflow, /references\/discovery\.md/);
+  assert.match(ftd, /discovery\.md/);
+  assert.match(sdd, /discovery\.md/);
+  assert.match(discovery, /ten questions, or fewer/);
+  assert.match(discovery, /Never pad a batch/);
+  assert.match(discovery, /silently submit A/);
+  assert.match(discovery, /navigable HTML prototype or grant creative freedom/);
+  assert.match(prototype, /prototype\/index\.html/);
+  assert.match(prototype, /do not copy prototype markup/i);
+  assert.match(contract, /- Discovery:/);
+  assert.match(matrix, /`code-reviewer` is required for every code change/);
+  assert.match(workflow, /separate branches and worktrees/);
+  assert.doesNotMatch(workflow, /personal\/professional profile/i);
+});
+
+test('test-first applies to behavior while presentation-only UI retains visual checks', () => {
+  const tdd = read('skills/tdd-workflow/SKILL.md');
+  const builder = read('agents/builder.md');
+  const visual = read('skills/client-ui-design/SKILL.md');
+
+  assert.match(tdd, /new observable behavior/);
+  assert.match(tdd, /presentation-only UI/);
+  assert.match(builder, /presentation-only UI/);
+  assert.match(visual, /critique-loop\.md/);
+});

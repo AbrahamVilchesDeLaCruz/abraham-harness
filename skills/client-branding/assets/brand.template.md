@@ -8,6 +8,8 @@ Tokens live in `apps/client/src/styles/brand.css`. This document gives the reaso
 - Personality: three adjectives.
 - Voice: how the interface speaks, with one example message.
 - References: brands the user likes, and what to take from each.
+- Visual evidence: links or local paths to approved screenshots, frames, product imagery and existing screens; name the useful layout, typography or interaction in each.
+- Anti-references: styles or patterns the product should avoid, with reasons. Leave blank if none were provided.
 
 ## Color
 
@@ -38,6 +40,7 @@ Tokens live in `apps/client/src/styles/brand.css`. This document gives the reaso
 - Spacing scale: the token names and how it separates control groups, sections and page regions.
 - Reading width and alignment:
 - Density by task (for example, scanning data versus first-run setup):
+- Distinctive composition cues for the main product surfaces, grounded in the visual evidence above:
 
 ## Rules for UI
 

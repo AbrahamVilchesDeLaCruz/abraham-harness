@@ -14,6 +14,7 @@ Use this skill for the user's job, end-to-end flow and interaction behavior. Use
 ## Hard Rules
 
 - Begin with the user, their goal, what completion looks like and the cost of failure. Make reasonable, reversible choices from existing context; ask only when a consequential unknown cannot be resolved and blocks progress.
+- Use the discovery handoff and accepted prototype flow when available; preserve confirmed journey decisions while checking their failure and recovery paths.
 - Map the journey before polishing screens. Include entry, completion, return visits, cancellation, failure and recovery where they apply.
 - Every screen makes clear where the user is, what matters, what actions are available and what happens next.
 - Give each screen one primary job. Choose controls and navigation that fit that job; do not add steps, choices or confirmation dialogs without a reason.

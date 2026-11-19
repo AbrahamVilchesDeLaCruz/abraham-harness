@@ -1,6 +1,6 @@
 ---
 name: tdd-workflow
-description: "Trigger: Before implementing any new feature, use case, hook or component. Mandatory TDD workflow before writing any new code: Red → Green → Refactor. Applies to api and client."
+description: "Trigger: Before implementing new observable behavior in an API or client. Test-first Red → Green → Refactor for behavior; visual verification for presentation-only UI."
 license: Apache-2.0
 metadata:
   author: AbrahamVilchesDeLaCruz
@@ -9,24 +9,24 @@ metadata:
 
 ## Activation Contract
 
-Load this skill BEFORE writing any new code:
+Load this skill BEFORE writing new observable behavior:
 
 - New use case or domain service (api)
 - New aggregate or value object (api)
 - New pod hook (client)
-- New Container or Component (client)
+- New Container or Component behavior (client, tested through its hook or a meaningful flow)
 - New mapper, helper or utility function (api or client)
 
-**Does NOT apply to**: configuration changes, migrations, pure refactors with no new behavior.
+**Does NOT apply to** configuration, migrations, pure refactors or presentation-only UI. The latter still needs visual, accessibility and review checks.
 
 ## Hard Rules
 
-- **The test is written first**. Always. There is no exception.
+- **Test new behavior first**: Red → Green → Refactor has no exception for observable behavior.
 - **One test = one observable behavior**. Do not test internal implementation (`calls repository.match`), test the effect (`saves the product`).
-- **The name describes the behavior**: `it('throws ProductNotFound when product does not exist')`, not `it('calls repository.match')`.
+- **Name the behavior**, not an internal call.
 - **Verify that the test fails before implementing**: a test that never fails proves nothing.
 - **Always use Object Mothers** to build test data. Never inline literals.
-- **Do not mock what you do not control**: use your own abstractions instead of mocking `Date` or `Math.random` directly.
+- **Do not mock what you do not control**; use your own abstractions.
 - This skill defines **WHEN and IN WHAT ORDER**: it always comes first.
 
 ## Decision Gates
@@ -45,7 +45,7 @@ What to test per layer:
 | Frontend business logic (client) | Unit tests of the hook, mapper or helper that holds the rule |
 | Critical flow (client) | One complete flow with HTTP interception, or a browser test for the main journey |
 
-The client has no per-component rendering tests: a rule inside a Component moves to a hook or mapper and is tested there.
+The client has no per-component rendering tests. Move behavior into a hook or mapper and test it there. Verify presentation with rendered, responsive and accessibility checks.
 
 **The Domain (aggregates, VOs) is never tested in isolation**: it is always exercised through the tests of the Use Case that invokes it, using Object Mothers.
 
@@ -59,18 +59,16 @@ Other skills and tools:
 
 ## Execution Steps
 
-Always in this order:
+For each new observable behavior, work in this order:
 
 1. **Understand what will be built.** Before writing a single line, answer:
    1. What new behavior are we adding? (in business language, not technical language)
    2. In which layer does it live? (domain, application, infrastructure, client-hook, client-component)
    3. What are the happy path scenarios and the error cases?
-2. **RED: write the failing test**, before the implementation. Shape of the test in [`references/test-examples.md`](references/test-examples.md). **Verify that the test fails**: run the test and confirm that the error is the expected one (not found, not implemented), not a syntax or import error.
+2. **RED:** write and run the failing behavior test before implementation; confirm the expected failure, not a syntax error. See [`references/test-examples.md`](references/test-examples.md).
 3. **GREEN: write only the code needed to pass.**
    - Create missing implementation files and Mothers.
-4. **Refactor: clean up while staying green.** With the test green:
-   - Remove duplication, clarify names and extract methods as needed.
-   - **The tests must stay green** after each change
+4. **Refactor:** remove duplication and clarify names while tests stay green.
 5. **Repeat for each scenario.** Go back to step 2 for the next scenario. One Red → Green → Refactor cycle per behavior.
 
 ## References

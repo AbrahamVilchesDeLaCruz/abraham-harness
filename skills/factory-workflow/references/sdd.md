@@ -4,6 +4,9 @@ Use it when several decisions affect each other, or when the work is too large t
 
 | Phase | Owner | Result |
 | --- | --- | --- |
+| Explore | Coordinator | Source-linked discovery handoff proportional to task uncertainty and risk |
+| Interview | Coordinator | Optional user answers in batches of up to ten A/B/C questions; assumptions when declined |
+| Prototype choice | Coordinator | For material frontend design, reviewed navigable HTML or recorded creative freedom |
 | Specify | `spec-writer` | `{name}-spec.md`: what and why, with no how |
 | Clarify | `spec-writer` | Assumptions recorded; ask the user only about consequential blockers |
 | Plan | `spec-writer` with `plan-create` | `{name}-plan.md`, with contracts and phases derived from the request |
@@ -17,6 +20,8 @@ Use it when several decisions affect each other, or when the work is too large t
 Implement tasks in parallel only when they share a base and have no unresolved dependency or path overlap. Integration, seam checks and Review run once all tasks in the phase are complete. A rejected review returns only the affected tasks to Implement; any resulting integration change requires a new candidate and fresh applicable reviews. Continue within the requested scope unless the user or approved plan specifies a phase stop. Update plan progress before stopping or handing off.
 
 Artifacts live in `.agents/plans/{YYYY_MM_DD}-{name}/`.
+
+Run the first three rows through `discovery.md`; follow `prototype.md` only when the user chooses prototype review. Give the spec writer the single discovery handoff. Do not reopen settled choices or repeat exploration without new evidence.
 
 Skip Clarify or Analyze only when the spec is unambiguous and tiny, and say so out loud.
 

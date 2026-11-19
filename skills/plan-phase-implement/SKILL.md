@@ -9,7 +9,7 @@ metadata:
 
 ## Activation Contract
 
-Use this skill to implement one task contract from the current phase of a plan in `.agents/plans/`.
+Use this skill to implement one task contract from an FTD document or current plan phase in `.agents/plans/`.
 
 ## Hard Rules
 
@@ -23,7 +23,7 @@ Use this skill to implement one task contract from the current phase of a plan i
 
 | Situation | Action |
 | --- | --- |
-| No plan or task contract is specified | Ask for it |
+| No FTD document or plan and task contract are specified | Ask for them |
 | All tasks in the current phase are checked | Report completion; do not start the next phase |
 | The assigned task is blocked | Stop and report the exact blocker |
 
@@ -31,7 +31,7 @@ Use this skill to implement one task contract from the current phase of a plan i
 
 1. Read the task contract and identify its phase, dependencies, allowed paths and checks.
 2. Load the concept and stack skills that the project `AGENTS.md` names for each layer you touch.
-3. Implement only the task's acceptance criteria with `tdd-workflow`.
+3. Implement only the task's acceptance criteria. Apply `tdd-workflow` to new observable behavior; apply the client visual and accessibility checks to presentation-only UI.
 4. Run every check in the task contract and fix any issue within its authorized paths.
 5. Record observed results and report task completion and the next eligible task to the coordinator. The coordinator updates shared plan progress after integration and before stopping or handing off: mark only verified items, record checks and blockers, and set the next step.
 6. Stage and commit the task changes on the assigned local branch. Record the commit SHA and ensure the working tree is clean.

@@ -77,11 +77,15 @@ The `factory-workflow` skill gives every request one lane:
 | FTD | Ordinary change, the default | Feature document, contracted task(s), integration and applicable gate |
 | SDD | Several decisions that affect each other, or work too large to resume from the request and `git diff` | Spec and plan; one phase at a time, with independent tasks parallelized when isolated, then integrated and gated |
 
+For change requests, the coordinator first explores the relevant project evidence, then asks whether you want an optional interview. An accepted interview uses A/B/C questions in batches of ten, or fewer when fewer useful decisions exist; A is recommended but never silently submitted. For frontend changes with a material design decision, you separately choose a navigable HTML prototype to review or give creative freedom. The resulting discovery and design decisions pass to the spec writer and builders as one concise handoff.
+
 The SDD flow:
 
 ```text
                         Brain: the project docs/, and Engram when available
 
+Coordinator explores / optional interview / optional HTML prototype
+                           |
 Spec writer -> Coordinator decomposes phase into task contracts
                            |
              Builders in isolated branches/worktrees (parallel when independent)
@@ -92,6 +96,8 @@ Spec writer -> Coordinator decomposes phase into task contracts
 ```
 
 Every code candidate is integrated and passes explicit seam checks before review. The coordinator chooses reviewers from the change surfaces and risk matrix; one missing, blocked or negative required verdict rejects the candidate and sends findings to the affected task(s). Any change creates a new candidate and invalidates prior verdicts. The coordinator may integrate task worktrees into the existing working branch as part of the requested implementation. Push and PR creation require authorization. Merge authorization is separate unless you explicitly grant a conditional merge. Project-specific rules outrank generic/global skill defaults. The flow continues within the requested scope unless the user or approved plan specifies a stop.
+
+There are no personal/professional profiles. Exploration depth follows the task; worktrees, coordination and mandatory `code-reviewer` stay in the default flow. Builders reuse the source-linked discovery handoff, while reviewers inspect the integrated candidate independently. Tests are written first for new observable behavior; presentation-only UI is verified through rendered, responsive and accessibility checks.
 
 Parallel builders require separate writable worktrees and branches. Runtime-specific capability notes live in `skills/factory-workflow/references/adapters/`; edit limits and path instructions are not a sandbox. If the runtime cannot provide verifiable isolation, tasks run serially in one workspace. Agent responsibilities are runtime-neutral; optional model assignments belong in project/runtime configuration, not the common workflow.
 

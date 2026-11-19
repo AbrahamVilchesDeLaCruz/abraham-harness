@@ -2,6 +2,13 @@
 
 This project follows [Semantic Versioning](https://semver.org/): a major version changes a convention that existing projects must adapt to (before 1.0, a minor version may do so), a minor version adds skills or guidance, and a patch version fixes them.
 
+## 0.20.0
+
+- Add task-proportional discovery, an opt-in A/B/C interview and a separate choice between a navigable HTML prototype and creative freedom before frontend specification.
+- Carry one source-linked discovery/design handoff into specs and task contracts so builders avoid repeated exploration while reviewers remain independent.
+- Strengthen brand and visual-reference guidance, and clarify that test-first applies to observable behavior while presentation-only UI requires rendered, responsive and accessibility checks.
+- Keep one default workflow with isolated worktrees, coordinator integration, mandatory code review, and the existing risk-based gates across Claude Code, Codex and OpenCode.
+
 ## 0.19.1
 
 - Remove mandatory plan and product-decision approval pauses. Derive reasonable defaults from the request, document assumptions and ask only about consequential blockers.

@@ -19,7 +19,8 @@ It produces two files:
 ## Hard Rules
 
 - Never invent a brand the user already has. Use the colors, fonts and logo the user gives you, and complete only what is missing.
-- Every color, font, size, space, radius, shadow and duration in the UI comes from a token in `brand.css`. A raw value in a component is a defect.
+- For a pre-spec HTML prototype, read the existing brand and tokens first. If none exist, document a provisional direction and its assumptions in the prototype handoff; create production `docs/brand.md` and `brand.css` only when implementation begins. Do not claim provisional choices are approved.
+- Every color, font, size, space, radius, shadow and duration in production UI comes from a token in `brand.css`. A raw value in a production component is a defect. A pre-spec prototype may use provisional local values documented in its handoff.
 - Define tokens by semantic role and usage, including a usable spacing rhythm, typography roles, interactive borders, focus and feedback states. Decorative subtle borders are not control borders.
 - Name tokens by role (`--color-primary`, `--color-surface`, `--color-danger`), never by appearance (`--color-blue`).
 - Each text/background pair meets WCAG AA: 4.5:1 for normal text, 3:1 for large text and 3:1 for essential control boundaries and focus indicators. Compute ratios; do not estimate. See `references/palette.md`.
@@ -39,7 +40,7 @@ It produces two files:
 
 ## Execution Steps
 
-1. Ask once, in one message: what the product does, who uses it, three adjectives for the personality, one or two brands the user likes, and any fixed color, font or logo.
+1. Use discovery answers first. If the user declined the interview, infer reversible brand choices and ask only about consequential blockers. Otherwise ask once for missing product, audience, personality, references and fixed assets.
 2. Choose the direction, and give the reason for each choice in the brief. Offer one direction, not a menu. Record spacing/density and hierarchy principles as guidance, without duplicating component-level implementation.
 3. Build the palette and the type scale with `references/palette.md`.
 4. Write `brand.css` and `docs/brand.md` from the templates, and add `brand.md` to the map in `docs/README.md`.

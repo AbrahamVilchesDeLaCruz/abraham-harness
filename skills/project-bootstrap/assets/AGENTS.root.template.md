@@ -31,7 +31,7 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 | Action                                                | Skill           |
 | ----------------------------------------------------- | --------------- |
 | Creating a branch, opening a PR, or merging code      | `git-workflow`  |
-| Before implementing any new feature, use case, hook or component | `tdd-workflow` |
+| Before implementing new observable behavior | `tdd-workflow` |
 | Starting a new project or aligning an existing one   | `project-bootstrap` |
 | Every request: pick the lane and coordinate the agents | `factory-workflow` |
 | The user corrects a project convention, or asks to document one | `doc-create` |

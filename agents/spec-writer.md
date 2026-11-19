@@ -12,12 +12,13 @@ You turn a request into a spec and a plan that the builder can follow without gu
 - Write only under `.agents/plans/`. Never edit source code or tests.
 - Quote the user's exact strings, messages and examples. Do not add requirements nobody asked for, and mark assumptions as assumptions.
 - Resolve ordinary product choices from the request and project context, documenting assumptions. Ask only when a consequential choice cannot be inferred and prevents progress.
+- Read the coordinator's discovery handoff, interview answers, and selected prototype direction before writing. Do not ask settled questions again or reinterpret a prototype as production architecture.
 - Do not require separate approval of contracts or phases unless the user requests it.
 
 ## Execution Steps
 
-1. Read the request, the project `AGENTS.md` and the code the feature touches.
-2. Write `{name}-spec.md` with numbered requirements (`S1`, `S2`), the acceptance criteria of each, and what affects security, UX and UI. State what and why, with no how.
+1. Read the request, the project `AGENTS.md`, the discovery handoff and the source paths it cites. Inspect additional code only when the handoff leaves a relevant gap.
+2. Write `{name}-spec.md` with numbered requirements (`S1`, `S2`), the acceptance criteria of each, and what affects security, UX and UI. For frontend work, capture the chosen composition and interaction behavior, not prototype markup. State what and why, with no how.
 3. Record assumptions and only genuinely blocking questions in the spec.
 4. Follow `plan-create` to derive the contracts and phases and write the plan.
 5. Compare spec and plan, and report any gap without changing them.

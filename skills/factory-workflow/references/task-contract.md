@@ -6,6 +6,7 @@ The coordinator creates one contract for each builder. Keep tasks independently 
 ## Task: <id> — <short outcome>
 - Phase or lane: <phase id | FTD>
 - Goal and acceptance criteria: <observable behavior>
+- Discovery: <handoff path and decisions relevant to this task>
 - Dependencies: none | <task ids and required outputs>
 - Base commit: <full SHA>
 - Branch: <unique local branch name>
@@ -37,6 +38,7 @@ Verification gets more expensive as it widens, so the contract orders it:
 ## Context and environment
 
 - The coordinator resolves skills once and passes exact paths plus a short summary of the rules that apply. Builders read those paths and do not rediscover skills or reference modules.
+- Link the one discovery handoff and any accepted prototype direction; do not paste them into every task contract. Builders inspect the source paths they need. Reviewers independently inspect the integrated candidate.
 - The coordinator prepares each worktree once, with a project script when one exists: dependency install, environment file and any dedicated database. Builders never repeat this setup; if it is missing or broken, they stop and report.
 - Task commits skip repeated work that the builder's checks already did. Keep `commit-msg` validation on every commit; run the full lint and format check once at closing, in the seam checks.
 - Before reporting, a builder stops every process it started, including wait loops, watchers and background jobs, and states that it did so in the handoff.

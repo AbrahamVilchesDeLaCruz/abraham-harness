@@ -16,14 +16,15 @@ If `brand.css` or a design system is missing, run `client-branding` first.
 ## Hard Rules
 
 - Preserve the project's identity, tokens and patterns; never swap in a generic trend or a third-party default palette.
+- Follow an accepted prototype's direction through the client architecture, without copying its provisional code. With creative freedom, record one brand-led direction.
 - Design from the content and job: one visual idea, one focal point, intentional hierarchy. Do not make every section a card or every element equally prominent.
 - Use the brand's spacing scale as a rhythm (page, section, group, control); never one gap everywhere or raw values.
 - Give headings, body, labels and metadata distinct roles; keep reading widths comfortable.
 - Keep surfaces, borders, radius, shadows, color and motion purposeful and token-based.
-- Cover default, hover, focus-visible, active, disabled, loading, empty, error and success states when applicable, understandable without color or motion alone.
+- Cover applicable default, hover, focus, disabled, loading, empty, error and success states without relying on color or motion alone.
 - Design mobile first without sacrificing the wide composition. Prevent overflow, reserve media space, and use 44 by 44 CSS pixel targets when possible.
 - Use semantic elements, visible focus and reduced-motion preferences; load `client-accessibility` for full review.
-- A new or restyled screen is not done until you have run the critique loop in `references/critique-loop.md` on real captures. A checklist alone does not establish quality.
+- Run `references/critique-loop.md` on real captures for every new or restyled screen; a checklist alone is insufficient.
 - Never claim visual verification without inspecting the running interface or screenshots.
 
 ## Decision Gates
@@ -40,11 +41,11 @@ If `brand.css` or a design system is missing, run `client-branding` first.
 
 ## Execution Steps
 
-1. Read `docs/brand.md`, `brand.css`, the relevant existing screens and common components.
+1. Read brand files, relevant screens/components, visual references and any accepted prototype direction.
 2. Identify the screen's job, emphasis, content order, density and responsive changes. Load `client-ux` if flow or states need design.
 3. Apply the visual craft checklist in `references/visual-craft.md`; implement from the smallest layout up using the existing tokens.
 4. Verify all relevant states and keyboard focus. Load `client-accessibility` for a full accessibility check.
-5. Run the critique loop in `references/critique-loop.md`: capture at narrow, medium and wide widths, critique, fix, and repeat for at most three rounds. If no browser or screenshot tool is available, report `visual inspection not run`. Use the project's stack skill for implementation details.
+5. Run `references/critique-loop.md` at narrow, medium and wide widths for at most three rounds. If no visual tool exists, report `visual inspection not run`. Use the stack skill for implementation details.
 
 ## Output Contract
 

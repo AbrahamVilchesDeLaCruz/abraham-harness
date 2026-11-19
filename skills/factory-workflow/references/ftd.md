@@ -13,6 +13,9 @@ What changes, and why it is worth doing.
 ## Scope
 What is in, and what is explicitly out.
 
+## Discovery
+Observed behavior, source paths, risks, assumptions, interview answers and frontend design choice. Link a prototype when selected.
+
 ## Checklist
 - [ ] One line per task, with what would prove it done.
 
@@ -23,8 +26,8 @@ The observed output per completed task.
 The single next step, so an interruption costs nothing.
 ```
 
-1. Write the document. Keep it short, even for a small change, because it is what survives an interruption.
-2. Create one or more task contracts from the document. Split only work with independent dependencies and authorized paths.
+1. Follow `discovery.md`, including its interview invitation and applicable frontend design choice. Write the discovery handoff in this document before the first change. Keep it short, even for a small change, because it is what survives an interruption.
+2. Create one or more task contracts from the handoff. Split only work with independent dependencies and authorized paths.
 3. Delegate tasks under `task-contract.md`; use parallel builders only with isolated workspaces.
 4. Integrate task commits and run seam checks in `integration.md`.
 5. Run the gate in `gate.md` when the change touches code.

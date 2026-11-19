@@ -33,7 +33,7 @@ Two levels in the api, and no integration level:
 
 ### How to run them
 
-Unit tests have no I/O. While developing they run directly on the host, which is the fast loop. Run affected modules and their seams at intermediate phase integration; run the complete unit suite locally before freezing the final feature candidate, an independently published phase, or a high-risk phase. In CI, API unit tests run inside the same compose run as the E2E tests (see below).
+Unit tests have no I/O. While developing they run directly on the host, which is the fast loop. Run affected modules and their seams at intermediate phase integration. Under the shared default, run the complete unit suite locally once for the final candidate of the whole feature or a separately gated phase. A project verification policy that reserves complete suites for CI overrides that local default; keep local checks focused. In CI, API unit tests run inside the same compose run as the E2E tests (see below).
 
 ```bash
 # From the monorepo root
@@ -82,7 +82,7 @@ The shared Makefile calls the root `test:e2e` script; that script orchestrates `
 
 #### In CI
 
-CI must run the complete unit and E2E suite on the candidate branch or PR as a publication check before merge or deployment. For the API, use the same compose file, so unit and E2E tests run in one iteration and there is no separate database service to keep in sync. Include client E2E when the project has a client. Locally, run focused unit tests while iterating and the full unit suite at the final or risk-triggered candidate. Routine E2E runs in CI; use `make test-e2e` locally only to diagnose a CI failure or a concrete integration risk.
+CI must run the complete unit and E2E suite on the candidate branch or PR as a publication check before merge or deployment, unless the project's CI policy defines a stricter gate. For the API, use the same compose file, so unit and E2E tests run in one iteration and there is no separate database service to keep in sync. Include client E2E when the project has a client. Locally, run focused unit tests while iterating; the project policy decides whether a final local full-unit run is required. Routine E2E runs in CI; use `make test-e2e` locally only when the project permits it to diagnose a CI failure or concrete integration risk.
 
 **The secrets manager is not used in the E2E step**: the vars come from the committed `.env.test` (it contains only test values, no real secrets).
 

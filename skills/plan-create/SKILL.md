@@ -16,7 +16,7 @@ Use this skill to plan a task before any code changes. Use `plan-phase-implement
 - Derive contracts and phases from the request and project evidence. Document reasonable assumptions; ask only when a consequential decision cannot be inferred and blocks progress.
 - Do not change source code or tests.
 - Every phase is a vertical slice that spans the layers it needs. Never plan one technical layer per phase.
-- After every phase, the build and the tests must pass, and the phase must make sense as its own commit.
+- After every phase, the build and the tests required by the project's verification policy must pass, and the phase must make sense as its own commit. This does not require a full local suite for every phase.
 - Phase 1 produces something the user can see, run or interact with.
 - Write the plan in English, whatever language the conversation uses.
 - Quote the user's exact strings and examples, and mark assumptions as assumptions.

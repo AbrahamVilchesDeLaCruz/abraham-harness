@@ -33,7 +33,7 @@ Two levels in the api, and no integration level:
 
 ### How to run them
 
-Unit tests have no I/O. While developing they run directly on the host, which is the fast loop. Run affected modules and their seams at intermediate phase integration; run the complete suite before the final feature candidate, an independently published phase, or a high-risk phase. In CI, API unit tests run inside the same compose run as the E2E tests (see below).
+Unit tests have no I/O. While developing they run directly on the host, which is the fast loop. Run affected modules and their seams at intermediate phase integration; run the complete unit suite locally before freezing the final feature candidate, an independently published phase, or a high-risk phase. In CI, API unit tests run inside the same compose run as the E2E tests (see below).
 
 ```bash
 # From the monorepo root
@@ -82,7 +82,7 @@ The shared Makefile calls the root `test:e2e` script; that script orchestrates `
 
 #### In CI
 
-CI must run the complete unit and E2E suite as a publication check. For the API, use the same compose file, so unit and E2E tests run in one iteration and there is no separate database service to keep in sync. Include client E2E when the project has a client. Locally, run unit tests on the host while iterating and use `make test-e2e` for the final or risk-triggered E2E gate.
+CI must run the complete unit and E2E suite on the candidate branch or PR as a publication check before merge or deployment. For the API, use the same compose file, so unit and E2E tests run in one iteration and there is no separate database service to keep in sync. Include client E2E when the project has a client. Locally, run focused unit tests while iterating and the full unit suite at the final or risk-triggered candidate. Routine E2E runs in CI; use `make test-e2e` locally only to diagnose a CI failure or a concrete integration risk.
 
 **The secrets manager is not used in the E2E step**: the vars come from the committed `.env.test` (it contains only test values, no real secrets).
 
@@ -137,7 +137,7 @@ Migrations run **only once** when the test database starts. The database is ephe
 | `pnpm --filter @myapp/api test`       | Unit tests API only                   |
 | `pnpm --filter @myapp/api test:cov`   | Unit tests + coverage                 |
 | `pnpm --filter @myapp/api test:watch` | Unit tests in watch mode              |
-| `make test-e2e`                       | Root E2E orchestrator: API Compose and client journeys when present |
+| `make test-e2e`                       | CI full-test command; local diagnostic when needed: API Compose and client journeys |
 | `pnpm --filter @myapp/api test:e2e`   | E2E command that the compose runner executes after the unit command |
 | `make local` / `make local-down`      | Local development stack, not used by the tests |
 

@@ -2,7 +2,7 @@
 
 Review the frozen, integrated candidate—not individual task branches. The coordinator selects reviewers with `review-matrix.md`, records risk and rationale, and sends every reviewer the same base and candidate commit SHAs.
 
-1. Confirm the phase's required seam checks passed, its check ledger names exact commands and results, and the candidate worktree is clean. For a final feature candidate, independently published phase or high-risk phase, require a passing full suite; an intermediate deferral must name the final gate.
+1. Confirm the phase's required local seam checks passed, its check ledger names exact commands and results, and the candidate worktree is clean. For a final feature candidate, independently published phase or high-risk phase, require a passing full local unit suite; an ordinary intermediate deferral must name the final gate. Record CI unit/E2E as pending until it runs on this exact candidate SHA. Reviewer approval does not waive the CI gate before merge, deployment or high-risk phase integration.
 2. Run all selected reviewers in parallel against `git diff <base>...<candidate>`.
 3. Send the selected reviewer set, rationale, base/candidate SHAs and unchanged verdict blocks to `approver`.
 4. Approve only when every required reviewer returned `VERDICT: APPROVED` for the exact candidate SHA. Missing, blocked or negative verdicts reject.

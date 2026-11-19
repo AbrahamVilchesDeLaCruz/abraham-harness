@@ -17,7 +17,7 @@ The coordinator creates one contract for each builder. Keep tasks independently 
 - Environment: <what the coordinator already prepared in the worktree: install, env file, dedicated database; or `none`>
 - Iteration checks: <narrowest commands covering the affected files, run while iterating>
 - Early checks: <existing suites for risks the task touches, such as concurrency, idempotency or state transitions; run before the first commit>
-- Closing checks: <exact commands run once before the final commit; never the full slow suite>
+- Closing checks: <exact commands run once before the final commit; never the full E2E suite>
 - Commit hooks: <which hooks run on task commits, for example `commit-msg` only>
 - Handoff: <commit SHA, changed paths, exact check commands, scopes, observed results and elapsed time, blockers, background processes stopped>
 ```
@@ -33,7 +33,7 @@ Verification gets more expensive as it widens, so the contract orders it:
 1. **Iteration checks** run on every cycle and cover only the affected files or module, such as one spec file.
 2. **Early checks** run once, soon after the first working change. Name the existing tests that already cover the risks the task touches (concurrency, double operations, parent/child state), so failures show up before the task closes, not at seam checks.
 3. **Closing checks** run once before the final commit: focused lint, typecheck and the task's own tests.
-4. The coordinator runs the full slow suite at the final feature candidate and in independently published or high-risk phases, as defined in `integration.md`. A builder runs it only when its contract explicitly requires it.
+4. The coordinator runs the full local unit suite at the final feature candidate and in independently published or high-risk phases, as defined in `integration.md`. Routine E2E runs in CI; a builder runs a focused E2E locally only when its contract explicitly requires that diagnostic check.
 
 ## Context and environment
 

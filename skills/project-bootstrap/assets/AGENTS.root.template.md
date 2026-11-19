@@ -183,7 +183,7 @@ From the monorepo root, unit scripts cover the relevant workspaces and the E2E s
 ```bash
 pnpm lint          # oxlint in api + client
 pnpm test          # Unit tests in api + client
-pnpm test:e2e      # Full unit + E2E run: API Compose and client when present
+pnpm test:e2e      # CI full unit + E2E run; local diagnostic when needed
 ```
 
 > To run in only one workspace: `pnpm --filter @{{PROJECT_NAME}}/api test`

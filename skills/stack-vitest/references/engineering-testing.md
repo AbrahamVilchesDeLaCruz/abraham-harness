@@ -64,7 +64,7 @@ apps/api/
 - `pnpm test:watch` runs Vitest in watch mode.
 - `pnpm test:cov` runs Vitest + coverage.
 - `pnpm test:debug` runs Vitest with the Node inspector.
-- `pnpm test:e2e` runs `vitest run --config ./vitest.config.e2e.ts`. The compose runner calls it; locally, `make test-e2e` starts the whole environment.
+- `pnpm test:e2e` runs `vitest run --config ./vitest.config.e2e.ts`. The compose runner calls it in CI; `make test-e2e` starts the whole environment for a local diagnostic when needed.
 
 At the monorepo root, `make test-e2e` delegates to the root `test:e2e` script. For the default API and client stack, that root script starts API test Compose with `--exit-code-from api-test` and runs the complete client unit and browser E2E suites in their required test environment. Do not assume the API test Compose services remain available after `api-test` exits. Omit client commands when no client exists. The API package's `test:e2e` stays a runner-only command; this separation prevents recursion and keeps API E2E inside its disposable database environment.
 

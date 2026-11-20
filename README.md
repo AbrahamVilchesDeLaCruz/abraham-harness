@@ -50,7 +50,7 @@ npx github:AbrahamVilchesDeLaCruz/abraham-harness update   # installs the latest
 
 Run `update` once to receive the new `harness-update` skill. For later upgrades, ask your agent to use `harness-update` from the project root; it checks the installation, runs the updater, reconciles reported legacy files without replacing project-owned content, and verifies the result. Commit the resulting `skills-lock.json` and generated files after review.
 
-After updating, check the project's own verification policy, root `test:e2e` script and CI workflow. CI should run the complete unit and E2E command on the candidate branch or PR before merge or deployment. The harness updater refreshes shared skills and managed files; it does not rewrite project-owned `docs/`, CI or package scripts. If a project reserves complete suites for CI, that project rule overrides the harness's optional local full-unit default. Do not copy shared conventions into project docs to make an exception: record the project's actual policy there.
+After updating, check the project's own verification policy, root `test:e2e` script and CI workflow. The shared default runs complete checks on PRs only, with optional manual dispatch, before merge or deployment; no routine push trigger. The harness updater refreshes shared skills and managed files; it does not rewrite project-owned `docs/`, CI or package scripts. If a project reserves complete suites for CI, that project rule overrides the harness's optional local full-unit default. Do not copy shared conventions into project docs to make an exception: record the project's actual policy there.
 
 ## Where the skills go
 
@@ -69,6 +69,7 @@ The installer adds the specialist agents to `.claude/agents/`, `.codex/agents/` 
 | Agent | Role | Can edit |
 | --- | --- | --- |
 | `spec-writer` | Writes the spec and the phased plan | Only `.agents/plans/` |
+| `architect` | Optionally draws a reviewable domain model and glossary before specification | Only `.agents/plans/` |
 | `coordinator` (orchestrating session) | Decomposes work, dispatches builders, integrates commits and runs seam checks | Integration workspace |
 | `builder` | Implements one contracted task, runs its checks and commits locally on its assigned task branch | Yes |
 | `security` | Reviews security | No |
@@ -91,13 +92,13 @@ The [factory workflow](skills/factory-workflow/SKILL.md) routes every request in
 
 For FTD and SDD, the coordinator follows [discovery](skills/factory-workflow/references/discovery.md) before specification or task contracts. Exploration depth follows the uncertainty, affected surfaces and risk of the request. One short, source-linked handoff records the current behavior, constraints and decisions.
 
-The coordinator asks once whether you want an interview. If accepted, it presents one logical batch of up to ten useful A/B/C questions, with A recommended and preselected; it never silently submits A. You can accept the recommendations, change answers, skip questions or request another batch. For frontend work with a material visual or interaction decision, it separately asks whether you want to review a [navigable HTML prototype](skills/factory-workflow/references/prototype.md) or grant creative freedom. The prototype is a local design artifact, not production code. Its accepted composition and behavior enter the handoff before the spec writer starts. These are coordinator stages, not separate installed `interviewer` or `designer` agents.
+The coordinator asks once whether you want an interview. If accepted, it presents one logical batch of up to ten useful A/B/C questions, with A recommended and preselected; it never silently submits A. You can accept the recommendations, change answers, skip questions or request another batch. For changes to the domain model, it asks whether you want to review a [navigable HTML model](skills/factory-workflow/references/domain-model.md) of aggregates, Value Objects, invariants and ubiquitous language or grant the architect creative freedom. For frontend work with a material visual or interaction decision, it separately asks whether you want to review a [navigable HTML prototype](skills/factory-workflow/references/prototype.md) or grant creative freedom. Both HTML files are local decision artifacts, not production code. Accepted decisions enter the handoff before the spec writer starts. The interview and frontend prototype are coordinator stages; `architect` is an optional installed role.
 
 ### From task to candidate
 
 ```text
 Request → Answer | FTD | SDD
-FTD/SDD → Explore → optional interview → optional HTML prototype
+FTD/SDD → Explore → optional interview → optional domain model → optional frontend HTML prototype
 SDD → Spec writer → phased plan → analyze gaps
 Current phase → task contracts → isolated builders → phase integration
 Frozen candidate → relevant reviewers → approver → authorized delivery
@@ -119,9 +120,9 @@ There are no personal/professional profiles or hard-coded model assignments. The
 | Intermediate SDD phase | Test affected modules and their connections; build/typecheck and relevant lint/format | Same; a phase candidate is not the final feature candidate |
 | Final feature candidate | Run the complete local unit suite once; also gate a separately published or high-risk phase as required | Keep local checks focused; record the complete suite as pending CI |
 | Reviewer | Inspect the ledger independently and run focused tests for a concrete finding or risk | Same; do not repeat a full suite by default |
-| Candidate branch or PR CI | Run the complete unit and E2E suites before release/main merge or deployment | CI owns the complete suites |
+| PR CI | Typecheck, lint, complete API/client units with 80% global coverage per metric, then API and browser E2E; browser journeys run on desktop and phone | CI owns the complete suites |
 
-The shared [test conventions](skills/engineering-conventions/references/testing.md) exercise API domain behavior through application unit tests; API E2E checks HTTP, guards, persistence and wiring. Client tests cover logic and flows, with browser E2E for journeys. Routine E2E belongs in CI; a focused local E2E is a diagnostic only when the project policy allows it. A required CI check remains **pending** until it actually passes on the candidate. An independently published phase needs its own CI gate; a high-risk intermediate phase needs early CI when the project requires it. Review approval does not substitute for CI.
+The shared [test conventions](skills/engineering-conventions/references/testing.md) exercise distinct API domain decisions through application unit tests; API E2E checks HTTP, guards, critical persistence and wiring. Real repositories stay behind controller E2E. Client unit tests cover independent decisions in mappers, repositories and hooks; a critical journey uses Container with HTTP interception or a browser when real integration matters. The browser suite stays small and runs its selected journeys on desktop and phone. Routine E2E belongs in PR CI; a focused local E2E is a diagnostic only when the project policy allows it. A required CI check remains **pending** until it actually passes on the candidate. An independently published phase needs its own CI gate; a high-risk intermediate phase needs early CI when the project requires it. Review approval does not substitute for CI.
 
 The shared `make test-e2e` target delegates to the project's root `test:e2e` script. The [bootstrap test runtime](skills/project-bootstrap/references/test-runtime.md) explains how that script orchestrates API Compose and client tests without recursion. Existing projects own their package scripts and CI workflows, so `update` does not change those files. CI triggered only after pushing to `main` cannot serve as a pre-merge gate.
 
@@ -129,7 +130,7 @@ The shared `make test-e2e` target delegates to the project's root `test:e2e` scr
 
 The coordinator chooses reviewers from the [review matrix](skills/factory-workflow/references/review-matrix.md). `code-reviewer` is mandatory for code changes; security, UX and UI join only when the actual diff touches their surfaces. Documentation/configuration-only changes skip the code gate. Reviewers inspect the same frozen candidate SHA; a missing or negative required verdict rejects it. A correction creates a new candidate and invalidates old verdicts. The `approver` verifies the selected verdict set; it does not replace a reviewer.
 
-[Publication authorization](skills/factory-workflow/references/publication-authorization.md) separates local task integration from remote push, PR creation and merge. An implementation request permits local task commits and integration within its existing working branch, subject to project policy. Remote operations need user authorization for their target and action. Before a release/main merge or deployment, observe the required CI result on the candidate branch or PR. Report a pending or missing check as pending, never as passed.
+[Publication authorization](skills/factory-workflow/references/publication-authorization.md) separates local task integration from remote push, PR creation and merge. An implementation request permits local task commits and integration within its existing working branch, subject to project policy. Remote operations need user authorization for their target and action. Before a release/main merge or deployment, observe the required CI result on the candidate PR. Report a pending or missing check as pending, never as passed.
 
 ## Conventions and docs
 

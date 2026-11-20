@@ -6,6 +6,7 @@ Use it when several decisions affect each other, or when the work is too large t
 | --- | --- | --- |
 | Explore | Coordinator | Source-linked discovery handoff proportional to task uncertainty and risk |
 | Interview | Coordinator | Optional user answers in batches of up to ten A/B/C questions; assumptions when declined |
+| Domain model choice | Coordinator and optional `architect` | Reviewed navigable HTML of aggregates, Value Objects and ubiquitous language, or recorded creative freedom |
 | Prototype choice | Coordinator | For material frontend design, reviewed navigable HTML or recorded creative freedom |
 | Specify | `spec-writer` | `{name}-spec.md`: what and why, with no how |
 | Clarify | `spec-writer` | Assumptions recorded; ask the user only about consequential blockers |
@@ -21,7 +22,7 @@ Implement tasks in parallel only when they share a base and have no unresolved d
 
 Artifacts live in `.agents/plans/{YYYY_MM_DD}-{name}/`.
 
-Run the first three rows through `discovery.md`; follow `prototype.md` only when the user chooses prototype review. Give the spec writer the single discovery handoff. Do not reopen settled choices or repeat exploration without new evidence.
+Run the pre-spec rows through `discovery.md`; follow `domain-model.md` and `prototype.md` only when the user chooses the corresponding review. Give the spec writer the single discovery handoff. Do not reopen settled choices or repeat exploration without new evidence.
 
 Skip Clarify or Analyze only when the spec is unambiguous and tiny, and say so out loud.
 

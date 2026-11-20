@@ -16,10 +16,10 @@ metadata:
 
 ## Hard Rules
 
-- The `/test` structure mirrors the `/src` structure exactly. Specs live under `test/`, never under `src/`
+- `/test` mirrors `/src`; specs never live under `src/`
 - A use case test is a unit test. `src/{bc}/{module}/application/{action}/{use-case}.ts` is tested in `test/{bc}/{module}/application/{action}/`, which holds `request-{use-case}.mother.ts` and `{use-case}.spec.ts`
 - There are no integration tests. A real repository or database is exercised only through a controller E2E test
-- A subscriber lives in application, so it is a unit test: build the domain event with an Object Mother and call the subscriber. Never start the message bus in a test
+- Subscribers are unit tested with an event Mother; never start the bus
 - E2E tests cover controllers only. Business rules and error cases are unit tests; the E2E asserts the HTTP contract (status, body, guards, validation)
 - Domain tests always go through a use case, using Object Mothers. Aggregates and value objects are never tested on their own. The only exception is a larger domain service you want to test on its own
 - A Mother lives next to the test that uses it. Shared Mothers go in `test/shared`
@@ -31,7 +31,7 @@ metadata:
 - `random(overrides?)` always accepts partial overrides
 - `from(request)` when the use case receives a request object
 - Value Object Mothers expose `invalid()` when the test needs it
-- One behavior per test
+- Test each distinct decision once; group equivalent variants and keep business rules at unit level
 - Imports from src use the `@/` alias; imports from test use `@test/`
 - No concrete adapter in an application test, no state shared between tests, no magic string when a Mother exists, no untyped mock functions for typed ports
 

@@ -22,10 +22,10 @@ Load this skill BEFORE writing new observable behavior:
 ## Hard Rules
 
 - **Test new behavior first**: Red → Green → Refactor has no exception for observable behavior.
-- **One test = one observable behavior**. Do not test internal implementation (`calls repository.match`), test the effect (`saves the product`).
+- **One test = one distinct observable decision**. Group equivalent inputs; do not test every field or repeat a rule across layers. Test effects, not internal calls.
 - **Name the behavior**, not an internal call.
 - **Verify that the test fails before implementing**: a test that never fails proves nothing.
-- **Always use Object Mothers** to build test data. Never inline literals.
+- Use Object Mothers for domain fixtures and requests; keep simple expected values inline when clearer.
 - **Do not mock what you do not control**; use your own abstractions.
 - This skill defines **WHEN and IN WHAT ORDER**: it always comes first.
 
@@ -45,7 +45,7 @@ What to test per layer:
 | Frontend business logic (client) | Unit tests of the hook, mapper or helper that holds the rule |
 | Critical flow (client) | One complete flow with HTTP interception, or a browser test for the main journey |
 
-The client has no per-component rendering tests. Move behavior into a hook or mapper and test it there. Verify presentation with rendered, responsive and accessibility checks.
+The client has no routine per-component rendering tests. Move domain behavior into a hook or mapper and test its decision there. Verify presentation with rendered, responsive and accessibility checks.
 
 **The Domain (aggregates, VOs) is never tested in isolation**: it is always exercised through the tests of the Use Case that invokes it, using Object Mothers.
 
@@ -69,7 +69,7 @@ For each new observable behavior, work in this order:
 3. **GREEN: write only the code needed to pass.**
    - Create missing implementation files and Mothers.
 4. **Refactor:** remove duplication and clarify names while tests stay green.
-5. **Repeat for each scenario.** Go back to step 2 for the next scenario. One Red → Green → Refactor cycle per behavior.
+5. **Repeat for each distinct decision.** Consolidate equivalent scenarios, using a table when it improves clarity. One Red → Green → Refactor cycle per decision.
 
 ## References
 

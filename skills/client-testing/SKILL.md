@@ -15,12 +15,13 @@ metadata:
 
 ## Hard Rules
 
-- Mappers and pure hooks → always unit tests
-- Repository → unit test: mock the pod's HTTP calls, and assert the ViewModels it returns
-- Server-state hook → unit test: mock the repository, never the API client
+- Mappers and pure hooks → unit tests when they make a transformation or state decision not adequately covered by a higher-level flow
+- Repository → unit test when it owns mapping, error handling or another decision; mock the pod's HTTP calls and assert the observable ViewModel or error
+- Server-state hook → unit test when it owns state, invalidation or recovery behavior; mock the repository, never the API client
 - Unit tests cover only the frontend's business logic: mappers, repositories, hooks and pure utils. A rule written inside a Component moves to a hook or mapper and is tested there
 - Presentational Components have no tests of their own; the critical flows exercise them
-- Critical flow → one complete flow per critical journey, through the Container with HTTP interception (the test crosses the hooks, the repository and the API client), or a browser test for the main journey. Happy path + main error only
+- Critical flow → choose one primary level per risk: a Container with HTTP interception for interaction and recovery, or a browser test when real client/API/environment integration matters. Keep only the happy path and material error cases; avoid repeating the same decision at both levels
+- Run the small browser journey set in desktop and phone sizes
 - Never mock the whole server-state library module — use HTTP interception
 - Override the HTTP handler per case, inside the `it`
 - Reset the HTTP handlers in `afterEach`, always
@@ -44,9 +45,9 @@ Anti-patterns:
 
 | What | Level | Tool | Which reference to load |
 |---|---|---|---|
-| Mappers | Unit | Test runner | `component-patterns.md` |
-| Repository | Unit | Test runner | `component-patterns.md` |
-| Pod hooks | Unit | Test runner + hook harness | `component-patterns.md` |
+| Mapper with a decision | Unit | Test runner | `component-patterns.md` |
+| Repository with a decision | Unit | Test runner | `component-patterns.md` |
+| Pod hook with a decision | Unit | Test runner + hook harness | `component-patterns.md` |
 | Critical flow through a Container | Flow | View renderer + HTTP interception | `container-integration.md` |
 | Critical journey in the browser | Flow | Browser runner | `container-integration.md` |
 

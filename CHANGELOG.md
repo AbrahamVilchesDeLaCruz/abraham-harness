@@ -2,6 +2,12 @@
 
 This project follows [Semantic Versioning](https://semver.org/): a major version changes a convention that existing projects must adapt to (before 1.0, a minor version may do so), a minor version adds skills or guidance, and a patch version fixes them.
 
+## 0.25.0
+
+- Add an optional `architect` role that produces a reviewable, navigable domain model HTML before specification and carries accepted aggregate, Value Object and language decisions through phase handoffs.
+- Keep TDD behavior-focused while grouping equivalent cases; select one primary client flow level per risk and test independent client decisions rather than every mapper or hook by default. Keep repositories behind controller E2E.
+- Default CI to PR-only with fast checks before costly suites, desktop and phone browser journeys, and global 80% coverage thresholds for branches, functions, lines and statements in API and client. Project-specific verification policy remains authoritative.
+
 ## 0.24.0
 
 - Make each project's verification policy authoritative over shared local full-suite defaults, including in plans, task contracts, builder checks and reviews.

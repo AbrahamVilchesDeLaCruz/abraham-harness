@@ -1,0 +1,9 @@
+# Optional domain model review
+
+Offer this after exploration and the interview decision when a change introduces or reshapes domain concepts. Ask whether the owner wants to review a domain model HTML or grants the architect creative freedom. A small change within an established model needs no separate artifact. Do not infer approval from silence.
+
+When review is chosen, dispatch `architect` with the source-linked discovery handoff. It writes `.agents/plans/{YYYY_MM_DD}-{name}/domain-model/index.html`, a self-contained HTML diagram that opens locally without a build or external service. Show bounded contexts, aggregate boundaries, entities, Value Objects, relationships and invariants, with a glossary of the ubiquitous language. Label observed facts, proposals and unresolved choices. Make the diagram navigable by keyboard and readable at narrow and wide widths; inspect it with available browser tools and report any check that could not be run.
+
+Review the diagram with the owner, incorporate corrections, and record the selected model and any remaining assumptions in the discovery handoff before the spec writer begins. The HTML is a decision artifact, not production code. Give the spec writer and later phase builders a readable snapshot or bounded digest; refresh it when accepted domain decisions change. At each phase handoff, compare the implementation's aggregate fields and repeated primitive validation with the accepted model, and record deviations and reasons.
+
+Inside aggregates, use explicit domain types for fields and reuse meaningful shared Value Objects. DTOs and persistence models may use primitives at their boundaries. Do not multiply wrappers for equivalent concepts or require a test for every Value Object class; test observable rules through use cases.

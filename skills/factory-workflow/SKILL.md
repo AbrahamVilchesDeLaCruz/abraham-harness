@@ -14,7 +14,7 @@ Use this skill to route every request and coordinate the role agents. The curren
 ## Hard Rules
 
 - Every turn takes exactly one lane. Answer is read-only. Infer intent and make reasonable assumptions; ask only when missing information materially blocks progress.
-- For FTD and SDD changes, run `references/discovery.md` before specification or task contracting. Invite the user to an optional interview, and make a separate prototype-or-creative-freedom choice for material frontend design work.
+- For FTD and SDD changes, run `references/discovery.md` before specification or task contracting. Invite the user to an optional interview; offer domain-model review for material domain changes and a separate frontend prototype choice for material UI work.
 - SDD applies when decisions interact or work cannot be resumed from the request and `git diff` alone. Promote FTD to SDD using its document as input.
 - Follow project `AGENTS.md`, `docs/` and target-repository policy. These, plus the current user's explicit instruction, outrank generic/user-global skill defaults. A project CI-only verification rule overrides shared local full-suite defaults; do not import another repository's issue, label, size or publication rules.
 - Every role reads the relevant project Brain entries and shared skills, and records observed evidence for checks. Pass one source-linked discovery handoff forward; reviewers verify the candidate independently. Read with CodeGraph when available before shell exploration.
@@ -47,7 +47,7 @@ Report the lane, task branches/commits, frozen integration candidate, checks, re
 ## References
 
 - `references/ftd.md`, `references/sdd.md` — lanes and phases.
-- `references/discovery.md`, `references/prototype.md` — proportionate pre-spec exploration, optional interview and visual direction.
+- `references/discovery.md`, `references/domain-model.md`, `references/prototype.md` — proportionate pre-spec exploration, optional interview, domain model and visual direction.
 - `references/task-contract.md`, `references/integration.md` — task isolation, integration and seam checks.
 - `references/publication-authorization.md` — scoped branch integration and remote authorization.
 - `references/gate.md`, `references/review-matrix.md` — review and approval.

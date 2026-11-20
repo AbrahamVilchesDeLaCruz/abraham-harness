@@ -6,7 +6,7 @@ The coordinator creates one contract for each builder. Keep tasks independently 
 ## Task: <id> — <short outcome>
 - Phase or lane: <phase id | FTD>
 - Goal and acceptance criteria: <observable behavior>
-- Discovery: <authoritative handoff path, concise confirmed-decision digest, and worktree-readable snapshot/prototype path when needed>
+- Discovery: <authoritative handoff path, concise confirmed-decision digest, and worktree-readable domain-model/prototype snapshot when needed>
 - Dependencies: none | <task ids and required outputs>
 - Base commit: <full SHA>
 - Branch: <unique local branch name>
@@ -38,7 +38,7 @@ Verification gets more expensive as it widens, so the contract orders it:
 ## Context and environment
 
 - The coordinator resolves skills once and passes exact paths plus a short summary of the rules that apply. Builders read those paths and do not rediscover skills or reference modules.
-- Keep one authoritative discovery handoff. Put only task-relevant confirmed decisions in each contract, and provide a readable snapshot of detailed handoff/prototype files inside the builder's workspace when needed. Verify access before launch; a path in the coordinator's ignored `.agents/` directory is not enough. Builders inspect the source paths they need. Reviewers independently inspect the integrated candidate.
+- Keep one authoritative discovery handoff. Put only task-relevant confirmed decisions in each contract, and provide a readable snapshot of detailed handoff, domain-model or prototype files inside the builder's workspace when needed. Verify access before launch; a path in the coordinator's ignored `.agents/` directory is not enough. Builders inspect the source paths they need. Reviewers independently inspect the integrated candidate.
 - The coordinator prepares each worktree once, with a project script when one exists: dependency install, environment file and any dedicated database. Builders never repeat this setup; if it is missing or broken, they stop and report.
 - Task commits skip repeated work that the builder's checks already did. Keep `commit-msg` validation on every commit; run the full lint and format check once at closing, in the seam checks.
 - Before reporting, a builder stops every process it started, including wait loops, watchers and background jobs, and states that it did so in the handoff.

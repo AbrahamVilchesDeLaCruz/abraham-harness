@@ -7,7 +7,7 @@ import { delimiter, join } from 'node:path';
 
 const BIN = new URL('../bin/abraham-harness.mjs', import.meta.url).pathname;
 const SHARED_SKILLS = new URL('../skills/', import.meta.url).pathname;
-const ROLES = ['spec-writer', 'builder', 'security', 'ux', 'ui', 'code-reviewer', 'approver'];
+const ROLES = ['spec-writer', 'architect', 'builder', 'security', 'ux', 'ui', 'code-reviewer', 'approver'];
 const REVIEWERS = ['security', 'ux', 'ui', 'code-reviewer'];
 
 function markInstalledSkills(base) {
@@ -105,6 +105,16 @@ test('all runtime formats pass discovery decisions to writer and builder', () =>
       assert.match(builder, /discovery\/design digest/, `${dir} builder`);
       assert.match(builder, /snapshot is readable in your worktree/, `${dir} builder`);
     }
+  });
+});
+
+test('architect is scoped to plan artifacts and receives the domain modeling skill', () => {
+  withProject(({ project, run }) => {
+    assert.equal(run().status, 0);
+    assert.match(read(project, '.claude/agents/architect.md'), /^skills:\n  - api-domain$/m);
+    assert.match(read(project, '.claude/agents/architect.md'), /domain-model\/index\.html/);
+    assert.match(read(project, '.opencode/agents/architect.md'), /^permission:\n  edit:\n    "\*": deny\n    "\.agents\/plans\/\*\*": allow$/m);
+    assert.match(read(project, '.codex/agents/architect.toml'), /Load these skills before you work: `api-domain`/);
   });
 });
 

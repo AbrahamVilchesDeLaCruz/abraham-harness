@@ -17,9 +17,9 @@ Two levels in the api, and no integration level:
          └─────────────────┘
 ```
 
-- **Unit** is the large layer. Every behavior is tested from `application`: use cases with mocked ports, which exercise the domain.
+- **Unit** is the large layer. Test distinct domain and application decisions from `application`: use cases with mocked ports exercise the domain. Group equivalent variants and avoid duplicating the same rule at other levels.
 - **Event subscribers live in application**, so they are unit tests too: build the domain event with an Object Mother and call the subscriber. The message bus is never started.
-- **E2E covers controllers only**: the HTTP contract, guards, validation and persistence through the real repositories.
+- **E2E covers controllers only**: the HTTP contract, guards, validation and critical persistence through the real repositories. Keep business-rule variations in unit tests.
 - **There are no integration tests.** A repository is exercised only through the controller E2E that uses it.
 
 ---
@@ -82,7 +82,7 @@ The shared Makefile calls the root `test:e2e` script; that script orchestrates `
 
 #### In CI
 
-CI must run the complete unit and E2E suite on the candidate branch or PR as a publication check before merge or deployment, unless the project's CI policy defines a stricter gate. For the API, use the same compose file, so unit and E2E tests run in one iteration and there is no separate database service to keep in sync. Include client E2E when the project has a client. Locally, run focused unit tests while iterating; the project policy decides whether a final local full-unit run is required. Routine E2E runs in CI; use `make test-e2e` locally only when the project permits it to diagnose a CI failure or concrete integration risk.
+CI runs the complete unit and E2E suite on pull requests as a publication check before merge or deployment; optional manual dispatch may diagnose a candidate. Do not add a routine push trigger. Run typecheck, lint and client units before costly Compose and browser steps. For the API, use the same compose file, so API units and E2E run in one iteration and there is no separate database service to keep in sync. Include client E2E when the project has a client; run selected browser journeys in desktop and phone sizes after earlier checks pass. Locally, run focused unit tests while iterating; the project policy decides whether a final local full-unit run is required. Routine E2E runs in CI; use `make test-e2e` locally only when the project permits it to diagnose a CI failure or concrete integration risk.
 
 **The secrets manager is not used in the E2E step**: the vars come from the committed `.env.test` (it contains only test values, no real secrets).
 
@@ -171,7 +171,7 @@ apps/api/
 
 Coverage is generated with `pnpm test:cov`, and written where the test runner's configuration says.
 
-In CI, coverage is collected for the report but **there is no minimum threshold** configured: the goal is visibility, not blocking the merge.
+In CI, set a project-wide minimum of **80% each for branches, functions, lines and statements** in the API and client when present. Apply the threshold globally per workspace, not to every file; do not add trivial tests only to raise a percentage. A project may set a stricter or different documented policy. The threshold complements risk review and does not replace tests of critical behavior.
 
 ---
 

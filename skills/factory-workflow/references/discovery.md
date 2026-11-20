@@ -24,3 +24,7 @@ Add the answers and skipped choices to the handoff. When an answer contradicts e
 ## Frontend design choice
 
 For a frontend change with a material visual or interaction decision, ask separately whether the user wants to review a navigable HTML prototype or grant creative freedom. Ask after the interview decision, whether the interview was accepted or declined. If the user chooses review, follow `prototype.md` before specification. If the user grants creative freedom, record that decision and continue without a pre-spec approval stop; the production UI still gets the project's visual, UX, accessibility, and review checks. For a small change inheriting an established screen, record that no separate prototype is useful.
+
+## Domain model choice
+
+For a change that introduces or reshapes aggregates, entities or Value Objects, ask separately whether the owner wants to review a navigable domain model HTML or grants the architect creative freedom. Ask after the interview decision and before specification. When review is chosen, follow `domain-model.md` and dispatch `architect`. When creative freedom is granted, record the domain assumptions and continue; builders and reviewers still check the domain model. Skip this artifact for a small change within a settled model. Carry accepted vocabulary, invariants and type decisions into every later phase handoff.

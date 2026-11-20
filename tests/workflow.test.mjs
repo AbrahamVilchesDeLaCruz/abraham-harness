@@ -171,3 +171,21 @@ test('test-first applies to behavior while presentation-only UI retains visual c
   assert.match(builder, /presentation-only UI/);
   assert.match(visual, /critique-loop\.md/);
 });
+
+test('domain review and lean PR verification are explicit workflow contracts', () => {
+  const discovery = read('skills/factory-workflow/references/discovery.md');
+  const model = read('skills/factory-workflow/references/domain-model.md');
+  const testing = read('skills/engineering-conventions/references/testing.md');
+  const runtime = read('skills/project-bootstrap/references/test-runtime.md');
+  const client = read('skills/client-testing/SKILL.md');
+  const domain = read('skills/api-domain/SKILL.md');
+
+  assert.match(discovery, /domain model HTML or grants the architect creative freedom/);
+  assert.match(model, /domain-model\/index\.html/);
+  assert.match(domain, /explicit domain type/);
+  assert.match(testing, /80% each for branches, functions, lines and statements/);
+  assert.match(runtime, /pull requests only/);
+  assert.match(runtime, /Do not add a routine push trigger/);
+  assert.match(client, /choose one primary level per risk/);
+  assert.match(client, /desktop and phone sizes/);
+});

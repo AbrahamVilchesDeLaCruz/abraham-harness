@@ -28,6 +28,8 @@ metadata:
 
 ### Value Objects
 
+- Give every field inside an aggregate an explicit domain type. Reuse meaningful types for concepts with the same rules (for example Money, Currency or a business date); do not create a distinct wrapper for every scalar occurrence. Request/response DTOs and persistence primitives stay at their boundaries.
+- Before each domain-changing phase, list the aggregate fields, invariants and candidate Value Objects; at phase handoff, compare the implementation with the accepted domain model and explain deviations. Do not let a long session silently return to unchecked primitives.
 - Hierarchy for IDs: `ValueObject<string>` → `StringValueObject` → `UuidValueObject` → `XxxId`.
 - Hierarchy for text fields: `ValueObject<string>` → `StringValueObject` → concrete.
 - No `VO` or `ValueObject` suffix in the file name or class name

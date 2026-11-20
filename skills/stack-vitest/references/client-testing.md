@@ -4,13 +4,13 @@ The concept skill `client-testing` defines the rules. This file maps its tools: 
 
 ## Rules mapped to the tools
 
-- Mappers and pure hooks → always unit tests (Vitest)
-- Repository → unit test (Vitest), with `vi.mock` on the pod's HTTP calls
-- Server-state hook → unit test (Vitest + `renderHook`), with `vi.mock` on the repository, never `apiClient`
+- Mappers and pure hooks with independent decisions → unit tests (Vitest)
+- Repository with mapping or error decisions → unit test (Vitest), with `vi.mock` on the pod's HTTP calls
+- Server-state hook with state or recovery decisions → unit test (Vitest + `renderHook`), with `vi.mock` on the repository, never `apiClient`
 - Unit tests cover only business logic: mappers, repositories, hooks, pure utils. A rule inside a Component moves to a hook or mapper
 - No rendering tests per presentational Component
 - Critical flow → RTL + MSW through the Container, intercepting real HTTP: the test crosses the hooks, the repository and the API client
-- Critical journey → Playwright, happy path + main error only
+- Critical journey needing real integration → Playwright, happy path + material error only; run each selected journey in desktop and phone sizes
 - Never mock the whole TanStack Query module — use MSW
 - `server.use()` inside the `it` to override the handler per case
 - `server.resetHandlers()` in `afterEach`, always

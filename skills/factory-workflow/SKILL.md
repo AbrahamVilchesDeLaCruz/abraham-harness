@@ -14,7 +14,7 @@ Use this skill to route every request and coordinate the role agents. The curren
 ## Hard Rules
 
 - Every turn takes exactly one lane. Answer is read-only. Infer intent and make reasonable assumptions; ask only when missing information materially blocks progress.
-- For FTD and SDD changes, run `references/discovery.md` before specification or task contracting. Invite the user to an optional interview; offer domain-model review for material domain changes and a separate frontend prototype choice for material UI work.
+- For FTD and SDD, run `references/discovery.md` before specification. Offer an interview; report domain changes and ask about a diagram. Invoke `architect` only after yes. Offer a frontend prototype for material UI work.
 - SDD applies when decisions interact or work cannot be resumed from the request and `git diff` alone. Promote FTD to SDD using its document as input.
 - Follow project `AGENTS.md`, `docs/` and target-repository policy. These, plus the current user's explicit instruction, outrank generic/user-global skill defaults. A project CI-only verification rule overrides shared local full-suite defaults; do not import another repository's issue, label, size or publication rules.
 - Every role reads the relevant project Brain entries and shared skills, and records observed evidence for checks. Pass one source-linked discovery handoff forward; reviewers verify the candidate independently. Read with CodeGraph when available before shell exploration.

@@ -2,6 +2,10 @@
 
 This project follows [Semantic Versioning](https://semver.org/): a major version changes a convention that existing projects must adapt to (before 1.0, a minor version may do so), a minor version adds skills or guidance, and a patch version fixes them.
 
+## 0.25.1
+
+- Ask about a domain diagram only after briefly reporting detected domain changes; invoke `architect` and build HTML only after an explicit yes. A no continues without diagram work.
+
 ## 0.25.0
 
 - Add an optional `architect` role that produces a reviewable, navigable domain model HTML before specification and carries accepted aggregate, Value Object and language decisions through phase handoffs.

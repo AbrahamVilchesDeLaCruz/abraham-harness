@@ -180,7 +180,10 @@ test('domain review and lean PR verification are explicit workflow contracts', (
   const client = read('skills/client-testing/SKILL.md');
   const domain = read('skills/api-domain/SKILL.md');
 
-  assert.match(discovery, /domain model HTML or grants the architect creative freedom/);
+  assert.match(discovery, /tell the owner briefly what changes and ask whether they want a domain diagram/);
+  assert.match(discovery, /Do not invoke `architect` or start the diagram before an explicit yes/);
+  assert.match(model, /Do not draft HTML, invoke `architect` or perform diagram-specific research before an explicit yes/);
+  assert.match(model, /If the owner says no, record the choice and continue/);
   assert.match(model, /domain-model\/index\.html/);
   assert.match(domain, /explicit domain type/);
   assert.match(testing, /80% each for branches, functions, lines and statements/);

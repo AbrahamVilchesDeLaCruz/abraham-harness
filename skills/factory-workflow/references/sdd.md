@@ -6,7 +6,7 @@ Use it when several decisions affect each other, or when the work is too large t
 | --- | --- | --- |
 | Explore | Coordinator | Source-linked discovery handoff proportional to task uncertainty and risk |
 | Interview | Coordinator | Optional user answers in batches of up to ten A/B/C questions; assumptions when declined |
-| Domain model choice | Coordinator and optional `architect` | Reviewed navigable HTML of aggregates, Value Objects and ubiquitous language, or recorded creative freedom |
+| Domain model choice | Coordinator; `architect` only after yes | Brief notice of domain changes and a yes/no diagram choice; HTML only when requested |
 | Prototype choice | Coordinator | For material frontend design, reviewed navigable HTML or recorded creative freedom |
 | Specify | `spec-writer` | `{name}-spec.md`: what and why, with no how |
 | Clarify | `spec-writer` | Assumptions recorded; ask the user only about consequential blockers |

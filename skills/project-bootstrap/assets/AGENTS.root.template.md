@@ -56,6 +56,7 @@ Project-specific `AGENTS.md`, `docs/`, CI and branch/PR policy take precedence o
 | -------------------- | ------ | ---------------------------------------------------------------- |
 | `tdd-workflow`       | global | Test-first Red→Green→Refactor for new observable behavior   |
 | `project-bootstrap`  | global | Installs AGENTS.md and the docs/ skeleton, and scaffolds the apps |
+| `archify`           | global | Creates validated, navigable architecture and workflow diagrams |
 | `harness-update`    | global | Refreshes shared skills, generated agents and managed project files |
 | `makefile`           | global | The same make commands in every project: help, local, dev, prod |
 | `doc-create`         | global | Records project conventions in the project's `docs/`              |

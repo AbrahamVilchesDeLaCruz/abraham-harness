@@ -111,10 +111,10 @@ test('all runtime formats pass discovery decisions to writer and builder', () =>
 test('architect is scoped to plan artifacts and receives the domain modeling skill', () => {
   withProject(({ project, run }) => {
     assert.equal(run().status, 0);
-    assert.match(read(project, '.claude/agents/architect.md'), /^skills:\n  - api-domain$/m);
+    assert.match(read(project, '.claude/agents/architect.md'), /^skills:\n  - api-domain\n  - archify$/m);
     assert.match(read(project, '.claude/agents/architect.md'), /domain-model\/index\.html/);
     assert.match(read(project, '.opencode/agents/architect.md'), /^permission:\n  edit:\n    "\*": deny\n    "\.agents\/plans\/\*\*": allow$/m);
-    assert.match(read(project, '.codex/agents/architect.toml'), /Load these skills before you work: `api-domain`/);
+    assert.match(read(project, '.codex/agents/architect.toml'), /Load these skills before you work: `api-domain`, `archify`/);
   });
 });
 

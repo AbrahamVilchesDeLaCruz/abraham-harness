@@ -69,7 +69,7 @@ The installer adds the specialist agents to `.claude/agents/`, `.codex/agents/` 
 | Agent | Role | Can edit |
 | --- | --- | --- |
 | `spec-writer` | Writes the spec and the phased plan | Only `.agents/plans/` |
-| `architect` | Optionally draws a reviewable domain model and glossary before specification | Only `.agents/plans/` |
+| `architect` | Optionally uses `archify` to create a reviewable domain model and glossary before specification | Only `.agents/plans/` |
 | `coordinator` (orchestrating session) | Decomposes work, dispatches builders, integrates commits and runs seam checks | Integration workspace |
 | `builder` | Implements one contracted task, runs its checks and commits locally on its assigned task branch | Yes |
 | `security` | Reviews security | No |
@@ -174,7 +174,7 @@ Edit shared skills here, never in the generated skills directory of a project. E
 | Group | Skills |
 | --- | --- |
 | Project | `project-bootstrap`, `factory-workflow`, `plan-create`, `plan-phase-implement`, `doc-create`, `engineering-conventions`, `makefile` |
-| Workflow | `tdd-workflow`, `git-workflow`, `harness-update`, `skill-creator`, `skill-sync` |
+| Workflow | `archify`, `tdd-workflow`, `git-workflow`, `harness-update`, `skill-creator`, `skill-sync` |
 | API | `api-application`, `api-auth`, `api-bc-review`, `api-criteria`, `api-database-design`, `api-di`, `api-domain`, `api-domain-events`, `api-error-handler`, `api-events`, `api-events-infra`, `api-infrastructure`, `api-migrations`, `api-observability`, `api-repository`, `api-response`, `api-rest`, `api-shared`, `api-testing`, `api-validation` |
 | Client | `client-accessibility`, `client-api`, `client-branding`, `client-container-presentational`, `client-hooks`, `client-pods`, `client-query`, `client-testing`, `client-ui-design`, `client-ux` |
 | Stack | `stack-nestjs`, `stack-typeorm`, `stack-rabbitmq`, `stack-observability`, `stack-react`, `stack-tanstack-query`, `stack-vitest` |

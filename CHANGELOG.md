@@ -2,6 +2,10 @@
 
 This project follows [Semantic Versioning](https://semver.org/): a major version changes a convention that existing projects must adapt to (before 1.0, a minor version may do so), a minor version adds skills or guidance, and a patch version fixes them.
 
+## 0.26.0
+
+- Add the self-contained Archify diagramming skill and use it for architect domain-model artifacts while preserving the existing approval and review flow.
+
 ## 0.25.1
 
 - Ask about a domain diagram only after briefly reporting detected domain changes; invoke `architect` and build HTML only after an explicit yes. A no continues without diagram work.

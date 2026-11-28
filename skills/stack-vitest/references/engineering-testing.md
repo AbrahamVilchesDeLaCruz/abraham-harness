@@ -15,7 +15,7 @@ The NestJS template brings Vitest: keep its scripts and configuration. Tests res
          │      Unit       │  ← use cases and subscribers with vitest-mock-extended, which exercise the domain
          └─────────────────┘
 
-There are no integration tests.
+Use focused integration or contract checks for distinct risks that require real dependencies.
 ```
 
 ### Unit tests

@@ -1,6 +1,6 @@
 # Task contract
 
-The coordinator creates one contract for each builder. Keep tasks independently verifiable and narrowly scoped. Use the same immutable base commit for every task in a phase.
+The coordinator creates one contract for each builder. Keep tasks independently verifiable and narrowly scoped. Use the same immutable base commit for every independent group. When a task consumes an earlier change, integrate that dependency and give the next group the resulting SHA.
 
 ```markdown
 ## Task: <id> — <short outcome>
@@ -10,7 +10,7 @@ The coordinator creates one contract for each builder. Keep tasks independently 
 - Dependencies: none | <task ids and required outputs>
 - Base commit: <full SHA>
 - Branch: <unique local branch name>
-- Worktree: <unique path>
+- Worktree: <unique path, or current checkout for serial execution>
 - Authorized paths: <explicit paths or globs>
 - Forbidden paths: <paths reserved for another task or outside scope>
 - Skills: <exact SKILL.md and reference paths for this task, with the few rules that matter here>
@@ -24,7 +24,7 @@ The coordinator creates one contract for each builder. Keep tasks independently 
 
 Before launch, ensure each acceptance criterion has evidence, dependencies form an acyclic graph, and concurrent tasks do not write the same paths. If overlap is unavoidable, serialize those tasks or assign the shared files to one owner. Do not treat path instructions as an OS-level sandbox.
 
-Builders must stop and report when a required change falls outside authorized paths, a dependency is missing, the base differs, or a check cannot run. They must not broaden scope themselves. The coordinator may revise contracts and relaunch affected tasks.
+Builders must stop and report when a required change falls outside authorized paths, a dependency is missing, the base differs, or a check cannot run. They must not broaden scope themselves. The coordinator may revise contracts and relaunch affected tasks within the authorized scope. Preserve partial work and allow unrelated ready tasks to continue.
 
 ## Staged verification
 
@@ -39,6 +39,6 @@ Verification gets more expensive as it widens, so the contract orders it:
 
 - The coordinator resolves skills once and passes exact paths plus a short summary of the rules that apply. Builders read those paths and do not rediscover skills or reference modules.
 - Keep one authoritative discovery handoff. Put only task-relevant confirmed decisions in each contract, and provide a readable snapshot of detailed handoff, domain-model or prototype files inside the builder's workspace when needed. Verify access before launch; a path in the coordinator's ignored `.agents/` directory is not enough. Builders inspect the source paths they need. Reviewers independently inspect the integrated candidate.
-- The coordinator prepares each worktree once, with a project script when one exists: dependency install, environment file and any dedicated database. Builders never repeat this setup; if it is missing or broken, they stop and report.
+- The coordinator prepares each worktree once, with a project script when one exists: dependency install, environment file and any dedicated database. Builders never repeat this setup; if it is missing or broken, report it to the coordinator for recovery.
 - Task commits skip repeated work that the builder's checks already did. Keep `commit-msg` validation on every commit; run the full lint and format check once at closing, in the seam checks.
 - Before reporting, a builder stops every process it started, including wait loops, watchers and background jobs, and states that it did so in the handoff.

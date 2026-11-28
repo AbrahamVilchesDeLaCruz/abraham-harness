@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { validateReview } from '../skills/factory-workflow/scripts/validate-review.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const read = (path) => readFileSync(join(root, path), 'utf8');
@@ -22,9 +23,8 @@ test('workflow contracts require isolated task branches and a serial fallback', 
   const tasks = read('skills/factory-workflow/references/task-contract.md');
   const integration = read('skills/factory-workflow/references/integration.md');
 
-  assert.match(workflow, /separate branches and worktrees/);
+  assert.match(workflow, /verified isolated workspaces/);
   assert.match(workflow, /integration into its existing working branch/);
-  assert.match(workflow, /remote merge require user authorization/);
   for (const field of ['Dependencies', 'Base commit', 'Branch', 'Worktree', 'Authorized paths', 'Closing checks']) {
     assert.match(tasks, new RegExp(`- ${field}:`));
   }
@@ -40,10 +40,10 @@ test('project policy and scoped user authorization govern worktree integration a
   const integration = read('skills/factory-workflow/references/integration.md');
 
   assert.match(rootTemplate, /Project-specific `AGENTS\.md`, `docs\/`, CI and branch\/PR policy take precedence/);
-  assert.match(authorization, /Remote operations require user authorization/);
-  assert.match(authorization, /Integrate task worktrees into the existing working branch/);
-  assert.match(authorization, /Do not invent an issue link or size exception/);
-  assert.match(authorization, /Merge only when the specific merge operation is authorized/);
+  assert.match(authorization, /first push, subsequent pushes and PR creation together/);
+  assert.match(authorization, /first verified commit lands on the feature branch/);
+  assert.match(authorization, /open or update one PR to the configured base/);
+  assert.match(authorization, /Merge, publishing into a protected branch, deployment and deletion require their own authorization/);
   assert.match(integration, /Remote writes are opt-in/);
   assert.match(gitWorkflow, /Do not add agent Co-authored-by trailers/);
 });
@@ -51,20 +51,32 @@ test('project policy and scoped user authorization govern worktree integration a
 test('review selection is contextual and approval binds all selected verdicts to one commit', () => {
   const matrix = read('skills/factory-workflow/references/review-matrix.md');
   const gate = read('skills/factory-workflow/references/gate.md');
-  const approver = read('agents/approver.md');
 
   assert.match(matrix, /`code-reviewer` is required for every code change/);
   assert.match(matrix, /take the union/);
-  assert.match(gate, /same base and candidate commit SHAs/);
-  assert.match(approver, /every required reviewer in the selected set/);
-  assert.match(approver, /git rev-parse HEAD/);
+  assert.match(gate, /original feature base and accumulated diff/);
+
+  const base = 'a'.repeat(40);
+  const candidate = 'b'.repeat(40);
+  const required = ['code-reviewer', 'security'];
+  const verdicts = required.map(role => ({ role, base, candidate, status: 'APPROVED' }));
+  const checks = [{ command: 'npm test', candidate, status: 'passed' }];
+  const record = { base, candidate, required, checks, verdicts };
+  assert.deepEqual(validateReview(record), []);
+  assert.match(validateReview({ ...record, verdicts: verdicts.slice(0, 1) }).join(), /Missing verdict: security/);
+  assert.match(validateReview({ ...record, verdicts: [...verdicts, verdicts[0]] }).join(), /duplicate/);
+  assert.match(validateReview({ ...record, checks: [{ ...checks[0], status: 'pending' }] }).join(), /passing result/);
+  for (const status of ['BLOCKED', 'CHANGES_REQUESTED']) {
+    assert.match(validateReview({ ...record, verdicts: [verdicts[0], { ...verdicts[1], status }] }).join(), /Missing approval/);
+  }
+  assert.match(validateReview({ ...record, verdicts: [verdicts[0], { ...verdicts[1], candidate: base }] }).join(), /Missing approval/);
 });
 
 test('runtime-specific capability and model details stay outside common workflow rules', () => {
   const adapters = read('skills/factory-workflow/references/adapters/README.md');
   const workflow = read('skills/factory-workflow/SKILL.md');
 
-  assert.match(adapters, /Do not put model assignments in common workflow rules/);
+  assert.match(adapters, /Keep optional model assignments in runtime configuration/);
   for (const runtime of ['claude-code.md', 'codex.md', 'opencode.md']) {
     assert.match(adapters, new RegExp(runtime.replace('.', '\\.')));
     assert.match(read(`skills/factory-workflow/references/adapters/${runtime}`), /serial fallback/);
@@ -131,7 +143,7 @@ test('root E2E script orchestrates the run reached by the shared Makefile', () =
   assert.match(testing, /root `test:e2e` script/);
   assert.match(testing, /API package `test:e2e`/);
   assert.match(testing, /routine E2E runs in CI/i);
-  assert.match(read('skills/factory-workflow/references/publication-authorization.md'), /passing CI.*before.*merge or deploy/);
+  assert.match(read('skills/factory-workflow/references/publication-authorization.md'), /Pending, failed, stale or missing CI blocks a required merge or deployment/);
 });
 
 test('pre-spec discovery preserves the default engineering gate and an explicit frontend choice', () => {
@@ -157,7 +169,7 @@ test('pre-spec discovery preserves the default engineering gate and an explicit 
   assert.match(discovery, /Do not pass a path that only exists in the coordinator's checkout/);
   assert.match(read('skills/factory-workflow/references/integration.md'), /readable discovery\/prototype snapshots/);
   assert.match(matrix, /`code-reviewer` is required for every code change/);
-  assert.match(workflow, /separate branches and worktrees/);
+  assert.match(workflow, /verified isolated workspaces/);
   assert.doesNotMatch(workflow, /personal\/professional profile/i);
 });
 

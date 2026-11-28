@@ -7,7 +7,7 @@
 
 ## Test policy
 
-Two levels in the api, and no integration level:
+Use application units and controller E2E for ordinary API coverage. Add focused integration or contract checks for risks that need a real boundary:
 
 ```
          ┌─────────────────┐
@@ -18,9 +18,9 @@ Two levels in the api, and no integration level:
 ```
 
 - **Unit** is the large layer. Test distinct domain and application decisions from `application`: use cases with mocked ports exercise the domain. Group equivalent variants and avoid duplicating the same rule at other levels.
-- **Event subscribers live in application**, so they are unit tests too: build the domain event with an Object Mother and call the subscriber. The message bus is never started.
+- **Event subscribers live in application**, so they are unit tests too: build the domain event with an Object Mother and call the subscriber. These unit tests do not start the message bus.
 - **E2E covers controllers only**: the HTTP contract, guards, validation and critical persistence through the real repositories. Keep business-rule variations in unit tests.
-- **There are no integration tests.** A repository is exercised only through the controller E2E that uses it.
+- **Focused integration or contract checks** cover risks such as a real transaction, migration, adapter serialization or broker redelivery. Use disposable resources and avoid duplicating business-rule variants.
 
 ---
 
@@ -73,7 +73,7 @@ API E2E tests always run inside containers, so every machine and CI run uses the
 - **One database for all suites.** It starts once, before the first test, and every suite shares it. The compose run starts it, runs the tests and stops it.
 
 ```bash
-# The target belongs in make/project.mk
+# The shared make module provides this target
 make test-e2e
 # delegates to the root package.json test:e2e script
 ```
@@ -82,7 +82,7 @@ The shared Makefile calls the root `test:e2e` script; that script orchestrates `
 
 #### In CI
 
-CI runs the complete unit and E2E suite on pull requests as a publication check before merge or deployment; optional manual dispatch may diagnose a candidate. Do not add a routine push trigger. Run typecheck, lint and client units before costly Compose and browser steps. For the API, use the same compose file, so API units and E2E run in one iteration and there is no separate database service to keep in sync. Include client E2E when the project has a client; run selected browser journeys in desktop and phone sizes after earlier checks pass. Locally, run focused unit tests while iterating; the project policy decides whether a final local full-unit run is required. Routine E2E runs in CI; use `make test-e2e` locally only when the project permits it to diagnose a CI failure or concrete integration risk.
+CI runs the complete unit and E2E suite on pull requests as a publication check before merge or deployment; optional manual dispatch may diagnose a candidate. Do not add a routine push trigger. Run typecheck and lint first, then invoke the root orchestrator, which runs client units once before costly Compose and browser steps. For the API, use the same compose file, so API units and E2E run in one iteration and there is no separate database service to keep in sync. Include client E2E when the project has a client; run selected browser journeys in desktop and phone sizes after earlier checks pass. Locally, run focused unit tests while iterating; the project policy decides whether a final local full-unit run is required. Routine E2E runs in CI; use `make test-e2e` locally only when the project permits it to diagnose a CI failure or concrete integration risk.
 
 **The secrets manager is not used in the E2E step**: the vars come from the committed `.env.test` (it contains only test values, no real secrets).
 

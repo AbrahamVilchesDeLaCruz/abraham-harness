@@ -1,142 +1,139 @@
 #!/usr/bin/env node
-// Wraps the skills CLI, which fixes the source and target tools, and installs the role agents it cannot install.
 import { spawnSync } from 'node:child_process';
 import { homedir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { installAgents, loadRoles, refreshAgents } from '../lib/agents.mjs';
 import { refreshAgentsMd } from '../lib/agents-md.mjs';
 import { refreshMakeModules } from '../lib/make-modules.mjs';
-import { findMissingSkills } from '../lib/skills.mjs';
+import { inspectRelease, release, repository } from '../lib/release.mjs';
 
-const SOURCE = 'AbrahamVilchesDeLaCruz/abraham-harness';
 const AGENTS = ['claude-code', 'codex', 'opencode'];
-const SKILLS_CLI = ['-y', 'skills@latest'];
-
-// These options only print information, so the installer must not write agents.
 const INFO_OPTIONS = new Set(['--help', '-h', '--list', '-l', '--dry-run']);
-const isGlobalOption = (option) =>
-  option === '--global' || option === '--global=true' || /^-[a-zA-Z]*g[a-zA-Z]*$/.test(option);
+const baseOptions = new Set(['--global', '--global=true', '--project', '-p', '-g', '-y', '--yes']);
+const isGlobalOption = option =>
+  option === '--global' || option === '--global=true' || /^-[gy]*g[gy]*$/.test(option);
 
 const USAGE = `Usage: abraham-harness [command] [options]
 
 Commands:
-  install   Install every skill and role agent for ${AGENTS.join(', ')} (default)
-  update    Update installed skills, add newly published harness skills, and refresh generated project files
-  check     Check for updates and newly published skills (exits with code 1 when any are available)
+  install   Install the packaged release for ${AGENTS.join(', ')} (default)
+  update    Reconcile harness skills and generated project files to this release
+  check     Compare the installed harness against this release
+  doctor    Show installed skills and roles per runtime (use --json for details)
 
-Options are forwarded to the skills CLI, for example: abraham-harness install --global
+Scope: --global or project (default)
 `;
+const commands = ['install', 'update', 'check', 'doctor'];
+const sourceDir = fileURLToPath(new URL('../skills', import.meta.url));
+const rolesDir = fileURLToPath(new URL('../agents', import.meta.url));
 
-const COMMANDS = {
-  install: ['add', SOURCE, '--skill', '*', ...AGENTS.flatMap((agent) => ['-a', agent]), '-y'],
-  update: ['update'],
-  check: ['check'],
-};
-
-const isProjectOption = (option) => option === '--project' || option === '-p';
-const isScopeOption = (option) => isGlobalOption(option) || isProjectOption(option);
-const scopeFlag = (isGlobal) => (isGlobal ? '-g' : '-p');
-const sourceSkillsDir = fileURLToPath(new URL('../skills', import.meta.url));
-
-function commandArgs(command, options) {
-  if (command !== 'update' && command !== 'check') return [...COMMANDS[command], ...options];
-
-  const forwarded = options.filter((option) => !isScopeOption(option));
-  return [COMMANDS[command][0], scopeFlag(options.some(isGlobalOption)), ...(command === 'update' ? ['-y'] : []), ...forwarded];
-}
-
-function addMissingSkills(names, options) {
+function addSkills(names, { isGlobal, options }) {
+  const forwarded = options.filter(option => !baseOptions.has(option) && !isGlobalOption(option));
   const args = [
-    'add',
-    SOURCE,
-    '--skill',
-    ...names,
-    ...AGENTS.flatMap((agent) => ['-a', agent]),
-    '-y',
+    '-y', `skills@${release.skillsCliVersion}`, 'add', release.source,
+    '--skill', ...names, ...AGENTS.flatMap(agent => ['-a', agent]), '-y',
+    ...(isGlobal ? ['-g'] : []), ...forwarded,
   ];
-  if (options.some(isGlobalOption)) args.push('-g');
-  args.push(...options.filter((option) => !isScopeOption(option) && !INFO_OPTIONS.has(option)));
-  return args;
-}
-
-function runSkills(args) {
-  return spawnSync(isWindows ? 'npx.cmd' : 'npx', [...SKILLS_CLI, ...args], {
+  const result = spawnSync(process.platform === 'win32' ? 'npx.cmd' : 'npx', args, {
     stdio: 'inherit',
-    shell: isWindows,
+    shell: process.platform === 'win32',
   });
+  if (result.error) throw result.error;
+  return result.status ?? 1;
 }
 
-const argv = process.argv.slice(2);
-if (argv[0] === '--help' || argv[0] === '-h') {
-  process.stdout.write(USAGE);
-  process.exit(0);
-}
-
-const hasCommand = argv.length > 0 && !argv[0].startsWith('-');
-const command = hasCommand ? argv[0] : 'install';
-const options = hasCommand ? argv.slice(1) : argv;
-
-if (!Object.hasOwn(COMMANDS, command)) {
-  process.stderr.write(`Unknown command "${command}"\n\n${USAGE}`);
-  process.exit(1);
-}
-
-const isWindows = process.platform === 'win32';
-const result = runSkills(commandArgs(command, options));
-
-if (result.error) {
-  process.stderr.write(`Could not run npx: ${result.error.message}\n`);
-  process.exit(1);
-}
-const status = result.status ?? 1;
-if (status !== 0 || options.some((option) => INFO_OPTIONS.has(option))) process.exit(status);
-
-const isGlobal = options.some(isGlobalOption);
-const base = isGlobal ? homedir() : process.cwd();
-const missingSkills = findMissingSkills({ sourceDir: sourceSkillsDir, base, isGlobal });
-
-if (command === 'check') {
-  if (missingSkills.length > 0) {
-    process.stdout.write(`New harness skills available: ${missingSkills.join(', ')}\nRun \`npx github:${SOURCE} update\` to add them.\n`);
-    process.exit(1);
+function printDoctor(report, json) {
+  if (json) {
+    console.log(JSON.stringify(report, null, 2));
+    return;
   }
-  process.exit(0);
-}
-
-if (command === 'update') {
-  if (missingSkills.length > 0) {
-    process.stdout.write(`Installing ${missingSkills.length} new harness skill(s): ${missingSkills.join(', ')}\n`);
-    const added = runSkills(addMissingSkills(missingSkills, options));
-    if (added.error) {
-      process.stderr.write(`Could not run npx to add new skills: ${added.error.message}\n`);
-      process.exit(1);
-    }
-    if ((added.status ?? 1) !== 0) process.exit(added.status ?? 1);
+  console.log(`Harness ${report.release.version} (skills CLI ${report.release.skillsCliVersion})`);
+  for (const { runtime, skills, roles } of report.installed) {
+    const gaps = [...skills, ...roles].filter(item => item.state !== 'present');
+    console.log(`${runtime}: ${gaps.length ? gaps.map(({ name, state }) => `${name} (${state})`).join(', ') : 'all files present'}; runtime capabilities unverified`);
   }
 }
 
-const roles = loadRoles(fileURLToPath(new URL('../agents', import.meta.url)));
-try {
+function main(argv) {
+  if (argv[0] === '--help' || argv[0] === '-h') {
+    console.log(USAGE.trimEnd());
+    return 0;
+  }
+
+  const hasCommand = argv.length > 0 && !argv[0].startsWith('-');
+  const command = hasCommand ? argv[0] : 'install';
+  const options = hasCommand ? argv.slice(1) : argv;
+  if (!commands.includes(command)) {
+    console.error(`Unknown command "${command}"\n\n${USAGE}`);
+    return 1;
+  }
+
+  const unsupported = options.find(option => !baseOptions.has(option) && !isGlobalOption(option)
+    && !INFO_OPTIONS.has(option) && option !== '--copy' && !(command === 'doctor' && option === '--json'));
+  if (unsupported) {
+    console.error(`Unsupported option: ${unsupported}`);
+    return 1;
+  }
+  const isGlobal = options.some(isGlobalOption);
+  const base = isGlobal ? homedir() : process.cwd();
+  const settings = { isGlobal, options };
+
+  if (options.some(option => INFO_OPTIONS.has(option))) {
+    if (command === 'install') return addSkills(['*'], settings);
+    console.log(USAGE.trimEnd());
+    return 0;
+  }
+
   if (command === 'install') {
+    const roles = loadRoles(rolesDir);
+    const status = addSkills(['*'], settings);
+    if (status !== 0) return status;
     const { written, skipped } = installAgents(roles, { base, isGlobal });
-    for (const path of skipped) process.stderr.write(`Skipped ${path}: not generated by abraham-harness\n`);
-    process.stdout.write(`Installed ${written.length} agent files for ${AGENTS.join(', ')}\n`);
-  } else {
-    const refreshed = refreshAgents(roles, [{ base, isGlobal }]);
-    if (refreshed > 0) process.stdout.write(`Refreshed or installed ${refreshed} agent files\n`);
+    for (const path of skipped) console.error(`Skipped ${path}: not generated by abraham-harness`);
+    console.log(`Installed ${written.length} agent files for ${AGENTS.join(', ')}`);
+    return 0;
   }
-  if (command === 'update' && !isGlobal) {
+
+  const report = inspectRelease({ sourceDir, rolesDir, base, isGlobal });
+  if (command === 'doctor') {
+    printDoctor(report, options.includes('--json'));
+    return 0;
+  }
+
+  if (command === 'check') {
+    const outdatedRoles = report.installed.some(({ roles }) => roles.some(role => role.state === 'different-release'));
+    if (report.names.length || outdatedRoles) {
+      if (report.names.length) console.log(`Harness skills to reconcile: ${report.names.join(', ')}`);
+      console.log(`Run npx github:${repository}#${release.ref} update. Use doctor for per-runtime details.`);
+      return 1;
+    }
+    return 0;
+  }
+
+  if (report.names.length) {
+    console.log(`Reconciling ${report.names.length} harness skill(s) to ${release.ref}`);
+    const status = addSkills(report.names, settings);
+    if (status !== 0) return status;
+  }
+
+  const refreshedRoles = refreshAgents(loadRoles(rolesDir), [{ base, isGlobal }]);
+  if (refreshedRoles > 0) console.log(`Refreshed or installed ${refreshedRoles} agent files`);
+  if (!isGlobal) {
     const templatesDir = fileURLToPath(new URL('../skills/project-bootstrap/assets', import.meta.url));
     const { refreshed, skipped } = refreshAgentsMd({ base, templatesDir });
-    for (const item of skipped) process.stderr.write(`Skipped ${item}\n`);
-    if (refreshed > 0) process.stdout.write(`Refreshed the skills tables in ${refreshed} AGENTS.md file(s)\n`);
+    for (const item of skipped) console.error(`Skipped ${item}`);
+    if (refreshed > 0) console.log(`Refreshed the skills tables in ${refreshed} AGENTS.md file(s)`);
     const modulesDir = fileURLToPath(new URL('../skills/makefile/assets/make', import.meta.url));
     const make = refreshMakeModules({ base, modulesDir });
-    for (const item of make.skipped) process.stderr.write(`Skipped ${item}\n`);
-    if (make.refreshed > 0) process.stdout.write(`Refreshed ${make.refreshed} make module(s)\n`);
+    for (const item of make.skipped) console.error(`Skipped ${item}`);
+    if (make.refreshed > 0) console.log(`Refreshed ${make.refreshed} make module(s)`);
   }
-} catch (error) {
-  process.stderr.write(`Could not write agents: ${error.message}\n`);
-  process.exit(1);
+  return 0;
 }
-process.exit(0);
+
+try {
+  process.exitCode = main(process.argv.slice(2));
+} catch (error) {
+  console.error(`Could not reconcile harness: ${error.message}`);
+  process.exitCode = 1;
+}

@@ -220,7 +220,7 @@ Red → Green → Refactor
 
 **Unit**: a single class or function in isolation. Mocked dependencies. Fast. They are the base.
 
-**No integration level.** The backend has no test that pairs a use case with a real repository; persistence is exercised only through controller E2E tests.
+**Focused integration or contract checks** use a real dependency when the risk cannot be exercised reliably through application units or controller E2E.
 
 **E2E**: in the backend, the real HTTP contract of the controllers against one shared test database. In the frontend, complete critical flows only. Slow and costly to maintain.
 

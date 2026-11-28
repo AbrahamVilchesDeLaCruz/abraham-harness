@@ -1,37 +1,17 @@
-# Publication and integration authorization
+# Feature delivery
 
-Use this contract whenever a worktree is integrated into a parent branch or a remote is changed. It allows a user to delegate an exact operation without granting blanket GitHub or Git authority.
+At the start of authorized implementation, create or reuse its feature branch. Resolve the base and remote from the project's configuration. Keep the original feature base SHA for the final review. Preserve unrelated user changes.
 
-## Authorization scope
+## Authority
 
-An implementation request authorizes necessary local task commits and integration into its existing working branch, subject to project policy. Remote operations require user authorization. Record:
+Record repository, remote, feature branch, PR base, permitted operations and conditions in the feature plan. A project delivery policy and the user's instruction may authorize first push, subsequent pushes and PR creation together for the same feature. Apply standing authorization when it covers the exact target; ask only when a required target or permission is missing. Merge, publishing into a protected branch, deployment and deletion require their own authorization.
 
-| Field | Required evidence |
-|---|---|
-| Repository and remote | Exact repository; confirm the configured remote matches before pushing |
-| Source | Branch/worktree and expected candidate commit SHA |
-| Destination | Parent branch for local integration, or PR base branch for remote delivery |
-| Operations | Explicit list: local integration, push, create PR, approve/review, merge, delete branch |
-| Strategy | Merge, squash or other method when integration/merge is authorized |
-| Conditions | Required review, CI, branch status and any user-specified stop point |
-| PR metadata | Title and labels when creating a PR; use the target repository's template if it has one |
+## Delivery order
 
-An instruction may authorize conditional future actions in one scope, for example: “After the named PR is approved and required checks pass, squash-merge it into the named parent branch and delete the source branch.” Do not infer that authority from permission to push or open the PR.
+1. Once the first verified commit lands on the feature branch, push that commit to the authorized remote. Do not push task worktree branches. When push is not authorized, keep implementing locally.
+2. Continue all technical phases. Verify the final combined tree, freeze the candidate, and review from the original feature base. Integrate into the feature branch while preserving its reviewed candidate. A different resulting candidate requires relevant rechecks and review.
+3. Push the final candidate to the same authorized branch and open or update one PR to the configured base. Use `pull-request.md` for evidence. The project may require a draft; otherwise the PR may be ready for human review with pending CI clearly shown.
+4. Track required CI against the verified PR head and record the actual ref or SHA tested, including a synthetic merge commit when applicable. Pending, failed, stale or missing CI blocks a required merge or deployment. CI and human review remain distinct. A project-required gate for a separately delivered phase applies to that phase.
+5. Address recoverable problems in the same scope. Before retrying a remote write after a timeout, check refs and the open PR for the authorized head and base. Report what succeeded and what remains pending.
 
-## Preflight
-
-Before each authorized operation:
-
-1. Read `git status --short --branch`, current branch and `git rev-parse HEAD`. Preserve unrelated or uncommitted user changes; never use `git reset`, `git add .`, stash/pop or force-push to clear them.
-2. Confirm the named source ref still resolves to the reviewed candidate SHA. A changed SHA requires fresh relevant checks/review.
-3. Confirm the remote, destination branch, existing PR state and method match the authorization. Use the target repository's current policy for required issues, labels, approvals, size limits and CI.
-4. If a required field or policy is unclear, stop before the remote mutation and ask one focused question.
-
-## Execution boundaries
-
-- Integrate task worktrees into the existing working branch within the requested scope; record the method, task commit and resulting parent SHA. A different target requires authorization.
-- Push only the authorized source branch to the authorized remote. Never infer permission to push a parent or protected branch.
-- Create only the authorized PR with the authorized head/base, title and labels. Do not invent an issue link or size exception; apply such requirements only when the target repository actually requires them or the user requests them.
-- Merge only when the specific merge operation is authorized, directly or through an explicit condition, and all stated review/CI gates pass. Never treat the approver's candidate verdict as implicit merge permission.
-- Require passing CI for the complete unit and E2E suite on the exact candidate SHA before a release/main merge or deploy. Run it on the candidate PR, or an explicitly requested manual dispatch, before publication; a direct push to main is too late. An independently published phase needs its own passing CI; a high-risk intermediate phase needs early CI only when the project verification policy requires it. A pending, missing or stale required run is not a pass. If the target has no such CI gate, report the gap and keep publication pending instead of inventing a green result.
-- Afterward, verify the resulting refs/PR state and report the exact observed result. If an operation fails, stop without trying a broader or destructive workaround.
+Before each operation verify remote, target, source SHA and existing PR state. A first push uses the first verified feature commit; final delivery uses the reviewed candidate. Never overwrite unrelated changes or widen an operation by force-pushing, resetting or targeting another branch.

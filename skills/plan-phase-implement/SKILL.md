@@ -17,7 +17,7 @@ Use this skill to implement one task contract from an FTD document or current pl
 - Commit completed work locally on the assigned task branch. Never push or merge branches; the coordinator integrates task commits and the user controls final publication.
 - Use the task ID selected by the coordinator; do not independently claim another unchecked task.
 - Check an item only after you observe its result. Record a check that failed or could not run.
-- Do not change contracts that the plan agreed on. Stop and ask when the plan turns out to be wrong.
+- Pause the affected task and return a diagnosed conflict to the coordinator if the contract needs revision.
 
 ## Decision Gates
 
@@ -25,7 +25,7 @@ Use this skill to implement one task contract from an FTD document or current pl
 | --- | --- |
 | No FTD document or plan and task contract are specified | Ask for them |
 | All tasks in the current phase are checked | Report completion; do not start the next phase |
-| The assigned task is blocked | Stop and report the exact blocker |
+| The assigned task is blocked | Report the exact blocker and resumable partial work to the coordinator |
 
 ## Execution Steps
 

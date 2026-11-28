@@ -1,6 +1,6 @@
 # api-testing with NestJS
 
-Apply the rules of `api-testing`. This reference shows controller E2E tests with NestJS and supertest. Subscribers are not E2E subjects: test them as application units.
+Apply the rules of `api-testing`. This reference shows controller E2E tests with NestJS and supertest. Test subscriber decisions as application units. Verify broker behavior with a focused integration check when messaging risk requires it.
 
 E2E tests live in `test/{bc}/infrastructure/` and use `supertest` with `createTestApp()`. Every test in a file shares one app: create it in `beforeAll` and close it in `afterAll`, never per test. Isolate tests with data cleanup in `afterEach`, not by restarting the app.
 

@@ -1,7 +1,5 @@
 # Claude Code adapter
 
-Use the generated role definitions under `.claude/agents/` for responsibilities. Before parallel work, verify the active session can create and address a distinct Git worktree for each builder; if not, use the serial fallback in `integration.md`. Do not infer isolation from agent tool restrictions, which constrain tools but do not by themselves provide a separate checkout. Keep any project-specific model mapping outside the common skill.
+Use the generated `.claude/agents/` roles and native subagent worktree isolation when the session supports it. Native worktrees may start at a different base from the assigned dependency group. Verify the checkout and SHA or start a bounded session in the prepared worktree. If that is unavailable, use the serial fallback.
 
-Use runtime or personal settings for scoped command allow rules and additional worktree directories, subject to managed policy. Allow only the dependency, local Git and test database operations needed by the workflow; check the effective sandbox separately. Run migration tests only against a verified disposable target. To suppress Claude commit attribution, set `attribution.commit` to an empty string in the applicable Claude settings; preserve other settings.
-
-When a builder reports, cancel any background task it left running (such as a wait loop) and confirm none remains, so a finished builder does not look alive.
+Generated reviewer roles have no Bash and use the coordinator's frozen diff and ledger. Check effective settings and connectors before dispatch. For spec or diagram writers, verify a workspace permission boundary that restricts writes to plan artifacts. If none exists, collect read-only suggestions and have the coordinator write the files. Give builders only disposable test credentials and the Git access needed for local task commits.

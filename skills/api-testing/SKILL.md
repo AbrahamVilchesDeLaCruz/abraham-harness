@@ -18,7 +18,7 @@ metadata:
 
 - `/test` mirrors `/src`; specs never live under `src/`
 - A use case test is a unit test. `src/{bc}/{module}/application/{action}/{use-case}.ts` is tested in `test/{bc}/{module}/application/{action}/`, which holds `request-{use-case}.mother.ts` and `{use-case}.spec.ts`
-- There are no integration tests. A real repository or database is exercised only through a controller E2E test
+- Use focused integration or contract checks when a distinct risk needs a real repository, database, broker or adapter
 - Subscribers are unit tested with an event Mother; never start the bus
 - E2E tests cover controllers only. Business rules and error cases are unit tests; the E2E asserts the HTTP contract (status, body, guards, validation)
 - Domain tests always go through a use case, using Object Mothers. Aggregates and value objects are never tested on their own. The only exception is a larger domain service you want to test on its own

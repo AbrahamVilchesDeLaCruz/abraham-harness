@@ -20,14 +20,14 @@ OnModuleDestroy (NestJS)       → onModuleDestroy() — closes channel + connec
 
 | Attempt | Delay | Mechanism |
 |---|---|---|
-| 1 | 1 s | `expiration: "1000"` in `.retry` → returns via DLX |
-| 2 | 5 s | `expiration: "5000"` in `.retry` → returns via DLX |
-| 3 | 10 s | `expiration: "10000"` in `.retry` → returns via DLX |
+| 1 | 1 s | Fixed TTL in `.retry.1000` → returns via DLX |
+| 2 | 5 s | Fixed TTL in `.retry.5000` → returns via DLX |
+| 3 | 10 s | Fixed TTL in `.retry.10000` → returns via DLX |
 | 4 | — | → `.dead_letter` — manual intervention |
 
-**`expiration` is per message, not per queue** — it allows exponential backoff with a single `.retry` queue.
+Each delay has its own fixed-TTL queue so short retries cannot wait behind a longer interval in that queue.
 
-Queues created automatically in `setupQueues()`: `{queueName}`, `{queueName}.retry`, `{queueName}.dead_letter`.
+Queues created automatically in `setupQueues()`: `{queueName}`, `{queueName}.retry.<delay>`, `{queueName}.dead_letter`.
 
 ## Full `AmqpMessageBus`
 
@@ -38,7 +38,7 @@ import { ConfigService } from '@nestjs/config';
 import {
   connect,
   type ChannelModel,
-  type Channel,
+  type ConfirmChannel,
   type ConsumeMessage,
 } from 'amqplib';
 import { type DomainEvent } from '@/shared/domain/domain-event.js';
@@ -66,7 +66,9 @@ export class AmqpMessageBus
   private model: ChannelModel | null = null;
   /** Mutex: prevents concurrent connect() calls from creating two connections */
   private modelPromise: Promise<ChannelModel> | null = null;
-  private channel: Channel | null = null;
+  private channelPromise: Promise<ConfirmChannel> | null = null;
+  private reconnectTimer: ReturnType<typeof setTimeout> | undefined;
+  private stopping = false;
   private readonly registeredConsumers: ConsumerRegistration[] = [];
 
   constructor(
@@ -75,9 +77,10 @@ export class AmqpMessageBus
   ) {}
 
   async onModuleDestroy(): Promise<void> {
-    await this.channel?.close().catch(() => undefined);
+    this.stopping = true;
+    clearTimeout(this.reconnectTimer);
     await this.model?.close().catch(() => undefined);
-    this.channel = null;
+    this.channelPromise = null;
     this.model = null;
     this.modelPromise = null;
   }
@@ -94,16 +97,17 @@ export class AmqpMessageBus
     // Exchange type is always 'direct' — hardcoded, not from config
     await ch.assertExchange(exchangeName, 'direct', { durable: true });
 
-    await ch.assertQueue(queueName, {
-      durable: true,
-      arguments: {
-        'x-dead-letter-exchange': '',
-        'x-dead-letter-routing-key': `${queueName}.dead_letter`,
-      },
-    });
-
-    // .retry has no fixed TTL — each message sets the TTL (expiration)
-    await ch.assertQueue(`${queueName}.retry`, { durable: true });
+    await ch.assertQueue(queueName, { durable: true });
+    for (const delay of RETRY_DELAYS) {
+      await ch.assertQueue(`${queueName}.retry.${delay}`, {
+        durable: true,
+        arguments: {
+          'x-message-ttl': delay,
+          'x-dead-letter-exchange': '',
+          'x-dead-letter-routing-key': queueName,
+        },
+      });
+    }
     await ch.assertQueue(`${queueName}.dead_letter`, { durable: true });
 
     await ch.bindQueue(queueName, exchangeName, bindingKey);
@@ -119,9 +123,13 @@ export class AmqpMessageBus
     DomainEventClass: new (...args: unknown[]) => DomainEvent,
     handler: (event: DomainEvent) => Promise<void>,
   ): Promise<void> {
-    this.registeredConsumers.push({
-      queueName, eventName, exchangeName, DomainEventClass, handler,
-    });
+    const registration = { queueName, eventName, exchangeName, DomainEventClass, handler };
+    await this.attachConsumer(registration);
+    this.registeredConsumers.push(registration);
+  }
+
+  private async attachConsumer(registration: ConsumerRegistration): Promise<void> {
+    const { queueName, eventName, exchangeName, DomainEventClass, handler } = registration;
     await this.setupQueues(queueName, exchangeName, eventName);
     const ch = await this.getChannel();
     await ch.prefetch(1);
@@ -140,10 +148,13 @@ export class AmqpMessageBus
           }
         } catch (error) {
           try {
-            ch.nack(msg, false, false);
-            await this.handleRetry(msg, queueName, error as Error);
-          } catch {
-            // Channel may have been closed during shutdown.
+            await this.handleRetry(ch, msg, queueName, error as Error);
+            ch.ack(msg);
+          } catch (publishError) {
+            this.logger.error('Retry publication was not confirmed', publishError as Error, { queueName });
+            // Closing the connection releases unacknowledged deliveries.
+            // Its close handler restores the consumers after a delay.
+            await this.model?.close().catch(() => undefined);
           }
         }
       })();
@@ -201,34 +212,37 @@ export class AmqpMessageBus
         },
       );
     }
+    await ch.waitForConfirms();
   }
 
   // ── Retry & DLQ ───────────────────────────────────────────────────────────
 
   private async handleRetry(
+    ch: ConfirmChannel,
     msg: ConsumeMessage,
-    queueName: string, // passed as a parameter — NOT read from msg.fields.routingKey
+    queueName: string,
     error: Error,
   ): Promise<void> {
-    const retryCount =
-      (msg.properties.headers?.retries as number | undefined) ?? 0;
-    const content = msg.content; // original bytes — no re-serialization
-
-    if (retryCount < RETRY_DELAYS.length) {
-      const delay = RETRY_DELAYS[retryCount];
-      const ch = await this.getChannel();
-      this.logger.warn('Retrying message', { queueName, attempt: retryCount + 1, delayMs: delay });
-      ch.sendToQueue(`${queueName}.retry`, content, {
-        expiration: String(delay),
-        headers: { ...msg.properties.headers, retries: retryCount + 1 },
-      });
-    } else {
-      const ch = await this.getChannel();
-      this.logger.error('Message exhausted retries → DLQ', error, { queueName });
-      ch.sendToQueue(`${queueName}.dead_letter`, content, {
-        headers: { reason: error.message, exhaustedAt: new Date().toISOString() },
-      });
+    const stored = msg.properties.headers?.retries;
+    const retryCount = typeof stored === 'number' && Number.isInteger(stored) && stored >= 0 ? stored : 0;
+    const delay = RETRY_DELAYS[retryCount];
+    const target = delay === undefined
+      ? `${queueName}.dead_letter`
+      : `${queueName}.retry.${delay}`;
+    const headers = delay === undefined
+      ? { ...msg.properties.headers, reason: 'handler_failed', exhaustedAt: new Date().toISOString() }
+      : { ...msg.properties.headers, retries: retryCount + 1 };
+    if (delay === undefined) {
+      this.logger.error('Message exhausted retries', error, { queueName });
     }
+    await new Promise<void>((resolve, reject) => {
+      ch.sendToQueue(target, msg.content, {
+        persistent: true,
+        contentType: msg.properties.contentType,
+        messageId: msg.properties.messageId,
+        headers,
+      }, (failure) => failure ? reject(failure) : resolve());
+    });
   }
 
   // ── Connection ────────────────────────────────────────────────────────────
@@ -243,8 +257,8 @@ export class AmqpMessageBus
             this.logger.warn('AMQP connection closed — scheduling reconnect');
             this.model = null;
             this.modelPromise = null;
-            this.channel = null;
-            setTimeout(() => { void this.reconnect(); }, RECONNECT_DELAY_MS);
+            this.channelPromise = null;
+            this.scheduleReconnect();
           });
           model.on('error', (err: Error) => {
             this.logger.error('AMQP connection error', err, {});
@@ -259,27 +273,49 @@ export class AmqpMessageBus
     return this.modelPromise;
   }
 
+  private scheduleReconnect(): void {
+    if (this.stopping || this.reconnectTimer) return;
+    this.reconnectTimer = setTimeout(() => {
+      this.reconnectTimer = undefined;
+      void this.reconnect();
+    }, RECONNECT_DELAY_MS);
+  }
+
   private async reconnect(): Promise<void> {
     this.logger.info('AMQP reconnecting…', {});
     try {
       await this.getModel();
       for (const reg of this.registeredConsumers) {
-        await this.consume(reg.queueName, reg.eventName, reg.exchangeName, reg.DomainEventClass, reg.handler);
+        await this.attachConsumer(reg);
       }
       this.logger.info('AMQP reconnected and consumers restored', { consumers: this.registeredConsumers.length });
     } catch (err) {
       this.logger.error('AMQP reconnect failed — retrying', err as Error, {});
-      setTimeout(() => { void this.reconnect(); }, RECONNECT_DELAY_MS);
+      await this.model?.close().catch(() => undefined);
+      this.scheduleReconnect();
     }
   }
 
-  private async getChannel(): Promise<Channel> {
-    if (!this.channel) {
-      const model = await this.getModel();
-      this.channel = await model.createChannel();
-      this.channel.on('error', () => { this.channel = null; });
-    }
-    return this.channel;
+  private getChannel(): Promise<ConfirmChannel> {
+    this.channelPromise ??= this.getModel()
+      .then(async (model) => {
+        const channel = await model.createConfirmChannel();
+        channel.on('error', (error) => {
+          this.logger.error('AMQP channel failed', error, {});
+          void model.close().catch(() => undefined);
+        });
+        channel.on('close', () => {
+          if (this.model === model && !this.stopping) {
+            void model.close().catch(() => undefined);
+          }
+        });
+        return channel;
+      })
+      .catch((error: Error) => {
+        this.channelPromise = null;
+        throw error;
+      });
+    return this.channelPromise;
   }
 
   private instantiateDomainEvent(
@@ -288,7 +324,7 @@ export class AmqpMessageBus
   ): DomainEvent {
     // The payload uses the "data" field for attributes — validate its presence
     if (!message.data) {
-      throw new InvalidEventPayload(JSON.stringify(message));
+      throw new InvalidEventPayload('Missing event data');
     }
     return new DomainEventClass(
       message.aggregateId,
@@ -314,23 +350,9 @@ rabbitmqadmin move messages \
   --destination-queue=enrich_product_on_product_created
 ```
 
-## Retry flow diagram
+## Retry delivery guarantees
 
-```
-Message fails
-     ↓
-ch.nack(msg, false, false)    ← no requeue to main queue
-     ↓
-handleError()
-     ↓
-retryCount < 3 ?
-  YES → sendToQueue(.retry, { expiration: delay })
-         ↓
-         After TTL expires → .retry DLX → main queue (retry)
-  NO  → sendToQueue(.dead_letter, { headers: { reason } })
-         ↓
-         Manual intervention required
-```
+Publish exactly one replacement to the selected delay queue or final DLQ. Acknowledge the original after broker confirmation. On failure, leave it recoverable and restore consumption with backoff. A confirmation and the original acknowledgement are separate operations, so use idempotent handlers. When broker policies are managed outside the app, verify the expected topology and routability before enabling consumers. Provision a migration for existing queue declaration arguments; redeclaring an existing queue with different arguments can fail.
 
 ## External Documentation
 

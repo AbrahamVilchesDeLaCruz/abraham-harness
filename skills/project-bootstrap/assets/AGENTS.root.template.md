@@ -63,7 +63,7 @@ Project-specific `AGENTS.md`, `docs/`, CI and branch/PR policy take precedence o
 | `engineering-conventions` | global | Index of the shared conventions                              |
 | `factory-workflow`   | global | Picks the lane (Answer, FTD or SDD) and coordinates the agents   |
 | `plan-create`        | global | Phased plan with explicit contracts and assumptions                         |
-| `plan-phase-implement` | global | Implements one single phase and stops, without committing      |
+| `plan-phase-implement` | global | Implements one contracted task and records its verified local commit      |
 | `skill-creator`      | global | Creates new skills following the repo spec                       |
 | `skill-sync`         | global | Syncs skills to the AGENTS.md tables                             |
 | `git-workflow`       | global | Branching, naming, merge strategy and PRs for this repo          |

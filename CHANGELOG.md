@@ -2,6 +2,14 @@
 
 This project follows [Semantic Versioning](https://semver.org/): a major version changes a convention that existing projects must adapt to (before 1.0, a minor version may do so), a minor version adds skills or guidance, and a patch version fixes them.
 
+## 0.27.0
+
+- Keep product decisions human-led and run the technical phases autonomously, including scoped isolated work, recovery and final review of the accumulated feature.
+- Publish the first verified feature commit when authorized and deliver one final PR with task-specific evidence and visible CI status.
+- Replace model approval synthesis with deterministic candidate validation, tighten reviewer permissions and document runtime-specific isolation checks.
+- Pin the installer and harness catalog to the same release, add per-runtime diagnostics, and preserve fenced examples and line endings during managed documentation updates.
+- Correct the messaging, seed, migration and logging references and permit focused integration tests for risks that need real dependencies.
+
 ## 0.26.0
 
 - Add the self-contained Archify diagramming skill and use it for architect domain-model artifacts while preserving the existing approval and review flow.

@@ -37,20 +37,11 @@ export const DEMO_USER_ID = '00000000-0000-4000-a000-000000000001';
 export const DEMO_EMAIL = 'demo@local.dev';
 
 export async function seedLocalDemo(db): Promise<void> {
-  // idempotent — check before inserting
-  const existing = await db.query<{ count: string }[]>(
-    `SELECT COUNT(*)::text AS count FROM users WHERE email = $1`,
-    [DEMO_EMAIL],
-  );
-
-  if (parseInt(existing[0]?.count ?? '0', 10) > 0) {
-    process.stdout.write('Local demo seed already applied — skipping.\n');
-    return;
-  }
-
+  // The email column has a matching unique constraint.
   await db.query(
     `INSERT INTO users (id, email, nickname, role, created_at, updated_at)
-     VALUES ($1, $2, 'demo', 'admin', NOW(), NOW())`,
+     VALUES ($1, $2, 'demo', 'admin', NOW(), NOW())
+     ON CONFLICT (email) DO NOTHING`,
     [DEMO_USER_ID, DEMO_EMAIL],
   );
 

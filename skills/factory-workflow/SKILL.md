@@ -14,15 +14,15 @@ Use this skill to route every request and coordinate the role agents. The curren
 ## Hard Rules
 
 - Every turn takes exactly one lane. Answer is read-only. Infer intent and make reasonable assumptions; ask only when missing information materially blocks progress.
-- For FTD and SDD, run `references/discovery.md` before specification. Offer an interview; report domain changes and ask about a diagram. Invoke `architect` only after yes. Offer a frontend prototype for material UI work.
+- For FTD and SDD, run `references/discovery.md` before specification. Ask about open product decisions; keep applicable domain-diagram and frontend-prototype choices separate.
 - SDD applies when decisions interact or work cannot be resumed from the request and `git diff` alone. Promote FTD to SDD using its document as input.
 - Follow project `AGENTS.md`, `docs/` and target-repository policy. These, plus the current user's explicit instruction, outrank generic/user-global skill defaults. A project CI-only verification rule overrides shared local full-suite defaults; do not import another repository's issue, label, size or publication rules.
 - Every role reads the relevant project Brain entries and shared skills, and records observed evidence for checks. Pass one source-linked discovery handoff forward; reviewers verify the candidate independently. Read with CodeGraph when available before shell exploration.
-- Every code change passes `references/gate.md`; only documentation/configuration-only changes skip it. Select reviewers with `references/review-matrix.md`.
-- The coordinator may split a phase into contracted tasks. Parallel builders require separate branches and worktrees; otherwise run serially. Builders commit only to assigned local task branches and never push or integrate.
+- Review the final feature diff and high-risk phases under `references/gate.md`. Editorial docs and inert metadata skip the code gate. Select reviewers with `references/review-matrix.md`.
+- Keep small work inline or serial. Parallel builders require verified isolated workspaces. Only the coordinator integrates or publishes.
 - The coordinator integrates authorized task commits, resolves conflicts, runs seam checks and freezes the candidate before review.
-- A requested implementation authorizes local task commits and integration into its existing working branch when needed, subject to project policy and runtime permissions. Push, PR creation and remote merge require user authorization; follow `references/publication-authorization.md`.
-- Update the shared plan after integration and before every pause or handoff. Continue authorized work within the requested scope; respect explicit phase stops and report evidence.
+- A requested implementation authorizes local task commits and integration into its existing working branch when needed, subject to project policy and runtime permissions. Follow `references/publication-authorization.md` for feature branches, first push, final PR and merge authority.
+- Keep the Markdown plan or FTD checklist and evidence in sync. Resume against Git and CI as described in `references/integration.md`. Continue technical work autonomously within the authorized outcome and scope.
 - Keep roles responsibility-neutral. Runtime invocation details and optional model assignments belong in adapter or project/runtime configuration.
 
 ## Decision Gates
@@ -49,6 +49,6 @@ Report the lane, task branches/commits, frozen integration candidate, checks, re
 - `references/ftd.md`, `references/sdd.md` — lanes and phases.
 - `references/discovery.md`, `references/domain-model.md`, `references/prototype.md` — proportionate pre-spec exploration, optional interview, domain model and visual direction.
 - `references/task-contract.md`, `references/integration.md` — task isolation, integration and seam checks.
-- `references/publication-authorization.md` — scoped branch integration and remote authorization.
+- `references/publication-authorization.md`, `references/pull-request.md` — delivery authorization and PR evidence.
 - `references/gate.md`, `references/review-matrix.md` — review and approval.
 - `references/adapters/` — runtime capabilities, separate from common rules.

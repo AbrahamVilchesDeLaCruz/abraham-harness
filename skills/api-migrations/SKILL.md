@@ -18,14 +18,14 @@ metadata:
 Migrations:
 
 - `up` — applies the change
-- `down` — reverts it **completely** — always implement it
+- `down` — reverts what can be reversed safely. For irreversible changes, document forward recovery or verified restore, and fail explicitly if downgrade is unsupported
 - Raw SQL in migrations — never use the ORM's query builder (fragile across version changes)
 - Automatic schema synchronization is disabled in the ORM config — **always**
 - Migrations are the **single source of truth** for the schema
 
 Seeds:
 
-- Seeds are **idempotent** — check with `SELECT COUNT(*)` before inserting
+- Seeds are **idempotent under concurrent execution**. Enforce the identity with a unique constraint and use an atomic insert or update, or serialize work when multiple rows must change together
 - Use **raw SQL** — no entity repositories or query builder. That makes them independent of the ORM and of the entity types.
 - Run pending migrations before seeding — it guarantees the schema exists
 - Keep fixed UUIDs in production seeds for stable cross-references

@@ -20,7 +20,7 @@ A new project needs both steps. The `npx` command installs the tools, and `/proj
 1. Install the skills and agents for Claude Code, Codex and OpenCode, from the project's root:
 
    ```bash
-   npx github:AbrahamVilchesDeLaCruz/abraham-harness
+   npx github:AbrahamVilchesDeLaCruz/abraham-harness#v0.27.0
    ```
 
    This creates `.agents/skills/`, `.claude/skills/`, the role agents and `skills-lock.json`. It does not create `AGENTS.md` or `docs/`.
@@ -118,7 +118,7 @@ There are no personal/professional profiles or hard-coded model assignments. The
 | Builder iteration | Test the changed behavior or module; apply [test-first](skills/tdd-workflow/SKILL.md) to new observable behavior | Same focused loop |
 | Intermediate SDD phase | Test affected modules and their connections; build/typecheck and relevant lint/format | Same; a phase candidate is not the final feature candidate |
 | Final feature candidate | Run the complete local unit suite once; also gate a separately published or high-risk phase as required | Keep local checks focused; record the complete suite as pending CI |
-| Reviewer | Inspect the ledger independently and run focused tests for a concrete finding or risk | Same; do not repeat a full suite by default |
+| Reviewer | Inspect the ledger independently and request focused tests for a concrete finding or risk | Same; do not repeat a full suite by default |
 | PR CI | Typecheck, lint, complete API/client units with 80% global coverage per metric, then API and browser E2E; browser journeys run on desktop and phone | CI owns the complete suites |
 
 The shared [test conventions](skills/engineering-conventions/references/testing.md) exercise distinct API domain decisions through application unit tests; API E2E checks HTTP, guards, critical persistence and wiring. Focused integration or contract tests cover distinct risks that need real dependencies. Client unit tests cover independent decisions in mappers, repositories and hooks; a critical journey uses Container with HTTP interception or a browser when real integration matters. The browser suite stays small and runs its selected journeys on desktop and phone. Routine E2E belongs in PR CI; a focused local E2E is a diagnostic only when the project policy allows it. A required CI check remains **pending** until it actually passes on the candidate. An independently published phase needs its own CI gate; a high-risk intermediate phase needs early CI when the project requires it. Review approval does not substitute for CI.
@@ -178,9 +178,15 @@ Edit shared skills here, never in the generated skills directory of a project. E
 | Client | `client-accessibility`, `client-api`, `client-branding`, `client-container-presentational`, `client-hooks`, `client-pods`, `client-query`, `client-testing`, `client-ui-design`, `client-ux` |
 | Stack | `stack-nestjs`, `stack-typeorm`, `stack-rabbitmq`, `stack-observability`, `stack-react`, `stack-tanstack-query`, `stack-vitest` |
 
+## Runtime pilot
+
+Use an equivalent disposable project and the same base, scope and test policy in Claude Code, Codex and OpenCode. Measure one small fix, a change with a dependent task and a feature with independent tasks. For each eligible feature, run both serially and with isolated parallel writers. Record elapsed setup, execution, integration and CI time, available token counts, human interruptions, retries and evidence coverage in the PR. Use the same model where comparable and record provider and model otherwise.
+
+Interrupt a run after its first feature push. Resume from the Markdown plan and observed Git and PR state. Verify the dependency base, reviewer access, final review SHA and that only one PR was opened. A fixture or generated configuration verifies mechanics; record live provider behavior separately.
+
 ## Credits
 
-The plan skills follow the approach of [Codely's Agent Harness](https://github.com/CodelyTV/agent-harness), and the lanes follow [rsc-harness](https://github.com/ericrisco/rsc-harness). Both are written here in my own words.
+The plan skills and change-specific PR evidence draw on [Codely's Agent Harness](https://github.com/CodelyTV/agent-harness). The lanes and per-runtime diagnosis draw on [rsc-harness](https://github.com/ericrisco/rsc-harness). Coordinator recovery after worker exhaustion draws on [Gentle AI](https://github.com/Gentleman-Programming/gentle-ai/releases/tag/v4.6.0).
 
 ## License
 

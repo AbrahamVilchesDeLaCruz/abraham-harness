@@ -17,7 +17,7 @@ Use this skill to route every request and coordinate the role agents. The curren
 - For FTD and SDD, run `references/discovery.md` before specification. Ask about open product decisions; keep applicable domain-diagram and frontend-prototype choices separate.
 - SDD applies when decisions interact or work cannot be resumed from the request and `git diff` alone. Promote FTD to SDD using its document as input.
 - Follow project `AGENTS.md`, `docs/` and target-repository policy. These, plus the current user's explicit instruction, outrank generic/user-global skill defaults. A project CI-only verification rule overrides shared local full-suite defaults; do not import another repository's issue, label, size or publication rules.
-- Every role reads the relevant project Brain entries and shared skills, and records observed evidence for checks. Pass one source-linked discovery handoff forward; reviewers verify the candidate independently. Read with CodeGraph when available before shell exploration.
+- Every role reads the relevant project Brain entries and shared skills, and records observed evidence for checks. Pass one source-linked discovery handoff forward; reviewers verify the candidate independently. Use CodeGraph when useful for source exploration.
 - Review the final feature diff and high-risk phases under `references/gate.md`. Editorial docs and inert metadata skip the code gate. Select reviewers with `references/review-matrix.md`.
 - Keep small work inline or serial. Parallel builders require verified isolated workspaces. Only the coordinator integrates or publishes.
 - The coordinator integrates authorized task commits, resolves conflicts, runs seam checks and freezes the candidate before review.

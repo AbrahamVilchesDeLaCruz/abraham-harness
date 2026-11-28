@@ -7,6 +7,12 @@
   "bin": {
     "abraham-harness": "bin/abraham-harness.mjs"
   },
+  "files": [
+    "agents/",
+    "bin/",
+    "lib/",
+    "skills/"
+  ],
   "scripts": {
     "test": "node --test \"tests/*.test.mjs\" && node scripts/validate-skills.mjs skills agents"
   },

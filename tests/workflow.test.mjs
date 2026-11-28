@@ -59,13 +59,15 @@ test('review selection is contextual and approval binds all selected verdicts to
   const base = 'a'.repeat(40);
   const candidate = 'b'.repeat(40);
   const required = ['code-reviewer', 'security'];
-  const verdicts = required.map(role => ({ role, base, candidate, status: 'APPROVED' }));
+  const verdicts = required.map(role => ({ role, base, candidate, status: 'APPROVED', findings: [] }));
   const checks = [{ command: 'npm test', candidate, status: 'passed' }];
-  const record = { base, candidate, required, checks, verdicts };
+  const record = { base, candidate, required, requiredChecks: ['npm test'], checks, verdicts };
   assert.deepEqual(validateReview(record), []);
   assert.match(validateReview({ ...record, verdicts: verdicts.slice(0, 1) }).join(), /Missing verdict: security/);
   assert.match(validateReview({ ...record, verdicts: [...verdicts, verdicts[0]] }).join(), /duplicate/);
   assert.match(validateReview({ ...record, checks: [{ ...checks[0], status: 'pending' }] }).join(), /passing result/);
+  assert.match(validateReview({ ...record, checks: [] }).join(), /passing result/);
+  assert.match(validateReview({ ...record, verdicts: [verdicts[0], { ...verdicts[1], findings: [{ severity: 'blocker' }] }] }).join(), /Unresolved blocker/);
   for (const status of ['BLOCKED', 'CHANGES_REQUESTED']) {
     assert.match(validateReview({ ...record, verdicts: [verdicts[0], { ...verdicts[1], status }] }).join(), /Missing approval/);
   }

@@ -7,7 +7,7 @@ import { delimiter, join } from 'node:path';
 
 const BIN = new URL('../bin/abraham-harness.mjs', import.meta.url).pathname;
 const SHARED_SKILLS = new URL('../skills/', import.meta.url).pathname;
-const ROLES = ['spec-writer', 'architect', 'builder', 'security', 'ux', 'ui', 'code-reviewer', 'approver'];
+const ROLES = ['spec-writer', 'architect', 'builder', 'security', 'ux', 'ui', 'code-reviewer'];
 const REVIEWERS = ['security', 'ux', 'ui', 'code-reviewer'];
 
 function markInstalledSkills(base) {
@@ -62,9 +62,9 @@ test('Claude Code agents preload their skills and reviewers cannot edit', () => 
     assert.match(builder, /^name: builder$/m);
     assert.match(builder, /^skills:\n  - plan-phase-implement\n  - tdd-workflow$/m);
     assert.doesNotMatch(builder, /^tools:/m);
-    for (const role of [...REVIEWERS, 'approver']) {
+    for (const role of REVIEWERS) {
       const tools = read(project, `.claude/agents/${role}.md`).match(/^tools: (.*)$/m)[1];
-      assert.doesNotMatch(tools, /\b(Write|Edit)\b/, role);
+      assert.doesNotMatch(tools, /\b(Write|Edit|Bash)\b/, role);
     }
   });
 });
@@ -74,10 +74,12 @@ test('OpenCode agents are subagents, reviewers cannot edit, and the spec-writer 
     run();
     assert.match(read(project, '.opencode/agents/builder.md'), /^mode: subagent$/m);
     assert.doesNotMatch(read(project, '.opencode/agents/builder.md'), /^permission:/m);
-    assert.match(read(project, '.opencode/agents/security.md'), /^permission:\n  edit: deny$/m);
+    assert.match(read(project, '.opencode/agents/security.md'), /^permission:\n  "\*": deny\n  read: allow/m);
+    assert.doesNotMatch(read(project, '.opencode/agents/security.md'), /  bash: allow/);
+    assert.match(read(project, '.codex/agents/security.toml'), /^sandbox_mode = "read-only"$/m);
     assert.match(
       read(project, '.opencode/agents/spec-writer.md'),
-      /^permission:\n  edit:\n    "\*": deny\n    "\.agents\/plans\/\*\*": allow$/m,
+      /^  edit:\n    "\*": deny\n    "\.agents\/plans\/\*\*": allow$/m,
     );
   });
 });
@@ -113,18 +115,15 @@ test('architect is scoped to plan artifacts and receives the domain modeling ski
     assert.equal(run().status, 0);
     assert.match(read(project, '.claude/agents/architect.md'), /^skills:\n  - api-domain\n  - archify$/m);
     assert.match(read(project, '.claude/agents/architect.md'), /domain-model\/index\.html/);
-    assert.match(read(project, '.opencode/agents/architect.md'), /^permission:\n  edit:\n    "\*": deny\n    "\.agents\/plans\/\*\*": allow$/m);
+    assert.match(read(project, '.opencode/agents/architect.md'), /^  edit:\n    "\*": deny\n    "\.agents\/plans\/\*\*": allow$/m);
     assert.match(read(project, '.codex/agents/architect.toml'), /Load these skills before you work: `api-domain`, `archify`/);
   });
 });
 
-test('the approver synthesizes only the selected required reviewers', () => {
+test('reviewers receive the frozen-candidate contract without a model approver', () => {
   withProject(({ project, run }) => {
     run();
-    const approver = read(project, '.claude/agents/approver.md');
-    assert.match(approver, /review-matrix\.md/);
-    assert.match(approver, /every reviewer required/);
-    assert.match(approver, /Return `APPROVER: APPROVED` only when/);
+    assert.ok(!existsSync(join(project, '.claude/agents/approver.md')));
     for (const role of REVIEWERS) {
       assert.match(read(project, `.claude/agents/${role}.md`), new RegExp(`ROLE: ${role}\\n`), role);
       assert.match(read(project, `.claude/agents/${role}.md`), /VERDICT: APPROVED \| CHANGES_REQUESTED/, role);
@@ -283,7 +282,7 @@ test('a write failure reports one clear line, without a stack trace or a success
     writeFileSync(join(project, '.claude'), 'a file, not a directory');
     const r = run();
     assert.equal(r.status, 1);
-    assert.match(r.stderr, /^Could not write agents: /);
+    assert.match(r.stderr, /^Could not reconcile harness: /);
     assert.doesNotMatch(r.stderr, /\n\s+at /);
     assert.doesNotMatch(r.stdout, /agent files/);
   });
@@ -295,21 +294,11 @@ test('builders commit only on task branches and reviewers bind to the integrated
     const builder = read(project, '.claude/agents/builder.md');
     assert.match(builder, /Commit completed work locally on the assigned task branch/);
     assert.match(builder, /never push, merge/);
-    assert.match(read(project, '.claude/agents/approver.md'), /git rev-parse HEAD/);
+    assert.match(read(project, '.claude/agents/security.md'), /frozen diff and SHA evidence/);
     for (const role of REVIEWERS) {
       assert.match(read(project, `.claude/agents/${role}.md`), /CANDIDATE: <integrated commit SHA>/, role);
       assert.match(read(project, `.claude/agents/${role}.md`), /git diff <base>\.\.\.<candidate>/, role);
     }
-  });
-});
-
-test('one negative reviewer rejects the candidate, with no agent able to overrule it', () => {
-  withProject(({ project, run }) => {
-    run();
-    const approver = read(project, '.claude/agents/approver.md');
-    assert.match(approver, /Each block has `VERDICT: APPROVED`/);
-    assert.doesNotMatch(approver, /finding-verifier|REFUTED/);
-    assert.ok(!existsSync(join(project, '.claude/agents/finding-verifier.md')));
   });
 });
 
@@ -330,9 +319,11 @@ test('update removes generated agents of retired roles and keeps hand-written on
     const dir = join(project, '.claude/agents');
     writeFileSync(join(dir, 'finding-verifier.md'), '<!-- Generated by abraham-harness. Do not edit. -->\n');
     writeFileSync(join(dir, 'spec-planner.md'), 'mine\n');
+    writeFileSync(join(dir, 'approver.md'), '<!-- Generated by abraham-harness. Do not edit. -->\n');
     assert.equal(run('update').status, 0);
     assert.ok(!existsSync(join(dir, 'finding-verifier.md')));
     assert.equal(read(dir, 'spec-planner.md'), 'mine\n');
+    assert.ok(!existsSync(join(dir, 'approver.md')));
   });
 });
 
@@ -346,14 +337,14 @@ test('the Brain separates project docs from shared conventions in skills', () =>
   });
 });
 
-test('every role saves objections to Engram and reads with CodeGraph', () => {
+test('roles use relevant CodeGraph context and the coordinator persists findings once', () => {
   withProject(({ project, run }) => {
     run();
     for (const role of ROLES) {
       const text = read(project, `.claude/agents/${role}.md`);
-      assert.match(text, /Save every objection/, role);
+      assert.match(text, /saves durable, verified objections/, role);
       assert.match(text, /CodeGraph/, role);
     }
-    assert.match(read(project, '.claude/agents/security.md'), /save each `blocker` and `should-fix` finding/);
+    assert.match(read(project, '.claude/agents/security.md'), /coordinator, who can persist verified objections once/);
   });
 });

@@ -126,7 +126,7 @@ test('no AGENTS.md is created in a project without one', () => {
     const r = run('update');
     assert.equal(r.status, 0);
     assert.ok(!existsSync(join(project, 'AGENTS.md')));
-    assert.match(r.stdout, /Installing \d+ new harness skill\(s\)/);
+    assert.match(r.stdout, /Reconciling \d+ harness skill\(s\)/);
     assert.doesNotMatch(r.stdout, /Refreshed the skills tables/);
     assert.equal(r.stderr, '');
   });
@@ -186,10 +186,10 @@ for (const [name, text] of [
       write(project, 'AGENTS.md', text);
       const r = run('update');
       assert.equal(r.status, 0);
-      if (name.includes('prose')) {
+      if (name.includes('prose') || name.includes('fence')) {
         const result = read(project, 'AGENTS.md');
         assert.match(result, /MY RULES/);
-        assert.match(result, /The docs mention/);
+        assert.ok(result.startsWith(text.slice(0, text.indexOf("MY RULES") + "MY RULES".length)));
         assert.doesNotMatch(result, /\nOLD\n/);
       } else {
         assert.equal(read(project, 'AGENTS.md'), text);
@@ -198,6 +198,16 @@ for (const [name, text] of [
     });
   });
 }
+
+test('a complete fenced example is never refreshed', () => {
+  withProject(({ project, run }) => {
+    const text = `~~~ markdown\r\n${START}\r\nKEEP THIS\r\n${END}\r\n~~~\r\n`;
+    write(project, 'AGENTS.md', text);
+    const r = run('update');
+    assert.equal(r.status, 0);
+    assert.equal(read(project, 'AGENTS.md'), text);
+  });
+});
 
 test('both markers quoted in prose never receive the table', () => {
   withProject(({ project, run }) => {
@@ -217,6 +227,7 @@ test('markers with CRLF line endings still work', () => {
     assert.doesNotMatch(result, /OLD/);
     assert.match(result, /^Mine\r\n/);
     assert.match(result, /After\r\n$/);
+    assert.doesNotMatch(result, /(?<!\r)\n/);
   });
 });
 

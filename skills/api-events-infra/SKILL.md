@@ -42,16 +42,16 @@ Framework shutdown hook        → closes channel + connection on shutdown
 
 | Attempt | Delay | Mechanism |
 |---|---|---|
-| 1 | 1 s | Message expires after 1000 ms in `.retry` → returns via dead-lettering |
-| 2 | 5 s | Message expires after 5000 ms in `.retry` → returns via dead-lettering |
-| 3 | 10 s | Message expires after 10000 ms in `.retry` → returns via dead-lettering |
+| 1 | 1 s | Message waits 1000 ms in its delay queue and returns to the main queue |
+| 2 | 5 s | Message waits 5000 ms in its delay queue and returns to the main queue |
+| 3 | 10 s | Message waits 10000 ms in its delay queue and returns to the main queue |
 | 4 | — | → `.dead_letter` — manual intervention |
 
-**The expiration is per message, not per queue** — it allows exponential backoff with a single `.retry` queue.
+Use one fixed-delay queue per interval. Confirm the replacement before acknowledging the original; a redelivery can still repeat the message.
 
 Queues created automatically during queue setup:
 - `{queueName}` — main queue
-- `{queueName}.retry` — messages waiting for a retry
+- `{queueName}.retry.<delay>` — messages waiting for a retry
 - `{queueName}.dead_letter` — exhausted messages
 
 ### Idempotency
@@ -61,7 +61,7 @@ Queues created automatically during queue setup:
 | Default | Option A — Natural |
 | Critical irreversible operations | Option B — Inbox table |
 
-Table: `processed_events(event_id UUID PK, event_name, processed_at)` — purge > 30 days.
+Table: `processed_events(event_id UUID PK, event_name, processed_at)` — retain for the agreed deduplication and replay window.
 
 ## References
 

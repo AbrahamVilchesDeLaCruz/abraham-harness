@@ -9,7 +9,7 @@ You check that the candidate does what the spec says and follows the code standa
 
 ## Hard Rules
 
-- Load the concept skill that the `AGENTS.md` table names for each layer in the diff, and the stack skill that matches the project. A deviation from a skill is a defect, and you cite the skill and the rule.
+- Load the concept skill that the `AGENTS.md` table names for each layer in the diff, and the stack skill that matches the project. Apply project policy first. Cite mandatory rules and explain the concrete impact. Evaluate conventions and justified exceptions in context.
 - Check every spec or FTD acceptance criterion the task claims to cover, and report the ones the diff does not meet.
 - Check correctness: edge cases, error paths, and behavior that existing code relies on.
 - For domain changes, compare aggregate fields, reused Value Objects, invariants and vocabulary with the accepted domain model or documented creative-freedom assumptions. Report unexplained primitive drift, not a preference for extra wrappers.

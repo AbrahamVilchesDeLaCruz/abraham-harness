@@ -146,6 +146,7 @@ for (const args of [['install'], ['check'], ['update', '--help'], ['update', '--
 test('a failing skills CLI leaves the modules alone', () => {
   withProject(({ project, run }) => {
     install(project);
+    rmSync(join(project, '.agents/skills/factory-workflow'), { recursive: true });
     const old = stamped('# An older version\n');
     writeFileSync(join(project, 'make/local.mk'), old);
     assert.equal(run('update').status, 3);

@@ -18,7 +18,7 @@ metadata:
 - The `Logger` and `AppMetrics` interfaces live in `shared/domain/` — never import logging, metrics or tracing libraries in domain/application
 - Log **business events** in use cases (`info`)
 - Increment business metrics in use cases with `this.metrics.increment('app_<metric>_total')`
-- Log **errors with the full `Error` object** — it preserves the stack trace
+- Serialize errors with a safe classification and a redacted stack when useful. Remove secrets, personal data and raw request or response data from messages, causes, custom fields and context before export
 - **Do not log in controllers** — the filter and interceptor do it automatically
 - Re-throw in subscribers after logging — for retry and DLQ
 - `APP_METRICS` is registered in the observability module, not in the shared module

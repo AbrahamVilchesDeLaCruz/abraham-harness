@@ -26,11 +26,11 @@ The observed output per completed task.
 The single next step, so an interruption costs nothing.
 ```
 
-1. Follow `discovery.md`, including its interview invitation and applicable frontend design choice. Write the discovery handoff in this document before the first change. Keep it short, even for a small change, because it is what survives an interruption.
+1. Follow `discovery.md`, including relevant product and design decisions. Write the discovery handoff in this document before the first change. Keep it short, even for a small change, because it is what survives an interruption.
 2. Create one or more task contracts from the handoff. Split only work with independent dependencies and authorized paths.
-3. Delegate tasks under `task-contract.md`; use parallel builders only with isolated workspaces.
+3. Execute small work inline or serially. Delegate where useful under `task-contract.md` and use parallel builders only with verified isolated workspaces.
 4. Integrate task commits and run seam checks in `integration.md`. The single FTD candidate is the final feature candidate. Apply the project's verification policy first; the shared default runs full local units, while a CI-only project keeps local checks focused. CI runs the required complete suite before merge or deployment.
-5. Run the gate in `gate.md` when the change touches code.
-6. If delivery is explicitly authorized, follow `publication-authorization.md`. Otherwise report the frozen candidate to the user and stop.
+5. Run the gate in `gate.md` when the review matrix applies.
+6. Use `publication-authorization.md` for branch setup, first push and final PR. Report the candidate and evidence when remote delivery is outside the authorized scope.
 
 Do not create a spec or a plan in this lane. If decisions start to affect each other, or the work turns out to be large, promote it to SDD with this document as its input.

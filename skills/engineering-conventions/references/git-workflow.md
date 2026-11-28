@@ -59,7 +59,7 @@ chore/update-dependencies
 
 **Rebase and merge is disabled.**
 
-The branch names and merge table below are defaults for the example repository, not universal authority. Follow the active project's `AGENTS.md`, branch protection, PR template and CI for its actual rules. The user must explicitly authorize each parent-branch or remote mutation; a named push/PR authorization does not implicitly authorize a merge. Generic skills do not add issue-link or changed-line requirements that the target repository does not have.
+The branch names and merge table below are defaults for the example repository, not universal authority. Follow the active project's `AGENTS.md`, branch protection, PR template and CI for its actual rules. Requested implementation authorizes necessary local integration into its feature branch. One scoped authorization may cover early and final feature pushes and PR creation. Merge requires separate authority. Generic skills do not add issue-link or changed-line requirements that the target repository does not have.
 
 ### Worktree phases and child PRs
 

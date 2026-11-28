@@ -1,5 +1,5 @@
 # OpenCode adapter
 
-Use the generated role definitions under `.opencode/agents/` for responsibilities. Before parallel work, verify the active session can create and address a distinct Git worktree for each builder; if not, use the serial fallback in `integration.md`. Edit permissions do not create a separate checkout. Keep any project-specific model mapping outside the common skill.
+Use the generated `.opencode/agents/` definitions through native delegation from a primary agent. They are subagents. A headless session that expects a primary role can fall back to its default primary if passed a subagent name. Verify the effective role and directory before accepting evidence. To launch bounded headless sessions, use an explicitly configured primary in the prepared worktree.
 
-When a builder reports, cancel any background task it left running (such as a wait loop) and confirm none remains, so a finished builder does not look alive.
+Generated reviewers use an allowlist of inspection tools. Confirm effective runtime and connector permissions. Run diagram or plan writers with only plan output writes, or have the coordinator write after receiving read-only suggestions. Verify each parallel task's actual workspace and base. Use the serial fallback when the runtime cannot provide distinct writable workspaces.

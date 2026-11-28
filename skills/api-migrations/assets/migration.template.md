@@ -25,7 +25,7 @@ export class Migration__TIMESTAMP__ {
   }
 
   public async down(db): Promise<void> {
-    // Revert completely — always implement
+    // Revert safely or fail explicitly and document the recovery path
     await db.query(`DROP TABLE IF EXISTS "__table_name__"`);
   }
 }

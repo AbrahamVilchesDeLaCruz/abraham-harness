@@ -18,7 +18,7 @@ Use this skill whenever work changes a repository interface, its use-case contra
 - Do not add field-specific or filter-combination finder methods. The use case or domain service builds `Criteria`; the repository consumes it. Load `api-criteria` for filter, ordering and pagination rules.
 - Return domain aggregates from aggregate repositories, never persistence entities. Keep entity-to-domain and domain-to-entity mapping inside the adapter.
 - Keep ORM, query-builder, SQL and transport concepts out of the port and application layer. Name concrete adapters for their persistence technology.
-- Mock the port in application tests; the real adapter and database are exercised only through controller E2E tests, never in an integration test. Load `api-testing` for test placement and doubles.
+- Mock the port in application tests. Use controller E2E for its normal wiring and focused adapter checks when a real dependency is needed for a distinct risk. Load `api-testing` for test placement and doubles.
 - Add a repository method only for a distinct domain capability or retrieval requirement, not as a shortcut around the agreed query model. Record an unclear boundary as a question rather than silently changing it.
 
 ## Decision Gates

@@ -85,7 +85,10 @@ export class PinoLogger implements Logger {
   }
 
   error(message: string, error?: Error, context?: LogContext): void {
-    this.logger.error({ ...context, err: error }, message);
+    // Callers supply a fixed message and a context containing only reviewed fields.
+    // Raw error messages, causes, stack traces and custom fields can contain secrets.
+    const errorType = error instanceof TypeError ? 'type_error' : 'unexpected_error';
+    this.logger.error({ ...context, ...(error ? { errorType } : {}) }, message);
   }
 
   debug(message: string, context?: LogContext): void {
